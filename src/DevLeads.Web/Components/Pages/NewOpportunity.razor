@@ -1,0 +1,71 @@
+@page "/opportunities/new"
+@rendermode InteractiveServer
+@inject IServiceScopeFactory ScopeFactory
+@inject NavigationManager Nav
+<PageTitle>New lead · DevLeads</PageTitle>
+
+<div class="rr-page-head">
+    <div>
+        <h1>Add lead manually</h1>
+        <div class="rr-sub">Runs the pre-filter, a single AI triage pass, and scoring — same pipeline as discovery.</div>
+    </div>
+    <a class="rr-btn" href="opportunities">← Back</a>
+</div>
+
+<div class="rr-panel" style="max-width:760px">
+    <div class="rr-field">
+        <label>Title / summary of the problem</label>
+        <input class="rr-input" @bind="_title" placeholder="e.g. ASP.NET Core app returning 500 after Azure deploy" />
+    </div>
+    <div class="rr-field">
+        <label>Full post / details</label>
+        <textarea class="rr-textarea" @bind="_body" placeholder="Paste the original post, error messages, and what changed recently…"></textarea>
+    </div>
+    <div class="rr-grid-2">
+        <div class="rr-field">
+            <label>Original source URL</label>
+            <input class="rr-input" @bind="_url" placeholder="https://…" />
+        </div>
+        <div class="rr-field">
+            <label>Author / handle (optional)</label>
+            <input class="rr-input" @bind="_author" placeholder="username" />
+        </div>
+    </div>
+    <div class="rr-field">
+        <label>Author profile URL (optional)</label>
+        <input class="rr-input" @bind="_authorUrl" placeholder="https://…" />
+    </div>
+
+    @if (_error is not null) { <div class="rr-flash err">@_error</div> }
+
+    <div class="rr-btn-row">
+        <button class="rr-btn primary" disabled="@_busy" @onclick="Create">@(_busy ? "Triaging…" : "Create & triage")</button>
+    </div>
+</div>
+
+@code {
+    private string _title = "", _body = "", _url = "", _author = "", _authorUrl = "";
+    private bool _busy;
+    private string? _error;
+
+    private async Task Create()
+    {
+        if (string.IsNullOrWhiteSpace(_title)) { _error = "A title is required."; return; }
+        if (string.IsNullOrWhiteSpace(_url)) { _error = "An original source URL is required."; return; }
+        _busy = true; _error = null;
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var ingest = scope.ServiceProvider.GetRequiredService<LeadIngestionService>();
+            var opp = await ingest.CreateManualAsync(_title.Trim(), _body.Trim(),
+                _url.Trim(), string.IsNullOrWhiteSpace(_author) ? null : _author.Trim(),
+                string.IsNullOrWhiteSpace(_authorUrl) ? null : _authorUrl.Trim(), default);
+            Nav.NavigateTo($"opportunities/{opp.Id}");
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+            _busy = false;
+        }
+    }
+}

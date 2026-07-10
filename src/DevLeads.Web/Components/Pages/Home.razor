@@ -1,0 +1,183 @@
+@page "/"
+@inject IDbContextFactory<DevLeadsDbContext> DbFactory
+<PageTitle>Dashboard · DevLeads</PageTitle>
+
+<div class="rr-page-head">
+    <div>
+        <h1>Command center</h1>
+        <div class="rr-sub">Discover urgent software emergencies, triage cheaply, respond specifically.</div>
+    </div>
+    <a class="rr-btn primary" href="opportunities">View all leads →</a>
+</div>
+
+@if (_loading)
+{
+    <div class="rr-empty">Loading…</div>
+}
+else
+{
+    <div class="rr-cards">
+        <div class="rr-card crit">
+            <div class="k">Critical now</div>
+            <div class="v">@_criticalCount</div>
+            <div class="foot">Immediate alert band (85–100)</div>
+        </div>
+        <div class="rr-card accent">
+            <div class="k">New high-score</div>
+            <div class="v">@_highCount</div>
+            <div class="foot">Score ≥ 70, awaiting action</div>
+        </div>
+        <div class="rr-card">
+            <div class="k">Drafts to approve</div>
+            <div class="v">@_draftsPending</div>
+            <div class="foot"><a href="drafts">Approval queue →</a></div>
+        </div>
+        <div class="rr-card">
+            <div class="k">AI review needed</div>
+            <div class="v">@_aiReview</div>
+            <div class="foot">Triage failed / low confidence</div>
+        </div>
+        <div class="rr-card">
+            <div class="k">Contacted</div>
+            <div class="v">@_contacted</div>
+            <div class="foot">@_replies replies received</div>
+        </div>
+        <div class="rr-card">
+            <div class="k">Quotes sent</div>
+            <div class="v">@_quotesSent</div>
+            <div class="foot">@_paymentPending awaiting payment</div>
+        </div>
+        <div class="rr-card">
+            <div class="k">Work in progress</div>
+            <div class="v">@_inProgress</div>
+            <div class="foot">@_completedUnpaid completed, unpaid</div>
+        </div>
+        <div class="rr-card">
+            <div class="k">Follow-ups due</div>
+            <div class="v">@_followUps</div>
+            <div class="foot">Scheduled reminders</div>
+        </div>
+    </div>
+
+    <div class="rr-panel">
+        <div class="rr-panel-head">
+            <h2>Top opportunities</h2>
+            <a class="rr-btn sm" href="opportunities">All →</a>
+        </div>
+        @if (_top.Count == 0)
+        {
+            <div class="rr-empty">No active opportunities yet. Discovery runs automatically, or add one manually.</div>
+        }
+        else
+        {
+            <table class="rr-table">
+                <thead>
+                    <tr>
+                        <th>Score</th><th>Priority</th><th>Opportunity</th><th>Stack</th>
+                        <th title="Did the author ask for someone to actually help (vs. just information)?">Assistance requested</th>
+                        <th title="Did the author indicate they'd pay someone to solve it?">Compensation offered</th>
+                        <th>Fee</th><th>Age</th><th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var o in _top)
+                    {
+                        var assist = UiHelpers.YesNo(o.AssistanceRequested);
+                        var comp = UiHelpers.YesNo(UiHelpers.CompensationOffered(o));
+                        <tr>
+                            <td><span class="rr-score">@o.Score.ToString("0")</span></td>
+                            <td><span class="@UiHelpers.PriorityClass(o.Priority)">@o.Priority</span></td>
+                            <td class="rr-title-cell">
+                                <a href="opportunities/@o.Id">@o.Title</a>
+                                <div class="src">
+                                    @o.SourceKey · @o.ProblemType
+                                    · <a href="@o.SourceUrl" target="_blank" rel="noopener noreferrer">Original source ↗</a>
+                                </div>
+                            </td>
+                            <td>@string.Join(", ", UiHelpers.ParseStringList(o.DetectedStackJson))</td>
+                            <td><span class="@assist.Css">@assist.Label</span></td>
+                            <td><span class="@comp.Css">@comp.Label</span></td>
+                            <td>@UiHelpers.Fee(o)</td>
+                            <td><span class="@UiHelpers.AgeClass(o.PostedAt)">@UiHelpers.Age(o.PostedAt)</span></td>
+                            <td><span class="@UiHelpers.StatusClass(o.Status)">@UiHelpers.Spaced(o.Status)</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+}
+
+@code {
+    private bool _loading = true;
+    private int _criticalCount, _highCount, _draftsPending, _aiReview, _contacted, _replies,
+                _quotesSent, _paymentPending, _inProgress, _completedUnpaid, _followUps;
+    private List<Opportunity> _top = new();
+
+    private static readonly OpportunityStatus[] Dead =
+        { OpportunityStatus.Rejected, OpportunityStatus.PreFilteredRejected, OpportunityStatus.Lost,
+          OpportunityStatus.DoNotContact, OpportunityStatus.Won, OpportunityStatus.Paid };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var now = DateTimeOffset.UtcNow;
+
+        _criticalCount = await db.Opportunities.CountAsync(o => o.Priority == Priority.Critical && !Dead.Contains(o.Status));
+        _highCount = await db.Opportunities.CountAsync(o => o.Score >= 70 &&
+            (o.Status == OpportunityStatus.New || o.Status == OpportunityStatus.AiTriaged
+             || o.Status == OpportunityStatus.NeedsReview || o.Status == OpportunityStatus.DraftReady));
+        _draftsPending = await db.OutreachAttempts.CountAsync(a => a.Status == OutreachStatus.PendingApproval);
+        _aiReview = await db.Opportunities.CountAsync(o => o.AiJobStatus == AiJobStatus.NeedsManualReview);
+        _contacted = await db.Opportunities.CountAsync(o => o.Status == OpportunityStatus.Contacted);
+        _replies = await db.Opportunities.CountAsync(o => o.Status == OpportunityStatus.Responded || o.Status == OpportunityStatus.Qualified);
+        _quotesSent = await db.Quotes.CountAsync(q => q.Status == QuoteStatus.Sent || q.Status == QuoteStatus.PaymentPending);
+        _paymentPending = await db.Quotes.CountAsync(q => q.Status == QuoteStatus.Sent || q.Status == QuoteStatus.Overdue);
+        _inProgress = await db.Opportunities.CountAsync(o => o.Status == OpportunityStatus.InProgress);
+        _completedUnpaid = await db.Opportunities.CountAsync(o => o.Status == OpportunityStatus.Fixed || o.Status == OpportunityStatus.PaymentPending);
+        var followUpDates = await db.Opportunities.AsNoTracking()
+            .Where(o => o.NextFollowUpAt != null && o.Status != OpportunityStatus.Won && o.Status != OpportunityStatus.Lost)
+            .Select(o => o.NextFollowUpAt).ToListAsync();
+        _followUps = followUpDates.Count(f => f <= now);
+
+        var topCandidates = await db.Opportunities.AsNoTracking()
+            .Where(o => !Dead.Contains(o.Status))
+            .OrderByDescending(o => o.Score).Take(50).ToListAsync();
+        var topIds = topCandidates.Select(o => o.Id).ToHashSet();
+        var rawBodies = await db.RawSourceItems.AsNoTracking()
+            .Where(r => r.OpportunityId != null && topIds.Contains(r.OpportunityId.Value))
+            .Select(r => new { r.OpportunityId, r.BodyText })
+            .ToListAsync();
+        var bodyByOpportunity = rawBodies
+            .GroupBy(r => r.OpportunityId!.Value)
+            .ToDictionary(g => g.Key, g => string.Join('\n', g.Select(r => r.BodyText)));
+
+        _top = topCandidates
+            .Where(o => IsDashboardLead(o, bodyByOpportunity))
+            .DistinctBy(o => DashboardDuplicateKey(o, bodyByOpportunity))
+            .Take(10)
+            .ToList();
+
+        _loading = false;
+    }
+
+    private static bool IsDashboardLead(Opportunity o, IReadOnlyDictionary<long, string> bodyByOpportunity)
+    {
+        bodyByOpportunity.TryGetValue(o.Id, out var body);
+        var text = $"{o.Title}\n{o.Summary}\n{body}";
+        return LeadQualityRules.IsDashboardWorthyLead(
+            o.SourceKey,
+            o.PaymentIntent,
+            o.AssistanceRequested,
+            o.FeeIsEstimate,
+            text);
+    }
+
+    private static string DashboardDuplicateKey(Opportunity o, IReadOnlyDictionary<long, string> bodyByOpportunity)
+    {
+        bodyByOpportunity.TryGetValue(o.Id, out var body);
+        var title = LeadQualityRules.NormalizeDuplicateTitle(o.Title);
+        var host = LeadQualityRules.HostFromUrl(o.SourceUrl) ?? o.SourceKey;
+        return $"{o.SourceKey}|{host}|{title}|{LeadQualityRules.IsNonHirableVendorSupportRequest($"{o.Title}\n{o.Summary}\n{body}")}";
+    }
+}

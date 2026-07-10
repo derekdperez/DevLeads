@@ -1,0 +1,236 @@
+@page "/opportunities"
+@rendermode InteractiveServer
+@inject IDbContextFactory<DevLeadsDbContext> DbFactory
+<PageTitle>Opportunities · DevLeads</PageTitle>
+
+<div class="rr-page-head">
+    <div>
+        <h1>Opportunities</h1>
+        <div class="rr-sub">@_all.Count leads · @_filtered.Count shown</div>
+    </div>
+    <a class="rr-btn primary" href="opportunities/new">+ Add lead manually</a>
+</div>
+
+<div class="rr-filters">
+    <div class="rr-pill-toggle">
+        @foreach (var f in Filters)
+        {
+            <button class="rr-btn sm @(_filter == f.Key ? "primary" : "")" @onclick="() => SetFilter(f.Key)">@f.Label</button>
+        }
+    </div>
+    <div class="rr-filter-grid">
+        <input class="rr-input" placeholder="Search title, stack, source, author, terms..." @bind="_search" @bind:event="oninput" @bind:after="Apply" />
+        <select class="rr-select" @bind="_source" @bind:after="Apply">
+            <option value="">All sources</option>
+            @foreach (var source in Sources)
+            {
+                <option value="@source">@source</option>
+            }
+        </select>
+        <select class="rr-select" @bind="_category" @bind:after="Apply">
+            <option value="">All categories</option>
+            @foreach (var category in Categories)
+            {
+                <option value="@category">@category</option>
+            }
+        </select>
+        <select class="rr-select" @bind="_status" @bind:after="Apply">
+            <option value="">All statuses</option>
+            @foreach (var status in Statuses)
+            {
+                <option value="@status">@Spaced(status)</option>
+            }
+        </select>
+        <input class="rr-input" type="number" min="0" max="100" step="5" title="Minimum score" @bind="_minScore" @bind:event="oninput" @bind:after="Apply" />
+        <select class="rr-select" @bind="_sort" @bind:after="Apply">
+            <option value="score">Score</option>
+            <option value="fresh">Freshness</option>
+            <option value="urgency">Urgency</option>
+            <option value="value">Business value</option>
+            <option value="contact">Reachability</option>
+        </select>
+    </div>
+</div>
+
+<div class="rr-panel">
+    @if (_filtered.Count == 0)
+    {
+        <div class="rr-empty">No opportunities match this filter.</div>
+    }
+    else
+    {
+        <div class="rr-table-scroll">
+            <table class="rr-table">
+                <thead>
+                    <tr>
+                        <th>Score</th><th>Priority</th><th>Opportunity</th><th>Signals</th><th>Fit</th>
+                        <th>Fee</th><th>Age</th><th>AI</th><th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var o in _filtered)
+                    {
+                        var stack = UiHelpers.ParseStringList(o.DetectedStackJson);
+                        var allTerms = UiHelpers.ParseStringList(o.MatchedTermsJson);
+                        var payTerms = allTerms
+                            .Where(t => t.StartsWith("pay:", StringComparison.OrdinalIgnoreCase))
+                            .Take(2)
+                            .ToList();
+                        var terms = allTerms
+                            .Where(t => !t.StartsWith("tech:", StringComparison.OrdinalIgnoreCase) &&
+                                        !t.StartsWith("business:", StringComparison.OrdinalIgnoreCase) &&
+                                        !t.StartsWith("pay:", StringComparison.OrdinalIgnoreCase))
+                            .Take(3 - Math.Min(payTerms.Count, 2))
+                            .ToList();
+                        <tr>
+                            <td><span class="rr-score">@o.Score.ToString("0")</span></td>
+                            <td><span class="@UiHelpers.PriorityClass(o.Priority)">@o.Priority</span></td>
+                            <td class="rr-title-cell">
+                                <a href="opportunities/@o.Id">@o.Title</a>
+                                <div class="src">
+                                    @o.SourceKey · @(string.IsNullOrEmpty(o.ProblemType) ? "untriaged" : o.ProblemType)
+                                    · <a href="@o.SourceUrl" target="_blank" rel="noopener noreferrer">Original source ↗</a>
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(o.AuthorName))
+                                {
+                                    <div class="src">@o.AuthorName</div>
+                                }
+                            </td>
+                            <td>
+                                <div class="rr-signal-list">
+                                    @if (o.PaymentIntent == "Explicit" || payTerms.Count > 0)
+                                    {
+                                        <span class="rr-chip active" title="Explicit willingness to pay">💰 pay intent</span>
+                                    }
+                                    else if (o.PaymentIntent == "Implied")
+                                    {
+                                        <span class="rr-chip" title="Business impact implies they would pay">💼 implied pay</span>
+                                    }
+                                    @foreach (var term in payTerms)
+                                    {
+                                        <span class="rr-chip active">@term.Replace("pay:", "")</span>
+                                    }
+                                    @foreach (var term in terms)
+                                    {
+                                        <span class="rr-chip active">@term.Replace("urgency:", "")</span>
+                                    }
+                                    @if (terms.Count == 0 && payTerms.Count == 0)
+                                    {
+                                        <span class="rr-sub">No matched terms</span>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <div>@(stack.Count == 0 ? "Unknown" : string.Join(", ", stack.Take(4)))</div>
+                                <div class="rr-sub">U @o.UrgencyScore.ToString("0") · V @o.BusinessValueScore.ToString("0") · R @o.ReachabilityScore.ToString("0")</div>
+                            </td>
+                            <td>@UiHelpers.Fee(o)</td>
+                            <td>@UiHelpers.Age(o.PostedAt)</td>
+                            <td><span class="@UiHelpers.AiStatusClass(o.AiJobStatus)">@UiHelpers.Spaced(o.AiJobStatus)</span></td>
+                            <td><span class="@UiHelpers.StatusClass(o.Status)">@UiHelpers.Spaced(o.Status)</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private record FilterDef(string Key, string Label, Func<Opportunity, bool> Predicate);
+
+    private static readonly OpportunityStatus[] Dead =
+        { OpportunityStatus.Rejected, OpportunityStatus.PreFilteredRejected, OpportunityStatus.Lost, OpportunityStatus.DoNotContact };
+
+    private static readonly FilterDef[] Filters =
+    {
+        new("active", "Active", o => !Dead.Contains(o.Status)),
+        new("best", "Best leads", o => !Dead.Contains(o.Status) && o.Score >= 70 && o.UrgencyScore >= 60),
+        new("pay", "💰 Pay intent", o => !Dead.Contains(o.Status) &&
+            (o.PaymentIntent is "Explicit" or "Implied" ||
+             UiHelpers.ParseStringList(o.MatchedTermsJson).Any(t => t.StartsWith("pay:", StringComparison.OrdinalIgnoreCase)))),
+        new("fresh", "Fresh", o => !Dead.Contains(o.Status) && o.PostedAt >= DateTimeOffset.UtcNow.AddHours(-8)),
+        new("contactable", "Contactable", o => !Dead.Contains(o.Status) && !string.IsNullOrWhiteSpace(o.AuthorProfileUrl)),
+        new("payments", "Payments", o => !Dead.Contains(o.Status) && MatchesAny(o, "stripe", "checkout", "payment", "woocommerce", "shopify", "cart", "orders")),
+        new("dotnet", ".NET/SQL", o => !Dead.Contains(o.Status) && MatchesAny(o, ".net", "asp.net", "blazor", "iis", "sql server", "azure")),
+        new("critical", "Critical", o => o.Priority == Priority.Critical),
+        new("high", "High+", o => o.Score >= 70),
+        new("review", "Needs review", o => o.Status == OpportunityStatus.NeedsReview || o.AiJobStatus == AiJobStatus.NeedsManualReview),
+        new("drafts", "Draft ready", o => o.Status == OpportunityStatus.DraftReady),
+        new("rejected", "Rejected", o => Dead.Contains(o.Status)),
+        new("won", "Won/Paid", o => o.Status is OpportunityStatus.Won or OpportunityStatus.Paid),
+        new("all", "All", _ => true),
+    };
+
+    private string _filter = "active";
+    private string _search = "";
+    private string _source = "";
+    private string _category = "";
+    private string _status = "";
+    private string _sort = "score";
+    private int _minScore;
+    private List<Opportunity> _all = new();
+    private List<Opportunity> _filtered = new();
+
+    private IReadOnlyList<string> Sources => _all.Select(o => o.SourceKey)
+        .Where(s => !string.IsNullOrWhiteSpace(s))
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .OrderBy(s => s)
+        .ToList();
+
+    private IReadOnlyList<string> Categories => _all.Select(o => o.ProblemType)
+        .Where(s => !string.IsNullOrWhiteSpace(s))
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .OrderBy(s => s)
+        .ToList();
+
+    private IReadOnlyList<string> Statuses => _all.Select(o => o.Status.ToString())
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .OrderBy(s => s)
+        .ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        _all = await db.Opportunities.AsNoTracking().OrderByDescending(o => o.Score).ToListAsync();
+        Apply();
+    }
+
+    private void SetFilter(string key) { _filter = key; Apply(); }
+
+    private void Apply()
+    {
+        var predicate = Filters.First(f => f.Key == _filter).Predicate;
+        var s = _search.Trim();
+        var query = _all.Where(o => predicate(o) &&
+            o.Score >= _minScore &&
+            (string.IsNullOrWhiteSpace(_source) || o.SourceKey.Equals(_source, StringComparison.OrdinalIgnoreCase)) &&
+            (string.IsNullOrWhiteSpace(_category) || o.ProblemType.Equals(_category, StringComparison.OrdinalIgnoreCase)) &&
+            (string.IsNullOrWhiteSpace(_status) || o.Status.ToString().Equals(_status, StringComparison.OrdinalIgnoreCase)) &&
+            (s.Length == 0 || SearchText(o).Contains(s, StringComparison.OrdinalIgnoreCase)));
+
+        _filtered = Sort(query).ToList();
+    }
+
+    private IEnumerable<Opportunity> Sort(IEnumerable<Opportunity> query) => _sort switch
+    {
+        "fresh" => query.OrderByDescending(o => o.PostedAt).ThenByDescending(o => o.Score),
+        "urgency" => query.OrderByDescending(o => o.UrgencyScore).ThenByDescending(o => o.Score),
+        "value" => query.OrderByDescending(o => o.BusinessValueScore).ThenByDescending(o => o.Score),
+        "contact" => query.OrderByDescending(o => o.ReachabilityScore).ThenByDescending(o => o.Score),
+        _ => query.OrderByDescending(o => o.Score).ThenByDescending(o => o.PostedAt)
+    };
+
+    private static string SearchText(Opportunity o) =>
+        string.Join('\n', o.Title, o.Summary, o.SourceKey, o.AuthorName, o.AuthorProfileUrl,
+            o.SourceUrl, o.ProblemType, o.DetectedStackJson, o.MatchedTermsJson, o.EstimatedCause, o.SuggestedFirstStep);
+
+    private static bool MatchesAny(Opportunity o, params string[] needles)
+    {
+        var text = SearchText(o);
+        return needles.Any(n => text.Contains(n, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static string Spaced(string value) =>
+        System.Text.RegularExpressions.Regex.Replace(value, "(?<=[a-z])(?=[A-Z])", " ");
+}

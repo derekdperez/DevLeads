@@ -1,0 +1,94 @@
+@page "/drafts"
+@rendermode InteractiveServer
+@inject IDbContextFactory<DevLeadsDbContext> DbFactory
+@inject IServiceScopeFactory ScopeFactory
+<PageTitle>Approval queue · DevLeads</PageTitle>
+
+<div class="rr-page-head">
+    <div>
+        <h1>Approval queue</h1>
+        <div class="rr-sub">Drafts awaiting your review. Nothing is ever sent automatically in HITL mode.</div>
+    </div>
+</div>
+
+@if (_flash is not null) { <div class="rr-flash @(_flashOk ? "ok" : "err")">@_flash</div> }
+
+<div class="rr-panel">
+    @if (_items.Count == 0)
+    {
+        <div class="rr-empty">Nothing awaiting approval. High-score leads generate drafts automatically.</div>
+    }
+    else
+    {
+        @foreach (var row in _items)
+        {
+            <div style="border:1px solid var(--line);border-radius:8px;padding:.9rem;margin-bottom:.8rem">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem">
+                    <div>
+                        <a href="opportunities/@row.Attempt.OpportunityId" style="font-weight:600">@row.Title</a>
+                        <div class="rr-sub">
+                            @row.Attempt.TemplateKey · @row.Attempt.Channel · @UiHelpers.Spaced(row.Attempt.Status)
+                            · <a href="@row.SourceUrl" target="_blank" rel="noopener noreferrer">Original source ↗</a>
+                        </div>
+                    </div>
+                    <span class="rr-score">@row.Score.ToString("0")</span>
+                </div>
+                <div class="rr-quote">@row.Attempt.Body</div>
+                <div class="rr-btn-row" style="margin-top:.6rem">
+                    @if (row.Attempt.Status == OutreachStatus.PendingApproval)
+                    {
+                        <button class="rr-btn sm good" @onclick="() => Approve(row.Attempt.Id)">✔ Approve</button>
+                    }
+                    <button class="rr-btn sm primary" @onclick="() => Send(row.Attempt.Id)">➤ Record sent</button>
+                    <button class="rr-btn sm danger" @onclick="() => Cancel(row.Attempt.Id)">✖ Cancel</button>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private record Row(OutreachAttempt Attempt, string Title, string SourceUrl, double Score);
+    private List<Row> _items = new();
+    private string? _flash; private bool _flashOk = true;
+
+    protected override async Task OnInitializedAsync() => await Load();
+
+    private async Task Load()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var attempts = await db.OutreachAttempts.AsNoTracking()
+            .Where(a => a.Status == OutreachStatus.PendingApproval || a.Status == OutreachStatus.Approved)
+            .ToListAsync();
+        var oppIds = attempts.Select(a => a.OpportunityId).Distinct().ToList();
+        var opps = (await db.Opportunities.AsNoTracking().Where(o => oppIds.Contains(o.Id))
+            .Select(o => new { o.Id, o.Title, o.SourceUrl, o.Score }).ToListAsync()).ToDictionary(o => o.Id);
+        _items = attempts
+            .Select(a => new Row(a,
+                opps.TryGetValue(a.OpportunityId, out var o) ? o.Title : "(lead)",
+                opps.TryGetValue(a.OpportunityId, out var o2) ? o2.SourceUrl : "",
+                opps.TryGetValue(a.OpportunityId, out var o3) ? o3.Score : 0))
+            .OrderByDescending(r => r.Score).ToList();
+    }
+
+    private async Task Run(Func<OutreachService, Task> action, string ok)
+    {
+        _flash = null;
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            await action(scope.ServiceProvider.GetRequiredService<OutreachService>());
+            _flash = ok; _flashOk = true;
+            await Load();
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+    }
+
+    private Task Approve(long id) => Run(s => s.ApproveAsync(id, default), "Approved.");
+    private Task Cancel(long id) => Run(s => s.CancelAsync(id, default), "Cancelled.");
+    private Task Send(long id) => Run(async s =>
+    {
+        var (sent, message) = await s.SendAsync(id, default);
+        if (!sent) throw new InvalidOperationException(message);
+    }, "Recorded as sent.");
+}

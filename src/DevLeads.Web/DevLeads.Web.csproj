@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\DevLeads.Infrastructure\DevLeads.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\_framework\blazor.web.js" />
+    <Content Remove="wwwroot\Components\**\*.razor.js" />
+    <Content Remove="wwwroot\DevLeads.Web.styles.css" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+    <DevLeadsWebRoot>$(MSBuildProjectDirectory)/wwwroot/</DevLeadsWebRoot>
+    <DefaultItemExcludes>$(DefaultItemExcludes);wwwroot/Components/**/*.razor.js;wwwroot/_framework/blazor.web.js;wwwroot/DevLeads.Web.styles.css</DefaultItemExcludes>
+  </PropertyGroup>
+
+  <Target Name="MaterializeRunStaticAssetSources" AfterTargets="Build">
+    <ItemGroup>
+      <_BlazorWebScript Include="$(NuGetPackageRoot)microsoft.aspnetcore.app.internal.assets/*/_framework/blazor.web.js" />
+    </ItemGroup>
+    <MakeDir Directories="$(DevLeadsWebRoot)_framework;$(DevLeadsWebRoot)Components/Layout" />
+    <Copy SourceFiles="@(_BlazorWebScript)"
+          DestinationFiles="@(_BlazorWebScript->'$(DevLeadsWebRoot)_framework/blazor.web.js')"
+          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="$(IntermediateOutputPath)scopedcss/bundle/$(AssemblyName).styles.css"
+          DestinationFiles="$(DevLeadsWebRoot)$(AssemblyName).styles.css"
+          Condition="Exists('$(IntermediateOutputPath)scopedcss/bundle/$(AssemblyName).styles.css')"
+          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="Components/Layout/ReconnectModal.razor.js"
+          DestinationFiles="$(DevLeadsWebRoot)Components/Layout/ReconnectModal.razor.js"
+          SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

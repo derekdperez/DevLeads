@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DevLeads.Core/DevLeads.Core.csproj" />
+    <Project Path="src/DevLeads.Infrastructure/DevLeads.Infrastructure.csproj" />
+    <Project Path="src/DevLeads.Web/DevLeads.Web.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,166 @@
+@page "/sources"
+@rendermode InteractiveServer
+@inject IDbContextFactory<DevLeadsDbContext> DbFactory
+@inject IServiceScopeFactory ScopeFactory
+<PageTitle>Sources · DevLeads</PageTitle>
+
+<div class="rr-page-head">
+    <div>
+        <h1>Source connectors</h1>
+        <div class="rr-sub">Read-only ingestion. Each connector can cover many feeds, communities, or sites. Discovery runs on each source's poll interval.</div>
+    </div>
+    <div class="rr-btn-row">
+        <button class="rr-btn primary" @onclick="RunAllEnabled" disabled="@_busy">Run all enabled</button>
+    </div>
+</div>
+
+@if (_flash is not null) { <div class="rr-flash @(_flashOk ? "ok" : "err")">@_flash</div> }
+
+@foreach (var s in _sources)
+{
+    <div class="rr-panel">
+        <div class="rr-panel-head">
+            <div>
+                <h2>@s.DisplayName <span class="rr-sub">(@s.SourceKey)</span></h2>
+                <div class="rr-sub">
+                    @if (s.LastRunAt is { } r)
+                    {
+                        <span class="@(s.LastRunHealthy ? "rr-chip won" : "rr-chip dead")">@(s.LastRunHealthy ? "healthy" : "error")</span>
+                        <span> · last run @UiHelpers.Age(r) · @s.LastRunMessage</span>
+                    }
+                    else { <span class="rr-chip">not run yet</span> }
+                </div>
+            </div>
+            <div class="rr-btn-row">
+                <button class="rr-btn sm" @onclick="() => Test(s.SourceKey)" disabled="@_busy">Test</button>
+                <button class="rr-btn sm primary" @onclick="() => RunNow(s.SourceKey)" disabled="@_busy">Run now</button>
+            </div>
+        </div>
+
+        <div class="rr-grid-2">
+            <label class="rr-check"><input type="checkbox" @bind="s.Enabled" /> Enabled</label>
+            <label class="rr-check"><input type="checkbox" @bind="s.AutoModeEligible" /> Auto-mode eligible</label>
+        </div>
+        <div class="rr-grid-2">
+            <div class="rr-field">
+                <label>Poll interval (minutes)</label>
+                <input class="rr-input" type="number" @bind="s.PollIntervalMinutes" />
+            </div>
+            <div class="rr-field">
+                <label>Max items per run</label>
+                <input class="rr-input" type="number" @bind="s.MaxItemsPerRun" />
+            </div>
+        </div>
+        <div class="rr-field">
+            <label>Query packs (comma-separated names)</label>
+            <input class="rr-input" @bind="s.QueryPacksCsv" />
+        </div>
+        <div class="rr-grid-2">
+            <div class="rr-field">
+                <label>Draft threshold</label>
+                <input class="rr-input" type="number" @bind="s.DraftThreshold" />
+            </div>
+            <div class="rr-field">
+                <label>Alert threshold</label>
+                <input class="rr-input" type="number" @bind="s.AlertThreshold" />
+            </div>
+        </div>
+        <div class="rr-field">
+            <label>Parameters (JSON — feeds, tags, subreddits…)</label>
+            <textarea class="rr-textarea" style="min-height:70px" @bind="s.ParametersJson"></textarea>
+        </div>
+        <button class="rr-btn" @onclick="() => Save(s)" disabled="@_busy">💾 Save</button>
+    </div>
+}
+
+@code {
+    private List<SourceConfig> _sources = new();
+    private bool _busy;
+    private string? _flash; private bool _flashOk = true;
+
+    protected override async Task OnInitializedAsync() => await Load();
+
+    private async Task Load()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        _sources = await db.SourceConfigs.AsNoTracking().OrderBy(s => s.DisplayName).ToListAsync();
+    }
+
+    private async Task Save(SourceConfig edited)
+    {
+        _busy = true; _flash = null;
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<DevLeadsDbContext>();
+            var s = await db.SourceConfigs.FirstAsync(x => x.Id == edited.Id);
+            s.Enabled = edited.Enabled; s.AutoModeEligible = edited.AutoModeEligible;
+            s.PollIntervalMinutes = edited.PollIntervalMinutes; s.MaxItemsPerRun = edited.MaxItemsPerRun;
+            s.QueryPacksCsv = edited.QueryPacksCsv; s.ParametersJson = edited.ParametersJson;
+            s.DraftThreshold = edited.DraftThreshold; s.AlertThreshold = edited.AlertThreshold;
+            await db.SaveChangesAsync();
+            _flash = $"{edited.DisplayName} saved."; _flashOk = true;
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+
+    private async Task Test(string key)
+    {
+        _busy = true; _flash = null;
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var health = await scope.ServiceProvider.GetRequiredService<SourceRunner>().CheckHealthAsync(key, default);
+            _flash = $"{key}: {(health.Healthy ? "healthy" : "unhealthy")} — {health.Message}"; _flashOk = health.Healthy;
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+
+    private async Task RunNow(string key)
+    {
+        _busy = true; _flash = null;
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<DevLeadsDbContext>();
+            var src = await db.SourceConfigs.FirstAsync(s => s.SourceKey == key);
+            var created = await scope.ServiceProvider.GetRequiredService<SourceRunner>().RunAsync(src, default);
+            _flash = $"{key}: {src.LastRunMessage}"; _flashOk = src.LastRunHealthy;
+            await Load();
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+
+    private async Task RunAllEnabled()
+    {
+        _busy = true; _flash = null;
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<DevLeadsDbContext>();
+            var runner = scope.ServiceProvider.GetRequiredService<SourceRunner>();
+            var sources = await db.SourceConfigs
+                .Where(s => s.Enabled)
+                .OrderBy(s => s.DisplayName)
+                .ToListAsync();
+
+            var totalCreated = 0;
+            var healthy = 0;
+            foreach (var source in sources)
+            {
+                totalCreated += await runner.RunAsync(source, default);
+                if (source.LastRunHealthy)
+                    healthy++;
+            }
+
+            _flash = $"Ran {sources.Count} enabled source(s); {totalCreated} new lead(s). {healthy}/{sources.Count} healthy.";
+            _flashOk = healthy == sources.Count;
+            await Load();
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+}

@@ -1,0 +1,4987 @@
+{
+  "root": "/home/user/repo/UrgentLeads",
+  "files": [
+    {
+      "path": "src/DevLeads.Core/Ai/AiTriagePrompts.cs",
+      "bytes": 6904,
+      "lines": 113,
+      "sha256": "48c02130f330fce5d9223e392e3b7ab71bcac6c799ed9bd68eb6954eaf04b1a9"
+    },
+    {
+      "path": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "bytes": 3409,
+      "lines": 90,
+      "sha256": "fa74914d4d3ffd80b852f7894f6dec05b65160ed96eedc25a28503688364865b"
+    },
+    {
+      "path": "src/DevLeads.Core/AiTriageResult.cs",
+      "bytes": 3011,
+      "lines": 78,
+      "sha256": "0360f6606158d65f880978bb9dc12dc931bda70dc56ee6b7842b27a02637ccdd"
+    },
+    {
+      "path": "src/DevLeads.Core/Connectors/ISourceConnector.cs",
+      "bytes": 1561,
+      "lines": 42,
+      "sha256": "ad1d9779cd41632d61aab38d8cef87aeb2e311ad68c8d0ce4d44c73ad0cf9674"
+    },
+    {
+      "path": "src/DevLeads.Core/DevLeads.Core.csproj",
+      "bytes": 210,
+      "lines": 10,
+      "sha256": "11c0c110e19c9eaeaef66a0382f7a3e4ff6ab395d99ca6664e1ba378371cc47c"
+    },
+    {
+      "path": "src/DevLeads.Core/Entities/AiTriageRun.cs",
+      "bytes": 738,
+      "lines": 23,
+      "sha256": "63118216aacba5a1dac29951a8210d166a3bede0f3819672cd8e1f72f4e343fb"
+    },
+    {
+      "path": "src/DevLeads.Core/Entities/AuditEvent.cs",
+      "bytes": 543,
+      "lines": 15,
+      "sha256": "833cd4acbb8ccbc21f45c22a5ac6f054a93aa6da67ad1197081625ff6edb02da"
+    },
+    {
+      "path": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "bytes": 3180,
+      "lines": 61,
+      "sha256": "e2b7caf26cdc0b1317f2d834b2dd4c176db84cf4a687f707e3ee1b39f63047da"
+    },
+    {
+      "path": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "bytes": 3297,
+      "lines": 81,
+      "sha256": "eaba15364889473409ba09db9b61831aaf0ac7fe042ad50d87f52f376d0f3b14"
+    },
+    {
+      "path": "src/DevLeads.Core/Entities/OutreachAttempt.cs",
+      "bytes": 960,
+      "lines": 27,
+      "sha256": "9a201bd091700b7782d0c6102fe5c44ada06072bb89e147d07d1775a66b4428f"
+    },
+    {
+      "path": "src/DevLeads.Core/Entities/QueryPack.cs",
+      "bytes": 582,
+      "lines": 17,
+      "sha256": "5c2c45549041b3462784fd37461b7f3c454c831a63626b67fdef42a2b0cf2821"
+    },
+    {
+      "path": "src/DevLeads.Core/Entities/Quote.cs",
+      "bytes": 820,
+      "lines": 26,
+      "sha256": "e9ba003b815535b11bd92a3b5bb960d557ef9e09917effc757db1751ab1424b4"
+    },
+    {
+      "path": "src/DevLeads.Core/Entities/RawSourceItem.cs",
+      "bytes": 970,
+      "lines": 30,
+      "sha256": "d6d67f3d31dc38af71e93ea30a641e9b729f3065bc7789d8dbc71f97e645a050"
+    },
+    {
+      "path": "src/DevLeads.Core/Entities/Skill.cs",
+      "bytes": 1134,
+      "lines": 30,
+      "sha256": "080b12682e078256ed211d9e8adcbdb2ae82b3894dc915be52b8e59fb8303664"
+    },
+    {
+      "path": "src/DevLeads.Core/Entities/SourceConfig.cs",
+      "bytes": 1306,
+      "lines": 34,
+      "sha256": "180bd26c2e9e7dc50140be4dc168134a05cb31e2f69b2ba89a51355d8d379999"
+    },
+    {
+      "path": "src/DevLeads.Core/Entities/SuppressionEntry.cs",
+      "bytes": 453,
+      "lines": 13,
+      "sha256": "301292b1c5ce9c998ef9654973af3d04a6e362363624f6637c16f03aadea18ab"
+    },
+    {
+      "path": "src/DevLeads.Core/Entities/WorkSession.cs",
+      "bytes": 775,
+      "lines": 21,
+      "sha256": "cafd601fcbedfe590e0b335c768fceda21c620451185a672c2963314ffa75b00"
+    },
+    {
+      "path": "src/DevLeads.Core/Enums.cs",
+      "bytes": 2231,
+      "lines": 128,
+      "sha256": "44f1314c26cdf1653d6c09689c3b9a94564a09e31fa3c47d9cc472988cabbd1d"
+    },
+    {
+      "path": "src/DevLeads.Core/HeuristicPreFilter.cs",
+      "bytes": 9301,
+      "lines": 187,
+      "sha256": "eeb5a0f0977100bbd9d2dccde415b6815f7cfd0d55ce5a0ea747c1dc703bba58"
+    },
+    {
+      "path": "src/DevLeads.Core/OfferedCompensation.cs",
+      "bytes": 2470,
+      "lines": 55,
+      "sha256": "ee704ad4ce72a551a566452e8f5030bf53dca2ed0f7419c6913446444933cb5a"
+    },
+    {
+      "path": "src/DevLeads.Core/PreFilterResult.cs",
+      "bytes": 654,
+      "lines": 16,
+      "sha256": "4eafc8306f27e9e2524241850fd8fe9ef2689713ff1a23d08686d7c40f1c374d"
+    },
+    {
+      "path": "src/DevLeads.Core/QueryPacks/DefaultQueryPacks.cs",
+      "bytes": 9386,
+      "lines": 151,
+      "sha256": "ef3dfd8a6317b8046df04625ba55fd347fdd8e64cc1dee9c5c9ed3a1e573eb25"
+    },
+    {
+      "path": "src/DevLeads.Core/QueryPacks/IQueryPackProvider.cs",
+      "bytes": 547,
+      "lines": 15,
+      "sha256": "1be88c7b2471a65fecec45ecde59fef8f22a719c39ceefc89e0a59933e3080df"
+    },
+    {
+      "path": "src/DevLeads.Core/RedFlagDetector.cs",
+      "bytes": 2289,
+      "lines": 53,
+      "sha256": "e23d938ac53671d0df4168dcbbd73d8fb37742f351417edbc972ed03d85e7c18"
+    },
+    {
+      "path": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+      "bytes": 12792,
+      "lines": 304,
+      "sha256": "cf5836ce63a6c37cacb93e86b89d2868f6f39bedda5f34e2c9fc2d720163b727"
+    },
+    {
+      "path": "src/DevLeads.Core/Skills/DefaultSkills.cs",
+      "bytes": 4988,
+      "lines": 78,
+      "sha256": "568670a3646280cbf411961b368c095bf678944acd9528f68eec9bc6c06edda5"
+    },
+    {
+      "path": "src/DevLeads.Core/Skills/SkillMatcher.cs",
+      "bytes": 2933,
+      "lines": 68,
+      "sha256": "9180b9aca5fbd0470feecbec5d4980f552eff57ed2c2200ebe3a0bebd88e5c70"
+    },
+    {
+      "path": "src/DevLeads.Core/SourceUrlCanonicalizer.cs",
+      "bytes": 1286,
+      "lines": 27,
+      "sha256": "fb47a306b77256e1df505b9f176ccc23c2b5a3e6e55d39bdc5749de1dc3d37b1"
+    },
+    {
+      "path": "src/DevLeads.Core/Templates/EmergencyChecklists.cs",
+      "bytes": 1719,
+      "lines": 38,
+      "sha256": "89c0e3393413eadc19e3743587ff876d9051a113ae6d7aa514cd46eee91e0047"
+    },
+    {
+      "path": "src/DevLeads.Core/Templates/PricingTiers.cs",
+      "bytes": 1358,
+      "lines": 29,
+      "sha256": "2351011295b11c9439b77ca38c14264319bdb6c0b082e86eca10516f15ad308c"
+    },
+    {
+      "path": "src/DevLeads.Core/Templates/ResponseTemplates.cs",
+      "bytes": 2639,
+      "lines": 57,
+      "sha256": "e185fa94ea626a4dae2e2ad16e82f0c896377bba3789f32e70a6eb73ec0eccd8"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/Ai/AiTriageRouter.cs",
+      "bytes": 5119,
+      "lines": 129,
+      "sha256": "10edda166da6d661f2090105f7c7a8b8badfba2e2df5e3c5a203a00f2d4ae735"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/Ai/AnthropicTriageProvider.cs",
+      "bytes": 4765,
+      "lines": 133,
+      "sha256": "ea5fb4ea99c9adeec81002c135b84e58daf7aac0786da213d536cedc16e39636"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs",
+      "bytes": 18239,
+      "lines": 293,
+      "sha256": "66631e55b84e79ff01d5679ef0aa3a7628973cd7d33fc09c977a02a0bc0af1ed"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
+      "bytes": 17618,
+      "lines": 446,
+      "sha256": "f1fc5d37c17e59ccc5a9d6f55ad3ac01c019d144e649ef792263c7250d205191"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/Connectors/ConnectorSupport.cs",
+      "bytes": 1340,
+      "lines": 37,
+      "sha256": "9a08e236350393dabaf83f955ebd125f595143346e3e7371f0967da3c4b1de9b"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/Connectors/GitHubSearchConnector.cs",
+      "bytes": 7643,
+      "lines": 157,
+      "sha256": "d06d969775983e28b98d8367f483012833dcfc45a32fa0c2e689126ee3f3a2c3"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/Connectors/HackerNewsConnector.cs",
+      "bytes": 4252,
+      "lines": 85,
+      "sha256": "ccbddf437f84aa267fd5ed7340d524d304cb847ffc7d067910073e3a21705dcb"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/Connectors/OpireConnector.cs",
+      "bytes": 6033,
+      "lines": 131,
+      "sha256": "16bc2408be78878a21ecc86e5e8327ce235d0148b7dc865b78140e75f99e7631"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/Connectors/RedditConnector.cs",
+      "bytes": 7760,
+      "lines": 147,
+      "sha256": "9ff96dd40149985adc5951d4fe7b3dedd2243b4a47c4c4f109e8c212ac21b9af"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/Connectors/RemotiveConnector.cs",
+      "bytes": 5869,
+      "lines": 115,
+      "sha256": "2f853329e4e865bd2303fe378b22bdbb25f082739fb5867fcbde27beac6053e0"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/Connectors/RssConnector.cs",
+      "bytes": 4943,
+      "lines": 106,
+      "sha256": "9de2a63cedea9a106eb0c29f429297a202ad2262a94b5f185e3519fe9e0aba10"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/Connectors/StackExchangeConnector.cs",
+      "bytes": 6151,
+      "lines": 112,
+      "sha256": "5ff5c65f2e37e4ba4f200d5b500990f4b2fc4048bcd266db3acb88672913ead9"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
+      "bytes": 32960,
+      "lines": 562,
+      "sha256": "9db627e9ec6afa19c27f16a26daa90bba7d4c140e49ae90ab8e13da9b6fba719"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
+      "bytes": 3841,
+      "lines": 76,
+      "sha256": "5faebcc5d97fb961eb52a3cc0aaeefde09b472be5d0da07d3f500add5baa4905"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "bytes": 4131,
+      "lines": 86,
+      "sha256": "3b63c6f2235d6faa12d16a53a74a0190c1602ebd16142f27588ea30cf88a0c77"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/DevLeads.Infrastructure.csproj",
+      "bytes": 667,
+      "lines": 21,
+      "sha256": "a4228af409aea0b4ba89c452574eb87668c6912390f82a393eff9fe8fd81723a"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/QueryPacks/DbQueryPackProvider.cs",
+      "bytes": 1322,
+      "lines": 33,
+      "sha256": "a610d26712b9577d79dd63ddaf6136cd3ec611ea2398c8c10ff59c06e9392d48"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/Services/AuditService.cs",
+      "bytes": 910,
+      "lines": 28,
+      "sha256": "17073f4419843a0da7cf491e54f580c7c2483e879db523174eda5966a105c288"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
+      "bytes": 22723,
+      "lines": 546,
+      "sha256": "bbf83789acccbea1d34fc41d9a61c97ee735e98a8cbe199ce0997837da7a3b06"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/Services/MaintenanceService.cs",
+      "bytes": 2560,
+      "lines": 64,
+      "sha256": "6d556bf1a58b1584ad2299267cd582e4c77aad380133acf46d9d5e11467badfa"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/Services/OutreachService.cs",
+      "bytes": 6764,
+      "lines": 141,
+      "sha256": "ad32708fb4d69c898eddcd0b8a3e3446110f56372b4d805524ce6b28c110d072"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/Services/QuoteService.cs",
+      "bytes": 3223,
+      "lines": 82,
+      "sha256": "fb575529d5400b452ee91c7686e446f9eac717ac1bd4c8f20951cbe8cdfc3752"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
+      "bytes": 13682,
+      "lines": 316,
+      "sha256": "978c9c823185098135da0d785a7cdcd92fc9557edb9f457fa44640d6434f28c8"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/Workers/DiscoveryWorker.cs",
+      "bytes": 3355,
+      "lines": 79,
+      "sha256": "891bd5ff65149c237c0a50cc223855bbcd098733730983148bf2189e9af0858f"
+    },
+    {
+      "path": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "bytes": 7498,
+      "lines": 144,
+      "sha256": "2dc3560a2ab1f94084b9d0b825a985c3e3c521c1626319b4a0ce2ac4a7c55cd9"
+    },
+    {
+      "path": "src/DevLeads.Web/AppRestartService.cs",
+      "bytes": 4129,
+      "lines": 100,
+      "sha256": "26085fcdb4d0e81ac97d99ed013e08ac00ca67ea103b9947127072f391a2e01a"
+    },
+    {
+      "path": "src/DevLeads.Web/Components/App.razor",
+      "bytes": 583,
+      "lines": 23,
+      "sha256": "136f19a7e01197b1e6523b2ea43ec6b1925a750ae1aefed6b9619d6e6ab84f03"
+    },
+    {
+      "path": "src/DevLeads.Web/Components/Layout/MainLayout.razor",
+      "bytes": 347,
+      "lines": 17,
+      "sha256": "4166643119d6d25c4c568f56da872f3bf537ed8a35b0bac2a269026fa294c272"
+    },
+    {
+      "path": "src/DevLeads.Web/Components/Layout/NavMenu.razor",
+      "bytes": 1147,
+      "lines": 25,
+      "sha256": "7f68e9db252f6b3e0424d4194a8229bcd6f445a765455d21a998d769eb151f48"
+    },
+    {
+      "path": "src/DevLeads.Web/Components/Layout/ReconnectModal.razor",
+      "bytes": 1341,
+      "lines": 32,
+      "sha256": "219847b840c9f9bb7260bb5c438df170a13f22356adadd7aa600997af737165b"
+    },
+    {
+      "path": "src/DevLeads.Web/Components/Pages/Drafts.razor",
+      "bytes": 4232,
+      "lines": 95,
+      "sha256": "42ebcfd03e033cc3c35a2d3b803f888997939a749e58dfbfaa66b86a7d1f2cd3"
+    },
+    {
+      "path": "src/DevLeads.Web/Components/Pages/Error.razor",
+      "bytes": 1179,
+      "lines": 37,
+      "sha256": "5fc97b404692b11255d0c2b53e61304f2a7670dc9ff5fdcc2edae513b3ea283d"
+    },
+    {
+      "path": "src/DevLeads.Web/Components/Pages/Home.razor",
+      "bytes": 7252,
+      "lines": 150,
+      "sha256": "d8b15baba89b9b178baf929d95c0542ff7e17912c9649872b32ff15ad05d9382"
+    },
+    {
+      "path": "src/DevLeads.Web/Components/Pages/NewOpportunity.razor",
+      "bytes": 2778,
+      "lines": 72,
+      "sha256": "f9756f2244cd108b5dedcb14dec27314354244e54dbd8c030f5f27ca68807db6"
+    },
+    {
+      "path": "src/DevLeads.Web/Components/Pages/NotFound.razor",
+      "bytes": 122,
+      "lines": 5,
+      "sha256": "9190005a944ca590bb17f58563d0e524ae419b448ee81a555f376195e4856071"
+    },
+    {
+      "path": "src/DevLeads.Web/Components/Pages/Opportunities.razor",
+      "bytes": 12041,
+      "lines": 237,
+      "sha256": "5400cf519e61a6f3e7cd5fcb6d878d30ddc2573b648b644c62131a049e9bb308"
+    },
+    {
+      "path": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
+      "bytes": 20287,
+      "lines": 384,
+      "sha256": "fd4ad7733b7258c1099b790112c17766bb51bec90a9495aefb13d1439d3b34aa"
+    },
+    {
+      "path": "src/DevLeads.Web/Components/Pages/Quotes.razor",
+      "bytes": 4499,
+      "lines": 97,
+      "sha256": "8bd3515d6fe6bc4ddf6f940a014d51d0f43f0c3a63815f6de6257843d0eac20f"
+    },
+    {
+      "path": "src/DevLeads.Web/Components/Pages/Settings.razor",
+      "bytes": 10552,
+      "lines": 218,
+      "sha256": "6b8006d152b2876c69f14ca150986aca6a0a28e2428d0461bf201f9ddbbf3d24"
+    },
+    {
+      "path": "src/DevLeads.Web/Components/Pages/SkillProfile.razor",
+      "bytes": 6489,
+      "lines": 162,
+      "sha256": "83f59835a16762b5c4fd000532ac2b6f18456b0879eaf065a9097ea3641c8389"
+    },
+    {
+      "path": "src/DevLeads.Web/Components/Pages/Sources.razor",
+      "bytes": 6943,
+      "lines": 167,
+      "sha256": "1723c111543199160cbb5df871a41dc96beb71e2e56bff4e6a157b90a45374e4"
+    },
+    {
+      "path": "src/DevLeads.Web/Components/Routes.razor",
+      "bytes": 294,
+      "lines": 7,
+      "sha256": "f1b6d3574e2fb5d9286936ad6a1421071ba5d2c98d3e20b54e7559492574cf03"
+    },
+    {
+      "path": "src/DevLeads.Web/Components/Shared/UiHelpers.cs",
+      "bytes": 4429,
+      "lines": 106,
+      "sha256": "be28f553baeb4e93c0ef186e66e2b3f65266569cbaee7c4e416b7ef18f7d0b06"
+    },
+    {
+      "path": "src/DevLeads.Web/Components/_Imports.razor",
+      "bytes": 789,
+      "lines": 23,
+      "sha256": "8a3ea6bbbf90fb92477d00a942f9f06fc0f5af9a354016b0c8e8a534d7c67fba"
+    },
+    {
+      "path": "src/DevLeads.Web/DevLeads.Web.csproj",
+      "bytes": 1884,
+      "lines": 40,
+      "sha256": "108b11db9182bd02a2bc0916298562bb67d5cb4639fc5d295dd999e0b53e1180"
+    },
+    {
+      "path": "src/DevLeads.Web/Program.cs",
+      "bytes": 1641,
+      "lines": 49,
+      "sha256": "19fc5cb8a929a32dcfd0e1e050e62d935e08692547b75acfbad0ad108d93f313"
+    },
+    {
+      "path": "src/DevLeads.Web/Properties/launchSettings.json",
+      "bytes": 658,
+      "lines": 24,
+      "sha256": "4550924dd4127a5a0d760bfba52ed24020136c041c37d505ca52880e88baa9c5"
+    },
+    {
+      "path": "src/DevLeads.Web/appsettings.Development.json",
+      "bytes": 119,
+      "lines": 9,
+      "sha256": "817db0bf2ecca78364c41dbaf7949bf2504cf47a1c3d0d54f3be8178fefc030b"
+    },
+    {
+      "path": "src/DevLeads.Web/appsettings.json",
+      "bytes": 142,
+      "lines": 10,
+      "sha256": "2d8bb40059df22089b94c025be8baad5a869b72d4d755d199c872f03bfe6f225"
+    }
+  ],
+  "symbols": [
+    {
+      "kind": "class",
+      "name": "AiTriagePrompts",
+      "file": "src/DevLeads.Core/Ai/AiTriagePrompts.cs",
+      "line": 2,
+      "signature": "public static class AiTriagePrompts",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "BuildUserPrompt",
+      "file": "src/DevLeads.Core/Ai/AiTriagePrompts.cs",
+      "line": 57,
+      "signature": "public static string BuildUserPrompt(AiTriageRequest r)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "AiTriageRequest",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 4,
+      "signature": "public sealed class AiTriageRequest",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Title",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 8,
+      "signature": "public string Title { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Body",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 9,
+      "signature": "public string Body { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "SourceKey",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 10,
+      "signature": "public string SourceKey { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "PostedAt",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 11,
+      "signature": "public DateTimeOffset PostedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "MatchedTerms",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 12,
+      "signature": "public IReadOnlyList<string> MatchedTerms { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "HeuristicScore",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 13,
+      "signature": "public decimal HeuristicScore { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "OperatorSkills",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 14,
+      "signature": "public string OperatorSkills { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "AiTriageResponse",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 18,
+      "signature": "public sealed class AiTriageResponse",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Succeeded",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 22,
+      "signature": "public bool Succeeded { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Result",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 23,
+      "signature": "public AiTriageResult? Result { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Provider",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 24,
+      "signature": "public string Provider { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Model",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 25,
+      "signature": "public string Model { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "RequestJson",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 26,
+      "signature": "public string RequestJson { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ResponseJson",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 27,
+      "signature": "public string? ResponseJson { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ErrorMessage",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 28,
+      "signature": "public string? ErrorMessage { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Retryable",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 29,
+      "signature": "public bool Retryable { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "AiShortlistItem",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 31,
+      "signature": "public sealed class AiShortlistItem",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Id",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 35,
+      "signature": "public string Id { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Title",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 36,
+      "signature": "public string Title { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Snippet",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 37,
+      "signature": "public string Snippet { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "SourceKey",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 38,
+      "signature": "public string SourceKey { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "PostedAt",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 39,
+      "signature": "public DateTimeOffset PostedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "MatchedTerms",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 40,
+      "signature": "public IReadOnlyList<string> MatchedTerms { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "HeuristicScore",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 41,
+      "signature": "public decimal HeuristicScore { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "AiShortlistDecision",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 43,
+      "signature": "public sealed class AiShortlistDecision",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Id",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 46,
+      "signature": "public string Id { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ShouldTriage",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 47,
+      "signature": "public bool ShouldTriage { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Reason",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 48,
+      "signature": "public string Reason { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "AiShortlistResponse",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 50,
+      "signature": "public sealed class AiShortlistResponse",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Succeeded",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 53,
+      "signature": "public bool Succeeded { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Decisions",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 54,
+      "signature": "public IReadOnlyList<AiShortlistDecision> Decisions { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Provider",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 55,
+      "signature": "public string Provider { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Model",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 56,
+      "signature": "public string Model { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "RequestJson",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 57,
+      "signature": "public string RequestJson { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ResponseJson",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 58,
+      "signature": "public string? ResponseJson { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ErrorMessage",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 59,
+      "signature": "public string? ErrorMessage { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Retryable",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 60,
+      "signature": "public bool Retryable { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "interface",
+      "name": "IAiBatchShortlistProvider",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 62,
+      "signature": "public interface IAiBatchShortlistProvider",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "interface",
+      "name": "IAiTriageProvider",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 71,
+      "signature": "public interface IAiTriageProvider",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "AiTriageResult",
+      "file": "src/DevLeads.Core/AiTriageResult.cs",
+      "line": 4,
+      "signature": "public sealed class AiTriageResult",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "IsTechnicalProblem",
+      "file": "src/DevLeads.Core/AiTriageResult.cs",
+      "line": 12,
+      "signature": "public bool IsTechnicalProblem { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "IsEmergency",
+      "file": "src/DevLeads.Core/AiTriageResult.cs",
+      "line": 14,
+      "signature": "public bool IsEmergency { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "PaymentIntent",
+      "file": "src/DevLeads.Core/AiTriageResult.cs",
+      "line": 17,
+      "signature": "public string PaymentIntent { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "AssistanceRequested",
+      "file": "src/DevLeads.Core/AiTriageResult.cs",
+      "line": 25,
+      "signature": "public bool AssistanceRequested { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "RejectReason",
+      "file": "src/DevLeads.Core/AiTriageResult.cs",
+      "line": 32,
+      "signature": "public string? RejectReason { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ProblemCategory",
+      "file": "src/DevLeads.Core/AiTriageResult.cs",
+      "line": 35,
+      "signature": "public string ProblemCategory { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "DetectedStack",
+      "file": "src/DevLeads.Core/AiTriageResult.cs",
+      "line": 38,
+      "signature": "public List<string> DetectedStack { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "EstimatedCause",
+      "file": "src/DevLeads.Core/AiTriageResult.cs",
+      "line": 41,
+      "signature": "public string EstimatedCause { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "FirstDiagnosticStep",
+      "file": "src/DevLeads.Core/AiTriageResult.cs",
+      "line": 44,
+      "signature": "public string FirstDiagnosticStep { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "EstimatedFixMinutesMin",
+      "file": "src/DevLeads.Core/AiTriageResult.cs",
+      "line": 47,
+      "signature": "public int? EstimatedFixMinutesMin { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "EstimatedFixMinutesMax",
+      "file": "src/DevLeads.Core/AiTriageResult.cs",
+      "line": 50,
+      "signature": "public int? EstimatedFixMinutesMax { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "AiConfidence",
+      "file": "src/DevLeads.Core/AiTriageResult.cs",
+      "line": 53,
+      "signature": "public decimal AiConfidence { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "OutreachRecommendation",
+      "file": "src/DevLeads.Core/AiTriageResult.cs",
+      "line": 56,
+      "signature": "public string OutreachRecommendation { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "SourceConnectorConfig",
+      "file": "src/DevLeads.Core/Connectors/ISourceConnector.cs",
+      "line": 4,
+      "signature": "public sealed class SourceConnectorConfig",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "SourceKey",
+      "file": "src/DevLeads.Core/Connectors/ISourceConnector.cs",
+      "line": 8,
+      "signature": "public string SourceKey { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "MaxItems",
+      "file": "src/DevLeads.Core/Connectors/ISourceConnector.cs",
+      "line": 9,
+      "signature": "public int MaxItems { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Terms",
+      "file": "src/DevLeads.Core/Connectors/ISourceConnector.cs",
+      "line": 10,
+      "signature": "public IReadOnlyList<string> Terms { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Since",
+      "file": "src/DevLeads.Core/Connectors/ISourceConnector.cs",
+      "line": 12,
+      "signature": "public DateTimeOffset? Since { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "SkillTerms",
+      "file": "src/DevLeads.Core/Connectors/ISourceConnector.cs",
+      "line": 13,
+      "signature": "public IReadOnlyList<string> SkillTerms { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "ConnectorHealth",
+      "file": "src/DevLeads.Core/Connectors/ISourceConnector.cs",
+      "line": 17,
+      "signature": "public sealed class ConnectorHealth",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Healthy",
+      "file": "src/DevLeads.Core/Connectors/ISourceConnector.cs",
+      "line": 21,
+      "signature": "public bool Healthy { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Message",
+      "file": "src/DevLeads.Core/Connectors/ISourceConnector.cs",
+      "line": 22,
+      "signature": "public string Message { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ItemCount",
+      "file": "src/DevLeads.Core/Connectors/ISourceConnector.cs",
+      "line": 23,
+      "signature": "public int ItemCount { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "CheckedAt",
+      "file": "src/DevLeads.Core/Connectors/ISourceConnector.cs",
+      "line": 24,
+      "signature": "public DateTimeOffset CheckedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "interface",
+      "name": "ISourceConnector",
+      "file": "src/DevLeads.Core/Connectors/ISourceConnector.cs",
+      "line": 26,
+      "signature": "public interface ISourceConnector",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "AiTriageRun",
+      "file": "src/DevLeads.Core/Entities/AiTriageRun.cs",
+      "line": 2,
+      "signature": "public class AiTriageRun",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Id",
+      "file": "src/DevLeads.Core/Entities/AiTriageRun.cs",
+      "line": 6,
+      "signature": "public long Id { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "OpportunityId",
+      "file": "src/DevLeads.Core/Entities/AiTriageRun.cs",
+      "line": 7,
+      "signature": "public long OpportunityId { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Provider",
+      "file": "src/DevLeads.Core/Entities/AiTriageRun.cs",
+      "line": 8,
+      "signature": "public string Provider { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Model",
+      "file": "src/DevLeads.Core/Entities/AiTriageRun.cs",
+      "line": 10,
+      "signature": "public string Model { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "PromptVersion",
+      "file": "src/DevLeads.Core/Entities/AiTriageRun.cs",
+      "line": 11,
+      "signature": "public string PromptVersion { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Status",
+      "file": "src/DevLeads.Core/Entities/AiTriageRun.cs",
+      "line": 12,
+      "signature": "public AiJobStatus Status { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "RequestJson",
+      "file": "src/DevLeads.Core/Entities/AiTriageRun.cs",
+      "line": 13,
+      "signature": "public string RequestJson { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ResponseJson",
+      "file": "src/DevLeads.Core/Entities/AiTriageRun.cs",
+      "line": 15,
+      "signature": "public string? ResponseJson { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ErrorMessage",
+      "file": "src/DevLeads.Core/Entities/AiTriageRun.cs",
+      "line": 16,
+      "signature": "public string? ErrorMessage { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "StartedAt",
+      "file": "src/DevLeads.Core/Entities/AiTriageRun.cs",
+      "line": 17,
+      "signature": "public DateTimeOffset StartedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "CompletedAt",
+      "file": "src/DevLeads.Core/Entities/AiTriageRun.cs",
+      "line": 19,
+      "signature": "public DateTimeOffset? CompletedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Opportunity",
+      "file": "src/DevLeads.Core/Entities/AiTriageRun.cs",
+      "line": 20,
+      "signature": "public Opportunity? Opportunity { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "AuditEvent",
+      "file": "src/DevLeads.Core/Entities/AuditEvent.cs",
+      "line": 2,
+      "signature": "public class AuditEvent",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Id",
+      "file": "src/DevLeads.Core/Entities/AuditEvent.cs",
+      "line": 6,
+      "signature": "public long Id { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "EntityType",
+      "file": "src/DevLeads.Core/Entities/AuditEvent.cs",
+      "line": 7,
+      "signature": "public string EntityType { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "EntityId",
+      "file": "src/DevLeads.Core/Entities/AuditEvent.cs",
+      "line": 8,
+      "signature": "public long EntityId { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "EventType",
+      "file": "src/DevLeads.Core/Entities/AuditEvent.cs",
+      "line": 9,
+      "signature": "public string EventType { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Actor",
+      "file": "src/DevLeads.Core/Entities/AuditEvent.cs",
+      "line": 10,
+      "signature": "public string Actor { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Description",
+      "file": "src/DevLeads.Core/Entities/AuditEvent.cs",
+      "line": 11,
+      "signature": "public string Description { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "MetadataJson",
+      "file": "src/DevLeads.Core/Entities/AuditEvent.cs",
+      "line": 12,
+      "signature": "public string MetadataJson { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "CreatedAt",
+      "file": "src/DevLeads.Core/Entities/AuditEvent.cs",
+      "line": 13,
+      "signature": "public DateTimeOffset CreatedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "OperatorSettings",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 2,
+      "signature": "public class OperatorSettings",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Id",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 6,
+      "signature": "public long Id { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "OperatorName",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 7,
+      "signature": "public string OperatorName { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "BusinessName",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 10,
+      "signature": "public string BusinessName { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Location",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 11,
+      "signature": "public string Location { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "RemoteAvailability",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 12,
+      "signature": "public string RemoteAvailability { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "CoreSkills",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 13,
+      "signature": "public string CoreSkills { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "SecondarySkills",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 14,
+      "signature": "public string SecondarySkills { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "MinimumFee",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 15,
+      "signature": "public double MinimumFee { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "PreferredPaymentTerms",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 16,
+      "signature": "public string PreferredPaymentTerms { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "EmergencyAvailability",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 17,
+      "signature": "public bool EmergencyAvailability { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "AiProvider",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 18,
+      "signature": "public string AiProvider { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "AiModel",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 22,
+      "signature": "public string AiModel { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "OpenCodeCliPath",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 25,
+      "signature": "public string OpenCodeCliPath { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "PromptVersion",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 32,
+      "signature": "public string PromptVersion { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "MaxAiCallsPerHour",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 33,
+      "signature": "public int MaxAiCallsPerHour { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "MaxAiSpendPerDay",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 34,
+      "signature": "public double MaxAiSpendPerDay { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "MinPreFilterScoreForAi",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 35,
+      "signature": "public double MinPreFilterScoreForAi { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "MinAiConfidenceForDraft",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 36,
+      "signature": "public double MinAiConfidenceForDraft { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ManualReviewConfidenceThreshold",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 37,
+      "signature": "public double ManualReviewConfidenceThreshold { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "AiRetryCount",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 38,
+      "signature": "public int AiRetryCount { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "AiTimeoutSeconds",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 39,
+      "signature": "public int AiTimeoutSeconds { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "DefaultOutreachMode",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 40,
+      "signature": "public OutreachMode DefaultOutreachMode { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "GlobalAutoModeEnabled",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 43,
+      "signature": "public bool GlobalAutoModeEnabled { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "GlobalKillSwitch",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 44,
+      "signature": "public bool GlobalKillSwitch { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "MaxSendsPerHour",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 45,
+      "signature": "public int MaxSendsPerHour { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "MaxSendsPerDay",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 46,
+      "signature": "public int MaxSendsPerDay { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "RequireApprovalAboveRisk",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 47,
+      "signature": "public double RequireApprovalAboveRisk { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "RequireApprovalBelowConfidence",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 48,
+      "signature": "public double RequireApprovalBelowConfidence { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "SuppressionListEnabled",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 49,
+      "signature": "public bool SuppressionListEnabled { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "AuditLoggingEnabled",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 50,
+      "signature": "public bool AuditLoggingEnabled { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "DraftScoreThreshold",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 51,
+      "signature": "public double DraftScoreThreshold { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "AlertScoreThreshold",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 54,
+      "signature": "public double AlertScoreThreshold { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "DiscoveryEnabled",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 55,
+      "signature": "public bool DiscoveryEnabled { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "StaleItemMaxAgeHours",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 58,
+      "signature": "public int StaleItemMaxAgeHours { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "FollowUpDefaultHours",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 59,
+      "signature": "public int FollowUpDefaultHours { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "Opportunity",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 2,
+      "signature": "public class Opportunity",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Id",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 8,
+      "signature": "public long Id { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Title",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 9,
+      "signature": "public string Title { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Summary",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 11,
+      "signature": "public string Summary { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "SourceKey",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 12,
+      "signature": "public string SourceKey { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "SourceUrl",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 13,
+      "signature": "public string SourceUrl { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "AuthorName",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 14,
+      "signature": "public string? AuthorName { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "AuthorProfileUrl",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 15,
+      "signature": "public string? AuthorProfileUrl { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Status",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 16,
+      "signature": "public OpportunityStatus Status { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Priority",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 18,
+      "signature": "public Priority Priority { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Score",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 19,
+      "signature": "public double Score { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "UrgencyScore",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 22,
+      "signature": "public double UrgencyScore { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "StackFitScore",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 23,
+      "signature": "public double StackFitScore { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "BusinessValueScore",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 24,
+      "signature": "public double BusinessValueScore { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ReachabilityScore",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 25,
+      "signature": "public double ReachabilityScore { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "CompetitionScore",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 26,
+      "signature": "public double CompetitionScore { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "TrustScore",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 27,
+      "signature": "public double TrustScore { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ProblemType",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 28,
+      "signature": "public string ProblemType { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "PaymentIntent",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 31,
+      "signature": "public string PaymentIntent { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "AssistanceRequested",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 33,
+      "signature": "public bool? AssistanceRequested { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "DetectedStackJson",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 36,
+      "signature": "public string DetectedStackJson { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "SuggestedFirstStep",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 37,
+      "signature": "public string SuggestedFirstStep { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "EstimatedCause",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 38,
+      "signature": "public string EstimatedCause { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "EstimatedFeeMin",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 39,
+      "signature": "public double? EstimatedFeeMin { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "EstimatedFeeMax",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 41,
+      "signature": "public double? EstimatedFeeMax { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "FeeIsEstimate",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 42,
+      "signature": "public bool FeeIsEstimate { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "EstimatedFixMinutesMin",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 48,
+      "signature": "public int? EstimatedFixMinutesMin { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "EstimatedFixMinutesMax",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 49,
+      "signature": "public int? EstimatedFixMinutesMax { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "AiConfidence",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 50,
+      "signature": "public double AiConfidence { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "OutreachRecommendation",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 52,
+      "signature": "public OutreachRecommendation OutreachRecommendation { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "RejectionReason",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 53,
+      "signature": "public string? RejectionReason { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "AiJobStatus",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 54,
+      "signature": "public AiJobStatus AiJobStatus { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "HeuristicScore",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 56,
+      "signature": "public double HeuristicScore { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "MatchedTermsJson",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 59,
+      "signature": "public string MatchedTermsJson { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "PreFilterRejectReason",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 60,
+      "signature": "public string? PreFilterRejectReason { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "AutoEligible",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 61,
+      "signature": "public bool AutoEligible { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "PostedAt",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 64,
+      "signature": "public DateTimeOffset PostedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "FirstSeenAt",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 66,
+      "signature": "public DateTimeOffset FirstSeenAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "LastSeenAt",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 67,
+      "signature": "public DateTimeOffset LastSeenAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "CreatedAt",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 68,
+      "signature": "public DateTimeOffset CreatedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "UpdatedAt",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 69,
+      "signature": "public DateTimeOffset UpdatedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "NextFollowUpAt",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 70,
+      "signature": "public DateTimeOffset? NextFollowUpAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "WorkNotes",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 73,
+      "signature": "public string? WorkNotes { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "TriageRuns",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 74,
+      "signature": "public List<AiTriageRun> TriageRuns { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "OutreachAttempts",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 77,
+      "signature": "public List<OutreachAttempt> OutreachAttempts { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Quotes",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 78,
+      "signature": "public List<Quote> Quotes { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "WorkSessions",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 79,
+      "signature": "public List<WorkSession> WorkSessions { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "OutreachAttempt",
+      "file": "src/DevLeads.Core/Entities/OutreachAttempt.cs",
+      "line": 2,
+      "signature": "public class OutreachAttempt",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Id",
+      "file": "src/DevLeads.Core/Entities/OutreachAttempt.cs",
+      "line": 6,
+      "signature": "public long Id { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "OpportunityId",
+      "file": "src/DevLeads.Core/Entities/OutreachAttempt.cs",
+      "line": 7,
+      "signature": "public long OpportunityId { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Channel",
+      "file": "src/DevLeads.Core/Entities/OutreachAttempt.cs",
+      "line": 8,
+      "signature": "public OutreachChannel Channel { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Mode",
+      "file": "src/DevLeads.Core/Entities/OutreachAttempt.cs",
+      "line": 10,
+      "signature": "public OutreachMode Mode { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Subject",
+      "file": "src/DevLeads.Core/Entities/OutreachAttempt.cs",
+      "line": 11,
+      "signature": "public string? Subject { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Body",
+      "file": "src/DevLeads.Core/Entities/OutreachAttempt.cs",
+      "line": 13,
+      "signature": "public string Body { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "TemplateKey",
+      "file": "src/DevLeads.Core/Entities/OutreachAttempt.cs",
+      "line": 14,
+      "signature": "public string TemplateKey { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Status",
+      "file": "src/DevLeads.Core/Entities/OutreachAttempt.cs",
+      "line": 15,
+      "signature": "public OutreachStatus Status { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "RequiresApproval",
+      "file": "src/DevLeads.Core/Entities/OutreachAttempt.cs",
+      "line": 17,
+      "signature": "public bool RequiresApproval { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ApprovedAt",
+      "file": "src/DevLeads.Core/Entities/OutreachAttempt.cs",
+      "line": 18,
+      "signature": "public DateTimeOffset? ApprovedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "SentAt",
+      "file": "src/DevLeads.Core/Entities/OutreachAttempt.cs",
+      "line": 20,
+      "signature": "public DateTimeOffset? SentAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ResponseReceivedAt",
+      "file": "src/DevLeads.Core/Entities/OutreachAttempt.cs",
+      "line": 21,
+      "signature": "public DateTimeOffset? ResponseReceivedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ErrorMessage",
+      "file": "src/DevLeads.Core/Entities/OutreachAttempt.cs",
+      "line": 22,
+      "signature": "public string? ErrorMessage { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "CreatedAt",
+      "file": "src/DevLeads.Core/Entities/OutreachAttempt.cs",
+      "line": 23,
+      "signature": "public DateTimeOffset CreatedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Opportunity",
+      "file": "src/DevLeads.Core/Entities/OutreachAttempt.cs",
+      "line": 24,
+      "signature": "public Opportunity? Opportunity { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "QueryPack",
+      "file": "src/DevLeads.Core/Entities/QueryPack.cs",
+      "line": 2,
+      "signature": "public class QueryPack",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Id",
+      "file": "src/DevLeads.Core/Entities/QueryPack.cs",
+      "line": 6,
+      "signature": "public long Id { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Name",
+      "file": "src/DevLeads.Core/Entities/QueryPack.cs",
+      "line": 7,
+      "signature": "public string Name { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Description",
+      "file": "src/DevLeads.Core/Entities/QueryPack.cs",
+      "line": 8,
+      "signature": "public string Description { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Terms",
+      "file": "src/DevLeads.Core/Entities/QueryPack.cs",
+      "line": 9,
+      "signature": "public string Terms { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "IsHighPriority",
+      "file": "src/DevLeads.Core/Entities/QueryPack.cs",
+      "line": 12,
+      "signature": "public bool IsHighPriority { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "IsNegative",
+      "file": "src/DevLeads.Core/Entities/QueryPack.cs",
+      "line": 15,
+      "signature": "public bool IsNegative { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "Quote",
+      "file": "src/DevLeads.Core/Entities/Quote.cs",
+      "line": 2,
+      "signature": "public class Quote",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Id",
+      "file": "src/DevLeads.Core/Entities/Quote.cs",
+      "line": 6,
+      "signature": "public long Id { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "OpportunityId",
+      "file": "src/DevLeads.Core/Entities/Quote.cs",
+      "line": 7,
+      "signature": "public long OpportunityId { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Amount",
+      "file": "src/DevLeads.Core/Entities/Quote.cs",
+      "line": 8,
+      "signature": "public double Amount { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "PaymentDueUponCompletion",
+      "file": "src/DevLeads.Core/Entities/Quote.cs",
+      "line": 10,
+      "signature": "public bool PaymentDueUponCompletion { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "DiagnosticFee",
+      "file": "src/DevLeads.Core/Entities/Quote.cs",
+      "line": 11,
+      "signature": "public double? DiagnosticFee { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Scope",
+      "file": "src/DevLeads.Core/Entities/Quote.cs",
+      "line": 12,
+      "signature": "public string Scope { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Exclusions",
+      "file": "src/DevLeads.Core/Entities/Quote.cs",
+      "line": 14,
+      "signature": "public string Exclusions { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "PaymentUrl",
+      "file": "src/DevLeads.Core/Entities/Quote.cs",
+      "line": 15,
+      "signature": "public string? PaymentUrl { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Status",
+      "file": "src/DevLeads.Core/Entities/Quote.cs",
+      "line": 16,
+      "signature": "public QuoteStatus Status { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "CreatedAt",
+      "file": "src/DevLeads.Core/Entities/Quote.cs",
+      "line": 18,
+      "signature": "public DateTimeOffset CreatedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "SentAt",
+      "file": "src/DevLeads.Core/Entities/Quote.cs",
+      "line": 20,
+      "signature": "public DateTimeOffset? SentAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "PaidAt",
+      "file": "src/DevLeads.Core/Entities/Quote.cs",
+      "line": 21,
+      "signature": "public DateTimeOffset? PaidAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "DueAt",
+      "file": "src/DevLeads.Core/Entities/Quote.cs",
+      "line": 22,
+      "signature": "public DateTimeOffset? DueAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Opportunity",
+      "file": "src/DevLeads.Core/Entities/Quote.cs",
+      "line": 23,
+      "signature": "public Opportunity? Opportunity { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "RawSourceItem",
+      "file": "src/DevLeads.Core/Entities/RawSourceItem.cs",
+      "line": 2,
+      "signature": "public class RawSourceItem",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Id",
+      "file": "src/DevLeads.Core/Entities/RawSourceItem.cs",
+      "line": 9,
+      "signature": "public long Id { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "OpportunityId",
+      "file": "src/DevLeads.Core/Entities/RawSourceItem.cs",
+      "line": 10,
+      "signature": "public long? OpportunityId { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "SourceKey",
+      "file": "src/DevLeads.Core/Entities/RawSourceItem.cs",
+      "line": 11,
+      "signature": "public string SourceKey { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ExternalId",
+      "file": "src/DevLeads.Core/Entities/RawSourceItem.cs",
+      "line": 13,
+      "signature": "public string ExternalId { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Url",
+      "file": "src/DevLeads.Core/Entities/RawSourceItem.cs",
+      "line": 14,
+      "signature": "public string Url { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "AuthorName",
+      "file": "src/DevLeads.Core/Entities/RawSourceItem.cs",
+      "line": 15,
+      "signature": "public string? AuthorName { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "AuthorProfileUrl",
+      "file": "src/DevLeads.Core/Entities/RawSourceItem.cs",
+      "line": 16,
+      "signature": "public string? AuthorProfileUrl { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Title",
+      "file": "src/DevLeads.Core/Entities/RawSourceItem.cs",
+      "line": 17,
+      "signature": "public string Title { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "BodyText",
+      "file": "src/DevLeads.Core/Entities/RawSourceItem.cs",
+      "line": 18,
+      "signature": "public string BodyText { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "PostedAt",
+      "file": "src/DevLeads.Core/Entities/RawSourceItem.cs",
+      "line": 19,
+      "signature": "public DateTimeOffset PostedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "FetchedAt",
+      "file": "src/DevLeads.Core/Entities/RawSourceItem.cs",
+      "line": 21,
+      "signature": "public DateTimeOffset FetchedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "RawJson",
+      "file": "src/DevLeads.Core/Entities/RawSourceItem.cs",
+      "line": 22,
+      "signature": "public string RawJson { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ContentHash",
+      "file": "src/DevLeads.Core/Entities/RawSourceItem.cs",
+      "line": 24,
+      "signature": "public string ContentHash { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Opportunity",
+      "file": "src/DevLeads.Core/Entities/RawSourceItem.cs",
+      "line": 27,
+      "signature": "public Opportunity? Opportunity { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "Skill",
+      "file": "src/DevLeads.Core/Entities/Skill.cs",
+      "line": 2,
+      "signature": "public class Skill",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Id",
+      "file": "src/DevLeads.Core/Entities/Skill.cs",
+      "line": 10,
+      "signature": "public long Id { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Name",
+      "file": "src/DevLeads.Core/Entities/Skill.cs",
+      "line": 11,
+      "signature": "public string Name { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Category",
+      "file": "src/DevLeads.Core/Entities/Skill.cs",
+      "line": 14,
+      "signature": "public string Category { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Weight",
+      "file": "src/DevLeads.Core/Entities/Skill.cs",
+      "line": 17,
+      "signature": "public int Weight { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Enabled",
+      "file": "src/DevLeads.Core/Entities/Skill.cs",
+      "line": 20,
+      "signature": "public bool Enabled { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Aliases",
+      "file": "src/DevLeads.Core/Entities/Skill.cs",
+      "line": 23,
+      "signature": "public string Aliases { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "SourceConfig",
+      "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
+      "line": 2,
+      "signature": "public class SourceConfig",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Id",
+      "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
+      "line": 6,
+      "signature": "public long Id { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "SourceKey",
+      "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
+      "line": 7,
+      "signature": "public string SourceKey { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "DisplayName",
+      "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
+      "line": 8,
+      "signature": "public string DisplayName { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Enabled",
+      "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
+      "line": 9,
+      "signature": "public bool Enabled { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "PollIntervalMinutes",
+      "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
+      "line": 10,
+      "signature": "public int PollIntervalMinutes { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "MaxItemsPerRun",
+      "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
+      "line": 12,
+      "signature": "public int MaxItemsPerRun { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "QueryPacksCsv",
+      "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
+      "line": 13,
+      "signature": "public string QueryPacksCsv { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ParametersJson",
+      "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
+      "line": 16,
+      "signature": "public string ParametersJson { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "MinPreFilterScore",
+      "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
+      "line": 19,
+      "signature": "public double MinPreFilterScore { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "MinOpportunityScore",
+      "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
+      "line": 21,
+      "signature": "public double MinOpportunityScore { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "DraftThreshold",
+      "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
+      "line": 22,
+      "signature": "public double DraftThreshold { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "AlertThreshold",
+      "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
+      "line": 23,
+      "signature": "public double AlertThreshold { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "AutoModeEligible",
+      "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
+      "line": 24,
+      "signature": "public bool AutoModeEligible { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "LastRunHealthy",
+      "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
+      "line": 26,
+      "signature": "public bool LastRunHealthy { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "LastRunMessage",
+      "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
+      "line": 29,
+      "signature": "public string? LastRunMessage { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "LastRunItemCount",
+      "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
+      "line": 30,
+      "signature": "public int LastRunItemCount { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "LastRunAt",
+      "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
+      "line": 31,
+      "signature": "public DateTimeOffset? LastRunAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "NextRunAt",
+      "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
+      "line": 32,
+      "signature": "public DateTimeOffset? NextRunAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "SuppressionEntry",
+      "file": "src/DevLeads.Core/Entities/SuppressionEntry.cs",
+      "line": 2,
+      "signature": "public class SuppressionEntry",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Id",
+      "file": "src/DevLeads.Core/Entities/SuppressionEntry.cs",
+      "line": 6,
+      "signature": "public long Id { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ContactValue",
+      "file": "src/DevLeads.Core/Entities/SuppressionEntry.cs",
+      "line": 7,
+      "signature": "public string ContactValue { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ContactType",
+      "file": "src/DevLeads.Core/Entities/SuppressionEntry.cs",
+      "line": 8,
+      "signature": "public SuppressionContactType ContactType { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Reason",
+      "file": "src/DevLeads.Core/Entities/SuppressionEntry.cs",
+      "line": 9,
+      "signature": "public string Reason { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Source",
+      "file": "src/DevLeads.Core/Entities/SuppressionEntry.cs",
+      "line": 10,
+      "signature": "public string Source { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "CreatedAt",
+      "file": "src/DevLeads.Core/Entities/SuppressionEntry.cs",
+      "line": 11,
+      "signature": "public DateTimeOffset CreatedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "WorkSession",
+      "file": "src/DevLeads.Core/Entities/WorkSession.cs",
+      "line": 2,
+      "signature": "public class WorkSession",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Id",
+      "file": "src/DevLeads.Core/Entities/WorkSession.cs",
+      "line": 6,
+      "signature": "public long Id { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "OpportunityId",
+      "file": "src/DevLeads.Core/Entities/WorkSession.cs",
+      "line": 7,
+      "signature": "public long OpportunityId { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "StartedAt",
+      "file": "src/DevLeads.Core/Entities/WorkSession.cs",
+      "line": 8,
+      "signature": "public DateTimeOffset StartedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "EndedAt",
+      "file": "src/DevLeads.Core/Entities/WorkSession.cs",
+      "line": 10,
+      "signature": "public DateTimeOffset? EndedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Status",
+      "file": "src/DevLeads.Core/Entities/WorkSession.cs",
+      "line": 11,
+      "signature": "public WorkSessionStatus Status { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "AccessChecklistJson",
+      "file": "src/DevLeads.Core/Entities/WorkSession.cs",
+      "line": 12,
+      "signature": "public string AccessChecklistJson { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Notes",
+      "file": "src/DevLeads.Core/Entities/WorkSession.cs",
+      "line": 15,
+      "signature": "public string Notes { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "FixSummary",
+      "file": "src/DevLeads.Core/Entities/WorkSession.cs",
+      "line": 16,
+      "signature": "public string FixSummary { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ClientConfirmation",
+      "file": "src/DevLeads.Core/Entities/WorkSession.cs",
+      "line": 17,
+      "signature": "public string ClientConfirmation { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Opportunity",
+      "file": "src/DevLeads.Core/Entities/WorkSession.cs",
+      "line": 18,
+      "signature": "public Opportunity? Opportunity { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "enum",
+      "name": "OpportunityStatus",
+      "file": "src/DevLeads.Core/Enums.cs",
+      "line": 2,
+      "signature": "public enum OpportunityStatus",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "enum",
+      "name": "Priority",
+      "file": "src/DevLeads.Core/Enums.cs",
+      "line": 29,
+      "signature": "public enum Priority",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "enum",
+      "name": "AiJobStatus",
+      "file": "src/DevLeads.Core/Enums.cs",
+      "line": 39,
+      "signature": "public enum AiJobStatus",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "enum",
+      "name": "OutreachRecommendation",
+      "file": "src/DevLeads.Core/Enums.cs",
+      "line": 51,
+      "signature": "public enum OutreachRecommendation",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "enum",
+      "name": "OutreachMode",
+      "file": "src/DevLeads.Core/Enums.cs",
+      "line": 61,
+      "signature": "public enum OutreachMode",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "enum",
+      "name": "OutreachStatus",
+      "file": "src/DevLeads.Core/Enums.cs",
+      "line": 71,
+      "signature": "public enum OutreachStatus",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "enum",
+      "name": "OutreachChannel",
+      "file": "src/DevLeads.Core/Enums.cs",
+      "line": 83,
+      "signature": "public enum OutreachChannel",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "enum",
+      "name": "QuoteStatus",
+      "file": "src/DevLeads.Core/Enums.cs",
+      "line": 93,
+      "signature": "public enum QuoteStatus",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "enum",
+      "name": "WorkSessionStatus",
+      "file": "src/DevLeads.Core/Enums.cs",
+      "line": 108,
+      "signature": "public enum WorkSessionStatus",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "enum",
+      "name": "SuppressionContactType",
+      "file": "src/DevLeads.Core/Enums.cs",
+      "line": 119,
+      "signature": "public enum SuppressionContactType",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "HeuristicPreFilter",
+      "file": "src/DevLeads.Core/HeuristicPreFilter.cs",
+      "line": 6,
+      "signature": "public sealed class HeuristicPreFilter",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "HasPayLanguage",
+      "file": "src/DevLeads.Core/HeuristicPreFilter.cs",
+      "line": 84,
+      "signature": "public static bool HasPayLanguage(string text)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "Analyze",
+      "file": "src/DevLeads.Core/HeuristicPreFilter.cs",
+      "line": 90,
+      "signature": "public PreFilterResult Analyze(RawSourceItem item)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "OfferedCompensation",
+      "file": "src/DevLeads.Core/OfferedCompensation.cs",
+      "line": 4,
+      "signature": "public static class OfferedCompensation",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "PreFilterResult",
+      "file": "src/DevLeads.Core/PreFilterResult.cs",
+      "line": 2,
+      "signature": "public sealed class PreFilterResult",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ShouldAnalyzeWithAi",
+      "file": "src/DevLeads.Core/PreFilterResult.cs",
+      "line": 6,
+      "signature": "public bool ShouldAnalyzeWithAi { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "KeywordHitCount",
+      "file": "src/DevLeads.Core/PreFilterResult.cs",
+      "line": 7,
+      "signature": "public int KeywordHitCount { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "HighPriorityHitCount",
+      "file": "src/DevLeads.Core/PreFilterResult.cs",
+      "line": 8,
+      "signature": "public int HighPriorityHitCount { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "NegativeHitCount",
+      "file": "src/DevLeads.Core/PreFilterResult.cs",
+      "line": 9,
+      "signature": "public int NegativeHitCount { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "PayIntentHitCount",
+      "file": "src/DevLeads.Core/PreFilterResult.cs",
+      "line": 10,
+      "signature": "public int PayIntentHitCount { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "HeuristicScore",
+      "file": "src/DevLeads.Core/PreFilterResult.cs",
+      "line": 12,
+      "signature": "public decimal HeuristicScore { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "MatchedTerms",
+      "file": "src/DevLeads.Core/PreFilterResult.cs",
+      "line": 13,
+      "signature": "public List<string> MatchedTerms { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "RejectReason",
+      "file": "src/DevLeads.Core/PreFilterResult.cs",
+      "line": 14,
+      "signature": "public string? RejectReason { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "record",
+      "name": "QueryPackSeed",
+      "file": "src/DevLeads.Core/QueryPacks/DefaultQueryPacks.cs",
+      "line": 2,
+      "signature": "public sealed record QueryPackSeed (string Name, string Description, bool IsHighPriority, bool IsNegative, string[] Terms)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "QueryPackSeed",
+      "file": "src/DevLeads.Core/QueryPacks/DefaultQueryPacks.cs",
+      "line": 2,
+      "signature": "public sealed record QueryPackSeed(string Name, string Description, bool IsHighPriority, bool IsNegative, string[] Terms)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "DefaultQueryPacks",
+      "file": "src/DevLeads.Core/QueryPacks/DefaultQueryPacks.cs",
+      "line": 5,
+      "signature": "public static class DefaultQueryPacks",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "interface",
+      "name": "IQueryPackProvider",
+      "file": "src/DevLeads.Core/QueryPacks/IQueryPackProvider.cs",
+      "line": 2,
+      "signature": "public interface IQueryPackProvider",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "record",
+      "name": "RedFlagResult",
+      "file": "src/DevLeads.Core/RedFlagDetector.cs",
+      "line": 2,
+      "signature": "public sealed record RedFlagResult (bool IsRedFlagged, IReadOnlyList<string> Reasons)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "RedFlagResult",
+      "file": "src/DevLeads.Core/RedFlagDetector.cs",
+      "line": 2,
+      "signature": "public sealed record RedFlagResult(bool IsRedFlagged, IReadOnlyList<string> Reasons)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "RedFlagDetector",
+      "file": "src/DevLeads.Core/RedFlagDetector.cs",
+      "line": 8,
+      "signature": "public static class RedFlagDetector",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "Scan",
+      "file": "src/DevLeads.Core/RedFlagDetector.cs",
+      "line": 40,
+      "signature": "public static RedFlagResult Scan(string title, string body)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "ScoreBreakdown",
+      "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+      "line": 4,
+      "signature": "public sealed class ScoreBreakdown",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "UrgencyScore",
+      "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+      "line": 8,
+      "signature": "public double UrgencyScore { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "StackFitScore",
+      "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+      "line": 9,
+      "signature": "public double StackFitScore { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "BusinessValueScore",
+      "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+      "line": 10,
+      "signature": "public double BusinessValueScore { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ReachabilityScore",
+      "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+      "line": 11,
+      "signature": "public double ReachabilityScore { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "CompetitionScore",
+      "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+      "line": 12,
+      "signature": "public double CompetitionScore { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "TrustScore",
+      "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+      "line": 13,
+      "signature": "public double TrustScore { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Total",
+      "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+      "line": 14,
+      "signature": "public double Total { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Priority",
+      "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+      "line": 15,
+      "signature": "public Priority Priority { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "ScoringInput",
+      "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+      "line": 17,
+      "signature": "public sealed class ScoringInput",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Ai",
+      "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+      "line": 21,
+      "signature": "public AiTriageResult? Ai { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "PreFilter",
+      "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+      "line": 22,
+      "signature": "public PreFilterResult? PreFilter { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "SourceKey",
+      "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+      "line": 23,
+      "signature": "public string SourceKey { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "PostedAt",
+      "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+      "line": 24,
+      "signature": "public DateTimeOffset PostedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "RedFlagged",
+      "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+      "line": 25,
+      "signature": "public bool RedFlagged { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "HasContact",
+      "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+      "line": 26,
+      "signature": "public bool HasContact { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "SkillMatches",
+      "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+      "line": 27,
+      "signature": "public IReadOnlyList<SkillMatch>? SkillMatches { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "OfferedAmount",
+      "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+      "line": 33,
+      "signature": "public double? OfferedAmount { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "OpportunityScorer",
+      "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+      "line": 37,
+      "signature": "public static class OpportunityScorer",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "Score",
+      "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+      "line": 55,
+      "signature": "public static ScoreBreakdown Score(ScoringInput input, DateTimeOffset now)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "ToPriority",
+      "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+      "line": 95,
+      "signature": "public static Priority ToPriority(double total)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "DefaultSkills",
+      "file": "src/DevLeads.Core/Skills/DefaultSkills.cs",
+      "line": 4,
+      "signature": "public static class DefaultSkills",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "All",
+      "file": "src/DevLeads.Core/Skills/DefaultSkills.cs",
+      "line": 14,
+      "signature": "public static IReadOnlyList<Skill> All { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "record",
+      "name": "SkillMatch",
+      "file": "src/DevLeads.Core/Skills/SkillMatcher.cs",
+      "line": 4,
+      "signature": "public sealed record SkillMatch (string Name, int Weight)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "SkillMatch",
+      "file": "src/DevLeads.Core/Skills/SkillMatcher.cs",
+      "line": 4,
+      "signature": "public sealed record SkillMatch(string Name, int Weight)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "SkillMatcher",
+      "file": "src/DevLeads.Core/Skills/SkillMatcher.cs",
+      "line": 7,
+      "signature": "public static class SkillMatcher",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "Match",
+      "file": "src/DevLeads.Core/Skills/SkillMatcher.cs",
+      "line": 11,
+      "signature": "public static List<SkillMatch> Match(string text, IEnumerable<Skill> skills)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "FitScore",
+      "file": "src/DevLeads.Core/Skills/SkillMatcher.cs",
+      "line": 26,
+      "signature": "public static double FitScore(IReadOnlyList<SkillMatch> matches)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "PromptSummary",
+      "file": "src/DevLeads.Core/Skills/SkillMatcher.cs",
+      "line": 39,
+      "signature": "public static string PromptSummary(IEnumerable<Skill> skills, int maxItems = 40)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "SearchTerms",
+      "file": "src/DevLeads.Core/Skills/SkillMatcher.cs",
+      "line": 49,
+      "signature": "public static List<string> SearchTerms(IEnumerable<Skill> skills, int max = 12)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "SourceUrlCanonicalizer",
+      "file": "src/DevLeads.Core/SourceUrlCanonicalizer.cs",
+      "line": 2,
+      "signature": "public static class SourceUrlCanonicalizer",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "Canonicalize",
+      "file": "src/DevLeads.Core/SourceUrlCanonicalizer.cs",
+      "line": 10,
+      "signature": "public static string? Canonicalize(string? sourceUrl)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "record",
+      "name": "EmergencyChecklist",
+      "file": "src/DevLeads.Core/Templates/EmergencyChecklists.cs",
+      "line": 2,
+      "signature": "public sealed record EmergencyChecklist (string Key, string Name, string[] Items)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "EmergencyChecklist",
+      "file": "src/DevLeads.Core/Templates/EmergencyChecklists.cs",
+      "line": 2,
+      "signature": "public sealed record EmergencyChecklist(string Key, string Name, string[] Items)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "EmergencyChecklists",
+      "file": "src/DevLeads.Core/Templates/EmergencyChecklists.cs",
+      "line": 4,
+      "signature": "public static class EmergencyChecklists",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "SuggestFor",
+      "file": "src/DevLeads.Core/Templates/EmergencyChecklists.cs",
+      "line": 29,
+      "signature": "public static EmergencyChecklist SuggestFor(string problemCategory)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "record",
+      "name": "PricingTier",
+      "file": "src/DevLeads.Core/Templates/PricingTiers.cs",
+      "line": 2,
+      "signature": "public sealed record PricingTier (string Name, string UseCase, double SuggestedMin, double SuggestedMax)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "PricingTier",
+      "file": "src/DevLeads.Core/Templates/PricingTiers.cs",
+      "line": 2,
+      "signature": "public sealed record PricingTier(string Name, string UseCase, double SuggestedMin, double SuggestedMax)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "PricingTiers",
+      "file": "src/DevLeads.Core/Templates/PricingTiers.cs",
+      "line": 4,
+      "signature": "public static class PricingTiers",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "record",
+      "name": "ResponseTemplate",
+      "file": "src/DevLeads.Core/Templates/ResponseTemplates.cs",
+      "line": 2,
+      "signature": "public sealed record ResponseTemplate (string Key, string Name, string Channel, string Body)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "ResponseTemplate",
+      "file": "src/DevLeads.Core/Templates/ResponseTemplates.cs",
+      "line": 2,
+      "signature": "public sealed record ResponseTemplate(string Key, string Name, string Channel, string Body)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "ResponseTemplates",
+      "file": "src/DevLeads.Core/Templates/ResponseTemplates.cs",
+      "line": 4,
+      "signature": "public static class ResponseTemplates",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "Get",
+      "file": "src/DevLeads.Core/Templates/ResponseTemplates.cs",
+      "line": 54,
+      "signature": "public static ResponseTemplate Get(string key)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "AiTriageRouter",
+      "file": "src/DevLeads.Infrastructure/Ai/AiTriageRouter.cs",
+      "line": 6,
+      "signature": "public sealed class AiTriageRouter",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "Resolve",
+      "file": "src/DevLeads.Infrastructure/Ai/AiTriageRouter.cs",
+      "line": 27,
+      "signature": "public IAiTriageProvider Resolve(OperatorSettings settings)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "TriageAsync",
+      "file": "src/DevLeads.Infrastructure/Ai/AiTriageRouter.cs",
+      "line": 49,
+      "signature": "public async Task<AiTriageResponse> TriageAsync(AiTriageRequest request, OperatorSettings settings, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "ShortlistAsync",
+      "file": "src/DevLeads.Infrastructure/Ai/AiTriageRouter.cs",
+      "line": 73,
+      "signature": "public async Task<AiShortlistResponse> ShortlistAsync(IReadOnlyList<AiShortlistItem> items, OperatorSettings settings, int maxSelections, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "AnthropicTriageProvider",
+      "file": "src/DevLeads.Infrastructure/Ai/AnthropicTriageProvider.cs",
+      "line": 9,
+      "signature": "public sealed class AnthropicTriageProvider : IAiTriageProvider",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "IsAvailable",
+      "file": "src/DevLeads.Infrastructure/Ai/AnthropicTriageProvider.cs",
+      "line": 21,
+      "signature": "public bool IsAvailable(OperatorSettings settings)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "AvailabilityMessage",
+      "file": "src/DevLeads.Infrastructure/Ai/AnthropicTriageProvider.cs",
+      "line": 23,
+      "signature": "public string AvailabilityMessage(OperatorSettings settings)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "TriageAsync",
+      "file": "src/DevLeads.Infrastructure/Ai/AnthropicTriageProvider.cs",
+      "line": 30,
+      "signature": "public async Task<AiTriageResponse> TriageAsync(AiTriageRequest request, OperatorSettings settings, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "HeuristicTriageProvider",
+      "file": "src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs",
+      "line": 7,
+      "signature": "public sealed class HeuristicTriageProvider : IAiTriageProvider",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "IsAvailable",
+      "file": "src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs",
+      "line": 15,
+      "signature": "public bool IsAvailable(OperatorSettings settings)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "AvailabilityMessage",
+      "file": "src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs",
+      "line": 17,
+      "signature": "public string AvailabilityMessage(OperatorSettings settings)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "TriageAsync",
+      "file": "src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs",
+      "line": 122,
+      "signature": "public Task<AiTriageResponse> TriageAsync(AiTriageRequest request, OperatorSettings settings, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "OpenCodeTriageProvider",
+      "file": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
+      "line": 11,
+      "signature": "public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlistProvider",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "IsAvailable",
+      "file": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
+      "line": 31,
+      "signature": "public bool IsAvailable(OperatorSettings settings)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "AvailabilityMessage",
+      "file": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
+      "line": 33,
+      "signature": "public string AvailabilityMessage(OperatorSettings settings)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "TriageAsync",
+      "file": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
+      "line": 39,
+      "signature": "public async Task<AiTriageResponse> TriageAsync(AiTriageRequest request, OperatorSettings settings, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "ShortlistAsync",
+      "file": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
+      "line": 127,
+      "signature": "public async Task<AiShortlistResponse> ShortlistAsync(IReadOnlyList<AiShortlistItem> items, OperatorSettings settings, int maxSelections, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "ShortlistOutput",
+      "file": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
+      "line": 268,
+      "signature": "private sealed class ShortlistOutput",
+      "access": "private",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Selected",
+      "file": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
+      "line": 271,
+      "signature": "public List<ShortlistSelection> Selected { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "ShortlistSelection",
+      "file": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
+      "line": 273,
+      "signature": "private sealed class ShortlistSelection",
+      "access": "private",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Id",
+      "file": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
+      "line": 276,
+      "signature": "public string Id { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Reason",
+      "file": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
+      "line": 277,
+      "signature": "public string? Reason { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "ResolveCliPath",
+      "file": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
+      "line": 279,
+      "signature": "public static string ResolveCliPath(OperatorSettings settings)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "ResetProbe",
+      "file": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
+      "line": 332,
+      "signature": "public static void ResetProbe()",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "ExtractJsonObject",
+      "file": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
+      "line": 386,
+      "signature": "public static string? ExtractJsonObject(string text)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "ConnectorSupport",
+      "file": "src/DevLeads.Infrastructure/Connectors/ConnectorSupport.cs",
+      "line": 6,
+      "signature": "public static class ConnectorSupport",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "ContentHash",
+      "file": "src/DevLeads.Infrastructure/Connectors/ConnectorSupport.cs",
+      "line": 11,
+      "signature": "public static string ContentHash(string sourceKey, string externalId, string title)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "NewItem",
+      "file": "src/DevLeads.Infrastructure/Connectors/ConnectorSupport.cs",
+      "line": 19,
+      "signature": "public static RawSourceItem NewItem(string sourceKey, string externalId, string title, string body, string url, string? author, string? authorUrl, DateTimeOffset postedAt, string rawJson)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "GitHubSearchConnector",
+      "file": "src/DevLeads.Infrastructure/Connectors/GitHubSearchConnector.cs",
+      "line": 7,
+      "signature": "public sealed class GitHubSearchConnector : ISourceConnector",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "FetchAsync",
+      "file": "src/DevLeads.Infrastructure/Connectors/GitHubSearchConnector.cs",
+      "line": 28,
+      "signature": "public async Task<IReadOnlyList<RawSourceItem>> FetchAsync(SourceConnectorConfig config, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "CheckHealthAsync",
+      "file": "src/DevLeads.Infrastructure/Connectors/GitHubSearchConnector.cs",
+      "line": 145,
+      "signature": "public async Task<ConnectorHealth> CheckHealthAsync(CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "HackerNewsConnector",
+      "file": "src/DevLeads.Infrastructure/Connectors/HackerNewsConnector.cs",
+      "line": 7,
+      "signature": "public sealed class HackerNewsConnector : ISourceConnector",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "FetchAsync",
+      "file": "src/DevLeads.Infrastructure/Connectors/HackerNewsConnector.cs",
+      "line": 22,
+      "signature": "public async Task<IReadOnlyList<RawSourceItem>> FetchAsync(SourceConnectorConfig config, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "CheckHealthAsync",
+      "file": "src/DevLeads.Infrastructure/Connectors/HackerNewsConnector.cs",
+      "line": 73,
+      "signature": "public async Task<ConnectorHealth> CheckHealthAsync(CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "OpireConnector",
+      "file": "src/DevLeads.Infrastructure/Connectors/OpireConnector.cs",
+      "line": 7,
+      "signature": "public sealed class OpireConnector : ISourceConnector",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "FetchAsync",
+      "file": "src/DevLeads.Infrastructure/Connectors/OpireConnector.cs",
+      "line": 26,
+      "signature": "public async Task<IReadOnlyList<RawSourceItem>> FetchAsync(SourceConnectorConfig config, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "CheckHealthAsync",
+      "file": "src/DevLeads.Infrastructure/Connectors/OpireConnector.cs",
+      "line": 119,
+      "signature": "public async Task<ConnectorHealth> CheckHealthAsync(CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "RedditConnector",
+      "file": "src/DevLeads.Infrastructure/Connectors/RedditConnector.cs",
+      "line": 7,
+      "signature": "public sealed class RedditConnector : ISourceConnector",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "FetchAsync",
+      "file": "src/DevLeads.Infrastructure/Connectors/RedditConnector.cs",
+      "line": 22,
+      "signature": "public async Task<IReadOnlyList<RawSourceItem>> FetchAsync(SourceConnectorConfig config, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "CheckHealthAsync",
+      "file": "src/DevLeads.Infrastructure/Connectors/RedditConnector.cs",
+      "line": 135,
+      "signature": "public async Task<ConnectorHealth> CheckHealthAsync(CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "RemotiveConnector",
+      "file": "src/DevLeads.Infrastructure/Connectors/RemotiveConnector.cs",
+      "line": 7,
+      "signature": "public sealed class RemotiveConnector : ISourceConnector",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "FetchAsync",
+      "file": "src/DevLeads.Infrastructure/Connectors/RemotiveConnector.cs",
+      "line": 41,
+      "signature": "public async Task<IReadOnlyList<RawSourceItem>> FetchAsync(SourceConnectorConfig config, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "CheckHealthAsync",
+      "file": "src/DevLeads.Infrastructure/Connectors/RemotiveConnector.cs",
+      "line": 103,
+      "signature": "public async Task<ConnectorHealth> CheckHealthAsync(CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "RssConnector",
+      "file": "src/DevLeads.Infrastructure/Connectors/RssConnector.cs",
+      "line": 8,
+      "signature": "public sealed class RssConnector : ISourceConnector",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "FetchAsync",
+      "file": "src/DevLeads.Infrastructure/Connectors/RssConnector.cs",
+      "line": 38,
+      "signature": "public async Task<IReadOnlyList<RawSourceItem>> FetchAsync(SourceConnectorConfig config, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "CheckHealthAsync",
+      "file": "src/DevLeads.Infrastructure/Connectors/RssConnector.cs",
+      "line": 99,
+      "signature": "public async Task<ConnectorHealth> CheckHealthAsync(CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "StackExchangeConnector",
+      "file": "src/DevLeads.Infrastructure/Connectors/StackExchangeConnector.cs",
+      "line": 7,
+      "signature": "public sealed class StackExchangeConnector : ISourceConnector",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "FetchAsync",
+      "file": "src/DevLeads.Infrastructure/Connectors/StackExchangeConnector.cs",
+      "line": 22,
+      "signature": "public async Task<IReadOnlyList<RawSourceItem>> FetchAsync(SourceConnectorConfig config, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "CheckHealthAsync",
+      "file": "src/DevLeads.Infrastructure/Connectors/StackExchangeConnector.cs",
+      "line": 100,
+      "signature": "public async Task<ConnectorHealth> CheckHealthAsync(CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "DatabaseSeeder",
+      "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
+      "line": 8,
+      "signature": "public static class DatabaseSeeder",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "InitializeAsync",
+      "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
+      "line": 16,
+      "signature": "public static async Task InitializeAsync(DevLeadsDbContext db, CancellationToken ct = default)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "DevLeadsDbContext",
+      "file": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
+      "line": 7,
+      "signature": "public class DevLeadsDbContext : DbContext",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "DateTimeOffsetToTicksConverter",
+      "file": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
+      "line": 25,
+      "signature": "private sealed class DateTimeOffsetToTicksConverter : ValueConverter<DateTimeOffset, long>",
+      "access": "private",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "DependencyInjection",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 16,
+      "signature": "public static class DependencyInjection",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "AddDevLeads",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 19,
+      "signature": "public static IServiceCollection AddDevLeads(this IServiceCollection services, string connectionString)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "InitializeDevLeadsAsync",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 77,
+      "signature": "public static async Task InitializeDevLeadsAsync(this IServiceProvider services)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "DbQueryPackProvider",
+      "file": "src/DevLeads.Infrastructure/QueryPacks/DbQueryPackProvider.cs",
+      "line": 5,
+      "signature": "public sealed class DbQueryPackProvider : IQueryPackProvider",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "GetTerms",
+      "file": "src/DevLeads.Infrastructure/QueryPacks/DbQueryPackProvider.cs",
+      "line": 18,
+      "signature": "public IReadOnlyList<string> GetTerms(string packName)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "GetHighPriorityTerms",
+      "file": "src/DevLeads.Infrastructure/QueryPacks/DbQueryPackProvider.cs",
+      "line": 24,
+      "signature": "public IReadOnlyList<string> GetHighPriorityTerms()",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "GetNegativeTerms",
+      "file": "src/DevLeads.Infrastructure/QueryPacks/DbQueryPackProvider.cs",
+      "line": 28,
+      "signature": "public IReadOnlyList<string> GetNegativeTerms()",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "AuditService",
+      "file": "src/DevLeads.Infrastructure/Services/AuditService.cs",
+      "line": 6,
+      "signature": "public sealed class AuditService",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "Record",
+      "file": "src/DevLeads.Infrastructure/Services/AuditService.cs",
+      "line": 12,
+      "signature": "public void Record(string entityType, long entityId, string eventType, string description, string actor = \"system\", object? metadata = null)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "LeadIngestionService",
+      "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
+      "line": 14,
+      "signature": "public sealed class LeadIngestionService",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "IngestAsync",
+      "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
+      "line": 37,
+      "signature": "public async Task<Opportunity?> IngestAsync(RawSourceItem item, SourceConfig source, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "RecordRawOnlyAsync",
+      "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
+      "line": 126,
+      "signature": "public async Task<bool> RecordRawOnlyAsync(RawSourceItem item, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "CreateManualAsync",
+      "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
+      "line": 146,
+      "signature": "public async Task<Opportunity> CreateManualAsync(string title, string body, string sourceUrl, string? author, string? authorUrl, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "RerunAsync",
+      "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
+      "line": 195,
+      "signature": "public async Task RerunAsync(long opportunityId, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "MapRecommendation",
+      "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
+      "line": 458,
+      "signature": "public static OutreachRecommendation MapRecommendation(string value)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "MaintenanceService",
+      "file": "src/DevLeads.Infrastructure/Services/MaintenanceService.cs",
+      "line": 6,
+      "signature": "public sealed class MaintenanceService",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "ArchiveStaleLeadsAsync",
+      "file": "src/DevLeads.Infrastructure/Services/MaintenanceService.cs",
+      "line": 18,
+      "signature": "public async Task<int> ArchiveStaleLeadsAsync(CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "FlagOverdueQuotesAsync",
+      "file": "src/DevLeads.Infrastructure/Services/MaintenanceService.cs",
+      "line": 43,
+      "signature": "public async Task<int> FlagOverdueQuotesAsync(CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "DueFollowUpCountAsync",
+      "file": "src/DevLeads.Infrastructure/Services/MaintenanceService.cs",
+      "line": 53,
+      "signature": "public async Task<int> DueFollowUpCountAsync(CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "OutreachService",
+      "file": "src/DevLeads.Infrastructure/Services/OutreachService.cs",
+      "line": 8,
+      "signature": "public sealed class OutreachService",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "GenerateDraftAsync",
+      "file": "src/DevLeads.Infrastructure/Services/OutreachService.cs",
+      "line": 23,
+      "signature": "public async Task<OutreachAttempt> GenerateDraftAsync(long opportunityId, string templateKey, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "ApproveAsync",
+      "file": "src/DevLeads.Infrastructure/Services/OutreachService.cs",
+      "line": 55,
+      "signature": "public async Task ApproveAsync(long attemptId, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "CancelAsync",
+      "file": "src/DevLeads.Infrastructure/Services/OutreachService.cs",
+      "line": 97,
+      "signature": "public async Task CancelAsync(long attemptId, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "MarkRespondedAsync",
+      "file": "src/DevLeads.Infrastructure/Services/OutreachService.cs",
+      "line": 105,
+      "signature": "public async Task MarkRespondedAsync(long opportunityId, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "IsSuppressedAsync",
+      "file": "src/DevLeads.Infrastructure/Services/OutreachService.cs",
+      "line": 116,
+      "signature": "public Task<bool> IsSuppressedAsync(string contact, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "AddSuppressionAsync",
+      "file": "src/DevLeads.Infrastructure/Services/OutreachService.cs",
+      "line": 119,
+      "signature": "public async Task AddSuppressionAsync(string contact, SuppressionContactType type, string reason, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "QuoteService",
+      "file": "src/DevLeads.Infrastructure/Services/QuoteService.cs",
+      "line": 8,
+      "signature": "public sealed class QuoteService",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "GenerateAsync",
+      "file": "src/DevLeads.Infrastructure/Services/QuoteService.cs",
+      "line": 20,
+      "signature": "public async Task<Quote> GenerateAsync(long opportunityId, double? amount, bool dueOnCompletion, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "SendAsync",
+      "file": "src/DevLeads.Infrastructure/Services/QuoteService.cs",
+      "line": 49,
+      "signature": "public async Task SendAsync(long quoteId, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "MarkPaidAsync",
+      "file": "src/DevLeads.Infrastructure/Services/QuoteService.cs",
+      "line": 59,
+      "signature": "public async Task MarkPaidAsync(long quoteId, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "MarkOverdueAsync",
+      "file": "src/DevLeads.Infrastructure/Services/QuoteService.cs",
+      "line": 69,
+      "signature": "public async Task MarkOverdueAsync(long quoteId, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "SourceRunner",
+      "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
+      "line": 13,
+      "signature": "public sealed class SourceRunner",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "RunAsync",
+      "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
+      "line": 37,
+      "signature": "public async Task<int> RunAsync(SourceConfig source, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "CheckHealthAsync",
+      "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
+      "line": 260,
+      "signature": "public async Task<ConnectorHealth> CheckHealthAsync(string sourceKey, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "ShortlistGate",
+      "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
+      "line": 283,
+      "signature": "private sealed class ShortlistGate",
+      "access": "private",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Enabled",
+      "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
+      "line": 302,
+      "signature": "public bool Enabled { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "SelectedIds",
+      "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
+      "line": 305,
+      "signature": "public IReadOnlySet<string> SelectedIds { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "CandidateCount",
+      "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
+      "line": 306,
+      "signature": "public int CandidateCount { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Provider",
+      "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
+      "line": 308,
+      "signature": "public string Provider { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "ShouldRecordRawOnly",
+      "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
+      "line": 309,
+      "signature": "public bool ShouldRecordRawOnly(RawSourceItem item)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "DiscoveryWorker",
+      "file": "src/DevLeads.Infrastructure/Workers/DiscoveryWorker.cs",
+      "line": 9,
+      "signature": "public sealed class DiscoveryWorker : BackgroundService",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "ApiEndpoints",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 7,
+      "signature": "public static class ApiEndpoints",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "MapDevLeadsApi",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 11,
+      "signature": "public static void MapDevLeadsApi(this WebApplication app)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "record",
+      "name": "ManualLeadDto",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 139,
+      "signature": "public record ManualLeadDto (string Title, string Body, string? SourceUrl, string? Author, string? AuthorUrl)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "ManualLeadDto",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 139,
+      "signature": "public record ManualLeadDto(string Title, string Body, string? SourceUrl, string? Author, string? AuthorUrl)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "record",
+      "name": "DraftDto",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 141,
+      "signature": "public record DraftDto (string TemplateKey)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "DraftDto",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 141,
+      "signature": "public record DraftDto(string TemplateKey)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "record",
+      "name": "QuoteDto",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 142,
+      "signature": "public record QuoteDto (double? Amount, bool DueOnCompletion)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "QuoteDto",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 142,
+      "signature": "public record QuoteDto(double? Amount, bool DueOnCompletion)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "AppRestartService",
+      "file": "src/DevLeads.Web/AppRestartService.cs",
+      "line": 4,
+      "signature": "public sealed class AppRestartService",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "Restart",
+      "file": "src/DevLeads.Web/AppRestartService.cs",
+      "line": 24,
+      "signature": "public string? Restart()",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "UiHelpers",
+      "file": "src/DevLeads.Web/Components/Shared/UiHelpers.cs",
+      "line": 6,
+      "signature": "public static class UiHelpers",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "PriorityClass",
+      "file": "src/DevLeads.Web/Components/Shared/UiHelpers.cs",
+      "line": 10,
+      "signature": "public static string PriorityClass(Priority p)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "StatusClass",
+      "file": "src/DevLeads.Web/Components/Shared/UiHelpers.cs",
+      "line": 18,
+      "signature": "public static string StatusClass(OpportunityStatus s)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "AiStatusClass",
+      "file": "src/DevLeads.Web/Components/Shared/UiHelpers.cs",
+      "line": 31,
+      "signature": "public static string AiStatusClass(AiJobStatus s)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "Spaced",
+      "file": "src/DevLeads.Web/Components/Shared/UiHelpers.cs",
+      "line": 40,
+      "signature": "public static string Spaced(Enum e)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "Age",
+      "file": "src/DevLeads.Web/Components/Shared/UiHelpers.cs",
+      "line": 46,
+      "signature": "public static string Age(DateTimeOffset from)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "AgeClass",
+      "file": "src/DevLeads.Web/Components/Shared/UiHelpers.cs",
+      "line": 55,
+      "signature": "public static string AgeClass(DateTimeOffset from)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "CompensationOffered",
+      "file": "src/DevLeads.Web/Components/Shared/UiHelpers.cs",
+      "line": 62,
+      "signature": "public static bool? CompensationOffered(Opportunity o)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "Fee",
+      "file": "src/DevLeads.Web/Components/Shared/UiHelpers.cs",
+      "line": 82,
+      "signature": "public static string Fee(double? min, double? max)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "Fee",
+      "file": "src/DevLeads.Web/Components/Shared/UiHelpers.cs",
+      "line": 85,
+      "signature": "public static string Fee(Opportunity o)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "ParseStringList",
+      "file": "src/DevLeads.Web/Components/Shared/UiHelpers.cs",
+      "line": 99,
+      "signature": "public static List<string> ParseStringList(string json)",
+      "access": "public",
+      "parent": ""
+    }
+  ],
+  "routes": [
+    {
+      "verb": "GET",
+      "route": "/favicon.ico",
+      "file": "src/DevLeads.Web/Program.cs",
+      "line": 43,
+      "method": "minimal-api"
+    }
+  ],
+  "di": [
+    {
+      "lifetime": "Scoped",
+      "service": "DevLeadsDbContext",
+      "implementation": "",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 25
+    },
+    {
+      "lifetime": "Transient",
+      "service": "ISourceConnector",
+      "implementation": "RssConnector",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 41
+    },
+    {
+      "lifetime": "Transient",
+      "service": "ISourceConnector",
+      "implementation": "HackerNewsConnector",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 42
+    },
+    {
+      "lifetime": "Transient",
+      "service": "ISourceConnector",
+      "implementation": "StackExchangeConnector",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 43
+    },
+    {
+      "lifetime": "Transient",
+      "service": "ISourceConnector",
+      "implementation": "RemotiveConnector",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 44
+    },
+    {
+      "lifetime": "Transient",
+      "service": "ISourceConnector",
+      "implementation": "RedditConnector",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 45
+    },
+    {
+      "lifetime": "Transient",
+      "service": "ISourceConnector",
+      "implementation": "OpireConnector",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 46
+    },
+    {
+      "lifetime": "Transient",
+      "service": "ISourceConnector",
+      "implementation": "GitHubSearchConnector",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 47
+    },
+    {
+      "lifetime": "Scoped",
+      "service": "IQueryPackProvider",
+      "implementation": "DbQueryPackProvider",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 50
+    },
+    {
+      "lifetime": "Scoped",
+      "service": "HeuristicPreFilter",
+      "implementation": "",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 51
+    },
+    {
+      "lifetime": "Singleton",
+      "service": "HeuristicTriageProvider",
+      "implementation": "",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 56
+    },
+    {
+      "lifetime": "Singleton",
+      "service": "AnthropicTriageProvider",
+      "implementation": "",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 57
+    },
+    {
+      "lifetime": "Singleton",
+      "service": "OpenCodeTriageProvider",
+      "implementation": "",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 58
+    },
+    {
+      "lifetime": "Singleton",
+      "service": "IAiTriageProvider",
+      "implementation": "",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 59
+    },
+    {
+      "lifetime": "Singleton",
+      "service": "IAiTriageProvider",
+      "implementation": "",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 60
+    },
+    {
+      "lifetime": "Singleton",
+      "service": "IAiTriageProvider",
+      "implementation": "",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 61
+    },
+    {
+      "lifetime": "Singleton",
+      "service": "AiTriageRouter",
+      "implementation": "",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 62
+    },
+    {
+      "lifetime": "Scoped",
+      "service": "AuditService",
+      "implementation": "",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 65
+    },
+    {
+      "lifetime": "Scoped",
+      "service": "LeadIngestionService",
+      "implementation": "",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 66
+    },
+    {
+      "lifetime": "Scoped",
+      "service": "OutreachService",
+      "implementation": "",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 67
+    },
+    {
+      "lifetime": "Scoped",
+      "service": "QuoteService",
+      "implementation": "",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 68
+    },
+    {
+      "lifetime": "Scoped",
+      "service": "SourceRunner",
+      "implementation": "",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 69
+    },
+    {
+      "lifetime": "Scoped",
+      "service": "MaintenanceService",
+      "implementation": "",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 70
+    },
+    {
+      "lifetime": "Singleton",
+      "service": "DevLeads.Web.AppRestartService",
+      "implementation": "",
+      "file": "src/DevLeads.Web/Program.cs",
+      "line": 25
+    }
+  ],
+  "dbcontexts": [
+    "DevLeadsDbContext"
+  ],
+  "dbsets": [],
+  "tests": [],
+  "csprojs": [
+    {
+      "file": "src/DevLeads.Core/DevLeads.Core.csproj",
+      "sdk": "Microsoft.NET.Sdk",
+      "target_frameworks": [
+        "net10.0"
+      ],
+      "package_references": [],
+      "project_references": []
+    },
+    {
+      "file": "src/DevLeads.Infrastructure/DevLeads.Infrastructure.csproj",
+      "sdk": "Microsoft.NET.Sdk",
+      "target_frameworks": [
+        "net10.0"
+      ],
+      "package_references": [
+        {
+          "include": "Anthropic",
+          "version": "12.35.1"
+        },
+        {
+          "include": "Microsoft.EntityFrameworkCore.Sqlite",
+          "version": "10.0.9"
+        },
+        {
+          "include": "Microsoft.Extensions.Hosting.Abstractions",
+          "version": "10.0.9"
+        },
+        {
+          "include": "Microsoft.Extensions.Http",
+          "version": "10.0.9"
+        }
+      ],
+      "project_references": [
+        "../DevLeads.Core/DevLeads.Core.csproj"
+      ]
+    },
+    {
+      "file": "src/DevLeads.Web/DevLeads.Web.csproj",
+      "sdk": "Microsoft.NET.Sdk.Web",
+      "target_frameworks": [
+        "net10.0"
+      ],
+      "package_references": [],
+      "project_references": [
+        "../DevLeads.Infrastructure/DevLeads.Infrastructure.csproj"
+      ]
+    }
+  ],
+  "package_jsons": [],
+  "entrypoints": [
+    {
+      "file": "src/DevLeads.Core/DevLeads.Core.csproj",
+      "reason": "Project file; shows target framework and dependencies."
+    },
+    {
+      "file": "src/DevLeads.Infrastructure/DevLeads.Infrastructure.csproj",
+      "reason": "Project file; shows target framework and dependencies."
+    },
+    {
+      "file": "src/DevLeads.Web/Components/App.razor",
+      "reason": "UI/page/component folder."
+    },
+    {
+      "file": "src/DevLeads.Web/Components/Layout/MainLayout.razor",
+      "reason": "UI/page/component folder."
+    },
+    {
+      "file": "src/DevLeads.Web/Components/Layout/NavMenu.razor",
+      "reason": "UI/page/component folder."
+    },
+    {
+      "file": "src/DevLeads.Web/Components/Layout/ReconnectModal.razor",
+      "reason": "UI/page/component folder."
+    },
+    {
+      "file": "src/DevLeads.Web/Components/Pages/Drafts.razor",
+      "reason": "UI/page/component folder."
+    },
+    {
+      "file": "src/DevLeads.Web/Components/Pages/Error.razor",
+      "reason": "UI/page/component folder."
+    },
+    {
+      "file": "src/DevLeads.Web/Components/Pages/Home.razor",
+      "reason": "UI/page/component folder."
+    },
+    {
+      "file": "src/DevLeads.Web/Components/Pages/NewOpportunity.razor",
+      "reason": "UI/page/component folder."
+    },
+    {
+      "file": "src/DevLeads.Web/Components/Pages/NotFound.razor",
+      "reason": "UI/page/component folder."
+    },
+    {
+      "file": "src/DevLeads.Web/Components/Pages/Opportunities.razor",
+      "reason": "UI/page/component folder."
+    },
+    {
+      "file": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
+      "reason": "UI/page/component folder."
+    },
+    {
+      "file": "src/DevLeads.Web/Components/Pages/Quotes.razor",
+      "reason": "UI/page/component folder."
+    },
+    {
+      "file": "src/DevLeads.Web/Components/Pages/Settings.razor",
+      "reason": "UI/page/component folder."
+    },
+    {
+      "file": "src/DevLeads.Web/Components/Pages/SkillProfile.razor",
+      "reason": "UI/page/component folder."
+    },
+    {
+      "file": "src/DevLeads.Web/Components/Pages/Sources.razor",
+      "reason": "UI/page/component folder."
+    },
+    {
+      "file": "src/DevLeads.Web/Components/Routes.razor",
+      "reason": "UI/page/component folder."
+    },
+    {
+      "file": "src/DevLeads.Web/Components/Shared/UiHelpers.cs",
+      "reason": "UI/page/component folder."
+    },
+    {
+      "file": "src/DevLeads.Web/Components/_Imports.razor",
+      "reason": "UI/page/component folder."
+    },
+    {
+      "file": "src/DevLeads.Web/DevLeads.Web.csproj",
+      "reason": "Project file; shows target framework and dependencies."
+    },
+    {
+      "file": "src/DevLeads.Web/Program.cs",
+      "reason": "Main ASP.NET/Core startup or console entry point."
+    },
+    {
+      "file": "src/DevLeads.Web/appsettings.Development.json",
+      "reason": "Application configuration; values should be redacted before sharing."
+    },
+    {
+      "file": "src/DevLeads.Web/appsettings.json",
+      "reason": "Application configuration; values should be redacted before sharing."
+    }
+  ],
+  "config_summaries": [
+    {
+      "file": "src/DevLeads.Web/Properties/launchSettings.json",
+      "type": "json",
+      "summary": [
+        "$schema = str",
+        "profiles:http:commandName = str",
+        "profiles:http:dotnetRunMessages = bool",
+        "profiles:http:launchBrowser = bool",
+        "profiles:http:applicationUrl = str",
+        "profiles:http:environmentVariables:ASPNETCORE_ENVIRONMENT = str",
+        "profiles:https:commandName = str",
+        "profiles:https:dotnetRunMessages = bool",
+        "profiles:https:launchBrowser = bool",
+        "profiles:https:applicationUrl = str",
+        "profiles:https:environmentVariables:ASPNETCORE_ENVIRONMENT = str"
+      ]
+    },
+    {
+      "file": "src/DevLeads.Web/appsettings.Development.json",
+      "type": "json",
+      "summary": [
+        "Logging:LogLevel:Default = str",
+        "Logging:LogLevel:Microsoft.AspNetCore = str"
+      ]
+    },
+    {
+      "file": "src/DevLeads.Web/appsettings.json",
+      "type": "json",
+      "summary": [
+        "Logging:LogLevel:Default = str",
+        "Logging:LogLevel:Microsoft.AspNetCore = str",
+        "AllowedHosts = str"
+      ]
+    }
+  ]
+}

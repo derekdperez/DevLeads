@@ -1,0 +1,11 @@
+bin/
+obj/
+*.user
+App_Data/
+*.db
+*.db-shm
+*.db-wal
+.vs/
+src/DevLeads.Web/wwwroot/_framework/
+src/DevLeads.Web/wwwroot/Components/
+src/DevLeads.Web/wwwroot/DevLeads.Web.styles.css

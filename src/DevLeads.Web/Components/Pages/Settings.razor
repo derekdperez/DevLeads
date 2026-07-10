@@ -1,0 +1,217 @@
+@page "/settings"
+@rendermode InteractiveServer
+@inject IDbContextFactory<DevLeadsDbContext> DbFactory
+@inject IServiceScopeFactory ScopeFactory
+@inject AiTriageRouter TriageRouter
+@inject DevLeads.Web.AppRestartService RestartService
+<PageTitle>Settings · DevLeads</PageTitle>
+
+<div class="rr-page-head">
+    <div>
+        <h1>Settings</h1>
+        <div class="rr-sub">Operator profile, AI provider, outreach safety, and scoring thresholds.</div>
+    </div>
+    <button class="rr-btn primary" @onclick="Save" disabled="@_busy">💾 Save all</button>
+</div>
+
+@if (_flash is not null) { <div class="rr-flash @(_flashOk ? "ok" : "err")">@_flash</div> }
+
+@if (_s is not null)
+{
+    <div class="rr-panel">
+        <h2>Operator profile</h2>
+        <div class="rr-grid-2">
+            <div class="rr-field"><label>Operator name</label><input class="rr-input" @bind="_s.OperatorName" /></div>
+            <div class="rr-field"><label>Business name</label><input class="rr-input" @bind="_s.BusinessName" /></div>
+            <div class="rr-field"><label>Location</label><input class="rr-input" @bind="_s.Location" /></div>
+            <div class="rr-field"><label>Remote availability</label><input class="rr-input" @bind="_s.RemoteAvailability" /></div>
+        </div>
+        <div class="rr-field"><label>Core skills</label><input class="rr-input" @bind="_s.CoreSkills" /></div>
+        <div class="rr-field"><label>Secondary skills</label><input class="rr-input" @bind="_s.SecondarySkills" /></div>
+        <div class="rr-grid-2">
+            <div class="rr-field"><label>Minimum fee ($)</label><input class="rr-input" type="number" @bind="_s.MinimumFee" /></div>
+            <label class="rr-check"><input type="checkbox" @bind="_s.EmergencyAvailability" /> Emergency availability</label>
+        </div>
+    </div>
+
+    <div class="rr-panel">
+        <h2>AI triage</h2>
+        <div class="rr-sub" style="margin-bottom:.6rem">
+            All decision-making AI is switchable. Active provider: <strong>@ActiveProviderName</strong>.
+            If the selected provider is unavailable, triage falls back to the offline heuristic.
+        </div>
+        <div style="margin-bottom:.8rem">
+            @foreach (var p in TriageRouter.Providers)
+            {
+                var ok = p.IsAvailable(_s);
+                <div class="rr-sub" style="margin:.15rem 0">
+                    <span class="@(ok ? "rr-chip won" : "rr-chip dead")">@p.Name</span>
+                    <span> @p.AvailabilityMessage(_s)</span>
+                </div>
+            }
+        </div>
+        <div class="rr-grid-2">
+            <div class="rr-field">
+                <label>Provider</label>
+                <select class="rr-select" @bind="_s.AiProvider" @bind:after="OnProviderChanged">
+                    <option value="OpenCode">OpenCode CLI (default)</option>
+                    <option value="Anthropic">Anthropic (Claude API)</option>
+                    <option value="Heuristic">Heuristic (offline)</option>
+                </select>
+            </div>
+            <div class="rr-field">
+                <label>Model @(_s.AiProvider == "OpenCode" ? "(opencode provider/model)" : "")</label>
+                <input class="rr-input" @bind="_s.AiModel" />
+            </div>
+            @if (_s.AiProvider == "OpenCode")
+            {
+                <div class="rr-field">
+                    <label>opencode CLI path</label>
+                    <input class="rr-input" @bind="_s.OpenCodeCliPath" @bind:after="OnOpenCodeCliPathChanged" />
+                </div>
+                <div class="rr-field">
+                    <label>Timeout (seconds)</label>
+                    <input class="rr-input" type="number" @bind="_s.AiTimeoutSeconds" />
+                </div>
+            }
+            <div class="rr-field"><label>Min pre-filter score for AI</label><input class="rr-input" type="number" @bind="_s.MinPreFilterScoreForAi" /></div>
+            <div class="rr-field"><label>Min AI confidence for draft</label><input class="rr-input" type="number" step="0.05" @bind="_s.MinAiConfidenceForDraft" /></div>
+            <div class="rr-field"><label>Max AI calls / hour</label><input class="rr-input" type="number" @bind="_s.MaxAiCallsPerHour" /></div>
+            <div class="rr-field"><label>Retry count</label><input class="rr-input" type="number" @bind="_s.AiRetryCount" /></div>
+        </div>
+    </div>
+
+    <div class="rr-panel">
+        <h2>Outreach &amp; safety</h2>
+        <div class="rr-grid-2">
+            <div class="rr-field">
+                <label>Default mode</label>
+                <select class="rr-select" @bind="_s.DefaultOutreachMode">
+                    @foreach (var m in Enum.GetValues<OutreachMode>())
+                    {
+                        <option value="@m">@UiHelpers.Spaced(m)</option>
+                    }
+                </select>
+            </div>
+            <div class="rr-field"><label>Max sends / day</label><input class="rr-input" type="number" @bind="_s.MaxSendsPerDay" /></div>
+        </div>
+        <label class="rr-check"><input type="checkbox" @bind="_s.GlobalAutoModeEnabled" /> Global auto-mode enabled (off by default)</label>
+        <label class="rr-check"><input type="checkbox" @bind="_s.SuppressionListEnabled" /> Suppression list enabled</label>
+        <label class="rr-check"><input type="checkbox" @bind="_s.AuditLoggingEnabled" /> Audit logging enabled</label>
+        <label class="rr-check" style="color:#fca5a5;font-weight:600">
+            <input type="checkbox" @bind="_s.GlobalKillSwitch" /> 🛑 Global kill switch — block ALL outbound messages
+        </label>
+    </div>
+
+    <div class="rr-panel">
+        <h2>Discovery &amp; scoring</h2>
+        <label class="rr-check"><input type="checkbox" @bind="_s.DiscoveryEnabled" /> Automated discovery enabled</label>
+        <div class="rr-grid-2">
+            <div class="rr-field"><label>Draft score threshold</label><input class="rr-input" type="number" @bind="_s.DraftScoreThreshold" /></div>
+            <div class="rr-field"><label>Alert score threshold</label><input class="rr-input" type="number" @bind="_s.AlertScoreThreshold" /></div>
+            <div class="rr-field"><label>Stale item max age (hours)</label><input class="rr-input" type="number" @bind="_s.StaleItemMaxAgeHours" /></div>
+            <div class="rr-field"><label>Follow-up default (hours)</label><input class="rr-input" type="number" @bind="_s.FollowUpDefaultHours" /></div>
+        </div>
+    </div>
+
+    <div class="rr-panel">
+        <h2>Web server</h2>
+        <div class="rr-sub" style="margin-bottom:.6rem">
+            Fully restarts the app process: rebuilds the project and relaunches it with the same
+            address and database, picking up the latest code and configuration. The page goes dark
+            for ~15–60 seconds and reconnects automatically. If the rebuild fails, the previous
+            build is relaunched unchanged (details in App_Data/restart.log).
+        </div>
+        @if (!_restartArmed)
+        {
+            <button class="rr-btn" @onclick="() => _restartArmed = true" disabled="@_busy">🔄 Restart web server…</button>
+        }
+        else
+        {
+            <div class="rr-btn-row">
+                <button class="rr-btn primary" @onclick="RestartServer" disabled="@_busy">✅ Yes, rebuild &amp; restart now</button>
+                <button class="rr-btn" @onclick="() => _restartArmed = false" disabled="@_busy">Cancel</button>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private OperatorSettings? _s;
+    private bool _busy;
+    private bool _restartArmed;
+    private string? _flash; private bool _flashOk = true;
+
+    private async Task RestartServer()
+    {
+        _busy = true; _flash = null;
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<DevLeadsDbContext>();
+            scope.ServiceProvider.GetRequiredService<AuditService>()
+                .Record("System", 0, "Restart", "Web server restart requested from Settings", "operator");
+            await db.SaveChangesAsync();
+
+            var error = RestartService.Restart();
+            if (error is not null) { _flash = error; _flashOk = false; _busy = false; _restartArmed = false; return; }
+            _flash = "♻️ Restarting — rebuilding and relaunching. This page will reconnect automatically in ~15–60 seconds.";
+            _flashOk = true;
+            // Leave _busy = true: the process is going down, no further actions make sense.
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; _busy = false; _restartArmed = false; }
+    }
+
+    private string ActiveProviderName
+    {
+        get
+        {
+            if (_s is null) return "Loading";
+            var selected = TriageRouter.Providers.FirstOrDefault(p =>
+                p.Name.Equals(_s.AiProvider, StringComparison.OrdinalIgnoreCase));
+            return selected?.IsAvailable(_s) == true ? selected.Name : "Heuristic";
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        _s = await db.OperatorSettings.AsNoTracking().FirstOrDefaultAsync() ?? new OperatorSettings();
+    }
+
+    private async Task Save()
+    {
+        if (_s is null) return;
+        _busy = true; _flash = null;
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<DevLeadsDbContext>();
+            var row = await db.OperatorSettings.FirstOrDefaultAsync();
+            if (row is null) { db.OperatorSettings.Add(_s); }
+            else { db.Entry(row).CurrentValues.SetValues(_s); }
+            await db.SaveChangesAsync();
+            _flash = "Settings saved."; _flashOk = true;
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+
+    private void OnProviderChanged()
+    {
+        if (_s is null) return;
+
+        if (_s.AiProvider == "OpenCode" &&
+            (string.IsNullOrWhiteSpace(_s.AiModel) || !_s.AiModel.Contains('/')))
+            _s.AiModel = OperatorSettings.DefaultOpenCodeModel;
+        else if (_s.AiProvider == "Anthropic" &&
+                 (string.IsNullOrWhiteSpace(_s.AiModel) || _s.AiModel.Contains('/')))
+            _s.AiModel = OperatorSettings.DefaultAnthropicModel;
+
+    }
+
+    private void OnOpenCodeCliPathChanged()
+    {
+        OpenCodeTriageProvider.ResetProbe();
+    }
+}

@@ -1,0 +1,383 @@
+@page "/opportunities/{Id:long}"
+@rendermode InteractiveServer
+@inject IDbContextFactory<DevLeadsDbContext> DbFactory
+@inject IServiceScopeFactory ScopeFactory
+@inject IJSRuntime JS
+<PageTitle>Lead · DevLeads</PageTitle>
+
+@if (_opp is null)
+{
+    <div class="rr-empty">@(_loading ? "Loading…" : "Opportunity not found.")</div>
+}
+else
+{
+    <div class="rr-page-head">
+        <div>
+            <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+                <span class="rr-score" style="font-size:1.1rem;min-width:3rem;height:2.3rem">@_opp.Score.ToString("0")</span>
+                <span class="@UiHelpers.PriorityClass(_opp.Priority)">@_opp.Priority</span>
+                <span class="@UiHelpers.StatusClass(_opp.Status)">@UiHelpers.Spaced(_opp.Status)</span>
+                <span class="@UiHelpers.AiStatusClass(_opp.AiJobStatus)">AI: @UiHelpers.Spaced(_opp.AiJobStatus)</span>
+            </div>
+            <h1 style="margin-top:.5rem">@_opp.Title</h1>
+            <div class="rr-btn-row" style="margin-top:.6rem">
+                <a class="rr-btn primary" href="@_opp.SourceUrl" target="_blank" rel="noopener noreferrer">Original source ↗</a>
+            </div>
+            <div class="rr-sub">@_opp.SourceKey · posted @UiHelpers.Age(_opp.PostedAt)</div>
+        </div>
+        <a class="rr-btn" href="opportunities">← Back</a>
+    </div>
+
+    @if (_flash is not null) { <div class="rr-flash @(_flashOk ? "ok" : "err")">@_flash</div> }
+
+    <div class="rr-btn-row" style="margin-bottom:1.2rem">
+        <button class="rr-btn" @onclick="Rerun" disabled="@_busy">↻ Re-run triage</button>
+        <button class="rr-btn" @onclick="() => Status(OpportunityStatus.FollowUpLater)">👁 Watch</button>
+        <button class="rr-btn" @onclick="() => Status(OpportunityStatus.Contacted)">✅ Mark contacted</button>
+        <button class="rr-btn" @onclick="() => Status(OpportunityStatus.Responded)">💬 Mark responded</button>
+        <button class="rr-btn good" @onclick="() => Status(OpportunityStatus.Won)">🏆 Won</button>
+        <button class="rr-btn danger" @onclick="() => Status(OpportunityStatus.Lost)">✖ Lost</button>
+    </div>
+
+    <div class="rr-detail-grid">
+        <div>
+            <!-- Original post -->
+            <div class="rr-panel">
+                <h2>Original post</h2>
+                <div style="margin-bottom:.7rem">
+                    <a class="rr-btn sm primary" href="@_opp.SourceUrl" target="_blank" rel="noopener noreferrer">Open original source ↗</a>
+                </div>
+                <div style="white-space:pre-wrap;color:var(--text);font-size:.9rem;line-height:1.5">@(_rawBody ?? _opp.Summary)</div>
+                @if (!string.IsNullOrEmpty(_opp.AuthorName))
+                {
+                    <div class="rr-sub" style="margin-top:.6rem">Author: <a href="@_opp.AuthorProfileUrl" target="_blank" rel="noopener noreferrer">@_opp.AuthorName</a></div>
+                }
+            </div>
+
+            <!-- AI structured triage -->
+            <div class="rr-panel">
+                <h2>AI triage result</h2>
+                <div class="rr-kv">
+                    <div class="k">Problem category</div><div>@(_opp.ProblemType.Length == 0 ? "—" : _opp.ProblemType)</div>
+                    <div class="k">Payment intent</div><div><strong>@(_opp.PaymentIntent.Length == 0 ? "unknown" : _opp.PaymentIntent)</strong>@(_opp.PaymentIntent == "Explicit" ? " 💰" : "")</div>
+                    <div class="k">Assistance requested</div><div>@(_opp.AssistanceRequested switch { true => "Yes — wants hands-on help", false => "No — information only", null => "—" })</div>
+                    <div class="k">Emergency</div><div>@(_opp.OutreachRecommendation == OutreachRecommendation.DoNotContact ? "flagged" : (_opp.UrgencyScore >= 70 ? "yes" : "no / low"))</div>
+                    <div class="k">Detected stack</div><div>@string.Join(", ", UiHelpers.ParseStringList(_opp.DetectedStackJson))</div>
+                    <div class="k">Estimated cause</div><div>@(_opp.EstimatedCause.Length == 0 ? "—" : _opp.EstimatedCause)</div>
+                    <div class="k">First diagnostic step</div><div>@(_opp.SuggestedFirstStep.Length == 0 ? "—" : _opp.SuggestedFirstStep)</div>
+                    <div class="k">Estimated fix time</div><div>@FixTime()</div>
+                    <div class="k">AI confidence</div><div>@((_opp.AiConfidence * 100).ToString("0"))%</div>
+                    <div class="k">Recommendation</div><div><strong>@UiHelpers.Spaced(_opp.OutreachRecommendation)</strong></div>
+                    @if (!string.IsNullOrEmpty(_opp.RejectionReason))
+                    {
+                        <div class="k">Reject reason</div><div>@_opp.RejectionReason</div>
+                    }
+                </div>
+            </div>
+
+            <!-- Score breakdown -->
+            <div class="rr-panel">
+                <h2>Score breakdown</h2>
+                <div class="rr-bars">
+                    @Bar("Urgency (25%)", _opp.UrgencyScore)
+                    @Bar("Stack fit (20%)", _opp.StackFitScore)
+                    @Bar("Business value (20%)", _opp.BusinessValueScore)
+                    @Bar("Reachability (15%)", _opp.ReachabilityScore)
+                    @Bar("Competition (10%)", _opp.CompetitionScore)
+                    @Bar("Trust (10%)", _opp.TrustScore)
+                </div>
+                <div class="rr-sub" style="margin-top:.7rem">
+                    Pre-filter score @_opp.HeuristicScore.ToString("0") ·
+                    matched: @string.Join(", ", UiHelpers.ParseStringList(_opp.MatchedTermsJson))
+                </div>
+            </div>
+
+            <!-- Draft / outreach -->
+            <div class="rr-panel">
+                <div class="rr-panel-head">
+                    <h2>Response drafts &amp; approval</h2>
+                    <div style="display:flex;gap:.4rem">
+                        <select class="rr-select" style="width:auto" @bind="_templateKey">
+                            @foreach (var t in ResponseTemplates.All)
+                            {
+                                <option value="@t.Key">@t.Name</option>
+                            }
+                        </select>
+                        <button class="rr-btn" @onclick="GenerateDraft" disabled="@_busy">+ Draft</button>
+                    </div>
+                </div>
+
+                @if (_opp.OutreachAttempts.Count == 0)
+                {
+                    <div class="rr-empty">No drafts yet. Generate one above — nothing is ever sent without your approval.</div>
+                }
+                else
+                {
+                    @foreach (var a in _opp.OutreachAttempts.OrderByDescending(x => x.CreatedAt))
+                    {
+                        <div style="border:1px solid var(--line);border-radius:8px;padding:.8rem;margin-bottom:.7rem">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem">
+                                <span class="rr-chip">@a.TemplateKey · @a.Channel</span>
+                                <span class="@UiHelpers.StatusClass(OppFromOutreach(a.Status))">@UiHelpers.Spaced(a.Status)</span>
+                            </div>
+                            <textarea class="rr-textarea" @bind="a.Body" style="min-height:90px"></textarea>
+                            <div class="rr-btn-row" style="margin-top:.5rem">
+                                <button class="rr-btn sm" @onclick="() => SaveDraft(a.Id, a.Body)">💾 Save edits</button>
+                                <button class="rr-btn sm" @onclick="() => CopyText(a.Body)">📋 Copy</button>
+                                @if (a.Status == OutreachStatus.PendingApproval)
+                                {
+                                    <button class="rr-btn sm good" @onclick="() => ApproveDraft(a.Id)">✔ Approve</button>
+                                }
+                                @if (a.Status is OutreachStatus.Approved or OutreachStatus.PendingApproval)
+                                {
+                                    <button class="rr-btn sm primary" @onclick="() => SendDraft(a.Id)">➤ Record sent</button>
+                                    <button class="rr-btn sm danger" @onclick="() => CancelDraft(a.Id)">✖ Cancel</button>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+
+            <!-- Audit -->
+            <div class="rr-panel">
+                <h2>Audit history</h2>
+                @if (_audit.Count == 0) { <div class="rr-empty">No events yet.</div> }
+                else
+                {
+                    <table class="rr-table">
+                        <tbody>
+                            @foreach (var e in _audit)
+                            {
+                                <tr>
+                                    <td style="white-space:nowrap">@e.CreatedAt.LocalDateTime.ToString("MMM d HH:mm")</td>
+                                    <td><span class="rr-chip">@e.EventType</span></td>
+                                    <td>@e.Description <span class="rr-sub">· @e.Actor</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+
+        <!-- Right sidebar -->
+        <div>
+            <div class="rr-panel">
+                <h2>Quick facts</h2>
+                <div class="rr-kv">
+                    <div class="k">@(_opp.FeeIsEstimate ? "Fee estimate" : "Compensation offered")</div><div><strong>@UiHelpers.Fee(_opp)</strong></div>
+                    <div class="k">Mode</div><div>@(_opp.AutoEligible ? "Auto-eligible" : "HITL approval")</div>
+                    <div class="k">First seen</div><div>@_opp.FirstSeenAt.LocalDateTime.ToString("MMM d HH:mm")</div>
+                    @if (_opp.NextFollowUpAt is { } fu)
+                    {
+                        <div class="k">Follow-up</div><div>@fu.LocalDateTime.ToString("MMM d HH:mm")</div>
+                    }
+                </div>
+            </div>
+
+            <!-- Quote / payment -->
+            <div class="rr-panel">
+                <h2>Quote &amp; payment</h2>
+                <div class="rr-field">
+                    <label>Flat fee ($)</label>
+                    <input class="rr-input" type="number" @bind="_quoteAmount" />
+                </div>
+                <label class="rr-check"><input type="checkbox" @bind="_dueOnCompletion" /> Payment due upon completion</label>
+                <button class="rr-btn primary" style="width:100%;justify-content:center;margin-top:.4rem" @onclick="GenerateQuote" disabled="@_busy">Generate quote</button>
+
+                @foreach (var q in _opp.Quotes.OrderByDescending(x => x.CreatedAt))
+                {
+                    <div style="border-top:1px solid var(--line);margin-top:.8rem;padding-top:.7rem">
+                        <div style="display:flex;justify-content:space-between">
+                            <strong>$@q.Amount.ToString("0")</strong>
+                            <span class="rr-chip">@UiHelpers.Spaced(q.Status)</span>
+                        </div>
+                        <div class="rr-quote" style="margin-top:.4rem">@q.Scope</div>
+                        <div class="rr-btn-row" style="margin-top:.5rem">
+                            @if (q.Status == QuoteStatus.Drafted) { <button class="rr-btn sm" @onclick="() => SendQuote(q.Id)">Send</button> }
+                            @if (q.Status is QuoteStatus.Sent or QuoteStatus.Overdue) { <button class="rr-btn sm good" @onclick="() => MarkPaid(q.Id)">Mark paid</button> }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Work session -->
+            <div class="rr-panel">
+                <h2>Work session</h2>
+                @{ var ws = _opp.WorkSessions.OrderByDescending(x => x.StartedAt).FirstOrDefault(); }
+                @if (ws is null)
+                {
+                    <p class="rr-sub">Start a session to load the emergency checklist for this problem type.</p>
+                    <button class="rr-btn" @onclick="StartWork" disabled="@_busy">▶ Start work session</button>
+                }
+                else
+                {
+                    <div class="rr-sub" style="margin-bottom:.5rem">Started @ws.StartedAt.LocalDateTime.ToString("MMM d HH:mm") · @UiHelpers.Spaced(ws.Status)</div>
+                    @foreach (var (item, done) in _checklist)
+                    {
+                        <label class="rr-check"><input type="checkbox" checked="@done" @onchange="e => ToggleChecklist(item, (bool)e.Value!)" /> @item</label>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public long Id { get; set; }
+
+    private bool _loading = true, _busy;
+    private Opportunity? _opp;
+    private List<AuditEvent> _audit = new();
+    private string? _rawBody;
+    private string _templateKey = ResponseTemplates.DirectOutreach;
+    private double _quoteAmount = 500;
+    private bool _dueOnCompletion = true;
+    private string? _flash;
+    private bool _flashOk = true;
+    private List<(string Item, bool Done)> _checklist = new();
+
+    protected override async Task OnParametersSetAsync() => await Load();
+
+    private async Task Load()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        _opp = await db.Opportunities.AsNoTracking()
+            .Include(o => o.OutreachAttempts).Include(o => o.Quotes).Include(o => o.WorkSessions).Include(o => o.TriageRuns)
+            .FirstOrDefaultAsync(o => o.Id == Id);
+        if (_opp is not null)
+        {
+            _rawBody = (await db.RawSourceItems.AsNoTracking()
+                .Where(r => r.OpportunityId == Id).OrderByDescending(r => r.Id).FirstOrDefaultAsync())?.BodyText;
+            _audit = await db.AuditEvents.AsNoTracking()
+                .Where(a => a.EntityType == "Opportunity" && a.EntityId == Id)
+                .OrderByDescending(a => a.Id).Take(50).ToListAsync();
+            if (_opp.EstimatedFeeMax is { } max && _opp.EstimatedFeeMin is { } min) _quoteAmount = Math.Round((min + max) / 2, 0);
+
+            var ws = _opp.WorkSessions.OrderByDescending(x => x.StartedAt).FirstOrDefault();
+            if (ws is not null) LoadChecklist(ws);
+        }
+        _loading = false;
+    }
+
+    private void LoadChecklist(WorkSession ws)
+    {
+        try
+        {
+            var items = JsonSerializer.Deserialize<List<ChecklistItem>>(ws.AccessChecklistJson) ?? new();
+            _checklist = items.Select(i => (i.Item, i.Checked)).ToList();
+        }
+        catch { _checklist = new(); }
+    }
+
+    private record ChecklistItem(string Item, bool Checked);
+
+    private async Task RunScoped(Func<IServiceProvider, Task> action, string okMsg)
+    {
+        _busy = true; _flash = null;
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            await action(scope.ServiceProvider);
+            _flash = okMsg; _flashOk = true;
+            await Load();
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+
+    private Task Rerun() => RunScoped(sp => sp.GetRequiredService<LeadIngestionService>().RerunAsync(Id, default), "Triage re-run.");
+
+    private Task Status(OpportunityStatus status) => RunScoped(async sp =>
+    {
+        var db = sp.GetRequiredService<DevLeadsDbContext>();
+        var audit = sp.GetRequiredService<AuditService>();
+        var o = await db.Opportunities.FirstAsync(x => x.Id == Id);
+        o.Status = status; o.UpdatedAt = DateTimeOffset.UtcNow;
+        audit.Record("Opportunity", Id, "StatusChange", $"Status → {status}", "operator");
+        await db.SaveChangesAsync();
+    }, "Status updated.");
+
+    private Task GenerateDraft() => RunScoped(sp =>
+        sp.GetRequiredService<OutreachService>().GenerateDraftAsync(Id, _templateKey, default), "Draft generated.");
+
+    private Task SaveDraft(long attemptId, string body) => RunScoped(async sp =>
+    {
+        var db = sp.GetRequiredService<DevLeadsDbContext>();
+        var a = await db.OutreachAttempts.FirstAsync(x => x.Id == attemptId);
+        a.Body = body; await db.SaveChangesAsync();
+    }, "Draft saved.");
+
+    private Task ApproveDraft(long id) => RunScoped(sp => sp.GetRequiredService<OutreachService>().ApproveAsync(id, default), "Draft approved.");
+
+    private Task SendDraft(long id) => RunScoped(async sp =>
+    {
+        var (sent, message) = await sp.GetRequiredService<OutreachService>().SendAsync(id, default);
+        if (!sent) throw new InvalidOperationException(message);
+    }, "Recorded as sent; follow-up scheduled.");
+
+    private Task CancelDraft(long id) => RunScoped(sp => sp.GetRequiredService<OutreachService>().CancelAsync(id, default), "Draft cancelled.");
+
+    private Task GenerateQuote() => RunScoped(sp =>
+        sp.GetRequiredService<QuoteService>().GenerateAsync(Id, _quoteAmount, _dueOnCompletion, default), "Quote generated.");
+    private Task SendQuote(long id) => RunScoped(sp => sp.GetRequiredService<QuoteService>().SendAsync(id, default), "Quote sent.");
+    private Task MarkPaid(long id) => RunScoped(sp => sp.GetRequiredService<QuoteService>().MarkPaidAsync(id, default), "Marked paid. 🎉");
+
+    private Task StartWork() => RunScoped(async sp =>
+    {
+        var db = sp.GetRequiredService<DevLeadsDbContext>();
+        var o = await db.Opportunities.FirstAsync(x => x.Id == Id);
+        var checklist = EmergencyChecklists.SuggestFor(o.ProblemType);
+        var json = JsonSerializer.Serialize(checklist.Items.Select(i => new ChecklistItem(i, false)));
+        db.WorkSessions.Add(new WorkSession
+        {
+            OpportunityId = Id, StartedAt = DateTimeOffset.UtcNow,
+            Status = WorkSessionStatus.InProgress, AccessChecklistJson = json
+        });
+        o.Status = OpportunityStatus.InProgress;
+        await db.SaveChangesAsync();
+    }, "Work session started.");
+
+    private async Task ToggleChecklist(string item, bool value)
+    {
+        var idx = _checklist.FindIndex(c => c.Item == item);
+        if (idx >= 0) _checklist[idx] = (item, value);
+        await RunScoped(async sp =>
+        {
+            var db = sp.GetRequiredService<DevLeadsDbContext>();
+            var ws = await db.WorkSessions.Where(w => w.OpportunityId == Id).OrderByDescending(w => w.StartedAt).FirstAsync();
+            ws.AccessChecklistJson = JsonSerializer.Serialize(_checklist.Select(c => new ChecklistItem(c.Item, c.Done)));
+            await db.SaveChangesAsync();
+        }, "Checklist updated.");
+    }
+
+    private async Task CopyText(string text)
+    {
+        try { await JS.InvokeVoidAsync("navigator.clipboard.writeText", text); _flash = "Copied to clipboard."; _flashOk = true; }
+        catch { _flash = "Copy not available."; _flashOk = false; }
+    }
+
+    private string FixTime() =>
+        _opp!.EstimatedFixMinutesMin is { } lo && _opp.EstimatedFixMinutesMax is { } hi ? $"{lo}–{hi} min" : "—";
+
+    private RenderFragment Bar(string label, double value) => builder =>
+    {
+        builder.OpenElement(0, "div"); builder.AddAttribute(1, "class", "rr-bar-row");
+        builder.OpenElement(2, "span"); builder.AddContent(3, label); builder.CloseElement();
+        builder.OpenElement(4, "div"); builder.AddAttribute(5, "class", "rr-bar");
+        builder.OpenElement(6, "i"); builder.AddAttribute(7, "style", $"width:{Math.Clamp(value, 0, 100):0}%"); builder.CloseElement();
+        builder.CloseElement();
+        builder.OpenElement(8, "span"); builder.AddContent(9, value.ToString("0")); builder.CloseElement();
+        builder.CloseElement();
+    };
+
+    private static OpportunityStatus OppFromOutreach(OutreachStatus s) => s switch
+    {
+        OutreachStatus.Sent => OpportunityStatus.Contacted,
+        OutreachStatus.Approved => OpportunityStatus.Approved,
+        OutreachStatus.Responded => OpportunityStatus.Responded,
+        OutreachStatus.Cancelled => OpportunityStatus.Rejected,
+        _ => OpportunityStatus.DraftReady
+    };
+}
