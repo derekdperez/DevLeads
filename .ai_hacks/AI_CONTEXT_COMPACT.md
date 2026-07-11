@@ -8,6 +8,10 @@ Use this generated context as the project map. Implementation bodies are intenti
 
 ---
 
+## Purpose and Guidelines
+
+The intent of this file, and all related files, is to reduce token usage, context window utilization, and time required to work on any given task. By creating, maintaining, and utilizing generated maps and "shortcut" files, it is possible to understand and diagnose or refactor the application while consuming only a fraction of the context you might otherwise need to. Focus on efficiency at all times, aiming to save tokens whenever possible, compact knowledge and understanding into the smallest possible context window, and don't spend large amounts of time or effort on uneccessary actions. 
+
 # Project Map
 
 Root: `/home/user/repo/UrgentLeads`
