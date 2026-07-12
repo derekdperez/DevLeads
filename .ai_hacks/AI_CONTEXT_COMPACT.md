@@ -1,6 +1,6 @@
 # DevLeads AI Project Context
 
-> Generated; do not hand-edit. Schema 2, source digest `dd76fb1f688a9a4e5717970a0692c62d7571f78ad1370e75cb3dbd5197e05c97`.
+> Generated; do not hand-edit. Schema 2, source digest `fb2987f1ada8fd3c0e674d1e2b035cd8817f7b3b470fc784bd71b98326def38e`.
 > Regenerate with `python3 ai_hacks.py`; verify freshness with `python3 ai_hacks.py --check`.
 
 ## How to use this map
@@ -404,6 +404,7 @@ Every source-authored type and callable name is present. Full signatures and dat
   - public `CheckHealthAsync` — Checks health.
 - **`DatabaseSeeder`** — Creates the database and seeds query packs, source configs, and settings. Also migrates older databases: removes retired sources (GitHub Issues) and… (`src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs:14`)
   - public `InitializeAsync` — Coordinates initialize. _(inferred)_
+  - private `RequeueTemplateDraftsAsync` — One-time (2026-07-11): unapproved template mad-lib drafts ("I saw your post about…
   - private `ApplyStackIdentityCapsAsync` — Applies the stack-identity score cap (50, below Medium) to leads scored before the gate…
   - private `DemoteGenericCapabilitySkillsAsync` — One-time data fix (2026-07-11): "REST API" was seeded as a weight-3 "Primary stack" skill…
   - private `PurgeForeignStackLeadsAsync` — Removes discovery leads that demand a stack outside the operator's profile without…
@@ -676,6 +677,6 @@ Every source-authored type and callable name is present. Full signatures and dat
 ## Completeness
 
 - 132 source-authored C# types and Razor components.
-- 383 source-authored callable members.
+- 384 source-authored callable members.
 - 13 Blazor page routes; 36 HTTP endpoints; 17 EF DbSets.
-- Full indexed source: 562,798 characters (~140,700 tokens).
+- Full indexed source: 563,775 characters (~140,944 tokens).

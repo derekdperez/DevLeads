@@ -871,6 +871,7 @@ Creates the database and seeds query packs, source configs, and settings. Also m
 Data: `LegacyPackNames`: Dictionary<string, string>, `EmergencyCampaignKey`: string, `ModernizationCampaignKey`: string, `EngagedStatuses`: OpportunityStatus[].
 
 - public `InitializeAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — Coordinates initialize. _(inferred)_
+- private `RequeueTemplateDraftsAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — One-time (2026-07-11): unapproved template mad-lib drafts ("I saw your post about [title]…") are moved into the AI generation queue so the batched generator rewrites them…
 - private `ApplyStackIdentityCapsAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — Applies the stack-identity score cap (50, below Medium) to leads scored before the gate existed, so off-stack posts stop outranking.NET work without waiting for a re-triage.
 - private `DemoteGenericCapabilitySkillsAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — One-time data fix (2026-07-11): "REST API" was seeded as a weight-3 "Primary stack" skill, which made every Go/Python job post score as a core.NET fit.
 - private `PurgeForeignStackLeadsAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — Removes discovery leads that demand a stack outside the operator's profile without touching the operator's own stack (Go/Python/Java job posts etc.) — they scored high on pay…

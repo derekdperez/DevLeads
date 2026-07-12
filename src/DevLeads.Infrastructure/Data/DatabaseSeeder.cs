@@ -46,6 +46,28 @@ public static class DatabaseSeeder
         await DemoteGenericCapabilitySkillsAsync(db, ct);
         await PurgeForeignStackLeadsAsync(db, ct);
         await ApplyStackIdentityCapsAsync(db, ct);
+        await RequeueTemplateDraftsAsync(db, ct);
+    }
+
+    /// <summary>
+    /// One-time (2026-07-11): unapproved template mad-lib drafts ("I saw your post about
+    /// [title]…") are moved into the AI generation queue so the batched generator rewrites
+    /// them grounded in the original posts. Approved/sent drafts are never touched.
+    /// </summary>
+    private static async Task RequeueTemplateDraftsAsync(DevLeadsDbContext db, CancellationToken ct)
+    {
+        var templateDrafts = await db.OutreachAttempts
+            .Where(a => a.Status == OutreachStatus.PendingApproval && a.TemplateKey == "direct_outreach")
+            .ToListAsync(ct);
+        if (templateDrafts.Count == 0) return;
+
+        foreach (var a in templateDrafts)
+        {
+            a.Status = OutreachStatus.QueuedForGeneration;
+            a.TemplateKey = "ai_batch_v1";
+            a.Body = Services.OutreachService.QueuedPlaceholder;
+        }
+        await db.SaveChangesAsync(ct);
     }
 
     /// <summary>

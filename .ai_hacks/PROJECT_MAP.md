@@ -1,11 +1,11 @@
 # Project Map
 
-Source digest: `dd76fb1f688a9a4e5717970a0692c62d7571f78ad1370e75cb3dbd5197e05c97`
+Source digest: `fb2987f1ada8fd3c0e674d1e2b035cd8817f7b3b470fc784bd71b98326def38e`
 
 - Files: 99
 - Types/components: 132
-- Callable members: 383
-- XML/manual/inherited descriptions: 229
+- Callable members: 384
+- XML/manual/inherited descriptions: 230
 
 ## Files
 
@@ -61,7 +61,7 @@ Source digest: `dd76fb1f688a9a4e5717970a0692c62d7571f78ad1370e75cb3dbd5197e05c97
 - `src/DevLeads.Infrastructure/Connectors/RemotiveConnector.cs` — 115 lines
 - `src/DevLeads.Infrastructure/Connectors/RssConnector.cs` — 174 lines
 - `src/DevLeads.Infrastructure/Connectors/StackExchangeConnector.cs` — 112 lines
-- `src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs` — 990 lines
+- `src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs` — 1012 lines
 - `src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs` — 95 lines
 - `src/DevLeads.Infrastructure/DependencyInjection.cs` — 92 lines
 - `src/DevLeads.Infrastructure/DevLeads.Infrastructure.csproj` — 21 lines

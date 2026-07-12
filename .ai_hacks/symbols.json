@@ -1,8 +1,8 @@
 {
   "coverage": {
-    "authored_descriptions": 229,
-    "callables": 383,
-    "source_characters": 562798,
+    "authored_descriptions": 230,
+    "callables": 384,
+    "source_characters": 563775,
     "types": 132
   },
   "dbsets": [
@@ -949,10 +949,10 @@
       "sha256": "5ff5c65f2e37e4ba4f200d5b500990f4b2fc4048bcd266db3acb88672913ead9"
     },
     {
-      "bytes": 55353,
-      "lines": 990,
+      "bytes": 56330,
+      "lines": 1012,
       "path": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
-      "sha256": "4aff952a316f83321069b1cc92da40582f9ce40cc06f5446e6124d9e1580a2ca"
+      "sha256": "586a144cb000d2300abe201395368be738e06df3d973db0dacc56ada377dcf3e"
     },
     {
       "bytes": 4890,
@@ -1898,7 +1898,7 @@
   "solutions": [
     "DevLeads.slnx"
   ],
-  "source_digest": "dd76fb1f688a9a4e5717970a0692c62d7571f78ad1370e75cb3dbd5197e05c97",
+  "source_digest": "fb2987f1ada8fd3c0e674d1e2b035cd8817f7b3b470fc784bd71b98326def38e",
   "types": [
     {
       "access": "public",
@@ -15655,11 +15655,32 @@
         },
         {
           "access": "private",
+          "description": "One-time (2026-07-11): unapproved template mad-lib drafts (\"I saw your post about [title]\u2026\") are moved into the AI generation queue so the batched generator rewrites them\u2026",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
+          "kind": "method",
+          "line": 57,
+          "modifiers": [
+            "private",
+            "static",
+            "async"
+          ],
+          "name": "RequeueTemplateDraftsAsync",
+          "parameters": [
+            "DevLeadsDbContext db",
+            "CancellationToken ct"
+          ],
+          "returnType": "Task",
+          "summary": "One-time (2026-07-11): unapproved template mad-lib drafts (\"I saw your post about [title]\u2026\") are moved into the AI generation queue so the batched generator rewrites them grounded in the original posts. Approved/sent drafts are never touched.",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
           "description": "Applies the stack-identity score cap (50, below Medium) to leads scored before the gate existed, so off-stack posts stop outranking.NET work without waiting for a re-triage.",
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 56,
+          "line": 78,
           "modifiers": [
             "private",
             "static",
@@ -15680,7 +15701,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 96,
+          "line": 118,
           "modifiers": [
             "private",
             "static",
@@ -15701,7 +15722,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 130,
+          "line": 152,
           "modifiers": [
             "private",
             "static",
@@ -15722,7 +15743,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 166,
+          "line": 188,
           "modifiers": [
             "private",
             "static",
@@ -15743,7 +15764,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 283,
+          "line": 305,
           "modifiers": [
             "private",
             "static",
@@ -15764,7 +15785,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "field",
-          "line": 300,
+          "line": 322,
           "modifiers": [
             "private",
             "static",
@@ -15780,7 +15801,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 312,
+          "line": 334,
           "modifiers": [
             "private",
             "static",
@@ -15800,7 +15821,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 346,
+          "line": 368,
           "modifiers": [
             "private",
             "static",
@@ -15821,7 +15842,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "constant",
-          "line": 356,
+          "line": 378,
           "modifiers": [
             "public",
             "const"
@@ -15835,7 +15856,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "constant",
-          "line": 357,
+          "line": 379,
           "modifiers": [
             "public",
             "const"
@@ -15849,7 +15870,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 363,
+          "line": 385,
           "modifiers": [
             "private",
             "static",
@@ -15870,7 +15891,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 411,
+          "line": 433,
           "modifiers": [
             "private",
             "static",
@@ -15891,7 +15912,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 443,
+          "line": 465,
           "modifiers": [
             "private",
             "static",
@@ -15913,7 +15934,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 457,
+          "line": 479,
           "modifiers": [
             "private",
             "static"
@@ -15932,7 +15953,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 474,
+          "line": 496,
           "modifiers": [
             "private",
             "static"
@@ -15952,7 +15973,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 504,
+          "line": 526,
           "modifiers": [
             "private",
             "static"
@@ -15971,7 +15992,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 522,
+          "line": 544,
           "modifiers": [
             "private",
             "static"
@@ -15988,7 +16009,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 733,
+          "line": 755,
           "modifiers": [
             "private",
             "static"
@@ -16005,7 +16026,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 778,
+          "line": 800,
           "modifiers": [
             "private",
             "static",
@@ -16026,7 +16047,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 826,
+          "line": 848,
           "modifiers": [
             "private",
             "static"
@@ -16046,7 +16067,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 834,
+          "line": 856,
           "modifiers": [
             "private",
             "static",
@@ -16067,7 +16088,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 853,
+          "line": 875,
           "modifiers": [
             "private",
             "static",
@@ -16088,7 +16109,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "field",
-          "line": 868,
+          "line": 890,
           "modifiers": [
             "private",
             "static",
@@ -16104,7 +16125,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 882,
+          "line": 904,
           "modifiers": [
             "private",
             "static",
@@ -16125,7 +16146,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 910,
+          "line": 932,
           "modifiers": [
             "private",
             "static",
@@ -16146,7 +16167,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 936,
+          "line": 958,
           "modifiers": [
             "private",
             "static",
@@ -16166,7 +16187,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 967,
+          "line": 989,
           "modifiers": [
             "private",
             "static",
@@ -16187,7 +16208,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 978,
+          "line": 1000,
           "modifiers": [
             "private",
             "static",
