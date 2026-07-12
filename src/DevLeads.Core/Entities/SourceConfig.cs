@@ -8,6 +8,9 @@ public class SourceConfig
     public string DisplayName { get; set; } = "";
     public bool Enabled { get; set; } = true;
 
+    /// <summary>Campaign whose objective this source feeds; leads inherit it at ingestion.</summary>
+    public long? CampaignId { get; set; }
+
     public int PollIntervalMinutes { get; set; } = 15;
     public int MaxItemsPerRun { get; set; } = 25;
 

@@ -1,6 +1,7 @@
 @page "/opportunities/new"
 @rendermode InteractiveServer
 @inject IServiceScopeFactory ScopeFactory
+@inject IDbContextFactory<DevLeadsDbContext> DbFactory
 @inject NavigationManager Nav
 <PageTitle>New lead · DevLeads</PageTitle>
 
@@ -35,6 +36,15 @@
         <label>Author profile URL (optional)</label>
         <input class="rr-input" @bind="_authorUrl" placeholder="https://…" />
     </div>
+    <div class="rr-field">
+        <label>Campaign</label>
+        <select class="rr-select" @bind="_campaignId">
+            @foreach (var c in _campaigns)
+            {
+                <option value="@c.Id">@c.Emoji @c.Name</option>
+            }
+        </select>
+    </div>
 
     @if (_error is not null) { <div class="rr-flash err">@_error</div> }
 
@@ -47,6 +57,16 @@
     private string _title = "", _body = "", _url = "", _author = "", _authorUrl = "";
     private bool _busy;
     private string? _error;
+    private long? _campaignId;
+    private List<Campaign> _campaigns = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        _campaigns = await db.Campaigns.AsNoTracking().OrderBy(c => c.Id).ToListAsync();
+        var selected = (await db.OperatorSettings.AsNoTracking().FirstOrDefaultAsync())?.SelectedCampaignId;
+        _campaignId = selected ?? _campaigns.FirstOrDefault()?.Id;
+    }
 
     private async Task Create()
     {
@@ -59,7 +79,7 @@
             var ingest = scope.ServiceProvider.GetRequiredService<LeadIngestionService>();
             var opp = await ingest.CreateManualAsync(_title.Trim(), _body.Trim(),
                 _url.Trim(), string.IsNullOrWhiteSpace(_author) ? null : _author.Trim(),
-                string.IsNullOrWhiteSpace(_authorUrl) ? null : _authorUrl.Trim(), default);
+                string.IsNullOrWhiteSpace(_authorUrl) ? null : _authorUrl.Trim(), default, _campaignId);
             Nav.NavigateTo($"opportunities/{opp.Id}");
         }
         catch (Exception ex)

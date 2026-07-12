@@ -14,6 +14,9 @@ public sealed class AiTriageRequest
 
     /// <summary>Compact operator skill summary ("" when no profile) shown to the model for fit judgment.</summary>
     public string OperatorSkills { get; set; } = "";
+
+    /// <summary>The owning campaign's objective ("" when none) — the relevance bar for this triage.</summary>
+    public string CampaignObjective { get; set; } = "";
 }
 
 /// <summary>Outcome of a triage call, including provider metadata for the audit trail.</summary>
@@ -66,6 +69,7 @@ public interface IAiBatchShortlistProvider
         IReadOnlyList<AiShortlistItem> items,
         OperatorSettings settings,
         int maxSelections,
+        string campaignObjective,
         CancellationToken ct);
 }
 

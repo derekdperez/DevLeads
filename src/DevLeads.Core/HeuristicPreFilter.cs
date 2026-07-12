@@ -95,11 +95,19 @@ public sealed class HeuristicPreFilter
          LeadQualityRules.HasThirdPartyPayOffer(text) ||
          MoneyPattern.IsMatch(text));
 
-    public PreFilterResult Analyze(RawSourceItem item)
+    /// <summary>
+    /// Analyzes an item. When <paramref name="packNames"/> is given, high-priority term
+    /// matching is scoped to those packs (the source's own QueryPacksCsv) so one campaign's
+    /// trigger vocabulary never qualifies another campaign's items. Negative/exclusion
+    /// terms always apply globally.
+    /// </summary>
+    public PreFilterResult Analyze(RawSourceItem item, IReadOnlyCollection<string>? packNames = null)
     {
         var text = $"{item.Title}\n{item.BodyText}".ToLowerInvariant();
 
-        var highPriorityTerms = _queryPacks.GetHighPriorityTerms();
+        var highPriorityTerms = packNames is { Count: > 0 }
+            ? _queryPacks.GetHighPriorityTerms(packNames)
+            : _queryPacks.GetHighPriorityTerms();
         var negativeTerms = _queryPacks.GetNegativeTerms();
 
         var matchedHighPriority = highPriorityTerms

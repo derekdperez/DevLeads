@@ -1,0 +1,284 @@
+@page "/content"
+@rendermode InteractiveServer
+@inject IDbContextFactory<DevLeadsDbContext> DbFactory
+@inject IServiceScopeFactory ScopeFactory
+@inject IJSRuntime JS
+<PageTitle>Content studio · DevLeads</PageTitle>
+
+<div class="rr-page-head">
+    <div>
+        <h1>Content studio</h1>
+        <div class="rr-sub">Trend signals from your feeds → AI-suggested topics → publish-ready drafts for your blog, LinkedIn, and clients.</div>
+    </div>
+    <div class="rr-btn-row">
+        <button class="rr-btn" @onclick="ScanNow" disabled="@_busy">🔎 Scan trends now</button>
+        <button class="rr-btn primary" @onclick="SuggestTopics" disabled="@_busy">💡 Suggest topics now</button>
+    </div>
+</div>
+
+@if (_flash is not null) { <div class="rr-flash @(_flashOk ? "ok" : "err")">@_flash</div> }
+@if (_busyMessage is not null) { <div class="rr-flash ok">⏳ @_busyMessage</div> }
+
+<div class="rr-panel">
+    <div class="rr-panel-head">
+        <h2>🔥 Trending signals</h2>
+        <div class="rr-sub">@_signalCount signal(s) from the last 7 days · sources poll automatically twice a day</div>
+    </div>
+    @if (_signals.Count == 0)
+    {
+        <div class="rr-empty">No trend signals yet — hit “Scan trends now”.</div>
+    }
+    else
+    {
+        <div class="rr-table-scroll">
+            <table class="rr-table">
+                <thead><tr><th>Hot</th><th>Signal</th><th>Skills</th><th>Engagement</th><th>Age</th></tr></thead>
+                <tbody>
+                    @foreach (var s in _signals)
+                    {
+                        <tr>
+                            <td><span class="rr-score">@s.Hotness.ToString("0")</span></td>
+                            <td class="rr-title-cell">
+                                <a href="@s.Url" target="_blank" rel="noopener noreferrer">@s.Title</a>
+                                <div class="src">@s.SourceKey</div>
+                            </td>
+                            <td>@string.Join(", ", UiHelpers.ParseStringList(s.MatchedSkillsJson).Take(4))</td>
+                            <td>@(s.Engagement > 0 ? s.Engagement.ToString("0") : "—")</td>
+                            <td>@UiHelpers.Age(s.PostedAt)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<div class="rr-panel">
+    <div class="rr-panel-head">
+        <h2>💡 Suggested topics</h2>
+        <div class="rr-sub">Pick a format to generate a full draft (takes a few minutes on the free model)</div>
+    </div>
+    @if (_topics.Count == 0)
+    {
+        <div class="rr-empty">No topics yet. The studio suggests up to 4 automatically each day, or use “Suggest topics now”.</div>
+    }
+    else
+    {
+        @foreach (var t in _topics)
+        {
+            <div style="border:1px solid var(--line);border-radius:8px;padding:.9rem;margin-bottom:.8rem">
+                <div style="display:flex;justify-content:space-between;gap:.6rem;align-items:baseline">
+                    <strong>@t.Title</strong>
+                    <span class="rr-score" title="Projected audience interest">@t.InterestScore.ToString("0")</span>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(t.Angle)) { <div style="margin-top:.3rem"><em>Angle:</em> @t.Angle</div> }
+                @if (!string.IsNullOrWhiteSpace(t.Rationale)) { <div class="rr-sub" style="margin-top:.2rem">@t.Rationale</div> }
+                @{ var evidence = ContentPrompts.ParseEvidence(t.EvidenceJson); }
+                @if (evidence.Count > 0)
+                {
+                    <div class="rr-sub" style="margin-top:.3rem">
+                        Evidence:
+                        @foreach (var (title, url) in evidence.Take(4))
+                        {
+                            <a href="@url" target="_blank" rel="noopener noreferrer" style="margin-right:.6rem">@Shorten(title) ↗</a>
+                        }
+                    </div>
+                }
+                <div class="rr-btn-row" style="margin-top:.6rem;flex-wrap:wrap">
+                    @foreach (var f in AllFormats)
+                    {
+                        var suggested = t.SuggestedFormatsCsv.Contains(f.ToString(), StringComparison.OrdinalIgnoreCase);
+                        <button class="rr-btn sm @(suggested ? "primary" : "")" disabled="@_busy"
+                                title="@(suggested ? "AI-suggested format for this topic" : "")"
+                                @onclick="() => Draft(t.Id, f)">@FormatLabel(f)</button>
+                    }
+                    <button class="rr-btn sm danger" disabled="@_busy" @onclick="() => DismissTopic(t.Id)">✖ Dismiss</button>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<div class="rr-panel">
+    <div class="rr-panel-head">
+        <h2>📄 Drafts</h2>
+        <div class="rr-sub">Edit, copy, and post — nothing is ever published automatically</div>
+    </div>
+    @if (_drafts.Count == 0)
+    {
+        <div class="rr-empty">No drafts yet. Generate one from a topic above.</div>
+    }
+    else
+    {
+        @foreach (var d in _drafts)
+        {
+            <div style="border:1px solid var(--line);border-radius:8px;padding:.9rem;margin-bottom:.8rem">
+                <div style="display:flex;justify-content:space-between;gap:.6rem;align-items:baseline;flex-wrap:wrap">
+                    <div>
+                        <span class="rr-chip active">@UiHelpers.Spaced(d.Format)</span>
+                        <strong style="margin-left:.4rem">@d.Title</strong>
+                        <div class="rr-sub">@d.WordCount words · @d.Model · @UiHelpers.Age(d.CreatedAt) · <span class="@DraftChip(d.Status)">@UiHelpers.Spaced(d.Status)</span></div>
+                    </div>
+                    <div class="rr-btn-row">
+                        <button class="rr-btn sm" @onclick="() => ToggleEditor(d.Id)">@(_openDraftId == d.Id ? "▲ Close" : "▼ Open")</button>
+                        <button class="rr-btn sm" @onclick="() => Copy(d.BodyMarkdown)">📋 Copy markdown</button>
+                    </div>
+                </div>
+                @if (_openDraftId == d.Id)
+                {
+                    <textarea class="rr-textarea" style="min-height:340px;margin-top:.6rem;font-family:ui-monospace,monospace" @bind="d.BodyMarkdown"></textarea>
+                    <div class="rr-btn-row" style="margin-top:.5rem">
+                        <button class="rr-btn sm" @onclick="() => SaveDraft(d)">💾 Save edits</button>
+                        @if (d.Status is ContentDraftStatus.Draft or ContentDraftStatus.Final)
+                        {
+                            <button class="rr-btn sm good" @onclick="() => SetDraftStatus(d, ContentDraftStatus.Published)">✔ Mark published</button>
+                        }
+                        @if (d.Status != ContentDraftStatus.Discarded)
+                        {
+                            <button class="rr-btn sm danger" @onclick="() => SetDraftStatus(d, ContentDraftStatus.Discarded)">✖ Discard</button>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private static readonly ContentFormat[] AllFormats =
+        { ContentFormat.BlogPost, ContentFormat.Article, ContentFormat.WhitePaper, ContentFormat.ResearchPaper, ContentFormat.LinkedInPost };
+
+    private List<TrendSignal> _signals = new();
+    private List<ContentTopic> _topics = new();
+    private List<ContentDraft> _drafts = new();
+    private int _signalCount;
+    private long? _openDraftId;
+    private bool _busy;
+    private string? _busyMessage;
+    private string? _flash; private bool _flashOk = true;
+
+    protected override async Task OnInitializedAsync() => await Load();
+
+    private async Task Load()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var cutoff = DateTimeOffset.UtcNow.AddDays(-7);
+        _signalCount = await db.TrendSignals.CountAsync(s => s.PostedAt >= cutoff);
+        _signals = await db.TrendSignals.AsNoTracking()
+            .Where(s => s.PostedAt >= cutoff)
+            .OrderByDescending(s => s.Hotness).ThenByDescending(s => s.PostedAt)
+            .Take(15).ToListAsync();
+        _topics = await db.ContentTopics.AsNoTracking()
+            .Where(t => t.Status != ContentTopicStatus.Dismissed)
+            .OrderByDescending(t => t.InterestScore).ThenByDescending(t => t.Id)
+            .Take(12).ToListAsync();
+        _drafts = await db.ContentDrafts.AsNoTracking()
+            .Where(d => d.Status != ContentDraftStatus.Discarded)
+            .OrderByDescending(d => d.Id)
+            .Take(25).ToListAsync();
+    }
+
+    private async Task ScanNow()
+    {
+        await Run("Scanning trend sources — usually well under a minute…", async sp =>
+        {
+            var created = await sp.GetRequiredService<TrendScanService>().RunDueAsync(force: true, default);
+            return $"Scan complete: {created} new signal(s).";
+        });
+    }
+
+    private async Task SuggestTopics()
+    {
+        await Run("Asking the AI for topic suggestions — one model call…", async sp =>
+        {
+            var (_, message) = await sp.GetRequiredService<ContentStudioService>().GenerateTopicsAsync(5, default);
+            return message;
+        });
+    }
+
+    private async Task Draft(long topicId, ContentFormat format)
+    {
+        await Run($"Writing the {UiHelpers.Spaced(format).ToLowerInvariant()} — this can take a few minutes on the free model…", async sp =>
+        {
+            var (draft, message) = await sp.GetRequiredService<ContentStudioService>().GenerateDraftAsync(topicId, format, default);
+            if (draft is not null) _openDraftId = draft.Id;
+            return message;
+        });
+    }
+
+    private async Task Run(string busyMessage, Func<IServiceProvider, Task<string>> action)
+    {
+        _busy = true; _busyMessage = busyMessage; _flash = null;
+        StateHasChanged();
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            _flash = await action(scope.ServiceProvider); _flashOk = true;
+            await Load();
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; _busyMessage = null; }
+    }
+
+    private async Task DismissTopic(long id)
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var t = await db.ContentTopics.FirstOrDefaultAsync(x => x.Id == id);
+        if (t is null) return;
+        t.Status = ContentTopicStatus.Dismissed;
+        t.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+        await Load();
+    }
+
+    private void ToggleEditor(long id) => _openDraftId = _openDraftId == id ? null : id;
+
+    private async Task SaveDraft(ContentDraft edited)
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var d = await db.ContentDrafts.FirstOrDefaultAsync(x => x.Id == edited.Id);
+        if (d is null) return;
+        d.BodyMarkdown = edited.BodyMarkdown;
+        d.WordCount = edited.BodyMarkdown.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length;
+        d.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+        _flash = "Draft saved."; _flashOk = true;
+    }
+
+    private async Task SetDraftStatus(ContentDraft edited, ContentDraftStatus status)
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var d = await db.ContentDrafts.FirstOrDefaultAsync(x => x.Id == edited.Id);
+        if (d is null) return;
+        d.Status = status;
+        d.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+        await Load();
+    }
+
+    private async Task Copy(string text)
+    {
+        try { await JS.InvokeVoidAsync("navigator.clipboard.writeText", text); _flash = "Copied to clipboard."; _flashOk = true; }
+        catch { _flash = "Copy not available."; _flashOk = false; }
+    }
+
+    private static string DraftChip(ContentDraftStatus s) => s switch
+    {
+        ContentDraftStatus.Published => "rr-chip won",
+        ContentDraftStatus.Final => "rr-chip active",
+        ContentDraftStatus.Discarded => "rr-chip dead",
+        _ => "rr-chip"
+    };
+
+    private static string FormatLabel(ContentFormat f) => f switch
+    {
+        ContentFormat.BlogPost => "📝 Blog post",
+        ContentFormat.Article => "📰 Article",
+        ContentFormat.WhitePaper => "📄 White paper",
+        ContentFormat.ResearchPaper => "🔬 Research paper",
+        ContentFormat.LinkedInPost => "💼 LinkedIn",
+        _ => f.ToString()
+    };
+
+    private static string Shorten(string s) => s.Length <= 60 ? s : s[..60] + "…";
+}

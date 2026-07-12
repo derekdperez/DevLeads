@@ -28,12 +28,15 @@
 | Singleton | IAiTriageProvider |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 60 |
 | Singleton | IAiTriageProvider |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 61 |
 | Singleton | AiTriageRouter |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 62 |
-| Scoped | AuditService |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 65 |
-| Scoped | LeadIngestionService |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 66 |
-| Scoped | OutreachService |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 67 |
-| Scoped | QuoteService |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 68 |
-| Scoped | SourceRunner |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 69 |
-| Scoped | MaintenanceService |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 70 |
+| Singleton | DiscoveryActivityTracker |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 65 |
+| Scoped | AuditService |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 68 |
+| Scoped | LeadIngestionService |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 69 |
+| Scoped | OutreachService |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 70 |
+| Scoped | QuoteService |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 71 |
+| Scoped | SourceRunner |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 72 |
+| Scoped | MaintenanceService |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 73 |
+| Scoped | TrendScanService |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 74 |
+| Scoped | ContentStudioService |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 75 |
 | Singleton | DevLeads.Web.AppRestartService |  | src/DevLeads.Web/Program.cs | 25 |
 
 

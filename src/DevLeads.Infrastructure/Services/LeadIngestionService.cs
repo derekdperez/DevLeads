@@ -102,6 +102,7 @@ public sealed class LeadIngestionService
         {
             Title = item.Title,
             Summary = Truncate(item.BodyText, 240),
+            CampaignId = source.CampaignId,
             SourceKey = item.SourceKey,
             SourceUrl = sourceUrl,
             AuthorName = item.AuthorName,
@@ -114,8 +115,9 @@ public sealed class LeadIngestionService
             Status = OpportunityStatus.New
         };
 
-        // Step 1: heuristic pre-filter.
-        var pre = _preFilter.Analyze(item);
+        // Step 1: heuristic pre-filter, scoped to the source's own query packs so one
+        // campaign's trigger vocabulary never qualifies another campaign's items.
+        var pre = _preFilter.Analyze(item, PackNames(source));
         ApplyPreFilter(opportunity, pre);
 
         if (!pre.ShouldAnalyzeWithAi || (double)pre.HeuristicScore < source.MinPreFilterScore)
@@ -184,7 +186,7 @@ public sealed class LeadIngestionService
 
     /// <summary>Manual lead entry that still runs the pre-filter, AI triage, and scoring.</summary>
     public async Task<Opportunity> CreateManualAsync(string title, string body, string sourceUrl,
-        string? author, string? authorUrl, CancellationToken ct)
+        string? author, string? authorUrl, CancellationToken ct, long? campaignId = null)
     {
         var normalizedSourceUrl = NormalizeSourceUrl(sourceUrl)
             ?? throw new ArgumentException("A valid original source URL is required for every opportunity.", nameof(sourceUrl));
@@ -210,6 +212,7 @@ public sealed class LeadIngestionService
         {
             Title = title,
             Summary = Truncate(body, 240),
+            CampaignId = campaignId,
             SourceKey = "manual",
             SourceUrl = normalizedSourceUrl,
             AuthorName = author,
@@ -296,7 +299,8 @@ public sealed class LeadIngestionService
             PostedAt = opp.PostedAt,
             MatchedTerms = pre.MatchedTerms,
             HeuristicScore = pre.HeuristicScore,
-            OperatorSkills = skills.Count == 0 ? "" : SkillMatcher.PromptSummary(skills)
+            OperatorSkills = skills.Count == 0 ? "" : SkillMatcher.PromptSummary(skills),
+            CampaignObjective = await GetCampaignObjectiveAsync(opp.CampaignId, ct)
         };
 
         AiTriageResult? aiResult = null;
@@ -352,6 +356,10 @@ public sealed class LeadIngestionService
         var redFlag = RedFlagDetector.Scan(opp.Title, body);
         var matchText = $"{opp.Title}\n{body}\n{string.Join(' ', aiResult?.DetectedStack ?? new List<string>())}";
         var competitionText = $"{opp.Title}\n{body}";
+        var skillMatches = skills.Count == 0 ? null : SkillMatcher.Match(matchText, skills);
+        var foreignStacks = skills.Count == 0
+            ? new List<string>()
+            : SkillMatcher.ForeignStackDemands(matchText, skills);
         var score = OpportunityScorer.Score(new ScoringInput
         {
             Ai = aiResult,
@@ -360,19 +368,21 @@ public sealed class LeadIngestionService
             PostedAt = opp.PostedAt,
             RedFlagged = redFlag.IsRedFlagged,
             HasContact = !string.IsNullOrWhiteSpace(opp.AuthorProfileUrl),
-            SkillMatches = skills.Count == 0 ? null : SkillMatcher.Match(matchText, skills),
+            SkillMatches = skillMatches,
             OfferedAmount = offered?.Max,
             ClaimedByOthers = LeadQualityRules.IsAlreadyClaimed(competitionText),
-            CompetingResponses = LeadQualityRules.CompetingResponseCount(competitionText)
+            CompetingResponses = LeadQualityRules.CompetingResponseCount(competitionText),
+            ForeignStackDemands = foreignStacks
         }, DateTimeOffset.UtcNow);
         ApplyScore(opp, score);
 
-        DecideStatusAndDraft(opp, aiResult, redFlag, settings, source, body);
+        DecideStatusAndDraft(opp, aiResult, redFlag, settings, source, body, skillMatches, foreignStacks);
         opp.UpdatedAt = DateTimeOffset.UtcNow;
     }
 
     private void DecideStatusAndDraft(Opportunity opp, AiTriageResult? ai, RedFlagResult redFlag,
-        OperatorSettings settings, SourceConfig? source, string body)
+        OperatorSettings settings, SourceConfig? source, string body,
+        IReadOnlyList<SkillMatch>? skillMatches, IReadOnlyList<string> foreignStacks)
     {
         if (redFlag.IsRedFlagged)
         {
@@ -380,6 +390,19 @@ public sealed class LeadIngestionService
             opp.OutreachRecommendation = OutreachRecommendation.DoNotContact;
             opp.RejectionReason = "Red flag: " + string.Join("; ", redFlag.Reasons);
             _audit.Record("Opportunity", opp.Id, "RedFlag", opp.RejectionReason);
+            return;
+        }
+
+        // Wrong stack: the post demands work in a stack outside the operator's profile
+        // and never touches the operator's own stack — unactionable regardless of pay.
+        // Manual entries are exempt (the operator chose to add them).
+        if (opp.SourceKey != "manual" && foreignStacks.Count > 0 &&
+            !(skillMatches is { } sm && SkillMatcher.HasStackIdentityMatch(sm)))
+        {
+            opp.Status = OpportunityStatus.Rejected;
+            opp.OutreachRecommendation = OutreachRecommendation.Ignore;
+            opp.RejectionReason = $"Requires {string.Join("/", foreignStacks.Take(4))} — outside the operator's stack.";
+            _audit.Record("Opportunity", opp.Id, "ForeignStackRejected", opp.RejectionReason);
             return;
         }
 
@@ -489,23 +512,22 @@ public sealed class LeadIngestionService
 
     private void CreateDraft(Opportunity opp, AiTriageResult ai, OperatorSettings settings)
     {
-        var template = ResponseTemplates.Get(ResponseTemplates.DirectOutreach);
-        var body = template.Body
-            .Replace("[specific issue]", opp.Title)
-            .Replace("[likely cause/category]", $"{ai.ProblemCategory.ToLowerInvariant()} — {ai.EstimatedCause}");
-
+        // High-scoring leads are queued for batched AI generation instead of getting a
+        // template mad-lib: real reply text is written from the original post the next
+        // time the generation runs (hourly, or on demand from the approval queue) — one
+        // model call covers the whole queue.
         _db.OutreachAttempts.Add(new OutreachAttempt
         {
             OpportunityId = opp.Id,
             Channel = OutreachChannel.ManualCopy,
             Mode = settings.DefaultOutreachMode,
-            TemplateKey = template.Key,
-            Body = body,
-            Status = OutreachStatus.PendingApproval,
+            TemplateKey = "ai_batch_v1",
+            Body = OutreachService.QueuedPlaceholder,
+            Status = OutreachStatus.QueuedForGeneration,
             RequiresApproval = settings.DefaultOutreachMode != OutreachMode.Auto,
             CreatedAt = DateTimeOffset.UtcNow
         });
-        _audit.Record("Opportunity", opp.Id, "DraftGenerated", $"Draft created via template {template.Key}");
+        _audit.Record("Opportunity", opp.Id, "ResponseQueued", "High-score lead queued for batched AI response generation");
     }
 
     // ----- mapping helpers -----
@@ -519,12 +541,14 @@ public sealed class LeadIngestionService
 
     private static void ApplyAiResult(Opportunity opp, AiTriageResult ai)
     {
-        opp.ProblemType = ai.ProblemCategory;
-        opp.PaymentIntent = ai.PaymentIntent;
+        // Models occasionally emit null where the schema says string — never let that
+        // reach the NOT NULL columns.
+        opp.ProblemType = ai.ProblemCategory ?? "";
+        opp.PaymentIntent = ai.PaymentIntent ?? "";
         opp.AssistanceRequested = ai.AssistanceRequested;
-        opp.DetectedStackJson = JsonSerializer.Serialize(ai.DetectedStack);
-        opp.EstimatedCause = ai.EstimatedCause;
-        opp.SuggestedFirstStep = ai.FirstDiagnosticStep;
+        opp.DetectedStackJson = JsonSerializer.Serialize(ai.DetectedStack ?? new List<string>());
+        opp.EstimatedCause = ai.EstimatedCause ?? "";
+        opp.SuggestedFirstStep = ai.FirstDiagnosticStep ?? "";
         opp.EstimatedFixMinutesMin = ai.EstimatedFixMinutesMin;
         opp.EstimatedFixMinutesMax = ai.EstimatedFixMinutesMax;
         opp.AiConfidence = (double)ai.AiConfidence;
@@ -563,6 +587,19 @@ public sealed class LeadIngestionService
 
     private async Task<List<Skill>> GetSkillsAsync(CancellationToken ct) =>
         _skillsCache ??= await _db.Skills.AsNoTracking().Where(s => s.Enabled).ToListAsync(ct);
+
+    private readonly Dictionary<long, string> _campaignObjectiveCache = new();
+
+    private async Task<string> GetCampaignObjectiveAsync(long? campaignId, CancellationToken ct)
+    {
+        if (campaignId is not { } id) return "";
+        if (_campaignObjectiveCache.TryGetValue(id, out var cached)) return cached;
+        var campaign = await _db.Campaigns.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id, ct);
+        return _campaignObjectiveCache[id] = campaign?.Objective ?? "";
+    }
+
+    private static string[] PackNames(SourceConfig source) =>
+        source.QueryPacksCsv.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
     private static OperatorSettings ResolveTriageSettings(OperatorSettings settings, SourceConfig? source)
     {

@@ -16,6 +16,8 @@
 
 @if (_flash is not null) { <div class="rr-flash @(_flashOk ? "ok" : "err")">@_flash</div> }
 
+<ActivityFeed />
+
 @foreach (var s in _sources)
 {
     <div class="rr-panel">
@@ -40,6 +42,16 @@
         <div class="rr-grid-2">
             <label class="rr-check"><input type="checkbox" @bind="s.Enabled" /> Enabled</label>
             <label class="rr-check"><input type="checkbox" @bind="s.AutoModeEligible" /> Auto-mode eligible</label>
+        </div>
+        <div class="rr-field">
+            <label>Campaign (leads inherit it; the campaign objective steers AI triage)</label>
+            <select class="rr-select" @bind="s.CampaignId">
+                <option value="">— unassigned —</option>
+                @foreach (var c in _campaigns)
+                {
+                    <option value="@c.Id">@c.Emoji @c.Name</option>
+                }
+            </select>
         </div>
         <div class="rr-grid-2">
             <div class="rr-field">
@@ -75,6 +87,7 @@
 
 @code {
     private List<SourceConfig> _sources = new();
+    private List<Campaign> _campaigns = new();
     private bool _busy;
     private string? _flash; private bool _flashOk = true;
 
@@ -83,7 +96,9 @@
     private async Task Load()
     {
         await using var db = await DbFactory.CreateDbContextAsync();
-        _sources = await db.SourceConfigs.AsNoTracking().OrderBy(s => s.DisplayName).ToListAsync();
+        _campaigns = await db.Campaigns.AsNoTracking().OrderBy(c => c.Id).ToListAsync();
+        _sources = await db.SourceConfigs.AsNoTracking()
+            .OrderBy(s => s.CampaignId).ThenBy(s => s.DisplayName).ToListAsync();
     }
 
     private async Task Save(SourceConfig edited)
@@ -95,6 +110,7 @@
             var db = scope.ServiceProvider.GetRequiredService<DevLeadsDbContext>();
             var s = await db.SourceConfigs.FirstAsync(x => x.Id == edited.Id);
             s.Enabled = edited.Enabled; s.AutoModeEligible = edited.AutoModeEligible;
+            s.CampaignId = edited.CampaignId;
             s.PollIntervalMinutes = edited.PollIntervalMinutes; s.MaxItemsPerRun = edited.MaxItemsPerRun;
             s.QueryPacksCsv = edited.QueryPacksCsv; s.ParametersJson = edited.ParametersJson;
             s.DraftThreshold = edited.DraftThreshold; s.AlertThreshold = edited.AlertThreshold;

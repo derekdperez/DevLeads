@@ -1,0 +1,185 @@
+@page "/campaigns"
+@rendermode InteractiveServer
+@inject IDbContextFactory<DevLeadsDbContext> DbFactory
+<PageTitle>Campaigns · DevLeads</PageTitle>
+
+<div class="rr-page-head">
+    <div>
+        <h1>Campaigns</h1>
+        <div class="rr-sub">Each campaign defines an objective the AI triages against, owns its sources, and scopes every page via the sidebar switcher.</div>
+    </div>
+</div>
+
+@if (_flash is not null) { <div class="rr-flash @(_flashOk ? "ok" : "err")">@_flash</div> }
+
+@foreach (var c in _campaigns)
+{
+    var stats = _stats.GetValueOrDefault(c.Id);
+    <div class="rr-panel">
+        <div class="rr-panel-head">
+            <div>
+                <h2>@c.Emoji @c.Name <span class="rr-sub">(@c.Key)</span></h2>
+                <div class="rr-sub">
+                    <span class="@(c.Enabled ? "rr-chip won" : "rr-chip dead")">@(c.Enabled ? "active" : "paused")</span>
+                    <span> · @(stats?.Sources ?? 0) source(s) · @(stats?.Leads ?? 0) lead(s)</span>
+                </div>
+            </div>
+            <div class="rr-btn-row">
+                @if (_confirmDeleteId == c.Id)
+                {
+                    <button class="rr-btn sm danger" @onclick="() => Delete(c)" disabled="@_busy">Really delete?</button>
+                    <button class="rr-btn sm" @onclick="() => _confirmDeleteId = null">Keep</button>
+                }
+                else
+                {
+                    <button class="rr-btn sm danger" @onclick="() => _confirmDeleteId = c.Id" disabled="@_busy">Delete</button>
+                }
+            </div>
+        </div>
+
+        <div class="rr-grid-2">
+            <div class="rr-field">
+                <label>Name</label>
+                <input class="rr-input" @bind="c.Name" />
+            </div>
+            <div class="rr-field">
+                <label>Emoji</label>
+                <input class="rr-input" @bind="c.Emoji" />
+            </div>
+        </div>
+        <label class="rr-check"><input type="checkbox" @bind="c.Enabled" /> Enabled (disabled campaigns keep their data but their sources stop polling)</label>
+        <div class="rr-field">
+            <label>Objective — what a qualifying lead looks like (sent to AI triage verbatim)</label>
+            <textarea class="rr-textarea" style="min-height:110px" @bind="c.Objective"></textarea>
+        </div>
+        <button class="rr-btn" @onclick="() => Save(c)" disabled="@_busy">💾 Save</button>
+    </div>
+}
+
+<div class="rr-panel">
+    <div class="rr-panel-head"><h2>➕ New campaign</h2></div>
+    <div class="rr-grid-2">
+        <div class="rr-field">
+            <label>Name</label>
+            <input class="rr-input" @bind="_newName" placeholder="e.g. WordPress rescue retainers" />
+        </div>
+        <div class="rr-field">
+            <label>Emoji</label>
+            <input class="rr-input" @bind="_newEmoji" placeholder="🎯" />
+        </div>
+    </div>
+    <div class="rr-field">
+        <label>Objective</label>
+        <textarea class="rr-textarea" style="min-height:90px" @bind="_newObjective"
+                  placeholder="Describe the engagement you want: who is posting, what they need, and what counts as hire/pay intent…"></textarea>
+    </div>
+    <button class="rr-btn primary" @onclick="Create" disabled="@_busy">Create campaign</button>
+    <div class="rr-sub" style="margin-top:.4rem">Then assign sources to it on the <a href="sources">Sources</a> page — leads inherit the campaign from the source that finds them.</div>
+</div>
+
+@code {
+    private record CampaignStats(int Sources, int Leads);
+
+    private List<Campaign> _campaigns = new();
+    private Dictionary<long, CampaignStats> _stats = new();
+    private long? _confirmDeleteId;
+    private bool _busy;
+    private string? _flash; private bool _flashOk = true;
+    private string _newName = "", _newEmoji = "🎯", _newObjective = "";
+
+    protected override async Task OnInitializedAsync() => await Load();
+
+    private async Task Load()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        _campaigns = await db.Campaigns.AsNoTracking().OrderBy(c => c.Id).ToListAsync();
+        var sourceCounts = await db.SourceConfigs.Where(s => s.CampaignId != null)
+            .GroupBy(s => s.CampaignId!.Value)
+            .Select(g => new { Id = g.Key, Count = g.Count() }).ToListAsync();
+        var leadCounts = await db.Opportunities.Where(o => o.CampaignId != null)
+            .GroupBy(o => o.CampaignId!.Value)
+            .Select(g => new { Id = g.Key, Count = g.Count() }).ToListAsync();
+        _stats = _campaigns.ToDictionary(c => c.Id, c => new CampaignStats(
+            sourceCounts.FirstOrDefault(x => x.Id == c.Id)?.Count ?? 0,
+            leadCounts.FirstOrDefault(x => x.Id == c.Id)?.Count ?? 0));
+    }
+
+    private async Task Save(Campaign edited)
+    {
+        _busy = true; _flash = null;
+        try
+        {
+            if (string.IsNullOrWhiteSpace(edited.Name)) throw new InvalidOperationException("A campaign name is required.");
+            await using var db = await DbFactory.CreateDbContextAsync();
+            var c = await db.Campaigns.FirstAsync(x => x.Id == edited.Id);
+            c.Name = edited.Name.Trim();
+            c.Emoji = string.IsNullOrWhiteSpace(edited.Emoji) ? "🎯" : edited.Emoji.Trim();
+            c.Objective = edited.Objective.Trim();
+            c.Enabled = edited.Enabled;
+            await db.SaveChangesAsync();
+            _flash = $"{c.Name} saved. New objective applies to future triage runs."; _flashOk = true;
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+
+    private async Task Create()
+    {
+        _busy = true; _flash = null;
+        try
+        {
+            if (string.IsNullOrWhiteSpace(_newName)) throw new InvalidOperationException("A campaign name is required.");
+            await using var db = await DbFactory.CreateDbContextAsync();
+            var key = MakeKey(_newName);
+            if (await db.Campaigns.AnyAsync(c => c.Key == key))
+                throw new InvalidOperationException($"A campaign with key '{key}' already exists.");
+            db.Campaigns.Add(new Campaign
+            {
+                Key = key,
+                Name = _newName.Trim(),
+                Emoji = string.IsNullOrWhiteSpace(_newEmoji) ? "🎯" : _newEmoji.Trim(),
+                Objective = _newObjective.Trim(),
+                Enabled = true,
+                CreatedAt = DateTimeOffset.UtcNow
+            });
+            await db.SaveChangesAsync();
+            _newName = ""; _newEmoji = "🎯"; _newObjective = "";
+            _flash = "Campaign created — assign sources to it on the Sources page."; _flashOk = true;
+            await Load();
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+
+    private async Task Delete(Campaign campaign)
+    {
+        _busy = true; _flash = null; _confirmDeleteId = null;
+        try
+        {
+            await using var db = await DbFactory.CreateDbContextAsync();
+            // Detach rather than cascade: sources and leads survive as "unassigned"
+            // (visible in the All-campaigns view) so no data is silently destroyed.
+            foreach (var s in await db.SourceConfigs.Where(s => s.CampaignId == campaign.Id).ToListAsync())
+                s.CampaignId = null;
+            foreach (var o in await db.Opportunities.Where(o => o.CampaignId == campaign.Id).ToListAsync())
+                o.CampaignId = null;
+            var settings = await db.OperatorSettings.FirstOrDefaultAsync();
+            if (settings?.SelectedCampaignId == campaign.Id) settings.SelectedCampaignId = null;
+            var c = await db.Campaigns.FirstAsync(x => x.Id == campaign.Id);
+            db.Campaigns.Remove(c);
+            await db.SaveChangesAsync();
+            _flash = $"{campaign.Name} deleted. Its sources and leads are now unassigned."; _flashOk = true;
+            await Load();
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+
+    private static string MakeKey(string name)
+    {
+        var slug = new string(name.Trim().ToLowerInvariant()
+            .Select(ch => char.IsLetterOrDigit(ch) ? ch : '_').ToArray());
+        while (slug.Contains("__")) slug = slug.Replace("__", "_");
+        return slug.Trim('_');
+    }
+}

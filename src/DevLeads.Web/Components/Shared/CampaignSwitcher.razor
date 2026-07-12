@@ -1,0 +1,38 @@
+@inject IDbContextFactory<DevLeadsDbContext> DbFactory
+@inject NavigationManager Nav
+
+<div class="rr-campaign-switch" style="padding:.35rem .9rem .6rem">
+    <div class="rr-sub" style="margin-bottom:.25rem">Campaign</div>
+    <select class="rr-select" style="width:100%" value="@_selected" @onchange="OnChanged" title="Scope every page to one campaign, or view all combined">
+        <option value="">🌐 All campaigns</option>
+        @foreach (var c in _campaigns)
+        {
+            <option value="@c.Id">@c.Emoji @c.Name@(c.Enabled ? "" : " (paused)")</option>
+        }
+    </select>
+</div>
+
+@code {
+    private List<Campaign> _campaigns = new();
+    private string _selected = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        _campaigns = await db.Campaigns.AsNoTracking().OrderBy(c => c.Id).ToListAsync();
+        var settings = await db.OperatorSettings.AsNoTracking().FirstOrDefaultAsync();
+        _selected = settings?.SelectedCampaignId?.ToString() ?? "";
+    }
+
+    private async Task OnChanged(ChangeEventArgs e)
+    {
+        long? id = long.TryParse(e.Value as string, out var v) ? v : null;
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var settings = await db.OperatorSettings.FirstOrDefaultAsync();
+        if (settings is null) return;
+        settings.SelectedCampaignId = id;
+        await db.SaveChangesAsync();
+        // Full reload so statically rendered pages re-read the persisted selection.
+        Nav.NavigateTo(Nav.Uri, forceLoad: true);
+    }
+}

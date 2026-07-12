@@ -12,6 +12,33 @@
 </div>
 
 @if (_flash is not null) { <div class="rr-flash @(_flashOk ? "ok" : "err")">@_flash</div> }
+@if (_generating) { <div class="rr-flash ok">⏳ Writing all queued responses in one batched AI call — usually a minute or two…</div> }
+
+<div class="rr-panel">
+    <div class="rr-panel-head">
+        <h2>🪄 AI generation queue</h2>
+        <button class="rr-btn primary" @onclick="GenerateQueued" disabled="@(_generating || _queued.Count == 0)">
+            ⚡ Generate all (@_queued.Count queued · 1 AI call)
+        </button>
+    </div>
+    @if (_queued.Count == 0)
+    {
+        <div class="rr-empty">Nothing queued. Queue leads with the 🪄 button on the Opportunities list or a lead's detail page; high-scoring leads queue automatically. The hourly background run also processes the queue.</div>
+    }
+    else
+    {
+        @foreach (var row in _queued)
+        {
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:.3rem 0;border-bottom:1px solid var(--line)">
+                <div>
+                    <a href="opportunities/@row.Attempt.OpportunityId" style="font-weight:600">@row.Title</a>
+                    <span class="rr-sub"> · queued @UiHelpers.Age(row.Attempt.CreatedAt)</span>
+                </div>
+                <button class="rr-btn sm danger" @onclick="() => Cancel(row.Attempt.Id)" disabled="@_generating">✖ Remove</button>
+            </div>
+        }
+    }
+</div>
 
 <div class="rr-panel">
     @if (_items.Count == 0)
@@ -50,6 +77,8 @@
 @code {
     private record Row(OutreachAttempt Attempt, string Title, string SourceUrl, double Score);
     private List<Row> _items = new();
+    private List<Row> _queued = new();
+    private bool _generating;
     private string? _flash; private bool _flashOk = true;
 
     protected override async Task OnInitializedAsync() => await Load();
@@ -57,18 +86,40 @@
     private async Task Load()
     {
         await using var db = await DbFactory.CreateDbContextAsync();
+        var campaignId = (await db.OperatorSettings.AsNoTracking().FirstOrDefaultAsync())?.SelectedCampaignId;
         var attempts = await db.OutreachAttempts.AsNoTracking()
-            .Where(a => a.Status == OutreachStatus.PendingApproval || a.Status == OutreachStatus.Approved)
+            .Where(a => a.Status == OutreachStatus.PendingApproval || a.Status == OutreachStatus.Approved
+                        || a.Status == OutreachStatus.QueuedForGeneration)
             .ToListAsync();
         var oppIds = attempts.Select(a => a.OpportunityId).Distinct().ToList();
         var opps = (await db.Opportunities.AsNoTracking().Where(o => oppIds.Contains(o.Id))
-            .Select(o => new { o.Id, o.Title, o.SourceUrl, o.Score }).ToListAsync()).ToDictionary(o => o.Id);
-        _items = attempts
+            .Select(o => new { o.Id, o.Title, o.SourceUrl, o.Score, o.CampaignId }).ToListAsync()).ToDictionary(o => o.Id);
+        var rows = attempts
+            .Where(a => campaignId is null ||
+                        (opps.TryGetValue(a.OpportunityId, out var oc) && oc.CampaignId == campaignId))
             .Select(a => new Row(a,
                 opps.TryGetValue(a.OpportunityId, out var o) ? o.Title : "(lead)",
                 opps.TryGetValue(a.OpportunityId, out var o2) ? o2.SourceUrl : "",
                 opps.TryGetValue(a.OpportunityId, out var o3) ? o3.Score : 0))
             .OrderByDescending(r => r.Score).ToList();
+        _queued = rows.Where(r => r.Attempt.Status == OutreachStatus.QueuedForGeneration).ToList();
+        _items = rows.Where(r => r.Attempt.Status != OutreachStatus.QueuedForGeneration).ToList();
+    }
+
+    private async Task GenerateQueued()
+    {
+        _generating = true; _flash = null;
+        StateHasChanged();
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var (generated, message) = await scope.ServiceProvider
+                .GetRequiredService<OutreachService>().GenerateQueuedResponsesAsync(default);
+            _flash = message; _flashOk = generated > 0;
+            await Load();
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _generating = false; }
     }
 
     private async Task Run(Func<OutreachService, Task> action, string ok)

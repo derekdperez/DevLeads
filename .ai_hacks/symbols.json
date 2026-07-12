@@ -3,21 +3,27 @@
   "files": [
     {
       "path": "src/DevLeads.Core/Ai/AiTriagePrompts.cs",
-      "bytes": 6904,
-      "lines": 113,
-      "sha256": "48c02130f330fce5d9223e392e3b7ab71bcac6c799ed9bd68eb6954eaf04b1a9"
+      "bytes": 9999,
+      "lines": 164,
+      "sha256": "e75d8173e9408d63260593406b7ee78ec24fbe2b73ed01e5e1188560b9ac5517"
+    },
+    {
+      "path": "src/DevLeads.Core/Ai/ContentPrompts.cs",
+      "bytes": 8581,
+      "lines": 138,
+      "sha256": "bcf15f59a69318917a087f10e13e74fe94778fcb7dfc9ff79de7990290dea6a3"
     },
     {
       "path": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "bytes": 3409,
-      "lines": 90,
-      "sha256": "fa74914d4d3ffd80b852f7894f6dec05b65160ed96eedc25a28503688364865b"
+      "bytes": 4817,
+      "lines": 126,
+      "sha256": "b63f3fd8bf55bb208f1a77553d9c06ea04ad1ec5ecfed825c63916a320bf4393"
     },
     {
       "path": "src/DevLeads.Core/AiTriageResult.cs",
-      "bytes": 3011,
+      "bytes": 3038,
       "lines": 78,
-      "sha256": "0360f6606158d65f880978bb9dc12dc931bda70dc56ee6b7842b27a02637ccdd"
+      "sha256": "3d40b0be13a79d04fcbc259c8636a7b78470a6bd227b2b8b43dbd77d6e56103b"
     },
     {
       "path": "src/DevLeads.Core/Connectors/ISourceConnector.cs",
@@ -44,16 +50,34 @@
       "sha256": "833cd4acbb8ccbc21f45c22a5ac6f054a93aa6da67ad1197081625ff6edb02da"
     },
     {
+      "path": "src/DevLeads.Core/Entities/Campaign.cs",
+      "bytes": 1067,
+      "lines": 29,
+      "sha256": "68ebdb9b7d161f48de51699b41dc4cde33bdc043e5799a3c0ecb13364d69b35d"
+    },
+    {
+      "path": "src/DevLeads.Core/Entities/ContentDraft.cs",
+      "bytes": 865,
+      "lines": 27,
+      "sha256": "93b34a4b0701fe8ad782906dd78ffaca98e19abb6db6a54ef6c37126aad4e6ec"
+    },
+    {
+      "path": "src/DevLeads.Core/Entities/ContentTopic.cs",
+      "bytes": 1404,
+      "lines": 38,
+      "sha256": "5a27e8656543794e109d1f8d8071713da69cb444e4964e763a9c6ddef4c11bf5"
+    },
+    {
       "path": "src/DevLeads.Core/Entities/OperatorSettings.cs",
-      "bytes": 3180,
-      "lines": 61,
-      "sha256": "e2b7caf26cdc0b1317f2d834b2dd4c176db84cf4a687f707e3ee1b39f63047da"
+      "bytes": 3510,
+      "lines": 67,
+      "sha256": "599acab4e8efe1459f5df4dccb8038a01056f860cb7d9160122450faf87ed33b"
     },
     {
       "path": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "bytes": 3297,
-      "lines": 81,
-      "sha256": "eaba15364889473409ba09db9b61831aaf0ac7fe042ad50d87f52f376d0f3b14"
+      "bytes": 3445,
+      "lines": 84,
+      "sha256": "62f124ca9e3b9fa680dea3bfbc77040bfe9ff5f9ffc63dc687f2be6a47b1f9a6"
     },
     {
       "path": "src/DevLeads.Core/Entities/OutreachAttempt.cs",
@@ -87,15 +111,27 @@
     },
     {
       "path": "src/DevLeads.Core/Entities/SourceConfig.cs",
-      "bytes": 1306,
-      "lines": 34,
-      "sha256": "180bd26c2e9e7dc50140be4dc168134a05cb31e2f69b2ba89a51355d8d379999"
+      "bytes": 1451,
+      "lines": 37,
+      "sha256": "33ff6004b03dd1d93e076388c9aaf933403e9b8e584006b40a8bc77645110be9"
     },
     {
       "path": "src/DevLeads.Core/Entities/SuppressionEntry.cs",
       "bytes": 453,
       "lines": 13,
       "sha256": "301292b1c5ce9c998ef9654973af3d04a6e362363624f6637c16f03aadea18ab"
+    },
+    {
+      "path": "src/DevLeads.Core/Entities/TrendSignal.cs",
+      "bytes": 1265,
+      "lines": 34,
+      "sha256": "f8b5f28e669d7f3e4d4412d4fc16726efb7595c7ab67914a3235a658783bf310"
+    },
+    {
+      "path": "src/DevLeads.Core/Entities/TrendSource.cs",
+      "bytes": 1586,
+      "lines": 39,
+      "sha256": "524a87c60ed649c1547749388fb1a46c2ebafb5a2d8f8bca7d2f319db30ace55"
     },
     {
       "path": "src/DevLeads.Core/Entities/WorkSession.cs",
@@ -105,21 +141,27 @@
     },
     {
       "path": "src/DevLeads.Core/Enums.cs",
-      "bytes": 2231,
-      "lines": 128,
-      "sha256": "44f1314c26cdf1653d6c09689c3b9a94564a09e31fa3c47d9cc472988cabbd1d"
+      "bytes": 2843,
+      "lines": 158,
+      "sha256": "d07f52303f64f0dd5ad2871e8e10b67a810a46a5910e409ad33a1189199a6e2a"
     },
     {
       "path": "src/DevLeads.Core/HeuristicPreFilter.cs",
-      "bytes": 9301,
-      "lines": 187,
-      "sha256": "eeb5a0f0977100bbd9d2dccde415b6815f7cfd0d55ce5a0ea747c1dc703bba58"
+      "bytes": 12373,
+      "lines": 243,
+      "sha256": "26baf7a8c45f011673a3f6010e4e0dcaeacde6eccf5cfbf21b5e0c0ea84861f1"
+    },
+    {
+      "path": "src/DevLeads.Core/LeadQualityRules.cs",
+      "bytes": 13647,
+      "lines": 273,
+      "sha256": "9b04528659bf909cb6e972c5590a17de558081bc53904705f68760d3282cc41c"
     },
     {
       "path": "src/DevLeads.Core/OfferedCompensation.cs",
-      "bytes": 2470,
-      "lines": 55,
-      "sha256": "ee704ad4ce72a551a566452e8f5030bf53dca2ed0f7419c6913446444933cb5a"
+      "bytes": 3936,
+      "lines": 84,
+      "sha256": "b16e13066cb4a23761e0348effbe361c476ccbc8adeb59fca8601967f39ffdac"
     },
     {
       "path": "src/DevLeads.Core/PreFilterResult.cs",
@@ -129,27 +171,27 @@
     },
     {
       "path": "src/DevLeads.Core/QueryPacks/DefaultQueryPacks.cs",
-      "bytes": 9386,
-      "lines": 151,
-      "sha256": "ef3dfd8a6317b8046df04625ba55fd347fdd8e64cc1dee9c5c9ed3a1e573eb25"
+      "bytes": 10885,
+      "lines": 172,
+      "sha256": "3678811c5763884ff7ab48a503dc97b9050fcddc918edddadd354446ae4fc754"
     },
     {
       "path": "src/DevLeads.Core/QueryPacks/IQueryPackProvider.cs",
-      "bytes": 547,
-      "lines": 15,
-      "sha256": "1be88c7b2471a65fecec45ecde59fef8f22a719c39ceefc89e0a59933e3080df"
+      "bytes": 839,
+      "lines": 21,
+      "sha256": "265636b4ad3012ff9fb25723cffb961c198feb8b4d95f221f93c619c4cf6dff1"
     },
     {
       "path": "src/DevLeads.Core/RedFlagDetector.cs",
-      "bytes": 2289,
-      "lines": 53,
-      "sha256": "e23d938ac53671d0df4168dcbbd73d8fb37742f351417edbc972ed03d85e7c18"
+      "bytes": 2977,
+      "lines": 66,
+      "sha256": "d35b1bbc43ed8160105fd555d5b34130d40cfbdf8d951c6cd35819601bb142e9"
     },
     {
       "path": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
-      "bytes": 12792,
-      "lines": 304,
-      "sha256": "cf5836ce63a6c37cacb93e86b89d2868f6f39bedda5f34e2c9fc2d720163b727"
+      "bytes": 15013,
+      "lines": 344,
+      "sha256": "bd7786b57edfb9cf746c267a42905ade3a9eb06e13c0374d523e83221b57e20a"
     },
     {
       "path": "src/DevLeads.Core/Skills/DefaultSkills.cs",
@@ -177,9 +219,9 @@
     },
     {
       "path": "src/DevLeads.Core/Templates/PricingTiers.cs",
-      "bytes": 1358,
-      "lines": 29,
-      "sha256": "2351011295b11c9439b77ca38c14264319bdb6c0b082e86eca10516f15ad308c"
+      "bytes": 1541,
+      "lines": 31,
+      "sha256": "5e58fbfb8f562d63c294054ae6a74204381ecb53a93115340e19bcb6c0f30e22"
     },
     {
       "path": "src/DevLeads.Core/Templates/ResponseTemplates.cs",
@@ -189,9 +231,9 @@
     },
     {
       "path": "src/DevLeads.Infrastructure/Ai/AiTriageRouter.cs",
-      "bytes": 5119,
-      "lines": 129,
-      "sha256": "10edda166da6d661f2090105f7c7a8b8badfba2e2df5e3c5a203a00f2d4ae735"
+      "bytes": 6726,
+      "lines": 164,
+      "sha256": "f291091af4990cf8bd449ae6eb0bca650ee4fc49cbd36e86961524d78415a2d5"
     },
     {
       "path": "src/DevLeads.Infrastructure/Ai/AnthropicTriageProvider.cs",
@@ -201,15 +243,15 @@
     },
     {
       "path": "src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs",
-      "bytes": 18239,
-      "lines": 293,
-      "sha256": "66631e55b84e79ff01d5679ef0aa3a7628973cd7d33fc09c977a02a0bc0af1ed"
+      "bytes": 17557,
+      "lines": 281,
+      "sha256": "b8b6fb5d547ff059a24e6601b6a976d4e0b6ea3628a7affd054be63fe8e3ba5a"
     },
     {
       "path": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
-      "bytes": 17618,
-      "lines": 446,
-      "sha256": "f1fc5d37c17e59ccc5a9d6f55ad3ac01c019d144e649ef792263c7250d205191"
+      "bytes": 24677,
+      "lines": 611,
+      "sha256": "1f939d615271620bc5fd90e14e24812ff30909991f4cb28916ab726a38eb7ba2"
     },
     {
       "path": "src/DevLeads.Infrastructure/Connectors/ConnectorSupport.cs",
@@ -219,27 +261,27 @@
     },
     {
       "path": "src/DevLeads.Infrastructure/Connectors/GitHubSearchConnector.cs",
-      "bytes": 7643,
-      "lines": 157,
-      "sha256": "d06d969775983e28b98d8367f483012833dcfc45a32fa0c2e689126ee3f3a2c3"
+      "bytes": 8409,
+      "lines": 167,
+      "sha256": "7f389a8ab1a469ff8034bd2f698ee3c8cba7194df30fe1e484fba18cd6a87499"
     },
     {
       "path": "src/DevLeads.Infrastructure/Connectors/HackerNewsConnector.cs",
-      "bytes": 4252,
-      "lines": 85,
-      "sha256": "ccbddf437f84aa267fd5ed7340d524d304cb847ffc7d067910073e3a21705dcb"
+      "bytes": 4739,
+      "lines": 91,
+      "sha256": "2e8acdb17fb3042d6eee2a5fa22dc5de453c97c0c74454ea2d6b139b0c41ec9f"
     },
     {
       "path": "src/DevLeads.Infrastructure/Connectors/OpireConnector.cs",
-      "bytes": 6033,
+      "bytes": 6010,
       "lines": 131,
-      "sha256": "16bc2408be78878a21ecc86e5e8327ce235d0148b7dc865b78140e75f99e7631"
+      "sha256": "56247b01720670b118a3a58775797dcefeb3d90ffebc88959eae8134dbceb205"
     },
     {
       "path": "src/DevLeads.Infrastructure/Connectors/RedditConnector.cs",
-      "bytes": 7760,
-      "lines": 147,
-      "sha256": "9ff96dd40149985adc5951d4fe7b3dedd2243b4a47c4c4f109e8c212ac21b9af"
+      "bytes": 8298,
+      "lines": 160,
+      "sha256": "db5ab1bf6dcbc8c2f1b7523c02dbd7eb8997fd7fc29c6a136031e47a738da5eb"
     },
     {
       "path": "src/DevLeads.Infrastructure/Connectors/RemotiveConnector.cs",
@@ -249,9 +291,9 @@
     },
     {
       "path": "src/DevLeads.Infrastructure/Connectors/RssConnector.cs",
-      "bytes": 4943,
-      "lines": 106,
-      "sha256": "9de2a63cedea9a106eb0c29f429297a202ad2262a94b5f185e3519fe9e0aba10"
+      "bytes": 7854,
+      "lines": 174,
+      "sha256": "a12ad3039ad5239b81eee8b02280275f9e36cfef631fd6ad5eb2dc4a98424fc7"
     },
     {
       "path": "src/DevLeads.Infrastructure/Connectors/StackExchangeConnector.cs",
@@ -261,21 +303,21 @@
     },
     {
       "path": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
-      "bytes": 32960,
-      "lines": 562,
-      "sha256": "9db627e9ec6afa19c27f16a26daa90bba7d4c140e49ae90ab8e13da9b6fba719"
+      "bytes": 49818,
+      "lines": 876,
+      "sha256": "d710a0f7e4e63ba475dadccf8e89c34e6da9d2c52bf237b9ce5554f830594521"
     },
     {
       "path": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
-      "bytes": 3841,
-      "lines": 76,
-      "sha256": "5faebcc5d97fb961eb52a3cc0aaeefde09b472be5d0da07d3f500add5baa4905"
+      "bytes": 4890,
+      "lines": 95,
+      "sha256": "01338ef5153080d383be36d8e7ca16801cb0c4e2ead86d205be768b331f227fc"
     },
     {
       "path": "src/DevLeads.Infrastructure/DependencyInjection.cs",
-      "bytes": 4131,
-      "lines": 86,
-      "sha256": "3b63c6f2235d6faa12d16a53a74a0190c1602ebd16142f27588ea30cf88a0c77"
+      "bytes": 4471,
+      "lines": 92,
+      "sha256": "2854ff52c8867d868044328233e35b8c540fb99b74300df9c483eb6ecaca7e7b"
     },
     {
       "path": "src/DevLeads.Infrastructure/DevLeads.Infrastructure.csproj",
@@ -285,9 +327,9 @@
     },
     {
       "path": "src/DevLeads.Infrastructure/QueryPacks/DbQueryPackProvider.cs",
-      "bytes": 1322,
-      "lines": 33,
-      "sha256": "a610d26712b9577d79dd63ddaf6136cd3ec611ea2398c8c10ff59c06e9392d48"
+      "bytes": 1664,
+      "lines": 39,
+      "sha256": "bcba09e1f536b3043f6cca8417f634ca4e67f647dc9a5d07107e87a71aeea6f4"
     },
     {
       "path": "src/DevLeads.Infrastructure/Services/AuditService.cs",
@@ -296,16 +338,28 @@
       "sha256": "17073f4419843a0da7cf491e54f580c7c2483e879db523174eda5966a105c288"
     },
     {
+      "path": "src/DevLeads.Infrastructure/Services/ContentStudioService.cs",
+      "bytes": 9647,
+      "lines": 215,
+      "sha256": "27582d160a980359654ef3f3b347d536361df5772c5d85e32c96572bee883875"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/Services/DiscoveryActivityTracker.cs",
+      "bytes": 2029,
+      "lines": 54,
+      "sha256": "20a0b9e79f787966914bb60563813940f9a3f473bc9c6197f01970b17a3cfbee"
+    },
+    {
       "path": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
-      "bytes": 22723,
-      "lines": 546,
-      "sha256": "bbf83789acccbea1d34fc41d9a61c97ee735e98a8cbe199ce0997837da7a3b06"
+      "bytes": 29667,
+      "lines": 695,
+      "sha256": "feda744f8923eeba1630f24a272a198628e14b5f8af1ddb68ddbdaac39845bb6"
     },
     {
       "path": "src/DevLeads.Infrastructure/Services/MaintenanceService.cs",
-      "bytes": 2560,
-      "lines": 64,
-      "sha256": "6d556bf1a58b1584ad2299267cd582e4c77aad380133acf46d9d5e11467badfa"
+      "bytes": 4658,
+      "lines": 111,
+      "sha256": "5be9d70c56568f93221234c6d1009cf4fe2953740861569a61ddb9e988ffd3fc"
     },
     {
       "path": "src/DevLeads.Infrastructure/Services/OutreachService.cs",
@@ -321,21 +375,33 @@
     },
     {
       "path": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
-      "bytes": 13682,
-      "lines": 316,
-      "sha256": "978c9c823185098135da0d785a7cdcd92fc9557edb9f457fa44640d6434f28c8"
+      "bytes": 20017,
+      "lines": 445,
+      "sha256": "710e67f5282157e8e8c39eb608d09452e5c35721c1869b7a1a56976b19c5b72c"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/Services/TrendScanService.cs",
+      "bytes": 8460,
+      "lines": 208,
+      "sha256": "e60d228372d20cd4147d3f4945e7574e7d9863d4bbdfae29e534acd5e30b9e2f"
+    },
+    {
+      "path": "src/DevLeads.Infrastructure/Workers/ContentTrendWorker.cs",
+      "bytes": 3153,
+      "lines": 76,
+      "sha256": "41301e6723fa4879d2ac4e1a36ad3b4a29b00ff3a8f409daded5862ace4528f4"
     },
     {
       "path": "src/DevLeads.Infrastructure/Workers/DiscoveryWorker.cs",
-      "bytes": 3355,
-      "lines": 79,
-      "sha256": "891bd5ff65149c237c0a50cc223855bbcd098733730983148bf2189e9af0858f"
+      "bytes": 3844,
+      "lines": 85,
+      "sha256": "c89ad3d68365ae552d1ab26d543c635e4debf3d6ce41a4740e18c26780c64861"
     },
     {
       "path": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "bytes": 7498,
-      "lines": 144,
-      "sha256": "2dc3560a2ab1f94084b9d0b825a985c3e3c521c1626319b4a0ce2ac4a7c55cd9"
+      "bytes": 9455,
+      "lines": 173,
+      "sha256": "bd552b953cc3c15c1ee391f5f66f44a360f37aa748f4e009cb4a308eb2fe47cd"
     },
     {
       "path": "src/DevLeads.Web/AppRestartService.cs",
@@ -357,9 +423,9 @@
     },
     {
       "path": "src/DevLeads.Web/Components/Layout/NavMenu.razor",
-      "bytes": 1147,
-      "lines": 25,
-      "sha256": "7f68e9db252f6b3e0424d4194a8229bcd6f445a765455d21a998d769eb151f48"
+      "bytes": 1392,
+      "lines": 29,
+      "sha256": "80b10bb2401569715afd8f7f1b3c056cb7ade99d65d0fd4cbaa37b789b075a0f"
     },
     {
       "path": "src/DevLeads.Web/Components/Layout/ReconnectModal.razor",
@@ -368,10 +434,22 @@
       "sha256": "219847b840c9f9bb7260bb5c438df170a13f22356adadd7aa600997af737165b"
     },
     {
+      "path": "src/DevLeads.Web/Components/Pages/Campaigns.razor",
+      "bytes": 8436,
+      "lines": 186,
+      "sha256": "5ddcd9c1465d053de6860c14c6026881daf4e752abff67a8a5f0864ca7595992"
+    },
+    {
+      "path": "src/DevLeads.Web/Components/Pages/Content.razor",
+      "bytes": 12731,
+      "lines": 285,
+      "sha256": "ad9eb78021fa8a30fa2240a3ae8fd899f6de7cabe85381fafe60440df9ee6bb1"
+    },
+    {
       "path": "src/DevLeads.Web/Components/Pages/Drafts.razor",
-      "bytes": 4232,
-      "lines": 95,
-      "sha256": "42ebcfd03e033cc3c35a2d3b803f888997939a749e58dfbfaa66b86a7d1f2cd3"
+      "bytes": 4507,
+      "lines": 98,
+      "sha256": "31127ada997885485c301a69ce400eee85adda4286fa3807cc05f86fbd37bfff"
     },
     {
       "path": "src/DevLeads.Web/Components/Pages/Error.razor",
@@ -381,15 +459,15 @@
     },
     {
       "path": "src/DevLeads.Web/Components/Pages/Home.razor",
-      "bytes": 7252,
-      "lines": 150,
-      "sha256": "d8b15baba89b9b178baf929d95c0542ff7e17912c9649872b32ff15ad05d9382"
+      "bytes": 11188,
+      "lines": 227,
+      "sha256": "5cbb81b8a51eca15b84a91365406eb4de6b2b65c71a2e69b99c1b5bfb6f45c98"
     },
     {
       "path": "src/DevLeads.Web/Components/Pages/NewOpportunity.razor",
-      "bytes": 2778,
-      "lines": 72,
-      "sha256": "f9756f2244cd108b5dedcb14dec27314354244e54dbd8c030f5f27ca68807db6"
+      "bytes": 3604,
+      "lines": 92,
+      "sha256": "3e9f1f587d82e1f78c7067612d81c9900a90ce1dc538b5a89693d68a6548a444"
     },
     {
       "path": "src/DevLeads.Web/Components/Pages/NotFound.razor",
@@ -399,21 +477,21 @@
     },
     {
       "path": "src/DevLeads.Web/Components/Pages/Opportunities.razor",
-      "bytes": 12041,
-      "lines": 237,
-      "sha256": "5400cf519e61a6f3e7cd5fcb6d878d30ddc2573b648b644c62131a049e9bb308"
+      "bytes": 14451,
+      "lines": 280,
+      "sha256": "6ae8a1a2897a0924101772ae68ed7b7f0223427157d44a8613a754f9619ebe2e"
     },
     {
       "path": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
-      "bytes": 20287,
-      "lines": 384,
-      "sha256": "fd4ad7733b7258c1099b790112c17766bb51bec90a9495aefb13d1439d3b34aa"
+      "bytes": 20670,
+      "lines": 392,
+      "sha256": "8d44ea117d2f78cda9ad0c8a4dc5d1d306d6dd3e98f06b3aa8b7876c8956eb4d"
     },
     {
       "path": "src/DevLeads.Web/Components/Pages/Quotes.razor",
-      "bytes": 4499,
-      "lines": 97,
-      "sha256": "8bd3515d6fe6bc4ddf6f940a014d51d0f43f0c3a63815f6de6257843d0eac20f"
+      "bytes": 4775,
+      "lines": 101,
+      "sha256": "f561bbd49eabc411e0b8e12b12418fc19afb34a537726127d8db717a7aa08af5"
     },
     {
       "path": "src/DevLeads.Web/Components/Pages/Settings.razor",
@@ -429,9 +507,9 @@
     },
     {
       "path": "src/DevLeads.Web/Components/Pages/Sources.razor",
-      "bytes": 6943,
-      "lines": 167,
-      "sha256": "1723c111543199160cbb5df871a41dc96beb71e2e56bff4e6a157b90a45374e4"
+      "bytes": 7618,
+      "lines": 183,
+      "sha256": "abb7fa7c37dafa3bd01dcde52f19d1ddc867a217a885b43e4a26ecbbacb77ed3"
     },
     {
       "path": "src/DevLeads.Web/Components/Routes.razor",
@@ -440,16 +518,28 @@
       "sha256": "f1b6d3574e2fb5d9286936ad6a1421071ba5d2c98d3e20b54e7559492574cf03"
     },
     {
+      "path": "src/DevLeads.Web/Components/Shared/ActivityFeed.razor",
+      "bytes": 4907,
+      "lines": 142,
+      "sha256": "e8eea37026eb609572d38bc23fc9312c86084ec39e6c1be7c06be5a775b574c7"
+    },
+    {
+      "path": "src/DevLeads.Web/Components/Shared/CampaignSwitcher.razor",
+      "bytes": 1607,
+      "lines": 39,
+      "sha256": "82acbf37991d40ed29ec9746b1cad07adf83b7e03e108e6a2fa6d94e74a61949"
+    },
+    {
       "path": "src/DevLeads.Web/Components/Shared/UiHelpers.cs",
-      "bytes": 4429,
+      "bytes": 4459,
       "lines": 106,
-      "sha256": "be28f553baeb4e93c0ef186e66e2b3f65266569cbaee7c4e416b7ef18f7d0b06"
+      "sha256": "26f3236ea3ac71c6e22f20bded5be44a889235744f16fbe94e04f5f64bf88636"
     },
     {
       "path": "src/DevLeads.Web/Components/_Imports.razor",
-      "bytes": 789,
-      "lines": 23,
-      "sha256": "8a3ea6bbbf90fb92477d00a942f9f06fc0f5af9a354016b0c8e8a534d7c67fba"
+      "bytes": 813,
+      "lines": 24,
+      "sha256": "52f5cb35a68f72d039386fa75c91031747bba802fa294c9a4284c8b5e9d5d629"
     },
     {
       "path": "src/DevLeads.Web/DevLeads.Web.csproj",
@@ -496,8 +586,44 @@
       "kind": "method",
       "name": "BuildUserPrompt",
       "file": "src/DevLeads.Core/Ai/AiTriagePrompts.cs",
-      "line": 57,
+      "line": 61,
       "signature": "public static string BuildUserPrompt(AiTriageRequest r)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "BuildBatchUserPrompt",
+      "file": "src/DevLeads.Core/Ai/AiTriagePrompts.cs",
+      "line": 95,
+      "signature": "public static string BuildBatchUserPrompt(IReadOnlyList<AiBatchTriageItem> items)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "ContentPrompts",
+      "file": "src/DevLeads.Core/Ai/ContentPrompts.cs",
+      "line": 6,
+      "signature": "public static class ContentPrompts",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "BuildTopicPrompt",
+      "file": "src/DevLeads.Core/Ai/ContentPrompts.cs",
+      "line": 10,
+      "signature": "public static string BuildTopicPrompt(IReadOnlyList<TrendSignal> signals, string operatorSkills, IReadOnlyList<string> existingTopicTitles, int maxTopics)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "BuildDraftPrompt",
+      "file": "src/DevLeads.Core/Ai/ContentPrompts.cs",
+      "line": 55,
+      "signature": "public static string BuildDraftPrompt(ContentTopic topic, ContentFormat format, OperatorSettings op, string operatorSkills)",
       "access": "public",
       "parent": ""
     },
@@ -574,10 +700,19 @@
       "parent": ""
     },
     {
+      "kind": "property",
+      "name": "CampaignObjective",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 17,
+      "signature": "public string CampaignObjective { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
       "kind": "class",
       "name": "AiTriageResponse",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 18,
+      "line": 21,
       "signature": "public sealed class AiTriageResponse",
       "access": "public",
       "parent": ""
@@ -586,7 +721,7 @@
       "kind": "property",
       "name": "Succeeded",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 22,
+      "line": 25,
       "signature": "public bool Succeeded { get; }",
       "access": "public",
       "parent": ""
@@ -595,7 +730,7 @@
       "kind": "property",
       "name": "Result",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 23,
+      "line": 26,
       "signature": "public AiTriageResult? Result { get; }",
       "access": "public",
       "parent": ""
@@ -604,7 +739,7 @@
       "kind": "property",
       "name": "Provider",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 24,
+      "line": 27,
       "signature": "public string Provider { get; }",
       "access": "public",
       "parent": ""
@@ -613,7 +748,7 @@
       "kind": "property",
       "name": "Model",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 25,
+      "line": 28,
       "signature": "public string Model { get; }",
       "access": "public",
       "parent": ""
@@ -622,7 +757,7 @@
       "kind": "property",
       "name": "RequestJson",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 26,
+      "line": 29,
       "signature": "public string RequestJson { get; }",
       "access": "public",
       "parent": ""
@@ -631,7 +766,7 @@
       "kind": "property",
       "name": "ResponseJson",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 27,
+      "line": 30,
       "signature": "public string? ResponseJson { get; }",
       "access": "public",
       "parent": ""
@@ -640,7 +775,7 @@
       "kind": "property",
       "name": "ErrorMessage",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 28,
+      "line": 31,
       "signature": "public string? ErrorMessage { get; }",
       "access": "public",
       "parent": ""
@@ -649,7 +784,7 @@
       "kind": "property",
       "name": "Retryable",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 29,
+      "line": 32,
       "signature": "public bool Retryable { get; }",
       "access": "public",
       "parent": ""
@@ -658,7 +793,7 @@
       "kind": "class",
       "name": "AiShortlistItem",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 31,
+      "line": 34,
       "signature": "public sealed class AiShortlistItem",
       "access": "public",
       "parent": ""
@@ -667,7 +802,7 @@
       "kind": "property",
       "name": "Id",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 35,
+      "line": 38,
       "signature": "public string Id { get; }",
       "access": "public",
       "parent": ""
@@ -676,7 +811,7 @@
       "kind": "property",
       "name": "Title",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 36,
+      "line": 39,
       "signature": "public string Title { get; }",
       "access": "public",
       "parent": ""
@@ -685,7 +820,7 @@
       "kind": "property",
       "name": "Snippet",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 37,
+      "line": 40,
       "signature": "public string Snippet { get; }",
       "access": "public",
       "parent": ""
@@ -694,7 +829,7 @@
       "kind": "property",
       "name": "SourceKey",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 38,
+      "line": 41,
       "signature": "public string SourceKey { get; }",
       "access": "public",
       "parent": ""
@@ -703,7 +838,7 @@
       "kind": "property",
       "name": "PostedAt",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 39,
+      "line": 42,
       "signature": "public DateTimeOffset PostedAt { get; }",
       "access": "public",
       "parent": ""
@@ -712,7 +847,7 @@
       "kind": "property",
       "name": "MatchedTerms",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 40,
+      "line": 43,
       "signature": "public IReadOnlyList<string> MatchedTerms { get; }",
       "access": "public",
       "parent": ""
@@ -721,7 +856,7 @@
       "kind": "property",
       "name": "HeuristicScore",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 41,
+      "line": 44,
       "signature": "public decimal HeuristicScore { get; }",
       "access": "public",
       "parent": ""
@@ -730,7 +865,7 @@
       "kind": "class",
       "name": "AiShortlistDecision",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 43,
+      "line": 46,
       "signature": "public sealed class AiShortlistDecision",
       "access": "public",
       "parent": ""
@@ -739,7 +874,7 @@
       "kind": "property",
       "name": "Id",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 46,
+      "line": 49,
       "signature": "public string Id { get; }",
       "access": "public",
       "parent": ""
@@ -748,7 +883,7 @@
       "kind": "property",
       "name": "ShouldTriage",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 47,
+      "line": 50,
       "signature": "public bool ShouldTriage { get; }",
       "access": "public",
       "parent": ""
@@ -757,7 +892,7 @@
       "kind": "property",
       "name": "Reason",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 48,
+      "line": 51,
       "signature": "public string Reason { get; }",
       "access": "public",
       "parent": ""
@@ -766,7 +901,7 @@
       "kind": "class",
       "name": "AiShortlistResponse",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 50,
+      "line": 53,
       "signature": "public sealed class AiShortlistResponse",
       "access": "public",
       "parent": ""
@@ -775,7 +910,7 @@
       "kind": "property",
       "name": "Succeeded",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 53,
+      "line": 56,
       "signature": "public bool Succeeded { get; }",
       "access": "public",
       "parent": ""
@@ -784,7 +919,7 @@
       "kind": "property",
       "name": "Decisions",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 54,
+      "line": 57,
       "signature": "public IReadOnlyList<AiShortlistDecision> Decisions { get; }",
       "access": "public",
       "parent": ""
@@ -793,7 +928,7 @@
       "kind": "property",
       "name": "Provider",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 55,
+      "line": 58,
       "signature": "public string Provider { get; }",
       "access": "public",
       "parent": ""
@@ -802,7 +937,7 @@
       "kind": "property",
       "name": "Model",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 56,
+      "line": 59,
       "signature": "public string Model { get; }",
       "access": "public",
       "parent": ""
@@ -811,7 +946,7 @@
       "kind": "property",
       "name": "RequestJson",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 57,
+      "line": 60,
       "signature": "public string RequestJson { get; }",
       "access": "public",
       "parent": ""
@@ -820,7 +955,7 @@
       "kind": "property",
       "name": "ResponseJson",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 58,
+      "line": 61,
       "signature": "public string? ResponseJson { get; }",
       "access": "public",
       "parent": ""
@@ -829,7 +964,7 @@
       "kind": "property",
       "name": "ErrorMessage",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 59,
+      "line": 62,
       "signature": "public string? ErrorMessage { get; }",
       "access": "public",
       "parent": ""
@@ -838,7 +973,7 @@
       "kind": "property",
       "name": "Retryable",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 60,
+      "line": 63,
       "signature": "public bool Retryable { get; }",
       "access": "public",
       "parent": ""
@@ -847,8 +982,116 @@
       "kind": "interface",
       "name": "IAiBatchShortlistProvider",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 62,
+      "line": 65,
       "signature": "public interface IAiBatchShortlistProvider",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "AiBatchTriageItem",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 75,
+      "signature": "public sealed class AiBatchTriageItem",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Id",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 79,
+      "signature": "public string Id { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Request",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 80,
+      "signature": "public AiTriageRequest Request { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "AiBatchTriageResponse",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 82,
+      "signature": "public sealed class AiBatchTriageResponse",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Succeeded",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 86,
+      "signature": "public bool Succeeded { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Provider",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 88,
+      "signature": "public string Provider { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Model",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 89,
+      "signature": "public string Model { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "RequestJson",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 90,
+      "signature": "public string RequestJson { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ResponseJson",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 91,
+      "signature": "public string? ResponseJson { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ErrorMessage",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 92,
+      "signature": "public string? ErrorMessage { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Retryable",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 93,
+      "signature": "public bool Retryable { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "interface",
+      "name": "IAiBatchTriageProvider",
+      "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
+      "line": 95,
+      "signature": "public interface IAiBatchTriageProvider",
       "access": "public",
       "parent": ""
     },
@@ -856,7 +1099,7 @@
       "kind": "interface",
       "name": "IAiTriageProvider",
       "file": "src/DevLeads.Core/Ai/IAiTriageProvider.cs",
-      "line": 71,
+      "line": 107,
       "signature": "public interface IAiTriageProvider",
       "access": "public",
       "parent": ""
@@ -1295,6 +1538,312 @@
     },
     {
       "kind": "class",
+      "name": "Campaign",
+      "file": "src/DevLeads.Core/Entities/Campaign.cs",
+      "line": 2,
+      "signature": "public class Campaign",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Id",
+      "file": "src/DevLeads.Core/Entities/Campaign.cs",
+      "line": 10,
+      "signature": "public long Id { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Key",
+      "file": "src/DevLeads.Core/Entities/Campaign.cs",
+      "line": 11,
+      "signature": "public string Key { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Name",
+      "file": "src/DevLeads.Core/Entities/Campaign.cs",
+      "line": 14,
+      "signature": "public string Name { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Emoji",
+      "file": "src/DevLeads.Core/Entities/Campaign.cs",
+      "line": 16,
+      "signature": "public string Emoji { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Objective",
+      "file": "src/DevLeads.Core/Entities/Campaign.cs",
+      "line": 17,
+      "signature": "public string Objective { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Enabled",
+      "file": "src/DevLeads.Core/Entities/Campaign.cs",
+      "line": 23,
+      "signature": "public bool Enabled { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "CreatedAt",
+      "file": "src/DevLeads.Core/Entities/Campaign.cs",
+      "line": 26,
+      "signature": "public DateTimeOffset CreatedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "ContentDraft",
+      "file": "src/DevLeads.Core/Entities/ContentDraft.cs",
+      "line": 2,
+      "signature": "public class ContentDraft",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Id",
+      "file": "src/DevLeads.Core/Entities/ContentDraft.cs",
+      "line": 9,
+      "signature": "public long Id { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "TopicId",
+      "file": "src/DevLeads.Core/Entities/ContentDraft.cs",
+      "line": 10,
+      "signature": "public long TopicId { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Format",
+      "file": "src/DevLeads.Core/Entities/ContentDraft.cs",
+      "line": 11,
+      "signature": "public ContentFormat Format { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Title",
+      "file": "src/DevLeads.Core/Entities/ContentDraft.cs",
+      "line": 13,
+      "signature": "public string Title { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "BodyMarkdown",
+      "file": "src/DevLeads.Core/Entities/ContentDraft.cs",
+      "line": 14,
+      "signature": "public string BodyMarkdown { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "WordCount",
+      "file": "src/DevLeads.Core/Entities/ContentDraft.cs",
+      "line": 15,
+      "signature": "public int WordCount { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Status",
+      "file": "src/DevLeads.Core/Entities/ContentDraft.cs",
+      "line": 16,
+      "signature": "public ContentDraftStatus Status { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Provider",
+      "file": "src/DevLeads.Core/Entities/ContentDraft.cs",
+      "line": 18,
+      "signature": "public string Provider { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Model",
+      "file": "src/DevLeads.Core/Entities/ContentDraft.cs",
+      "line": 20,
+      "signature": "public string Model { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "CreatedAt",
+      "file": "src/DevLeads.Core/Entities/ContentDraft.cs",
+      "line": 21,
+      "signature": "public DateTimeOffset CreatedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "UpdatedAt",
+      "file": "src/DevLeads.Core/Entities/ContentDraft.cs",
+      "line": 23,
+      "signature": "public DateTimeOffset UpdatedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Topic",
+      "file": "src/DevLeads.Core/Entities/ContentDraft.cs",
+      "line": 24,
+      "signature": "public ContentTopic? Topic { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "ContentTopic",
+      "file": "src/DevLeads.Core/Entities/ContentTopic.cs",
+      "line": 2,
+      "signature": "public class ContentTopic",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Id",
+      "file": "src/DevLeads.Core/Entities/ContentTopic.cs",
+      "line": 9,
+      "signature": "public long Id { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Title",
+      "file": "src/DevLeads.Core/Entities/ContentTopic.cs",
+      "line": 10,
+      "signature": "public string Title { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Angle",
+      "file": "src/DevLeads.Core/Entities/ContentTopic.cs",
+      "line": 12,
+      "signature": "public string Angle { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Rationale",
+      "file": "src/DevLeads.Core/Entities/ContentTopic.cs",
+      "line": 15,
+      "signature": "public string Rationale { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "InterestScore",
+      "file": "src/DevLeads.Core/Entities/ContentTopic.cs",
+      "line": 18,
+      "signature": "public double InterestScore { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "SkillsJson",
+      "file": "src/DevLeads.Core/Entities/ContentTopic.cs",
+      "line": 21,
+      "signature": "public string SkillsJson { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "EvidenceJson",
+      "file": "src/DevLeads.Core/Entities/ContentTopic.cs",
+      "line": 24,
+      "signature": "public string EvidenceJson { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "SuggestedFormatsCsv",
+      "file": "src/DevLeads.Core/Entities/ContentTopic.cs",
+      "line": 27,
+      "signature": "public string SuggestedFormatsCsv { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Status",
+      "file": "src/DevLeads.Core/Entities/ContentTopic.cs",
+      "line": 30,
+      "signature": "public ContentTopicStatus Status { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "CreatedAt",
+      "file": "src/DevLeads.Core/Entities/ContentTopic.cs",
+      "line": 32,
+      "signature": "public DateTimeOffset CreatedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "UpdatedAt",
+      "file": "src/DevLeads.Core/Entities/ContentTopic.cs",
+      "line": 34,
+      "signature": "public DateTimeOffset UpdatedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Drafts",
+      "file": "src/DevLeads.Core/Entities/ContentTopic.cs",
+      "line": 35,
+      "signature": "public List<ContentDraft> Drafts { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
       "name": "OperatorSettings",
       "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
       "line": 2,
@@ -1592,10 +2141,28 @@
     },
     {
       "kind": "property",
-      "name": "DiscoveryEnabled",
+      "name": "SelectedCampaignId",
       "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
       "line": 55,
+      "signature": "public long? SelectedCampaignId { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "DiscoveryEnabled",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 58,
       "signature": "public bool DiscoveryEnabled { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ContentDiscoveryEnabled",
+      "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+      "line": 61,
+      "signature": "public bool ContentDiscoveryEnabled { get; }",
       "access": "public",
       "parent": ""
     },
@@ -1603,7 +2170,7 @@
       "kind": "property",
       "name": "StaleItemMaxAgeHours",
       "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
-      "line": 58,
+      "line": 64,
       "signature": "public int StaleItemMaxAgeHours { get; }",
       "access": "public",
       "parent": ""
@@ -1612,7 +2179,7 @@
       "kind": "property",
       "name": "FollowUpDefaultHours",
       "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
-      "line": 59,
+      "line": 65,
       "signature": "public int FollowUpDefaultHours { get; }",
       "access": "public",
       "parent": ""
@@ -1655,9 +2222,18 @@
     },
     {
       "kind": "property",
-      "name": "SourceKey",
+      "name": "CampaignId",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
       "line": 12,
+      "signature": "public long? CampaignId { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "SourceKey",
+      "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+      "line": 15,
       "signature": "public string SourceKey { get; }",
       "access": "public",
       "parent": ""
@@ -1666,7 +2242,7 @@
       "kind": "property",
       "name": "SourceUrl",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 13,
+      "line": 16,
       "signature": "public string SourceUrl { get; }",
       "access": "public",
       "parent": ""
@@ -1675,7 +2251,7 @@
       "kind": "property",
       "name": "AuthorName",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 14,
+      "line": 17,
       "signature": "public string? AuthorName { get; }",
       "access": "public",
       "parent": ""
@@ -1684,7 +2260,7 @@
       "kind": "property",
       "name": "AuthorProfileUrl",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 15,
+      "line": 18,
       "signature": "public string? AuthorProfileUrl { get; }",
       "access": "public",
       "parent": ""
@@ -1693,7 +2269,7 @@
       "kind": "property",
       "name": "Status",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 16,
+      "line": 19,
       "signature": "public OpportunityStatus Status { get; }",
       "access": "public",
       "parent": ""
@@ -1702,7 +2278,7 @@
       "kind": "property",
       "name": "Priority",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 18,
+      "line": 21,
       "signature": "public Priority Priority { get; }",
       "access": "public",
       "parent": ""
@@ -1711,7 +2287,7 @@
       "kind": "property",
       "name": "Score",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 19,
+      "line": 22,
       "signature": "public double Score { get; }",
       "access": "public",
       "parent": ""
@@ -1720,7 +2296,7 @@
       "kind": "property",
       "name": "UrgencyScore",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 22,
+      "line": 25,
       "signature": "public double UrgencyScore { get; }",
       "access": "public",
       "parent": ""
@@ -1729,7 +2305,7 @@
       "kind": "property",
       "name": "StackFitScore",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 23,
+      "line": 26,
       "signature": "public double StackFitScore { get; }",
       "access": "public",
       "parent": ""
@@ -1738,7 +2314,7 @@
       "kind": "property",
       "name": "BusinessValueScore",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 24,
+      "line": 27,
       "signature": "public double BusinessValueScore { get; }",
       "access": "public",
       "parent": ""
@@ -1747,7 +2323,7 @@
       "kind": "property",
       "name": "ReachabilityScore",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 25,
+      "line": 28,
       "signature": "public double ReachabilityScore { get; }",
       "access": "public",
       "parent": ""
@@ -1756,7 +2332,7 @@
       "kind": "property",
       "name": "CompetitionScore",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 26,
+      "line": 29,
       "signature": "public double CompetitionScore { get; }",
       "access": "public",
       "parent": ""
@@ -1765,7 +2341,7 @@
       "kind": "property",
       "name": "TrustScore",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 27,
+      "line": 30,
       "signature": "public double TrustScore { get; }",
       "access": "public",
       "parent": ""
@@ -1774,7 +2350,7 @@
       "kind": "property",
       "name": "ProblemType",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 28,
+      "line": 31,
       "signature": "public string ProblemType { get; }",
       "access": "public",
       "parent": ""
@@ -1783,7 +2359,7 @@
       "kind": "property",
       "name": "PaymentIntent",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 31,
+      "line": 34,
       "signature": "public string PaymentIntent { get; }",
       "access": "public",
       "parent": ""
@@ -1792,7 +2368,7 @@
       "kind": "property",
       "name": "AssistanceRequested",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 33,
+      "line": 36,
       "signature": "public bool? AssistanceRequested { get; }",
       "access": "public",
       "parent": ""
@@ -1801,7 +2377,7 @@
       "kind": "property",
       "name": "DetectedStackJson",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 36,
+      "line": 39,
       "signature": "public string DetectedStackJson { get; }",
       "access": "public",
       "parent": ""
@@ -1810,7 +2386,7 @@
       "kind": "property",
       "name": "SuggestedFirstStep",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 37,
+      "line": 40,
       "signature": "public string SuggestedFirstStep { get; }",
       "access": "public",
       "parent": ""
@@ -1819,7 +2395,7 @@
       "kind": "property",
       "name": "EstimatedCause",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 38,
+      "line": 41,
       "signature": "public string EstimatedCause { get; }",
       "access": "public",
       "parent": ""
@@ -1828,7 +2404,7 @@
       "kind": "property",
       "name": "EstimatedFeeMin",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 39,
+      "line": 42,
       "signature": "public double? EstimatedFeeMin { get; }",
       "access": "public",
       "parent": ""
@@ -1837,7 +2413,7 @@
       "kind": "property",
       "name": "EstimatedFeeMax",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 41,
+      "line": 44,
       "signature": "public double? EstimatedFeeMax { get; }",
       "access": "public",
       "parent": ""
@@ -1846,7 +2422,7 @@
       "kind": "property",
       "name": "FeeIsEstimate",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 42,
+      "line": 45,
       "signature": "public bool FeeIsEstimate { get; }",
       "access": "public",
       "parent": ""
@@ -1855,7 +2431,7 @@
       "kind": "property",
       "name": "EstimatedFixMinutesMin",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 48,
+      "line": 51,
       "signature": "public int? EstimatedFixMinutesMin { get; }",
       "access": "public",
       "parent": ""
@@ -1864,7 +2440,7 @@
       "kind": "property",
       "name": "EstimatedFixMinutesMax",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 49,
+      "line": 52,
       "signature": "public int? EstimatedFixMinutesMax { get; }",
       "access": "public",
       "parent": ""
@@ -1873,7 +2449,7 @@
       "kind": "property",
       "name": "AiConfidence",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 50,
+      "line": 53,
       "signature": "public double AiConfidence { get; }",
       "access": "public",
       "parent": ""
@@ -1882,7 +2458,7 @@
       "kind": "property",
       "name": "OutreachRecommendation",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 52,
+      "line": 55,
       "signature": "public OutreachRecommendation OutreachRecommendation { get; }",
       "access": "public",
       "parent": ""
@@ -1891,7 +2467,7 @@
       "kind": "property",
       "name": "RejectionReason",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 53,
+      "line": 56,
       "signature": "public string? RejectionReason { get; }",
       "access": "public",
       "parent": ""
@@ -1900,7 +2476,7 @@
       "kind": "property",
       "name": "AiJobStatus",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 54,
+      "line": 57,
       "signature": "public AiJobStatus AiJobStatus { get; }",
       "access": "public",
       "parent": ""
@@ -1909,7 +2485,7 @@
       "kind": "property",
       "name": "HeuristicScore",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 56,
+      "line": 59,
       "signature": "public double HeuristicScore { get; }",
       "access": "public",
       "parent": ""
@@ -1918,7 +2494,7 @@
       "kind": "property",
       "name": "MatchedTermsJson",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 59,
+      "line": 62,
       "signature": "public string MatchedTermsJson { get; }",
       "access": "public",
       "parent": ""
@@ -1927,7 +2503,7 @@
       "kind": "property",
       "name": "PreFilterRejectReason",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 60,
+      "line": 63,
       "signature": "public string? PreFilterRejectReason { get; }",
       "access": "public",
       "parent": ""
@@ -1936,7 +2512,7 @@
       "kind": "property",
       "name": "AutoEligible",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 61,
+      "line": 64,
       "signature": "public bool AutoEligible { get; }",
       "access": "public",
       "parent": ""
@@ -1945,7 +2521,7 @@
       "kind": "property",
       "name": "PostedAt",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 64,
+      "line": 67,
       "signature": "public DateTimeOffset PostedAt { get; }",
       "access": "public",
       "parent": ""
@@ -1954,7 +2530,7 @@
       "kind": "property",
       "name": "FirstSeenAt",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 66,
+      "line": 69,
       "signature": "public DateTimeOffset FirstSeenAt { get; }",
       "access": "public",
       "parent": ""
@@ -1963,7 +2539,7 @@
       "kind": "property",
       "name": "LastSeenAt",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 67,
+      "line": 70,
       "signature": "public DateTimeOffset LastSeenAt { get; }",
       "access": "public",
       "parent": ""
@@ -1972,7 +2548,7 @@
       "kind": "property",
       "name": "CreatedAt",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 68,
+      "line": 71,
       "signature": "public DateTimeOffset CreatedAt { get; }",
       "access": "public",
       "parent": ""
@@ -1981,7 +2557,7 @@
       "kind": "property",
       "name": "UpdatedAt",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 69,
+      "line": 72,
       "signature": "public DateTimeOffset UpdatedAt { get; }",
       "access": "public",
       "parent": ""
@@ -1990,7 +2566,7 @@
       "kind": "property",
       "name": "NextFollowUpAt",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 70,
+      "line": 73,
       "signature": "public DateTimeOffset? NextFollowUpAt { get; }",
       "access": "public",
       "parent": ""
@@ -1999,7 +2575,7 @@
       "kind": "property",
       "name": "WorkNotes",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 73,
+      "line": 76,
       "signature": "public string? WorkNotes { get; }",
       "access": "public",
       "parent": ""
@@ -2008,7 +2584,7 @@
       "kind": "property",
       "name": "TriageRuns",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 74,
+      "line": 77,
       "signature": "public List<AiTriageRun> TriageRuns { get; }",
       "access": "public",
       "parent": ""
@@ -2017,7 +2593,7 @@
       "kind": "property",
       "name": "OutreachAttempts",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 77,
+      "line": 80,
       "signature": "public List<OutreachAttempt> OutreachAttempts { get; }",
       "access": "public",
       "parent": ""
@@ -2026,7 +2602,7 @@
       "kind": "property",
       "name": "Quotes",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 78,
+      "line": 81,
       "signature": "public List<Quote> Quotes { get; }",
       "access": "public",
       "parent": ""
@@ -2035,7 +2611,7 @@
       "kind": "property",
       "name": "WorkSessions",
       "file": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "line": 79,
+      "line": 82,
       "signature": "public List<WorkSession> WorkSessions { get; }",
       "access": "public",
       "parent": ""
@@ -2627,9 +3203,18 @@
     },
     {
       "kind": "property",
-      "name": "PollIntervalMinutes",
+      "name": "CampaignId",
       "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
       "line": 10,
+      "signature": "public long? CampaignId { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "PollIntervalMinutes",
+      "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
+      "line": 13,
       "signature": "public int PollIntervalMinutes { get; }",
       "access": "public",
       "parent": ""
@@ -2638,7 +3223,7 @@
       "kind": "property",
       "name": "MaxItemsPerRun",
       "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
-      "line": 12,
+      "line": 15,
       "signature": "public int MaxItemsPerRun { get; }",
       "access": "public",
       "parent": ""
@@ -2647,7 +3232,7 @@
       "kind": "property",
       "name": "QueryPacksCsv",
       "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
-      "line": 13,
+      "line": 16,
       "signature": "public string QueryPacksCsv { get; }",
       "access": "public",
       "parent": ""
@@ -2656,7 +3241,7 @@
       "kind": "property",
       "name": "ParametersJson",
       "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
-      "line": 16,
+      "line": 19,
       "signature": "public string ParametersJson { get; }",
       "access": "public",
       "parent": ""
@@ -2665,7 +3250,7 @@
       "kind": "property",
       "name": "MinPreFilterScore",
       "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
-      "line": 19,
+      "line": 22,
       "signature": "public double MinPreFilterScore { get; }",
       "access": "public",
       "parent": ""
@@ -2674,7 +3259,7 @@
       "kind": "property",
       "name": "MinOpportunityScore",
       "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
-      "line": 21,
+      "line": 24,
       "signature": "public double MinOpportunityScore { get; }",
       "access": "public",
       "parent": ""
@@ -2683,7 +3268,7 @@
       "kind": "property",
       "name": "DraftThreshold",
       "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
-      "line": 22,
+      "line": 25,
       "signature": "public double DraftThreshold { get; }",
       "access": "public",
       "parent": ""
@@ -2692,7 +3277,7 @@
       "kind": "property",
       "name": "AlertThreshold",
       "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
-      "line": 23,
+      "line": 26,
       "signature": "public double AlertThreshold { get; }",
       "access": "public",
       "parent": ""
@@ -2701,7 +3286,7 @@
       "kind": "property",
       "name": "AutoModeEligible",
       "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
-      "line": 24,
+      "line": 27,
       "signature": "public bool AutoModeEligible { get; }",
       "access": "public",
       "parent": ""
@@ -2710,7 +3295,7 @@
       "kind": "property",
       "name": "LastRunHealthy",
       "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
-      "line": 26,
+      "line": 29,
       "signature": "public bool LastRunHealthy { get; }",
       "access": "public",
       "parent": ""
@@ -2719,7 +3304,7 @@
       "kind": "property",
       "name": "LastRunMessage",
       "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
-      "line": 29,
+      "line": 32,
       "signature": "public string? LastRunMessage { get; }",
       "access": "public",
       "parent": ""
@@ -2728,7 +3313,7 @@
       "kind": "property",
       "name": "LastRunItemCount",
       "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
-      "line": 30,
+      "line": 33,
       "signature": "public int LastRunItemCount { get; }",
       "access": "public",
       "parent": ""
@@ -2737,7 +3322,7 @@
       "kind": "property",
       "name": "LastRunAt",
       "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
-      "line": 31,
+      "line": 34,
       "signature": "public DateTimeOffset? LastRunAt { get; }",
       "access": "public",
       "parent": ""
@@ -2746,7 +3331,7 @@
       "kind": "property",
       "name": "NextRunAt",
       "file": "src/DevLeads.Core/Entities/SourceConfig.cs",
-      "line": 32,
+      "line": 35,
       "signature": "public DateTimeOffset? NextRunAt { get; }",
       "access": "public",
       "parent": ""
@@ -2811,6 +3396,258 @@
       "file": "src/DevLeads.Core/Entities/SuppressionEntry.cs",
       "line": 11,
       "signature": "public DateTimeOffset CreatedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "TrendSignal",
+      "file": "src/DevLeads.Core/Entities/TrendSignal.cs",
+      "line": 2,
+      "signature": "public class TrendSignal",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Id",
+      "file": "src/DevLeads.Core/Entities/TrendSignal.cs",
+      "line": 9,
+      "signature": "public long Id { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "SourceKey",
+      "file": "src/DevLeads.Core/Entities/TrendSignal.cs",
+      "line": 10,
+      "signature": "public string SourceKey { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ExternalId",
+      "file": "src/DevLeads.Core/Entities/TrendSignal.cs",
+      "line": 13,
+      "signature": "public string ExternalId { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Url",
+      "file": "src/DevLeads.Core/Entities/TrendSignal.cs",
+      "line": 14,
+      "signature": "public string Url { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Title",
+      "file": "src/DevLeads.Core/Entities/TrendSignal.cs",
+      "line": 16,
+      "signature": "public string Title { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Snippet",
+      "file": "src/DevLeads.Core/Entities/TrendSignal.cs",
+      "line": 17,
+      "signature": "public string Snippet { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "PostedAt",
+      "file": "src/DevLeads.Core/Entities/TrendSignal.cs",
+      "line": 18,
+      "signature": "public DateTimeOffset PostedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "FetchedAt",
+      "file": "src/DevLeads.Core/Entities/TrendSignal.cs",
+      "line": 20,
+      "signature": "public DateTimeOffset FetchedAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Engagement",
+      "file": "src/DevLeads.Core/Entities/TrendSignal.cs",
+      "line": 21,
+      "signature": "public double Engagement { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "MatchedSkillsJson",
+      "file": "src/DevLeads.Core/Entities/TrendSignal.cs",
+      "line": 24,
+      "signature": "public string MatchedSkillsJson { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Hotness",
+      "file": "src/DevLeads.Core/Entities/TrendSignal.cs",
+      "line": 27,
+      "signature": "public double Hotness { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "UsedInTopic",
+      "file": "src/DevLeads.Core/Entities/TrendSignal.cs",
+      "line": 30,
+      "signature": "public bool UsedInTopic { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "TrendSource",
+      "file": "src/DevLeads.Core/Entities/TrendSource.cs",
+      "line": 2,
+      "signature": "public class TrendSource",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Id",
+      "file": "src/DevLeads.Core/Entities/TrendSource.cs",
+      "line": 10,
+      "signature": "public long Id { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "SeedKey",
+      "file": "src/DevLeads.Core/Entities/TrendSource.cs",
+      "line": 11,
+      "signature": "public string SeedKey { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Kind",
+      "file": "src/DevLeads.Core/Entities/TrendSource.cs",
+      "line": 14,
+      "signature": "public string Kind { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "DisplayName",
+      "file": "src/DevLeads.Core/Entities/TrendSource.cs",
+      "line": 17,
+      "signature": "public string DisplayName { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "ParametersJson",
+      "file": "src/DevLeads.Core/Entities/TrendSource.cs",
+      "line": 19,
+      "signature": "public string ParametersJson { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Enabled",
+      "file": "src/DevLeads.Core/Entities/TrendSource.cs",
+      "line": 20,
+      "signature": "public bool Enabled { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "PollIntervalMinutes",
+      "file": "src/DevLeads.Core/Entities/TrendSource.cs",
+      "line": 21,
+      "signature": "public int PollIntervalMinutes { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "MaxItemsPerRun",
+      "file": "src/DevLeads.Core/Entities/TrendSource.cs",
+      "line": 24,
+      "signature": "public int MaxItemsPerRun { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "RequireSkillMatch",
+      "file": "src/DevLeads.Core/Entities/TrendSource.cs",
+      "line": 25,
+      "signature": "public bool RequireSkillMatch { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "LastRunHealthy",
+      "file": "src/DevLeads.Core/Entities/TrendSource.cs",
+      "line": 31,
+      "signature": "public bool LastRunHealthy { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "LastRunMessage",
+      "file": "src/DevLeads.Core/Entities/TrendSource.cs",
+      "line": 34,
+      "signature": "public string? LastRunMessage { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "LastRunItemCount",
+      "file": "src/DevLeads.Core/Entities/TrendSource.cs",
+      "line": 35,
+      "signature": "public int LastRunItemCount { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "LastRunAt",
+      "file": "src/DevLeads.Core/Entities/TrendSource.cs",
+      "line": 36,
+      "signature": "public DateTimeOffset? LastRunAt { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "NextRunAt",
+      "file": "src/DevLeads.Core/Entities/TrendSource.cs",
+      "line": 37,
+      "signature": "public DateTimeOffset? NextRunAt { get; }",
       "access": "public",
       "parent": ""
     },
@@ -2926,7 +3763,7 @@
       "kind": "enum",
       "name": "Priority",
       "file": "src/DevLeads.Core/Enums.cs",
-      "line": 29,
+      "line": 32,
       "signature": "public enum Priority",
       "access": "public",
       "parent": ""
@@ -2935,7 +3772,7 @@
       "kind": "enum",
       "name": "AiJobStatus",
       "file": "src/DevLeads.Core/Enums.cs",
-      "line": 39,
+      "line": 42,
       "signature": "public enum AiJobStatus",
       "access": "public",
       "parent": ""
@@ -2944,7 +3781,7 @@
       "kind": "enum",
       "name": "OutreachRecommendation",
       "file": "src/DevLeads.Core/Enums.cs",
-      "line": 51,
+      "line": 54,
       "signature": "public enum OutreachRecommendation",
       "access": "public",
       "parent": ""
@@ -2953,7 +3790,7 @@
       "kind": "enum",
       "name": "OutreachMode",
       "file": "src/DevLeads.Core/Enums.cs",
-      "line": 61,
+      "line": 64,
       "signature": "public enum OutreachMode",
       "access": "public",
       "parent": ""
@@ -2962,7 +3799,7 @@
       "kind": "enum",
       "name": "OutreachStatus",
       "file": "src/DevLeads.Core/Enums.cs",
-      "line": 71,
+      "line": 74,
       "signature": "public enum OutreachStatus",
       "access": "public",
       "parent": ""
@@ -2971,7 +3808,7 @@
       "kind": "enum",
       "name": "OutreachChannel",
       "file": "src/DevLeads.Core/Enums.cs",
-      "line": 83,
+      "line": 86,
       "signature": "public enum OutreachChannel",
       "access": "public",
       "parent": ""
@@ -2980,7 +3817,7 @@
       "kind": "enum",
       "name": "QuoteStatus",
       "file": "src/DevLeads.Core/Enums.cs",
-      "line": 93,
+      "line": 96,
       "signature": "public enum QuoteStatus",
       "access": "public",
       "parent": ""
@@ -2989,8 +3826,35 @@
       "kind": "enum",
       "name": "WorkSessionStatus",
       "file": "src/DevLeads.Core/Enums.cs",
-      "line": 108,
+      "line": 111,
       "signature": "public enum WorkSessionStatus",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "enum",
+      "name": "ContentTopicStatus",
+      "file": "src/DevLeads.Core/Enums.cs",
+      "line": 122,
+      "signature": "public enum ContentTopicStatus",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "enum",
+      "name": "ContentDraftStatus",
+      "file": "src/DevLeads.Core/Enums.cs",
+      "line": 130,
+      "signature": "public enum ContentDraftStatus",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "enum",
+      "name": "ContentFormat",
+      "file": "src/DevLeads.Core/Enums.cs",
+      "line": 139,
+      "signature": "public enum ContentFormat",
       "access": "public",
       "parent": ""
     },
@@ -2998,7 +3862,7 @@
       "kind": "enum",
       "name": "SuppressionContactType",
       "file": "src/DevLeads.Core/Enums.cs",
-      "line": 119,
+      "line": 149,
       "signature": "public enum SuppressionContactType",
       "access": "public",
       "parent": ""
@@ -3016,7 +3880,7 @@
       "kind": "method",
       "name": "HasPayLanguage",
       "file": "src/DevLeads.Core/HeuristicPreFilter.cs",
-      "line": 84,
+      "line": 90,
       "signature": "public static bool HasPayLanguage(string text)",
       "access": "public",
       "parent": ""
@@ -3025,8 +3889,143 @@
       "kind": "method",
       "name": "Analyze",
       "file": "src/DevLeads.Core/HeuristicPreFilter.cs",
-      "line": 90,
-      "signature": "public PreFilterResult Analyze(RawSourceItem item)",
+      "line": 97,
+      "signature": "public PreFilterResult Analyze(RawSourceItem item, IReadOnlyCollection<string>? packNames = null)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "LeadQualityRules",
+      "file": "src/DevLeads.Core/LeadQualityRules.cs",
+      "line": 4,
+      "signature": "public static class LeadQualityRules",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "IsPromotionalAnnouncement",
+      "file": "src/DevLeads.Core/LeadQualityRules.cs",
+      "line": 116,
+      "signature": "public static bool IsPromotionalAnnouncement(string text)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "IsReplyFeedItem",
+      "file": "src/DevLeads.Core/LeadQualityRules.cs",
+      "line": 126,
+      "signature": "public static bool IsReplyFeedItem(string title)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "IsAlreadyClaimed",
+      "file": "src/DevLeads.Core/LeadQualityRules.cs",
+      "line": 158,
+      "signature": "public static bool IsAlreadyClaimed(string text)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "CompetingResponseCount",
+      "file": "src/DevLeads.Core/LeadQualityRules.cs",
+      "line": 170,
+      "signature": "public static int CompetingResponseCount(string text)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "IsAiAgentTaskPost",
+      "file": "src/DevLeads.Core/LeadQualityRules.cs",
+      "line": 185,
+      "signature": "public static bool IsAiAgentTaskPost(string title, string text)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "HasThirdPartyPayOffer",
+      "file": "src/DevLeads.Core/LeadQualityRules.cs",
+      "line": 191,
+      "signature": "public static bool HasThirdPartyPayOffer(string text)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "IsVendorControlledSupportRequest",
+      "file": "src/DevLeads.Core/LeadQualityRules.cs",
+      "line": 195,
+      "signature": "public static bool IsVendorControlledSupportRequest(string text)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "IsNonHirableVendorSupportRequest",
+      "file": "src/DevLeads.Core/LeadQualityRules.cs",
+      "line": 198,
+      "signature": "public static bool IsNonHirableVendorSupportRequest(string text)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "IsResolvedOrClosedRequest",
+      "file": "src/DevLeads.Core/LeadQualityRules.cs",
+      "line": 201,
+      "signature": "public static bool IsResolvedOrClosedRequest(string text)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "IsConcretePaidSource",
+      "file": "src/DevLeads.Core/LeadQualityRules.cs",
+      "line": 204,
+      "signature": "public static bool IsConcretePaidSource(string sourceKey)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "IsDashboardWorthyLead",
+      "file": "src/DevLeads.Core/LeadQualityRules.cs",
+      "line": 213,
+      "signature": "public static bool IsDashboardWorthyLead(string sourceKey, string paymentIntent, bool? assistanceRequested, bool feeIsEstimate, string text)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "NormalizeDuplicateTitle",
+      "file": "src/DevLeads.Core/LeadQualityRules.cs",
+      "line": 234,
+      "signature": "public static string NormalizeDuplicateTitle(string title)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "HostFromUrl",
+      "file": "src/DevLeads.Core/LeadQualityRules.cs",
+      "line": 240,
+      "signature": "public static string? HostFromUrl(string? url)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "SharesDuplicateClue",
+      "file": "src/DevLeads.Core/LeadQualityRules.cs",
+      "line": 246,
+      "signature": "public static bool SharesDuplicateClue(string leftText, string rightText)",
       "access": "public",
       "parent": ""
     },
@@ -3187,7 +4186,7 @@
       "kind": "method",
       "name": "Scan",
       "file": "src/DevLeads.Core/RedFlagDetector.cs",
-      "line": 40,
+      "line": 53,
       "signature": "public static RedFlagResult Scan(string title, string body)",
       "access": "public",
       "parent": ""
@@ -3355,10 +4354,28 @@
       "parent": ""
     },
     {
+      "kind": "property",
+      "name": "ClaimedByOthers",
+      "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+      "line": 36,
+      "signature": "public bool ClaimedByOthers { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "CompetingResponses",
+      "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+      "line": 39,
+      "signature": "public int CompetingResponses { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
       "kind": "class",
       "name": "OpportunityScorer",
       "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
-      "line": 37,
+      "line": 43,
       "signature": "public static class OpportunityScorer",
       "access": "public",
       "parent": ""
@@ -3367,7 +4384,7 @@
       "kind": "method",
       "name": "Score",
       "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
-      "line": 55,
+      "line": 61,
       "signature": "public static ScoreBreakdown Score(ScoringInput input, DateTimeOffset now)",
       "access": "public",
       "parent": ""
@@ -3376,7 +4393,7 @@
       "kind": "method",
       "name": "ToPriority",
       "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
-      "line": 95,
+      "line": 125,
       "signature": "public static Priority ToPriority(double total)",
       "access": "public",
       "parent": ""
@@ -3592,7 +4609,7 @@
       "kind": "method",
       "name": "Resolve",
       "file": "src/DevLeads.Infrastructure/Ai/AiTriageRouter.cs",
-      "line": 27,
+      "line": 30,
       "signature": "public IAiTriageProvider Resolve(OperatorSettings settings)",
       "access": "public",
       "parent": ""
@@ -3601,8 +4618,17 @@
       "kind": "method",
       "name": "TriageAsync",
       "file": "src/DevLeads.Infrastructure/Ai/AiTriageRouter.cs",
-      "line": 49,
+      "line": 52,
       "signature": "public async Task<AiTriageResponse> TriageAsync(AiTriageRequest request, OperatorSettings settings, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "TriageBatchAsync",
+      "file": "src/DevLeads.Infrastructure/Ai/AiTriageRouter.cs",
+      "line": 76,
+      "signature": "public async Task<AiBatchTriageResponse> TriageBatchAsync(IReadOnlyList<AiBatchTriageItem> items, OperatorSettings settings, CancellationToken ct)",
       "access": "public",
       "parent": ""
     },
@@ -3610,8 +4636,8 @@
       "kind": "method",
       "name": "ShortlistAsync",
       "file": "src/DevLeads.Infrastructure/Ai/AiTriageRouter.cs",
-      "line": 73,
-      "signature": "public async Task<AiShortlistResponse> ShortlistAsync(IReadOnlyList<AiShortlistItem> items, OperatorSettings settings, int maxSelections, CancellationToken ct)",
+      "line": 107,
+      "signature": "public async Task<AiShortlistResponse> ShortlistAsync(IReadOnlyList<AiShortlistItem> items, OperatorSettings settings, int maxSelections, string campaignObjective, CancellationToken ct)",
       "access": "public",
       "parent": ""
     },
@@ -3682,7 +4708,7 @@
       "kind": "method",
       "name": "TriageAsync",
       "file": "src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs",
-      "line": 122,
+      "line": 100,
       "signature": "public Task<AiTriageResponse> TriageAsync(AiTriageRequest request, OperatorSettings settings, CancellationToken ct)",
       "access": "public",
       "parent": ""
@@ -3692,7 +4718,7 @@
       "name": "OpenCodeTriageProvider",
       "file": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
       "line": 11,
-      "signature": "public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlistProvider",
+      "signature": "public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlistProvider, IAiBatchTriageProvider",
       "access": "public",
       "parent": ""
     },
@@ -3725,10 +4751,19 @@
     },
     {
       "kind": "method",
-      "name": "ShortlistAsync",
+      "name": "TriageBatchAsync",
       "file": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
       "line": 127,
-      "signature": "public async Task<AiShortlistResponse> ShortlistAsync(IReadOnlyList<AiShortlistItem> items, OperatorSettings settings, int maxSelections, CancellationToken ct)",
+      "signature": "public async Task<AiBatchTriageResponse> TriageBatchAsync(IReadOnlyList<AiBatchTriageItem> items, OperatorSettings settings, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "ShortlistAsync",
+      "file": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
+      "line": 242,
+      "signature": "public async Task<AiShortlistResponse> ShortlistAsync(IReadOnlyList<AiShortlistItem> items, OperatorSettings settings, int maxSelections, string campaignObjective, CancellationToken ct)",
       "access": "public",
       "parent": ""
     },
@@ -3736,7 +4771,7 @@
       "kind": "class",
       "name": "ShortlistOutput",
       "file": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
-      "line": 268,
+      "line": 433,
       "signature": "private sealed class ShortlistOutput",
       "access": "private",
       "parent": ""
@@ -3745,7 +4780,7 @@
       "kind": "property",
       "name": "Selected",
       "file": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
-      "line": 271,
+      "line": 436,
       "signature": "public List<ShortlistSelection> Selected { get; }",
       "access": "public",
       "parent": ""
@@ -3754,7 +4789,7 @@
       "kind": "class",
       "name": "ShortlistSelection",
       "file": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
-      "line": 273,
+      "line": 438,
       "signature": "private sealed class ShortlistSelection",
       "access": "private",
       "parent": ""
@@ -3763,7 +4798,7 @@
       "kind": "property",
       "name": "Id",
       "file": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
-      "line": 276,
+      "line": 441,
       "signature": "public string Id { get; }",
       "access": "public",
       "parent": ""
@@ -3772,7 +4807,7 @@
       "kind": "property",
       "name": "Reason",
       "file": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
-      "line": 277,
+      "line": 442,
       "signature": "public string? Reason { get; }",
       "access": "public",
       "parent": ""
@@ -3781,7 +4816,7 @@
       "kind": "method",
       "name": "ResolveCliPath",
       "file": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
-      "line": 279,
+      "line": 444,
       "signature": "public static string ResolveCliPath(OperatorSettings settings)",
       "access": "public",
       "parent": ""
@@ -3790,7 +4825,7 @@
       "kind": "method",
       "name": "ResetProbe",
       "file": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
-      "line": 332,
+      "line": 497,
       "signature": "public static void ResetProbe()",
       "access": "public",
       "parent": ""
@@ -3799,7 +4834,7 @@
       "kind": "method",
       "name": "ExtractJsonObject",
       "file": "src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs",
-      "line": 386,
+      "line": 551,
       "signature": "public static string? ExtractJsonObject(string text)",
       "access": "public",
       "parent": ""
@@ -3853,7 +4888,7 @@
       "kind": "method",
       "name": "CheckHealthAsync",
       "file": "src/DevLeads.Infrastructure/Connectors/GitHubSearchConnector.cs",
-      "line": 145,
+      "line": 155,
       "signature": "public async Task<ConnectorHealth> CheckHealthAsync(CancellationToken ct)",
       "access": "public",
       "parent": ""
@@ -3880,7 +4915,7 @@
       "kind": "method",
       "name": "CheckHealthAsync",
       "file": "src/DevLeads.Infrastructure/Connectors/HackerNewsConnector.cs",
-      "line": 73,
+      "line": 79,
       "signature": "public async Task<ConnectorHealth> CheckHealthAsync(CancellationToken ct)",
       "access": "public",
       "parent": ""
@@ -3925,7 +4960,7 @@
       "kind": "method",
       "name": "FetchAsync",
       "file": "src/DevLeads.Infrastructure/Connectors/RedditConnector.cs",
-      "line": 22,
+      "line": 26,
       "signature": "public async Task<IReadOnlyList<RawSourceItem>> FetchAsync(SourceConnectorConfig config, CancellationToken ct)",
       "access": "public",
       "parent": ""
@@ -3934,7 +4969,7 @@
       "kind": "method",
       "name": "CheckHealthAsync",
       "file": "src/DevLeads.Infrastructure/Connectors/RedditConnector.cs",
-      "line": 135,
+      "line": 148,
       "signature": "public async Task<ConnectorHealth> CheckHealthAsync(CancellationToken ct)",
       "access": "public",
       "parent": ""
@@ -3988,7 +5023,7 @@
       "kind": "method",
       "name": "CheckHealthAsync",
       "file": "src/DevLeads.Infrastructure/Connectors/RssConnector.cs",
-      "line": 99,
+      "line": 167,
       "signature": "public async Task<ConnectorHealth> CheckHealthAsync(CancellationToken ct)",
       "access": "public",
       "parent": ""
@@ -4051,7 +5086,7 @@
       "kind": "class",
       "name": "DateTimeOffsetToTicksConverter",
       "file": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
-      "line": 25,
+      "line": 30,
       "signature": "private sealed class DateTimeOffsetToTicksConverter : ValueConverter<DateTimeOffset, long>",
       "access": "private",
       "parent": ""
@@ -4078,7 +5113,7 @@
       "kind": "method",
       "name": "InitializeDevLeadsAsync",
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
-      "line": 77,
+      "line": 83,
       "signature": "public static async Task InitializeDevLeadsAsync(this IServiceProvider services)",
       "access": "public",
       "parent": ""
@@ -4112,9 +5147,18 @@
     },
     {
       "kind": "method",
-      "name": "GetNegativeTerms",
+      "name": "GetHighPriorityTerms",
       "file": "src/DevLeads.Infrastructure/QueryPacks/DbQueryPackProvider.cs",
       "line": 28,
+      "signature": "public IReadOnlyList<string> GetHighPriorityTerms(IReadOnlyCollection<string> packNames)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "GetNegativeTerms",
+      "file": "src/DevLeads.Infrastructure/QueryPacks/DbQueryPackProvider.cs",
+      "line": 34,
       "signature": "public IReadOnlyList<string> GetNegativeTerms()",
       "access": "public",
       "parent": ""
@@ -4139,6 +5183,177 @@
     },
     {
       "kind": "class",
+      "name": "ContentStudioService",
+      "file": "src/DevLeads.Infrastructure/Services/ContentStudioService.cs",
+      "line": 12,
+      "signature": "public sealed class ContentStudioService",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "TopicOutput",
+      "file": "src/DevLeads.Infrastructure/Services/ContentStudioService.cs",
+      "line": 198,
+      "signature": "private sealed class TopicOutput",
+      "access": "private",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Topics",
+      "file": "src/DevLeads.Infrastructure/Services/ContentStudioService.cs",
+      "line": 201,
+      "signature": "public List<TopicSuggestion> Topics { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "TopicSuggestion",
+      "file": "src/DevLeads.Infrastructure/Services/ContentStudioService.cs",
+      "line": 203,
+      "signature": "private sealed class TopicSuggestion",
+      "access": "private",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Title",
+      "file": "src/DevLeads.Infrastructure/Services/ContentStudioService.cs",
+      "line": 206,
+      "signature": "public string Title { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Angle",
+      "file": "src/DevLeads.Infrastructure/Services/ContentStudioService.cs",
+      "line": 207,
+      "signature": "public string? Angle { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Rationale",
+      "file": "src/DevLeads.Infrastructure/Services/ContentStudioService.cs",
+      "line": 208,
+      "signature": "public string? Rationale { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "InterestScore",
+      "file": "src/DevLeads.Infrastructure/Services/ContentStudioService.cs",
+      "line": 209,
+      "signature": "public double InterestScore { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Skills",
+      "file": "src/DevLeads.Infrastructure/Services/ContentStudioService.cs",
+      "line": 210,
+      "signature": "public List<string>? Skills { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Formats",
+      "file": "src/DevLeads.Infrastructure/Services/ContentStudioService.cs",
+      "line": 211,
+      "signature": "public List<string>? Formats { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "property",
+      "name": "Evidence",
+      "file": "src/DevLeads.Infrastructure/Services/ContentStudioService.cs",
+      "line": 212,
+      "signature": "public List<int>? Evidence { get; }",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "DiscoveryActivityTracker",
+      "file": "src/DevLeads.Infrastructure/Services/DiscoveryActivityTracker.cs",
+      "line": 2,
+      "signature": "public sealed class DiscoveryActivityTracker",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "record",
+      "name": "ActivityEvent",
+      "file": "src/DevLeads.Infrastructure/Services/DiscoveryActivityTracker.cs",
+      "line": 10,
+      "signature": "public sealed record ActivityEvent (DateTimeOffset At, string Kind, string SourceKey, string Message)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "ActivityEvent",
+      "file": "src/DevLeads.Infrastructure/Services/DiscoveryActivityTracker.cs",
+      "line": 10,
+      "signature": "public sealed record ActivityEvent(DateTimeOffset At, string Kind, string SourceKey, string Message)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "record",
+      "name": "RunningSource",
+      "file": "src/DevLeads.Infrastructure/Services/DiscoveryActivityTracker.cs",
+      "line": 11,
+      "signature": "public sealed record RunningSource (string SourceKey, string DisplayName, DateTimeOffset StartedAt)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "RunningSource",
+      "file": "src/DevLeads.Infrastructure/Services/DiscoveryActivityTracker.cs",
+      "line": 11,
+      "signature": "public sealed record RunningSource(string SourceKey, string DisplayName, DateTimeOffset StartedAt)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "RunStarted",
+      "file": "src/DevLeads.Infrastructure/Services/DiscoveryActivityTracker.cs",
+      "line": 17,
+      "signature": "public void RunStarted(string sourceKey, string displayName)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "RunCompleted",
+      "file": "src/DevLeads.Infrastructure/Services/DiscoveryActivityTracker.cs",
+      "line": 26,
+      "signature": "public void RunCompleted(string sourceKey, bool healthy, string message)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "LeadCreated",
+      "file": "src/DevLeads.Infrastructure/Services/DiscoveryActivityTracker.cs",
+      "line": 35,
+      "signature": "public void LeadCreated(string sourceKey, string title, double score)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
       "name": "LeadIngestionService",
       "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
       "line": 14,
@@ -4151,7 +5366,7 @@
       "name": "IngestAsync",
       "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
       "line": 37,
-      "signature": "public async Task<Opportunity?> IngestAsync(RawSourceItem item, SourceConfig source, CancellationToken ct)",
+      "signature": "public async Task<Opportunity?> IngestAsync(RawSourceItem item, SourceConfig source, CancellationToken ct, AiTriageResponse? precomputedTriage = null)",
       "access": "public",
       "parent": ""
     },
@@ -4159,7 +5374,7 @@
       "kind": "method",
       "name": "RecordRawOnlyAsync",
       "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
-      "line": 126,
+      "line": 156,
       "signature": "public async Task<bool> RecordRawOnlyAsync(RawSourceItem item, CancellationToken ct)",
       "access": "public",
       "parent": ""
@@ -4168,8 +5383,8 @@
       "kind": "method",
       "name": "CreateManualAsync",
       "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
-      "line": 146,
-      "signature": "public async Task<Opportunity> CreateManualAsync(string title, string body, string sourceUrl, string? author, string? authorUrl, CancellationToken ct)",
+      "line": 186,
+      "signature": "public async Task<Opportunity> CreateManualAsync(string title, string body, string sourceUrl, string? author, string? authorUrl, CancellationToken ct, long? campaignId = null)",
       "access": "public",
       "parent": ""
     },
@@ -4177,7 +5392,7 @@
       "kind": "method",
       "name": "RerunAsync",
       "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
-      "line": 195,
+      "line": 236,
       "signature": "public async Task RerunAsync(long opportunityId, CancellationToken ct)",
       "access": "public",
       "parent": ""
@@ -4186,8 +5401,17 @@
       "kind": "method",
       "name": "MapRecommendation",
       "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
-      "line": 458,
+      "line": 553,
       "signature": "public static OutreachRecommendation MapRecommendation(string value)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "IsOverAiBudgetAsync",
+      "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
+      "line": 605,
+      "signature": "public async Task<bool> IsOverAiBudgetAsync(OperatorSettings settings, CancellationToken ct)",
       "access": "public",
       "parent": ""
     },
@@ -4195,7 +5419,7 @@
       "kind": "class",
       "name": "MaintenanceService",
       "file": "src/DevLeads.Infrastructure/Services/MaintenanceService.cs",
-      "line": 6,
+      "line": 7,
       "signature": "public sealed class MaintenanceService",
       "access": "public",
       "parent": ""
@@ -4204,8 +5428,17 @@
       "kind": "method",
       "name": "ArchiveStaleLeadsAsync",
       "file": "src/DevLeads.Infrastructure/Services/MaintenanceService.cs",
-      "line": 18,
+      "line": 19,
       "signature": "public async Task<int> ArchiveStaleLeadsAsync(CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "RejectNonHirableVendorSupportAsync",
+      "file": "src/DevLeads.Infrastructure/Services/MaintenanceService.cs",
+      "line": 44,
+      "signature": "public async Task<int> RejectNonHirableVendorSupportAsync(CancellationToken ct)",
       "access": "public",
       "parent": ""
     },
@@ -4213,7 +5446,7 @@
       "kind": "method",
       "name": "FlagOverdueQuotesAsync",
       "file": "src/DevLeads.Infrastructure/Services/MaintenanceService.cs",
-      "line": 43,
+      "line": 90,
       "signature": "public async Task<int> FlagOverdueQuotesAsync(CancellationToken ct)",
       "access": "public",
       "parent": ""
@@ -4222,7 +5455,7 @@
       "kind": "method",
       "name": "DueFollowUpCountAsync",
       "file": "src/DevLeads.Infrastructure/Services/MaintenanceService.cs",
-      "line": 53,
+      "line": 100,
       "signature": "public async Task<int> DueFollowUpCountAsync(CancellationToken ct)",
       "access": "public",
       "parent": ""
@@ -4348,7 +5581,7 @@
       "kind": "method",
       "name": "RunAsync",
       "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
-      "line": 37,
+      "line": 39,
       "signature": "public async Task<int> RunAsync(SourceConfig source, CancellationToken ct)",
       "access": "public",
       "parent": ""
@@ -4357,7 +5590,7 @@
       "kind": "method",
       "name": "CheckHealthAsync",
       "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
-      "line": 260,
+      "line": 389,
       "signature": "public async Task<ConnectorHealth> CheckHealthAsync(string sourceKey, CancellationToken ct)",
       "access": "public",
       "parent": ""
@@ -4366,7 +5599,7 @@
       "kind": "class",
       "name": "ShortlistGate",
       "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
-      "line": 283,
+      "line": 412,
       "signature": "private sealed class ShortlistGate",
       "access": "private",
       "parent": ""
@@ -4375,7 +5608,7 @@
       "kind": "property",
       "name": "Enabled",
       "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
-      "line": 302,
+      "line": 431,
       "signature": "public bool Enabled { get; }",
       "access": "public",
       "parent": ""
@@ -4384,7 +5617,7 @@
       "kind": "property",
       "name": "SelectedIds",
       "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
-      "line": 305,
+      "line": 434,
       "signature": "public IReadOnlySet<string> SelectedIds { get; }",
       "access": "public",
       "parent": ""
@@ -4393,7 +5626,7 @@
       "kind": "property",
       "name": "CandidateCount",
       "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
-      "line": 306,
+      "line": 435,
       "signature": "public int CandidateCount { get; }",
       "access": "public",
       "parent": ""
@@ -4402,7 +5635,7 @@
       "kind": "property",
       "name": "Provider",
       "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
-      "line": 308,
+      "line": 437,
       "signature": "public string Provider { get; }",
       "access": "public",
       "parent": ""
@@ -4411,8 +5644,44 @@
       "kind": "method",
       "name": "ShouldRecordRawOnly",
       "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
-      "line": 309,
+      "line": 438,
       "signature": "public bool ShouldRecordRawOnly(RawSourceItem item)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "TrendScanService",
+      "file": "src/DevLeads.Infrastructure/Services/TrendScanService.cs",
+      "line": 10,
+      "signature": "public sealed class TrendScanService",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "RunDueAsync",
+      "file": "src/DevLeads.Infrastructure/Services/TrendScanService.cs",
+      "line": 31,
+      "signature": "public async Task<int> RunDueAsync(bool force, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "method",
+      "name": "RunSourceAsync",
+      "file": "src/DevLeads.Infrastructure/Services/TrendScanService.cs",
+      "line": 49,
+      "signature": "public async Task<int> RunSourceAsync(TrendSource source, CancellationToken ct)",
+      "access": "public",
+      "parent": ""
+    },
+    {
+      "kind": "class",
+      "name": "ContentTrendWorker",
+      "file": "src/DevLeads.Infrastructure/Workers/ContentTrendWorker.cs",
+      "line": 10,
+      "signature": "public sealed class ContentTrendWorker : BackgroundService",
       "access": "public",
       "parent": ""
     },
@@ -4447,8 +5716,8 @@
       "kind": "record",
       "name": "ManualLeadDto",
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "line": 139,
-      "signature": "public record ManualLeadDto (string Title, string Body, string? SourceUrl, string? Author, string? AuthorUrl)",
+      "line": 168,
+      "signature": "public record ManualLeadDto (string Title, string Body, string? SourceUrl, string? Author, string? AuthorUrl, long? CampaignId = null)",
       "access": "public",
       "parent": ""
     },
@@ -4456,8 +5725,8 @@
       "kind": "method",
       "name": "ManualLeadDto",
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "line": 139,
-      "signature": "public record ManualLeadDto(string Title, string Body, string? SourceUrl, string? Author, string? AuthorUrl)",
+      "line": 168,
+      "signature": "public record ManualLeadDto(string Title, string Body, string? SourceUrl, string? Author, string? AuthorUrl, long? CampaignId = null)",
       "access": "public",
       "parent": ""
     },
@@ -4465,7 +5734,7 @@
       "kind": "record",
       "name": "DraftDto",
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "line": 141,
+      "line": 170,
       "signature": "public record DraftDto (string TemplateKey)",
       "access": "public",
       "parent": ""
@@ -4474,7 +5743,7 @@
       "kind": "method",
       "name": "DraftDto",
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "line": 141,
+      "line": 170,
       "signature": "public record DraftDto(string TemplateKey)",
       "access": "public",
       "parent": ""
@@ -4483,7 +5752,7 @@
       "kind": "record",
       "name": "QuoteDto",
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "line": 142,
+      "line": 171,
       "signature": "public record QuoteDto (double? Amount, bool DueOnCompletion)",
       "access": "public",
       "parent": ""
@@ -4492,7 +5761,7 @@
       "kind": "method",
       "name": "QuoteDto",
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "line": 142,
+      "line": 171,
       "signature": "public record QuoteDto(double? Amount, bool DueOnCompletion)",
       "access": "public",
       "parent": ""
@@ -4745,46 +6014,67 @@
       "line": 62
     },
     {
-      "lifetime": "Scoped",
-      "service": "AuditService",
+      "lifetime": "Singleton",
+      "service": "DiscoveryActivityTracker",
       "implementation": "",
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "line": 65
     },
     {
       "lifetime": "Scoped",
-      "service": "LeadIngestionService",
-      "implementation": "",
-      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
-      "line": 66
-    },
-    {
-      "lifetime": "Scoped",
-      "service": "OutreachService",
-      "implementation": "",
-      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
-      "line": 67
-    },
-    {
-      "lifetime": "Scoped",
-      "service": "QuoteService",
+      "service": "AuditService",
       "implementation": "",
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "line": 68
     },
     {
       "lifetime": "Scoped",
-      "service": "SourceRunner",
+      "service": "LeadIngestionService",
       "implementation": "",
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "line": 69
     },
     {
       "lifetime": "Scoped",
-      "service": "MaintenanceService",
+      "service": "OutreachService",
       "implementation": "",
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "line": 70
+    },
+    {
+      "lifetime": "Scoped",
+      "service": "QuoteService",
+      "implementation": "",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 71
+    },
+    {
+      "lifetime": "Scoped",
+      "service": "SourceRunner",
+      "implementation": "",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 72
+    },
+    {
+      "lifetime": "Scoped",
+      "service": "MaintenanceService",
+      "implementation": "",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 73
+    },
+    {
+      "lifetime": "Scoped",
+      "service": "TrendScanService",
+      "implementation": "",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 74
+    },
+    {
+      "lifetime": "Scoped",
+      "service": "ContentStudioService",
+      "implementation": "",
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "line": 75
     },
     {
       "lifetime": "Singleton",
@@ -4876,6 +6166,14 @@
       "reason": "UI/page/component folder."
     },
     {
+      "file": "src/DevLeads.Web/Components/Pages/Campaigns.razor",
+      "reason": "UI/page/component folder."
+    },
+    {
+      "file": "src/DevLeads.Web/Components/Pages/Content.razor",
+      "reason": "UI/page/component folder."
+    },
+    {
       "file": "src/DevLeads.Web/Components/Pages/Drafts.razor",
       "reason": "UI/page/component folder."
     },
@@ -4921,6 +6219,14 @@
     },
     {
       "file": "src/DevLeads.Web/Components/Routes.razor",
+      "reason": "UI/page/component folder."
+    },
+    {
+      "file": "src/DevLeads.Web/Components/Shared/ActivityFeed.razor",
+      "reason": "UI/page/component folder."
+    },
+    {
+      "file": "src/DevLeads.Web/Components/Shared/CampaignSwitcher.razor",
       "reason": "UI/page/component folder."
     },
     {

@@ -59,11 +59,15 @@
     private async Task Load()
     {
         await using var db = await DbFactory.CreateDbContextAsync();
+        var campaignId = (await db.OperatorSettings.AsNoTracking().FirstOrDefaultAsync())?.SelectedCampaignId;
         var quotes = await db.Quotes.AsNoTracking().OrderByDescending(q => q.CreatedAt).ToListAsync();
         var oppIds = quotes.Select(q => q.OpportunityId).Distinct().ToList();
-        var titles = (await db.Opportunities.AsNoTracking().Where(o => oppIds.Contains(o.Id))
-            .Select(o => new { o.Id, o.Title }).ToListAsync()).ToDictionary(o => o.Id, o => o.Title);
-        _rows = quotes.Select(q => new Row(q, titles.TryGetValue(q.OpportunityId, out var t) ? t : "(lead)")).ToList();
+        var opps = (await db.Opportunities.AsNoTracking().Where(o => oppIds.Contains(o.Id))
+            .Select(o => new { o.Id, o.Title, o.CampaignId }).ToListAsync()).ToDictionary(o => o.Id);
+        _rows = quotes
+            .Where(q => campaignId is null ||
+                        (opps.TryGetValue(q.OpportunityId, out var oc) && oc.CampaignId == campaignId))
+            .Select(q => new Row(q, opps.TryGetValue(q.OpportunityId, out var t) ? t.Title : "(lead)")).ToList();
         _outstanding = _rows.Count(r => r.Quote.Status is QuoteStatus.Sent or QuoteStatus.Overdue or QuoteStatus.PaymentPending);
         _pipeline = _rows.Where(r => r.Quote.Status is not (QuoteStatus.Paid or QuoteStatus.WrittenOff or QuoteStatus.Refunded))
             .Sum(r => r.Quote.Amount);

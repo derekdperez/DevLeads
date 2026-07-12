@@ -24,7 +24,10 @@ public enum OpportunityStatus
     Won,
     Lost,
     FollowUpLater,
-    DoNotContact
+    DoNotContact,
+
+    /// <summary>Operator dismissed the lead: hidden from every view, never purged, never re-ingested.</summary>
+    Archived
 }
 
 /// <summary>Priority band derived from the weighted opportunity score.</summary>
@@ -72,6 +75,8 @@ public enum OutreachMode
 /// <summary>Lifecycle of a single outreach attempt.</summary>
 public enum OutreachStatus
 {
+    /// <summary>Waiting in the AI generation queue — body is written by the next batched generation run.</summary>
+    QueuedForGeneration,
     Draft,
     PendingApproval,
     Approved,
@@ -115,6 +120,33 @@ public enum WorkSessionStatus
     Completed,
     Blocked,
     Abandoned
+}
+
+/// <summary>Lifecycle of an AI-suggested publishing topic.</summary>
+public enum ContentTopicStatus
+{
+    Suggested,
+    Drafted,
+    Dismissed
+}
+
+/// <summary>Lifecycle of a generated content draft.</summary>
+public enum ContentDraftStatus
+{
+    Draft,
+    Final,
+    Published,
+    Discarded
+}
+
+/// <summary>Publishable formats the content studio can generate.</summary>
+public enum ContentFormat
+{
+    BlogPost,
+    Article,
+    WhitePaper,
+    ResearchPaper,
+    LinkedInPost
 }
 
 /// <summary>How a contact was added to the suppression list.</summary>

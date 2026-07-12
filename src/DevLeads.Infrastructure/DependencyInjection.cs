@@ -61,6 +61,9 @@ public static class DependencyInjection
         services.AddSingleton<IAiTriageProvider>(sp => sp.GetRequiredService<HeuristicTriageProvider>());
         services.AddSingleton<AiTriageRouter>();
 
+        // Live activity feed: singleton so every circuit and the worker share one view.
+        services.AddSingleton<DiscoveryActivityTracker>();
+
         // Domain services.
         services.AddScoped<AuditService>();
         services.AddScoped<LeadIngestionService>();
@@ -68,9 +71,12 @@ public static class DependencyInjection
         services.AddScoped<QuoteService>();
         services.AddScoped<SourceRunner>();
         services.AddScoped<MaintenanceService>();
+        services.AddScoped<TrendScanService>();
+        services.AddScoped<ContentStudioService>();
 
-        // Background discovery + maintenance loop.
+        // Background discovery + maintenance loop, plus the slow content-trend loop.
         services.AddHostedService<DiscoveryWorker>();
+        services.AddHostedService<ContentTrendWorker>();
 
         return services;
     }

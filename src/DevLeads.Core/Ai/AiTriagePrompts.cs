@@ -7,7 +7,9 @@ public static class AiTriagePrompts
 """
 You are DevLeads, an emergency triage assistant for a solo senior software engineer.
 
-Your job is to analyze incoming public internet posts and determine whether they are urgent, potentially paid software emergencies that fit the operator's skill set.
+Your job is to analyze incoming public internet posts and determine whether they are potentially paid software engagements that fit the operator's skill set.
+
+Posts arrive under a CAMPAIGN, each with its own objective. When a Campaign Objective is provided in the user message, judge relevance against that objective instead of assuming the emergency-repair default: a lead qualifies when it could plausibly turn into the kind of paid engagement the objective describes. Keep isEmergency literal regardless of campaign — it means an active incident, not "relevant to this campaign".
 
 The operator is based in Massachusetts but works remotely worldwide.
 
@@ -22,7 +24,7 @@ The operator specializes in:
 - deployment failures
 - production debugging
 
-The operator can also work across general web, hosting, DNS, TLS, payment, e-commerce, and API problems when the issue is bounded and urgent.
+The operator is a pure .NET-stack consultant. General web, hosting, DNS, TLS, payment, e-commerce, and API problems are acceptable only when platform-agnostic and bounded. A post whose primary work is in another language stack (Go, Python, Java, Ruby, PHP, Rust, Node.js, mobile) is NOT a fit no matter how well it pays — use outreachRecommendation "Ignore" and set rejectReason to the mismatched stack.
 
 The operator's goal is PAID work. A post is only a lead if there is a realistic chance the poster would hire and pay someone. Most public posts are people seeking free advice — those are not leads no matter how technical or interesting the problem is.
 
@@ -38,6 +40,8 @@ Set paymentIntent using this rubric. paymentIntent is about whether THE POSTER w
 - "None": a hobbyist, student, employee troubleshooting their employer's system, a developer asking about a bug in a payment/checkout library, or anyone clearly seeking free guidance (typical of support forums and Q&A sites). A post ABOUT payment technology is not payment intent.
 
 Return a strict JSON object matching the schema. Do not include markdown formatting or extra text.
+
+Use problemCategory "Modernization/Migration" for legacy-system modernization, framework/platform migration, replatforming, or version-upgrade work (e.g. .NET Framework to modern .NET, WebForms/WCF/WinForms rewrites, on-prem to Azure, SQL Server upgrades). These are planned consulting engagements: keep isEmergency false, and use outreachRecommendation "Manual Review" when paymentIntent is "Explicit", "Watch" when "Implied".
 
 Bounties and paid feature requests are also leads, not just emergencies. A bounty (money already attached to an issue) is paymentIntent "Explicit". A feature request where the poster offers to pay, sponsor, or fund the work is problemCategory "Feature Request" with paymentIntent "Explicit"; a feature request from a business whose operations clearly depend on it may be "Implied". A casual wishlist feature request is "Feature Request" with paymentIntent "None".
 
@@ -77,7 +81,11 @@ Matched Pre-Filter Terms:
 
 Heuristic Score:
 {r.HeuristicScore}
-{(string.IsNullOrWhiteSpace(r.OperatorSkills) ? "" : $"""
+{(string.IsNullOrWhiteSpace(r.CampaignObjective) ? "" : $"""
+
+Campaign Objective (judge relevance against this):
+{r.CampaignObjective}
+""")}{(string.IsNullOrWhiteSpace(r.OperatorSkills) ? "" : $"""
 
 Operator Skill Profile (judge stack fit against this; "(core)" marks strongest skills):
 {r.OperatorSkills}
@@ -94,6 +102,13 @@ Return only the strict JSON object.
         var sb = new System.Text.StringBuilder();
         sb.AppendLine("Analyze each of the following public posts independently.");
         sb.AppendLine();
+        var objective = items.Select(i => i.Request.CampaignObjective).FirstOrDefault(o => !string.IsNullOrWhiteSpace(o));
+        if (!string.IsNullOrWhiteSpace(objective))
+        {
+            sb.AppendLine("Campaign Objective (judge every post's relevance against this):");
+            sb.AppendLine(objective);
+            sb.AppendLine();
+        }
         foreach (var item in items)
         {
             var r = item.Request;
@@ -134,7 +149,7 @@ Return only the strict JSON object.
     "paymentIntent": { "type": "string", "enum": ["Explicit","Implied","None"] },
     "assistanceRequested": { "type": "boolean" },
     "rejectReason": { "type": ["string","null"] },
-    "problemCategory": { "type": "string", "enum": ["Production Outage","Website Down","Database Failure","Deployment Failure","API Failure","Authentication/Login Failure","Payment/Checkout Failure","DNS/TLS Failure","Performance Emergency","Data Loss","Security Incident","Feature Request","Non-Urgent Help Request","Not Relevant"] },
+    "problemCategory": { "type": "string", "enum": ["Production Outage","Website Down","Database Failure","Deployment Failure","API Failure","Authentication/Login Failure","Payment/Checkout Failure","DNS/TLS Failure","Performance Emergency","Data Loss","Security Incident","Feature Request","Modernization/Migration","Non-Urgent Help Request","Not Relevant"] },
     "detectedStack": { "type": "array", "items": { "type": "string" } },
     "estimatedCause": { "type": "string" },
     "firstDiagnosticStep": { "type": "string" },

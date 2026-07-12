@@ -1,0 +1,141 @@
+@implements IDisposable
+@inject DiscoveryActivityTracker Tracker
+@inject IDbContextFactory<DevLeadsDbContext> DbFactory
+
+<div class="rr-panel">
+    <div class="rr-panel-head">
+        <h2>📡 Live activity</h2>
+        <div class="rr-sub">auto-refreshes every 2s</div>
+    </div>
+
+    @if (_running.Count > 0)
+    {
+        @foreach (var r in _running)
+        {
+            <div style="display:flex;gap:.5rem;align-items:center;margin-bottom:.35rem">
+                <span class="rr-chip progress">⏳ running</span>
+                <span><strong>@r.DisplayName</strong> <span class="rr-sub">(@r.SourceKey · @Elapsed(r.StartedAt))</span></span>
+            </div>
+        }
+    }
+    else
+    {
+        <div style="margin-bottom:.35rem">
+            <span class="rr-chip">idle</span>
+            <span class="rr-sub">
+                @if (_nextDue.Count > 0)
+                {
+                    <span> next up: @string.Join(" · ", _nextDue.Select(n => $"{n.Name} {Due(n.At)}"))</span>
+                }
+                else
+                {
+                    <span> no sources scheduled</span>
+                }
+            </span>
+        </div>
+    }
+
+    @if (_events.Count == 0)
+    {
+        <div class="rr-empty">No discovery activity yet this session. Runs appear here the moment they start.</div>
+    }
+    else
+    {
+        <div style="max-height:340px;overflow-y:auto">
+            @foreach (var e in _events)
+            {
+                <div style="display:flex;gap:.5rem;align-items:baseline;padding:.22rem 0;border-bottom:1px solid var(--line)">
+                    <span class="rr-sub" style="min-width:4.2rem" title="@e.At.LocalDateTime.ToString("HH:mm:ss")">@UiHelpers.Age(e.At)</span>
+                    <span class="@KindChip(e.Kind)">@KindLabel(e.Kind)</span>
+                    <span style="word-break:break-word">@e.Message</span>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private IReadOnlyList<DiscoveryActivityTracker.RunningSource> _running =
+        Array.Empty<DiscoveryActivityTracker.RunningSource>();
+    private IReadOnlyList<DiscoveryActivityTracker.ActivityEvent> _events =
+        Array.Empty<DiscoveryActivityTracker.ActivityEvent>();
+    private List<(string Name, DateTimeOffset? At)> _nextDue = new();
+    private readonly CancellationTokenSource _cts = new();
+
+    protected override async Task OnInitializedAsync() => await RefreshAsync();
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        // Only the interactive circuit (never prerender) starts the polling loop.
+        if (firstRender) _ = PollLoopAsync();
+    }
+
+    private async Task PollLoopAsync()
+    {
+        try
+        {
+            using var timer = new PeriodicTimer(TimeSpan.FromSeconds(2));
+            while (await timer.WaitForNextTickAsync(_cts.Token))
+            {
+                await RefreshAsync();
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (OperationCanceledException) { /* component disposed */ }
+    }
+
+    private async Task RefreshAsync()
+    {
+        (_running, _events) = Tracker.Snapshot();
+
+        // "Next up" comes from the schedule the worker follows (enabled + earliest due).
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var disabledCampaigns = await db.Campaigns.AsNoTracking()
+            .Where(c => !c.Enabled).Select(c => c.Id).ToListAsync(_cts.Token);
+        var sources = await db.SourceConfigs.AsNoTracking()
+            .Where(s => s.Enabled)
+            .Select(s => new { s.DisplayName, s.NextRunAt, s.CampaignId })
+            .ToListAsync(_cts.Token);
+        _nextDue = sources
+            .Where(s => s.CampaignId == null || !disabledCampaigns.Contains(s.CampaignId.Value))
+            .OrderBy(s => s.NextRunAt ?? DateTimeOffset.MinValue)
+            .Take(3)
+            .Select(s => (s.DisplayName, s.NextRunAt))
+            .ToList();
+    }
+
+    private static string Elapsed(DateTimeOffset started)
+    {
+        var s = (int)(DateTimeOffset.UtcNow - started).TotalSeconds;
+        return s < 60 ? $"{s}s" : $"{s / 60}m {s % 60}s";
+    }
+
+    private static string Due(DateTimeOffset? at)
+    {
+        if (at is not { } t) return "(now)";
+        var mins = (t - DateTimeOffset.UtcNow).TotalMinutes;
+        return mins <= 0 ? "(due now)" : mins < 60 ? $"(in {mins:0}m)" : $"(in {mins / 60:0.#}h)";
+    }
+
+    private static string KindChip(string kind) => kind switch
+    {
+        "lead" => "rr-chip won",
+        "run-fail" => "rr-chip dead",
+        "run-start" => "rr-chip progress",
+        _ => "rr-chip"
+    };
+
+    private static string KindLabel(string kind) => kind switch
+    {
+        "lead" => "🎯 lead",
+        "run-fail" => "error",
+        "run-start" => "fetch",
+        _ => "done"
+    };
+
+    public void Dispose()
+    {
+        _cts.Cancel();
+        _cts.Dispose();
+    }
+}

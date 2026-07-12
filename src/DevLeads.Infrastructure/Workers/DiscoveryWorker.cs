@@ -51,7 +51,11 @@ public sealed class DiscoveryWorker : BackgroundService
         // Filter the date-based "due" condition in memory — SQLite can't translate the
         // nullable DateTimeOffset null-check-OR-comparison, and the source set is tiny.
         var enabled = await db.SourceConfigs.Where(s => s.Enabled).ToListAsync(ct);
-        var dueSources = enabled.Where(s => s.NextRunAt == null || s.NextRunAt <= now).ToList();
+        // A disabled campaign pauses all of its sources without touching their configs.
+        var disabledCampaigns = await db.Campaigns.Where(c => !c.Enabled).Select(c => c.Id).ToListAsync(ct);
+        var dueSources = enabled.Where(s =>
+            (s.NextRunAt == null || s.NextRunAt <= now) &&
+            (s.CampaignId == null || !disabledCampaigns.Contains(s.CampaignId.Value))).ToList();
 
         if (dueSources.Count > 0)
         {
@@ -75,6 +79,18 @@ public sealed class DiscoveryWorker : BackgroundService
             if (vendorSupport + archived + overdue > 0)
                 _log.LogInformation("Maintenance: rejected {VendorSupport} vendor-support leads, archived {Archived} stale, flagged {Overdue} overdue",
                     vendorSupport, archived, overdue);
+
+            // "The next time the AI generation runs": one batched call per hour writes
+            // every queued outreach response, budget permitting. The operator can also
+            // trigger it any time from the approval queue.
+            var outreach = scope.ServiceProvider.GetRequiredService<OutreachService>();
+            if (await outreach.QueuedCountAsync(ct) > 0 &&
+                !await scope.ServiceProvider.GetRequiredService<LeadIngestionService>()
+                    .IsOverAiBudgetAsync(settings, ct))
+            {
+                var (generated, message) = await outreach.GenerateQueuedResponsesAsync(ct);
+                if (generated > 0) _log.LogInformation("Outreach generation: {Message}", message);
+            }
         }
     }
 }

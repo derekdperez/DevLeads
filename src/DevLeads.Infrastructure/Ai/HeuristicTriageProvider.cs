@@ -31,6 +31,12 @@ public sealed class HeuristicTriageProvider : IAiTriageProvider
         (new[]{"slow","timeout","performance","high cpu","memory leak","queue backed up","background jobs stuck"}, "Performance Emergency"),
         (new[]{"data loss","deleted data","dropped table","corrupt","lost data"}, "Data Loss"),
         (new[]{"breach","compromised","malware","ransomware","security incident"}, "Security Incident"),
+        // Planned consulting work, not incidents — checked before Feature Request so
+        // "migrate"/"modernize" language wins over generic enhancement wording.
+        (new[]{"modernization","modernize","replatform","re-platform","migrate to .net","migrate from .net",
+               ".net framework migration","legacy .net","legacy application","legacy codebase","legacy system",
+               "webforms","web forms","wcf","winforms","vb6","vb.net","classic asp","silverlight",
+               "cloud migration","azure migration","sql server upgrade","framework upgrade","rewrite legacy"}, "Modernization/Migration"),
         // Last: only when nothing above matched — scoped implementation work, not an incident.
         (new[]{"feature request","add support for","implement support","would be great if","enhancement",
                "bounty","sponsor this feature","fund this feature","paid feature"}, "Feature Request"),
@@ -117,7 +123,7 @@ public sealed class HeuristicTriageProvider : IAiTriageProvider
             string[] urgentWords = { "urgent", "asap", "emergency", "immediately", "right away",
                 "need fixed today", "site down", "site is down", "is broken", "not working" };
             isEmergency = isTechnical && urgentWords.Any(w => text.Contains(w, StringComparison.OrdinalIgnoreCase));
-            if (!isEmergency && category != "Feature Request")
+            if (!isEmergency && category is not ("Feature Request" or "Modernization/Migration"))
                 category = "Non-Urgent Help Request"; // honest label: ongoing paid work, not an incident
         }
         else

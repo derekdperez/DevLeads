@@ -24,7 +24,7 @@ public static class UiHelpers
         OpportunityStatus.InProgress or OpportunityStatus.Fixed or OpportunityStatus.PaymentPending => "rr-chip work",
         OpportunityStatus.Paid or OpportunityStatus.Won => "rr-chip won",
         OpportunityStatus.Rejected or OpportunityStatus.PreFilteredRejected or OpportunityStatus.Lost
-            or OpportunityStatus.DoNotContact => "rr-chip dead",
+            or OpportunityStatus.DoNotContact or OpportunityStatus.Archived => "rr-chip dead",
         OpportunityStatus.NeedsReview => "rr-chip review",
         _ => "rr-chip"
     };

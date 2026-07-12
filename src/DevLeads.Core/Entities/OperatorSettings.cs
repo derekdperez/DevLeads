@@ -11,7 +11,7 @@ public class OperatorSettings
     public string Location { get; set; } = "Massachusetts";
     public string RemoteAvailability { get; set; } = "Worldwide";
     public string CoreSkills { get; set; } = "ASP.NET Core, Blazor, IIS, SQL Server, Azure, APIs, production debugging";
-    public string SecondarySkills { get; set; } = "DNS, TLS, hosting, WordPress, WooCommerce, Shopify, Python, Node, PHP";
+    public string SecondarySkills { get; set; } = "IIS, Windows Server, DNS, TLS, hosting, SQL performance tuning";
     public double MinimumFee { get; set; } = 100;
     public string PreferredPaymentTerms { get; set; } = "Due upon completion for bounded fixes";
     public bool EmergencyAvailability { get; set; } = true;
@@ -53,8 +53,14 @@ public class OperatorSettings
     public double DraftScoreThreshold { get; set; } = 70;
     public double AlertScoreThreshold { get; set; } = 85;
 
+    /// <summary>Campaign the UI is currently scoped to; null = combined view of all campaigns.</summary>
+    public long? SelectedCampaignId { get; set; }
+
     // Discovery.
     public bool DiscoveryEnabled { get; set; } = true;
+
+    /// <summary>Enables trend scanning + daily automatic topic suggestions for the content studio.</summary>
+    public bool ContentDiscoveryEnabled { get; set; } = true;
     public int StaleItemMaxAgeHours { get; set; } = 72;
     public int FollowUpDefaultHours { get; set; } = 24;
 }

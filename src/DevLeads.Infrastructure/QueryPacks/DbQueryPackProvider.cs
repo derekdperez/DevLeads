@@ -26,6 +26,12 @@ public sealed class DbQueryPackProvider : IQueryPackProvider
         Packs.Where(p => p.IsHighPriority).SelectMany(p => Split(p.Terms))
              .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
+    public IReadOnlyList<string> GetHighPriorityTerms(IReadOnlyCollection<string> packNames) =>
+        Packs.Where(p => p.IsHighPriority &&
+                         packNames.Contains(p.Name, StringComparer.OrdinalIgnoreCase))
+             .SelectMany(p => Split(p.Terms))
+             .Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+
     public IReadOnlyList<string> GetNegativeTerms() =>
         Packs.Where(p => p.IsNegative).SelectMany(p => Split(p.Terms))
              .Distinct(StringComparer.OrdinalIgnoreCase).ToList();

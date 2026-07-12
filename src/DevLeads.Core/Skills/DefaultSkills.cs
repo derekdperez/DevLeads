@@ -21,7 +21,10 @@ public static class DefaultSkills
         S("Primary stack", "Blazor", 3, "blazor server\nblazor webassembly\nrazor components"),
         S("Primary stack", "Entity Framework", 3, "ef core\nefcore\nlinq"),
         S("Primary stack", "SQL Server", 3, "mssql\nsqlserver\nt-sql\nstored procedure"),
-        S("Primary stack", "REST API", 3, "rest apis\nweb api\napi design\napi development"),
+        // Weight 2 + Backend on purpose: "REST API" appears in virtually every job post,
+        // so as a weight-3 "Primary stack" skill it made Go/Python jobs look like core
+        // .NET fits. It is a capability, not a stack identity.
+        S("Backend", "REST API", 2, "rest apis\nweb api\napi design\napi development"),
         S("Primary stack", "JavaScript", 2, "js\ntypescript"),
         S("Primary stack", "HTML", 2, "css\nhtml/css"),
 
@@ -46,7 +49,8 @@ public static class DefaultSkills
         S("Cloud & DevOps", "Docker", 2, "container\ndockerfile\ndocker compose"),
         S("Cloud & DevOps", "CI/CD", 2, "github actions\npipeline\ncontinuous integration\ncontinuous deployment"),
         S("Cloud & DevOps", "AWS", 2, "aws ecs\nfargate\nec2\ns3"),
-        S("Cloud & DevOps", "Azure", 3, "azure app service\nazure portal\napp service"),
+        // Azure lives in "Primary stack": for scoring it is stack identity, not tooling.
+        S("Primary stack", "Azure", 3, "azure app service\nazure portal\napp service"),
         S("Cloud & DevOps", "Linux deployment", 2, "linux server\nubuntu server\nsystemd"),
         S("Cloud & DevOps", "Windows deployment", 2, "windows server\niis"),
         S("Cloud & DevOps", "logging & observability", 1, "opentelemetry\napplication logging\nlog analysis"),
@@ -57,7 +61,7 @@ public static class DefaultSkills
         S("Security & diagnostics", "security triage", 1, "bug bounty\nsecurity findings\nvulnerability triage\ncors\ncookie security\nsubdomain"),
         S("Security & diagnostics", "authentication troubleshooting", 2, "login broken\nauth flow\nusers cannot login"),
 
-        S("Specialized", ".NET modernization", 3, ".net framework to .net core\nwcf to rest\nwcf migration\nframework migration"),
+        S("Primary stack", ".NET modernization", 3, ".net framework to .net core\nwcf to rest\nwcf migration\nframework migration"),
         S("Specialized", "outage troubleshooting", 3, "critical bug\nunstable system\nemergency fix\nsite down"),
         S("Specialized", "codebase rescue", 2, "technical debt\nundocumented codebase\ncode rescue\nrapid feature"),
 

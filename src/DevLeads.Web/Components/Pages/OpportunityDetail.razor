@@ -37,6 +37,14 @@ else
         <button class="rr-btn" @onclick="() => Status(OpportunityStatus.Responded)">💬 Mark responded</button>
         <button class="rr-btn good" @onclick="() => Status(OpportunityStatus.Won)">🏆 Won</button>
         <button class="rr-btn danger" @onclick="() => Status(OpportunityStatus.Lost)">✖ Lost</button>
+        @if (_opp.Status == OpportunityStatus.Archived)
+        {
+            <button class="rr-btn" @onclick="() => Status(OpportunityStatus.NeedsReview)">↩ Restore</button>
+        }
+        else
+        {
+            <button class="rr-btn" title="Hide this lead everywhere without deleting it" @onclick="() => Status(OpportunityStatus.Archived)">🗂 Archive</button>
+        }
     </div>
 
     <div class="rr-detail-grid">
@@ -97,13 +105,15 @@ else
                 <div class="rr-panel-head">
                     <h2>Response drafts &amp; approval</h2>
                     <div style="display:flex;gap:.4rem">
+                        <button class="rr-btn primary" @onclick="QueueResponse" disabled="@_busy"
+                                title="Queues this lead; the next batched AI generation run writes a reply grounded in the original post">🪄 Queue AI response</button>
                         <select class="rr-select" style="width:auto" @bind="_templateKey">
                             @foreach (var t in ResponseTemplates.All)
                             {
                                 <option value="@t.Key">@t.Name</option>
                             }
                         </select>
-                        <button class="rr-btn" @onclick="GenerateDraft" disabled="@_busy">+ Draft</button>
+                        <button class="rr-btn" @onclick="GenerateDraft" disabled="@_busy" title="Old-style fixed template (no AI)">+ Template draft</button>
                     </div>
                 </div>
 
@@ -301,6 +311,10 @@ else
 
     private Task GenerateDraft() => RunScoped(sp =>
         sp.GetRequiredService<OutreachService>().GenerateDraftAsync(Id, _templateKey, default), "Draft generated.");
+
+    private Task QueueResponse() => RunScoped(sp =>
+        sp.GetRequiredService<OutreachService>().QueueForGenerationAsync(Id, default),
+        "Queued — the next AI generation run writes this reply (hourly, or run it now from the Approval queue).");
 
     private Task SaveDraft(long attemptId, string body) => RunScoped(async sp =>
     {

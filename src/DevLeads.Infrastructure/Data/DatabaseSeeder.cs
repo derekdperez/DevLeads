@@ -27,18 +27,136 @@ public static class DatabaseSeeder
 
         await SeedQueryPacksAsync(db, ct);
         await SeedSkillsAsync(db, ct);
-        var migrated = await SeedSourceConfigsAsync(db, ct);
+        var campaigns = await SeedCampaignsAsync(db, ct);
+        var migrated = await SeedSourceConfigsAsync(db, campaigns, ct);
+        await SeedTrendSourcesAsync(db, ct);
         await db.SaveChangesAsync(ct);
+        await BackfillLeadCampaignsAsync(db, campaigns[EmergencyCampaignKey], ct);
 
-        // One-time when the source lineup changes: leads gathered under the old,
+        // One-time when existing sources change: leads gathered under the old,
         // lower-quality configuration are stale — drop everything still in triage
-        // stages that the operator never engaged with.
+        // stages that the operator never engaged with. Purely additive new sources
+        // (e.g. a new campaign's sources) do NOT invalidate existing leads.
         if (retired || replaced || migrated)
             await PurgeStaleDiscoveryLeadsAsync(db, ct);
 
         await PurgeNonActionableLeadsAsync(db, ct);
         await PurgeNonHirableVendorSupportLeadsAsync(db, ct);
         await PurgeSourceLessLeadsAsync(db, ct);
+        await DemoteGenericCapabilitySkillsAsync(db, ct);
+        await PurgeForeignStackLeadsAsync(db, ct);
+        await ApplyStackIdentityCapsAsync(db, ct);
+    }
+
+    /// <summary>
+    /// Applies the stack-identity score cap (50, below Medium) to leads scored before the
+    /// gate existed, so off-stack posts stop outranking .NET work without waiting for a
+    /// re-triage. Cheap stored-score adjustment — components are recomputed on next triage.
+    /// </summary>
+    private static async Task ApplyStackIdentityCapsAsync(DevLeadsDbContext db, CancellationToken ct)
+    {
+        var skills = await db.Skills.AsNoTracking().Where(s => s.Enabled).ToListAsync(ct);
+        if (skills.Count == 0) return;
+
+        var active = await db.Opportunities
+            .Where(o => o.SourceKey != "manual" && o.Score > 50 && !EngagedStatuses.Contains(o.Status))
+            .ToListAsync(ct);
+        if (active.Count == 0) return;
+
+        var ids = active.Select(o => o.Id).ToHashSet();
+        var bodies = await db.RawSourceItems
+            .Where(r => r.OpportunityId != null && ids.Contains(r.OpportunityId.Value))
+            .Select(r => new { r.OpportunityId, r.BodyText })
+            .ToListAsync(ct);
+        var bodyByOpp = bodies
+            .GroupBy(r => r.OpportunityId!.Value)
+            .ToDictionary(g => g.Key, g => string.Join('\n', g.Select(r => r.BodyText)));
+
+        var changed = false;
+        foreach (var o in active)
+        {
+            bodyByOpp.TryGetValue(o.Id, out var body);
+            var text = $"{o.Title}\n{o.Summary}\n{body}\n{o.DetectedStackJson}";
+            if (Core.Skills.SkillMatcher.HasStackIdentityMatch(Core.Skills.SkillMatcher.Match(text, skills)))
+                continue;
+
+            o.Score = 50;
+            o.Priority = Core.Scoring.OpportunityScorer.ToPriority(o.Score);
+            o.UpdatedAt = DateTimeOffset.UtcNow;
+            changed = true;
+        }
+        if (changed) await db.SaveChangesAsync(ct);
+    }
+
+    /// <summary>
+    /// One-time data fix (2026-07-11): "REST API" was seeded as a weight-3 "Primary stack"
+    /// skill, which made every Go/Python job post score as a core .NET fit. Demote it in
+    /// place unless the operator already re-weighted it themselves.
+    /// </summary>
+    private static async Task DemoteGenericCapabilitySkillsAsync(DevLeadsDbContext db, CancellationToken ct)
+    {
+        var restApi = await db.Skills.FirstOrDefaultAsync(
+            s => s.Name == "REST API" && s.Weight == 3 && s.Category == "Primary stack", ct);
+        if (restApi is not null)
+        {
+            restApi.Weight = 2;
+            restApi.Category = "Backend";
+        }
+
+        // Azure and .NET modernization ARE stack identity — move them into "Primary stack"
+        // so the identity gate recognizes them (only while still on their seeded category).
+        foreach (var (name, oldCategory) in new[] { ("Azure", "Cloud & DevOps"), (".NET modernization", "Specialized") })
+        {
+            var skill = await db.Skills.FirstOrDefaultAsync(
+                s => s.Name == name && s.Category == oldCategory, ct);
+            if (skill is not null) skill.Category = "Primary stack";
+        }
+
+        // Same pass: the old SecondarySkills default advertised Python/Node/PHP/WordPress —
+        // wrong for a pure .NET consultant. Only replaced while still on the old default.
+        var settings = await db.OperatorSettings.FirstOrDefaultAsync(ct);
+        if (settings?.SecondarySkills == "DNS, TLS, hosting, WordPress, WooCommerce, Shopify, Python, Node, PHP")
+            settings.SecondarySkills = "IIS, Windows Server, DNS, TLS, hosting, SQL performance tuning";
+
+        await db.SaveChangesAsync(ct);
+    }
+
+    /// <summary>
+    /// Removes discovery leads that demand a stack outside the operator's profile without
+    /// touching the operator's own stack (Go/Python/Java job posts etc.) — they scored high
+    /// on pay intent before the wrong-stack gate existed. Manual and engaged leads are kept;
+    /// raw items stay detached so the same posts are never re-ingested.
+    /// </summary>
+    private static async Task PurgeForeignStackLeadsAsync(DevLeadsDbContext db, CancellationToken ct)
+    {
+        var skills = await db.Skills.AsNoTracking().Where(s => s.Enabled).ToListAsync(ct);
+        if (skills.Count == 0) return;
+
+        var active = await db.Opportunities
+            .Where(o => o.SourceKey != "manual" && !EngagedStatuses.Contains(o.Status))
+            .ToListAsync(ct);
+        if (active.Count == 0) return;
+
+        var ids = active.Select(o => o.Id).ToHashSet();
+        var bodies = await db.RawSourceItems
+            .Where(r => r.OpportunityId != null && ids.Contains(r.OpportunityId.Value))
+            .Select(r => new { r.OpportunityId, r.BodyText })
+            .ToListAsync(ct);
+        var bodyByOpp = bodies
+            .GroupBy(r => r.OpportunityId!.Value)
+            .ToDictionary(g => g.Key, g => string.Join('\n', g.Select(r => r.BodyText)));
+
+        var dead = active.Where(o =>
+        {
+            bodyByOpp.TryGetValue(o.Id, out var body);
+            var text = $"{o.Title}\n{o.Summary}\n{body}\n{o.DetectedStackJson}";
+            return Core.Skills.SkillMatcher.ForeignStackDemands(text, skills).Count > 0 &&
+                   !Core.Skills.SkillMatcher.HasStackIdentityMatch(
+                       Core.Skills.SkillMatcher.Match(text, skills));
+        }).ToList();
+        if (dead.Count == 0) return;
+
+        await DeleteLeadsKeepDedupAsync(db, dead, ct);
     }
 
     /// <summary>
@@ -53,6 +171,92 @@ public static class DatabaseSeeder
             "ALTER TABLE Opportunities ADD COLUMN PaymentIntent TEXT NOT NULL DEFAULT ''",
             "ALTER TABLE Opportunities ADD COLUMN AssistanceRequested INTEGER NULL",
             "ALTER TABLE Opportunities ADD COLUMN FeeIsEstimate INTEGER NOT NULL DEFAULT 1",
+            "ALTER TABLE Opportunities ADD COLUMN CampaignId INTEGER NULL",
+            "ALTER TABLE SourceConfigs ADD COLUMN CampaignId INTEGER NULL",
+            "ALTER TABLE OperatorSettings ADD COLUMN SelectedCampaignId INTEGER NULL",
+            "ALTER TABLE OperatorSettings ADD COLUMN ContentDiscoveryEnabled INTEGER NOT NULL DEFAULT 1",
+            """
+            CREATE TABLE IF NOT EXISTS "TrendSources" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_TrendSources" PRIMARY KEY AUTOINCREMENT,
+                "SeedKey" TEXT NOT NULL,
+                "Kind" TEXT NOT NULL,
+                "DisplayName" TEXT NOT NULL,
+                "ParametersJson" TEXT NOT NULL,
+                "Enabled" INTEGER NOT NULL,
+                "PollIntervalMinutes" INTEGER NOT NULL,
+                "MaxItemsPerRun" INTEGER NOT NULL,
+                "RequireSkillMatch" INTEGER NOT NULL,
+                "LastRunHealthy" INTEGER NOT NULL,
+                "LastRunMessage" TEXT NULL,
+                "LastRunItemCount" INTEGER NOT NULL,
+                "LastRunAt" INTEGER NULL,
+                "NextRunAt" INTEGER NULL
+            )
+            """,
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_TrendSources_SeedKey\" ON \"TrendSources\" (\"SeedKey\")",
+            """
+            CREATE TABLE IF NOT EXISTS "TrendSignals" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_TrendSignals" PRIMARY KEY AUTOINCREMENT,
+                "SourceKey" TEXT NOT NULL,
+                "ExternalId" TEXT NOT NULL,
+                "Url" TEXT NOT NULL,
+                "Title" TEXT NOT NULL,
+                "Snippet" TEXT NOT NULL,
+                "PostedAt" INTEGER NOT NULL,
+                "FetchedAt" INTEGER NOT NULL,
+                "Engagement" REAL NOT NULL,
+                "MatchedSkillsJson" TEXT NOT NULL,
+                "Hotness" REAL NOT NULL,
+                "UsedInTopic" INTEGER NOT NULL
+            )
+            """,
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_TrendSignals_SourceKey_ExternalId\" ON \"TrendSignals\" (\"SourceKey\", \"ExternalId\")",
+            "CREATE INDEX IF NOT EXISTS \"IX_TrendSignals_PostedAt\" ON \"TrendSignals\" (\"PostedAt\")",
+            """
+            CREATE TABLE IF NOT EXISTS "ContentTopics" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_ContentTopics" PRIMARY KEY AUTOINCREMENT,
+                "Title" TEXT NOT NULL,
+                "Angle" TEXT NOT NULL,
+                "Rationale" TEXT NOT NULL,
+                "InterestScore" REAL NOT NULL,
+                "SkillsJson" TEXT NOT NULL,
+                "EvidenceJson" TEXT NOT NULL,
+                "SuggestedFormatsCsv" TEXT NOT NULL,
+                "Status" TEXT NOT NULL,
+                "CreatedAt" INTEGER NOT NULL,
+                "UpdatedAt" INTEGER NOT NULL
+            )
+            """,
+            """
+            CREATE TABLE IF NOT EXISTS "ContentDrafts" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_ContentDrafts" PRIMARY KEY AUTOINCREMENT,
+                "TopicId" INTEGER NOT NULL,
+                "Format" TEXT NOT NULL,
+                "Title" TEXT NOT NULL,
+                "BodyMarkdown" TEXT NOT NULL,
+                "WordCount" INTEGER NOT NULL,
+                "Status" TEXT NOT NULL,
+                "Provider" TEXT NOT NULL,
+                "Model" TEXT NOT NULL,
+                "CreatedAt" INTEGER NOT NULL,
+                "UpdatedAt" INTEGER NOT NULL,
+                CONSTRAINT "FK_ContentDrafts_ContentTopics_TopicId" FOREIGN KEY ("TopicId") REFERENCES "ContentTopics" ("Id") ON DELETE CASCADE
+            )
+            """,
+            "CREATE INDEX IF NOT EXISTS \"IX_ContentDrafts_TopicId\" ON \"ContentDrafts\" (\"TopicId\")",
+            """
+            CREATE TABLE IF NOT EXISTS "Campaigns" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_Campaigns" PRIMARY KEY AUTOINCREMENT,
+                "Key" TEXT NOT NULL,
+                "Name" TEXT NOT NULL,
+                "Emoji" TEXT NOT NULL,
+                "Objective" TEXT NOT NULL,
+                "Enabled" INTEGER NOT NULL,
+                "CreatedAt" INTEGER NOT NULL
+            )
+            """,
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Campaigns_Key\" ON \"Campaigns\" (\"Key\")",
+            "CREATE INDEX IF NOT EXISTS \"IX_Opportunities_CampaignId\" ON \"Opportunities\" (\"CampaignId\")",
             // EnsureCreated never adds tables to an existing database either.
             """
             CREATE TABLE IF NOT EXISTS "Skills" (
@@ -149,23 +353,104 @@ public static class DatabaseSeeder
         await db.SaveChangesAsync(ct);
     }
 
-    private static async Task<bool> SeedSourceConfigsAsync(DevLeadsDbContext db, CancellationToken ct)
+    public const string EmergencyCampaignKey = "emergency";
+    public const string ModernizationCampaignKey = "dotnet_modernization";
+
+    /// <summary>
+    /// Ensures the built-in campaigns exist (add-only: name/objective edits belong to the
+    /// operator afterwards). Returns campaign ids keyed by stable campaign key.
+    /// </summary>
+    private static async Task<Dictionary<string, long>> SeedCampaignsAsync(DevLeadsDbContext db, CancellationToken ct)
     {
+        var seeds = new[]
+        {
+            new Campaign
+            {
+                Key = EmergencyCampaignKey,
+                Name = "Emergency rescue",
+                Emoji = "🚨",
+                Objective =
+                    "Urgent, paid emergency software repair work: production outages, broken sites and " +
+                    "checkouts, failed deployments, database incidents, DNS/TLS breakage. A qualifying lead " +
+                    "is a business owner, operator, or agency describing an active problem they would hire " +
+                    "and pay someone to fix right now.",
+                Enabled = true,
+                CreatedAt = DateTimeOffset.UtcNow
+            },
+            new Campaign
+            {
+                Key = ModernizationCampaignKey,
+                Name = ".NET modernization consulting",
+                Emoji = "🏗️",
+                Objective =
+                    "Consulting engagements to modernize legacy .NET enterprise applications: migrating " +
+                    ".NET Framework / WebForms / WCF / WinForms / VB.NET / Classic ASP systems to modern " +
+                    ".NET, replatforming on-prem apps to Azure, upgrading SQL Server, or incrementally " +
+                    "rewriting a legacy codebase. A qualifying lead is a company, CTO, or team seeking " +
+                    "outside help (hire/pay intent) with a planned modernization or migration — these are " +
+                    "multi-week projects, not emergencies.",
+                Enabled = true,
+                CreatedAt = DateTimeOffset.UtcNow
+            }
+        };
+
+        var added = false;
+        foreach (var seed in seeds)
+        {
+            if (!await db.Campaigns.AnyAsync(c => c.Key == seed.Key, ct))
+            {
+                db.Campaigns.Add(seed);
+                added = true;
+            }
+        }
+        if (added) await db.SaveChangesAsync(ct);
+
+        return await db.Campaigns.ToDictionaryAsync(c => c.Key, c => c.Id, ct);
+    }
+
+    private static async Task<bool> SeedSourceConfigsAsync(
+        DevLeadsDbContext db, Dictionary<string, long> campaigns, CancellationToken ct)
+    {
+        var emergencyId = campaigns[EmergencyCampaignKey];
+        var modernizationId = campaigns[ModernizationCampaignKey];
         var migrated = false;
-        foreach (var seed in DefaultSources())
+        foreach (var seed in DefaultSources(emergencyId, modernizationId))
         {
             var existing = await db.SourceConfigs.FirstOrDefaultAsync(s => s.SourceKey == seed.SourceKey, ct);
             if (existing is null)
             {
+                // Purely additive: a new source never invalidates leads gathered by others.
                 db.SourceConfigs.Add(seed);
-                migrated = true;
                 continue;
             }
+
+            // Campaign assignment is a backfill, not a migration — reassigning it must not
+            // purge leads, and an operator's explicit reassignment is never overwritten.
+            existing.CampaignId ??= seed.CampaignId;
 
             if (IsLegacyDefaultSource(existing))
                 migrated |= ApplySourceDefaults(existing, seed);
         }
+
+        // Sources the operator created by hand belong to the emergency campaign by default.
+        foreach (var orphan in await db.SourceConfigs.Where(s => s.CampaignId == null).ToListAsync(ct))
+            orphan.CampaignId = emergencyId;
+
         return migrated;
+    }
+
+    /// <summary>Assigns campaign-less leads to their source's campaign (manual/unknown → emergency).</summary>
+    private static async Task BackfillLeadCampaignsAsync(DevLeadsDbContext db, long emergencyId, CancellationToken ct)
+    {
+        if (!await db.Opportunities.AnyAsync(o => o.CampaignId == null, ct)) return;
+
+        var campaignBySource = await db.SourceConfigs
+            .Where(s => s.CampaignId != null)
+            .ToDictionaryAsync(s => s.SourceKey, s => s.CampaignId!.Value, ct);
+
+        foreach (var opp in await db.Opportunities.Where(o => o.CampaignId == null).ToListAsync(ct))
+            opp.CampaignId = campaignBySource.TryGetValue(opp.SourceKey, out var cid) ? cid : emergencyId;
+        await db.SaveChangesAsync(ct);
     }
 
     /// <summary>Detects configs still carrying earlier seeded defaults so we can upgrade them in place.</summary>
@@ -216,11 +501,25 @@ public static class DatabaseSeeder
         return true;
     }
 
+    private static IEnumerable<SourceConfig> DefaultSources(long emergencyCampaignId, long modernizationCampaignId)
+    {
+        foreach (var source in EmergencySources())
+        {
+            source.CampaignId = emergencyCampaignId;
+            yield return source;
+        }
+        foreach (var source in ModernizationSources())
+        {
+            source.CampaignId = modernizationCampaignId;
+            yield return source;
+        }
+    }
+
     /// <summary>
     /// Default sources are chosen for commercial intent: places where a business owner,
     /// manager, or agency is describing a problem they are prepared to pay to solve.
     /// </summary>
-    private static IEnumerable<SourceConfig> DefaultSources() => new[]
+    private static IEnumerable<SourceConfig> EmergencySources() => new[]
     {
         // Companies posting paid contract/freelance software engagements.
         new SourceConfig { SourceKey = "remotive", DisplayName = "Remotive — paid remote software roles", Enabled = true,
@@ -425,6 +724,102 @@ public static class DatabaseSeeder
             MinPreFilterScore = 8, MinOpportunityScore = 48 },
     };
 
+    /// <summary>
+    /// Sources for the .NET legacy modernization consulting campaign. Feeds/queries are
+    /// chosen to be disjoint from the emergency sources where possible; when a post
+    /// qualifies for both campaigns, whichever source fetches it first keeps the lead.
+    /// All feed URLs verified live 2026-07-10.
+    /// </summary>
+    private static IEnumerable<SourceConfig> ModernizationSources() => new[]
+    {
+        // .NET / Azure job boards: companies paying for modernization-adjacent work.
+        new SourceConfig { SourceKey = "mod_rss_jobs", DisplayName = ".NET modernization — job feeds", Enabled = true,
+            PollIntervalMinutes = 60, MaxItemsPerRun = 120,
+            QueryPacksCsv = "DotNetModernization,ContractProjectWork,HireIntent",
+            MinPreFilterScore = 1, MinOpportunityScore = 42,
+            ParametersJson = RssParams("21", new[] {
+                "https://remoteok.com/remote-dot-net-jobs.rss",
+                "https://remotefirstjobs.com/rss/jobs/azure.rss",
+                "https://jobicy.com/jobs/feed?industry=software-engineering" }) },
+
+        // HN stories mentioning legacy .NET / modernization pain — searched via Algolia
+        // with this campaign's own terms, so the result set differs from the emergency
+        // "hackernews" source even though the connector is shared.
+        new SourceConfig { SourceKey = "mod_hackernews", DisplayName = ".NET modernization — HN radar", Enabled = true,
+            PollIntervalMinutes = 60, MaxItemsPerRun = 50,
+            QueryPacksCsv = "DotNetModernization,HireIntent",
+            AutoModeEligible = false, MinPreFilterScore = 1, MinOpportunityScore = 42,
+            ParametersJson = "{\"connector\":\"hackernews\",\"daysBack\":\"30\"}" },
+
+        // .NET communities: teams describing legacy estates, migration plans, and hiring
+        // needs. Overlaps r/dotnet (emergency webdev source) — pack-scoped pre-filtering
+        // means each campaign only claims posts matching its own vocabulary.
+        new SourceConfig { SourceKey = "mod_reddit", DisplayName = ".NET modernization — Reddit communities", Enabled = true,
+            PollIntervalMinutes = 45, MaxItemsPerRun = 120,
+            QueryPacksCsv = "DotNetModernization,ContractProjectWork,HireIntent",
+            AutoModeEligible = false, MinPreFilterScore = 5, MinOpportunityScore = 44,
+            ParametersJson = "{\"connector\":\"reddit\",\"subreddits\":\"dotnet;csharp;dotnetcore;azure;sqlserver;softwarearchitecture\",\"daysBack\":\"14\",\"requireHiring\":\"false\"}" },
+
+        // Disabled by default: the anonymous Stack Exchange quota (~300 req/day/IP) is
+        // already consumed by the emergency radar. Enable only after trading polling
+        // budget away from stackexchange_radar.
+        new SourceConfig { SourceKey = "mod_stackexchange", DisplayName = ".NET modernization — Stack Exchange radar", Enabled = false,
+            PollIntervalMinutes = 360, MaxItemsPerRun = 60,
+            QueryPacksCsv = "DotNetModernization,ContractProjectWork",
+            AutoModeEligible = false, MinPreFilterScore = 6, MinOpportunityScore = 46,
+            ParametersJson = "{\"connector\":\"stackexchange\",\"sites\":\"stackoverflow;softwareengineering;dba\",\"daysBack\":\"7\"}" },
+    };
+
+    /// <summary>
+    /// Content-studio trend sources (add-only; the operator owns them afterwards). Feed
+    /// URLs verified live 2026-07-11. These fetch *signals* for topic generation, never
+    /// leads — see TrendScanService.
+    /// </summary>
+    private static async Task SeedTrendSourcesAsync(DevLeadsDbContext db, CancellationToken ct)
+    {
+        var seeds = new[]
+        {
+            // Releases of the operator's core stack: every entry is on-topic by construction.
+            new TrendSource { SeedKey = "trend_dotnet_releases", Kind = "rss", DisplayName = "Trends — .NET release feeds",
+                RequireSkillMatch = false, PollIntervalMinutes = 720, MaxItemsPerRun = 40,
+                ParametersJson = RssParams("30", new[] {
+                    "https://github.com/dotnet/runtime/releases.atom",
+                    "https://github.com/dotnet/aspnetcore/releases.atom",
+                    "https://github.com/dotnet/efcore/releases.atom" }) },
+
+            new TrendSource { SeedKey = "trend_vendor_blogs", Kind = "rss", DisplayName = "Trends — vendor engineering blogs",
+                RequireSkillMatch = false, PollIntervalMinutes = 720, MaxItemsPerRun = 40,
+                ParametersJson = RssParams("21", new[] {
+                    "https://devblogs.microsoft.com/dotnet/feed/",
+                    "https://devblogs.microsoft.com/azure-sql/feed/",
+                    "https://code.visualstudio.com/feed.xml",
+                    "https://blog.jetbrains.com/dotnet/feed/" }) },
+
+            // Secondary-stack ecosystems: skill-filtered so release noise stays out.
+            new TrendSource { SeedKey = "trend_ecosystem_news", Kind = "rss", DisplayName = "Trends — ecosystem news (WordPress, Node)",
+                RequireSkillMatch = true, PollIntervalMinutes = 720, MaxItemsPerRun = 40,
+                ParametersJson = RssParams("14", new[] {
+                    "https://wordpress.org/news/feed/",
+                    "https://nodejs.org/en/feed/blog.xml" }) },
+
+            // What practitioners are talking about right now; engagement (points) feeds hotness.
+            new TrendSource { SeedKey = "trend_hackernews", Kind = "hackernews", DisplayName = "Trends — Hacker News (skill terms)",
+                RequireSkillMatch = true, PollIntervalMinutes = 360, MaxItemsPerRun = 60,
+                ParametersJson = "{\"daysBack\":\"7\"}" },
+
+            // One multireddit request per cycle — top.rss is empty for anonymous clients,
+            // so this reads new.rss and lets skill-match + recency do the ranking.
+            new TrendSource { SeedKey = "trend_reddit", Kind = "rss", DisplayName = "Trends — developer subreddits",
+                RequireSkillMatch = true, PollIntervalMinutes = 720, MaxItemsPerRun = 50,
+                ParametersJson = RssParams("7", new[] {
+                    "https://www.reddit.com/r/dotnet+csharp+programming+webdev+sysadmin+azure/new.rss?limit=50" }) },
+        };
+
+        foreach (var seed in seeds)
+            if (!await db.TrendSources.AnyAsync(s => s.SeedKey == seed.SeedKey, ct))
+                db.TrendSources.Add(seed);
+    }
+
     // Single overload on purpose: a (daysBack, params feeds) / (daysBack, provider, params feeds)
     // pair is ambiguous — C# bound the first FEED as the provider, silently dropping the feed
     // and disabling AI triage for the source.
@@ -467,14 +862,16 @@ public static class DatabaseSeeder
         return true;
     }
 
-    /// <summary>Statuses meaning the operator has actually engaged with the lead — never auto-purge these.</summary>
+    /// <summary>Statuses meaning the operator has actually engaged with the lead — never auto-purge these.
+    /// Archived counts as engaged: the operator explicitly dismissed it, and keeping the row
+    /// (with its raw item) is what prevents the same post from ever being re-ingested.</summary>
     private static readonly OpportunityStatus[] EngagedStatuses =
     {
         OpportunityStatus.Approved, OpportunityStatus.Contacted, OpportunityStatus.Responded,
         OpportunityStatus.Qualified, OpportunityStatus.QuoteDrafted, OpportunityStatus.QuoteSent,
         OpportunityStatus.Accepted, OpportunityStatus.InProgress, OpportunityStatus.Fixed,
         OpportunityStatus.PaymentPending, OpportunityStatus.Paid, OpportunityStatus.Won,
-        OpportunityStatus.Lost
+        OpportunityStatus.Lost, OpportunityStatus.Archived
     };
 
     /// <summary>
@@ -522,7 +919,7 @@ public static class DatabaseSeeder
         var payIntentSources = new[]
         {
             "remotive", "rss", "rss_jobs", "reddit", "reddit_hiring", "hn_hiring",
-            "bounties_opire", "github_bounties", "manual"
+            "bounties_opire", "github_bounties", "manual", "mod_rss_jobs"
         };
 
         var dead = await db.Opportunities

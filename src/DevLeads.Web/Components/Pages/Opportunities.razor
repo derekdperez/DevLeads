@@ -1,15 +1,18 @@
 @page "/opportunities"
 @rendermode InteractiveServer
 @inject IDbContextFactory<DevLeadsDbContext> DbFactory
+@inject IServiceScopeFactory ScopeFactory
 <PageTitle>Opportunities · DevLeads</PageTitle>
 
 <div class="rr-page-head">
     <div>
         <h1>Opportunities</h1>
-        <div class="rr-sub">@_all.Count leads · @_filtered.Count shown</div>
+        <div class="rr-sub">@(_campaign is null ? "🌐 All campaigns" : $"{_campaign.Emoji} {_campaign.Name}") · @_all.Count leads · @_filtered.Count shown</div>
     </div>
     <a class="rr-btn primary" href="opportunities/new">+ Add lead manually</a>
 </div>
+
+@if (_flash is not null) { <div class="rr-flash ok">@_flash</div> }
 
 <div class="rr-filters">
     <div class="rr-pill-toggle">
@@ -64,7 +67,7 @@
                 <thead>
                     <tr>
                         <th>Score</th><th>Priority</th><th>Opportunity</th><th>Signals</th><th>Fit</th>
-                        <th>Fee</th><th>Age</th><th>AI</th><th>Status</th>
+                        <th>Fee</th><th>Age</th><th>AI</th><th>Status</th><th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -88,6 +91,10 @@
                             <td class="rr-title-cell">
                                 <a href="opportunities/@o.Id">@o.Title</a>
                                 <div class="src">
+                                    @if (_campaign is null && o.CampaignId is { } cid && _campaignNames.TryGetValue(cid, out var cname))
+                                    {
+                                        <span>@cname · </span>
+                                    }
                                     @o.SourceKey · @(string.IsNullOrEmpty(o.ProblemType) ? "untriaged" : o.ProblemType)
                                     · <a href="@o.SourceUrl" target="_blank" rel="noopener noreferrer">Original source ↗</a>
                                 </div>
@@ -128,6 +135,17 @@
                             <td>@UiHelpers.Age(o.PostedAt)</td>
                             <td><span class="@UiHelpers.AiStatusClass(o.AiJobStatus)">@UiHelpers.Spaced(o.AiJobStatus)</span></td>
                             <td><span class="@UiHelpers.StatusClass(o.Status)">@UiHelpers.Spaced(o.Status)</span></td>
+                            <td>
+                                @if (o.Status == OpportunityStatus.Archived)
+                                {
+                                    <button class="rr-btn sm" title="Restore to review" @onclick="() => Restore(o)">↩</button>
+                                }
+                                else
+                                {
+                                    <button class="rr-btn sm" title="Add to AI generation queue — the next batched run writes a reply from the original post" @onclick="() => QueueResponse(o)">🪄</button>
+                                    <button class="rr-btn sm" title="Archive — hide this lead everywhere" @onclick="() => Archive(o)">🗂</button>
+                                }
+                            </td>
                         </tr>
                     }
                 </tbody>
@@ -140,7 +158,8 @@
     private record FilterDef(string Key, string Label, Func<Opportunity, bool> Predicate);
 
     private static readonly OpportunityStatus[] Dead =
-        { OpportunityStatus.Rejected, OpportunityStatus.PreFilteredRejected, OpportunityStatus.Lost, OpportunityStatus.DoNotContact };
+        { OpportunityStatus.Rejected, OpportunityStatus.PreFilteredRejected, OpportunityStatus.Lost,
+          OpportunityStatus.DoNotContact, OpportunityStatus.Archived };
 
     private static readonly FilterDef[] Filters =
     {
@@ -157,7 +176,8 @@
         new("high", "High+", o => o.Score >= 70),
         new("review", "Needs review", o => o.Status == OpportunityStatus.NeedsReview || o.AiJobStatus == AiJobStatus.NeedsManualReview),
         new("drafts", "Draft ready", o => o.Status == OpportunityStatus.DraftReady),
-        new("rejected", "Rejected", o => Dead.Contains(o.Status)),
+        new("rejected", "Rejected", o => Dead.Contains(o.Status) && o.Status != OpportunityStatus.Archived),
+        new("archived", "🗂 Archived", o => o.Status == OpportunityStatus.Archived),
         new("won", "Won/Paid", o => o.Status is OpportunityStatus.Won or OpportunityStatus.Paid),
         new("all", "All", _ => true),
     };
@@ -189,14 +209,50 @@
         .OrderBy(s => s)
         .ToList();
 
+    private Campaign? _campaign;
+    private Dictionary<long, string> _campaignNames = new();
+
     protected override async Task OnInitializedAsync()
     {
         await using var db = await DbFactory.CreateDbContextAsync();
-        _all = await db.Opportunities.AsNoTracking().OrderByDescending(o => o.Score).ToListAsync();
+        var settings = await db.OperatorSettings.AsNoTracking().FirstOrDefaultAsync();
+        _campaign = settings?.SelectedCampaignId is { } cid
+            ? await db.Campaigns.AsNoTracking().FirstOrDefaultAsync(c => c.Id == cid)
+            : null;
+        _campaignNames = await db.Campaigns.AsNoTracking()
+            .ToDictionaryAsync(c => c.Id, c => $"{c.Emoji} {c.Name}");
+        var query = _campaign is { } campaign
+            ? db.Opportunities.Where(o => o.CampaignId == campaign.Id)
+            : db.Opportunities;
+        _all = await query.AsNoTracking().OrderByDescending(o => o.Score).ToListAsync();
         Apply();
     }
 
     private void SetFilter(string key) { _filter = key; Apply(); }
+
+    private Task Archive(Opportunity o) => SetStatus(o, OpportunityStatus.Archived);
+    private Task Restore(Opportunity o) => SetStatus(o, OpportunityStatus.NeedsReview);
+
+    private string? _flash;
+
+    private async Task QueueResponse(Opportunity o)
+    {
+        using var scope = ScopeFactory.CreateScope();
+        await scope.ServiceProvider.GetRequiredService<OutreachService>().QueueForGenerationAsync(o.Id, default);
+        _flash = $"Queued “{o.Title}” — run the generation from the Approval queue, or the hourly run picks it up.";
+    }
+
+    private async Task SetStatus(Opportunity o, OpportunityStatus status)
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var row = await db.Opportunities.FirstOrDefaultAsync(x => x.Id == o.Id);
+        if (row is null) return;
+        row.Status = status;
+        row.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+        o.Status = status; // keep the in-memory list in sync without a full reload
+        Apply();
+    }
 
     private void Apply()
     {

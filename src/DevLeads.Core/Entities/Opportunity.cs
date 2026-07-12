@@ -9,6 +9,9 @@ public class Opportunity
 
     public string Title { get; set; } = "";
     public string Summary { get; set; } = "";
+
+    /// <summary>Campaign this lead belongs to (inherited from its source); null = unassigned.</summary>
+    public long? CampaignId { get; set; }
     public string SourceKey { get; set; } = "";
     public string SourceUrl { get; set; } = "";
     public string? AuthorName { get; set; }

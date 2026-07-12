@@ -63,7 +63,7 @@ public sealed class AiTriageResult
         "Production Outage", "Website Down", "Database Failure", "Deployment Failure",
         "API Failure", "Authentication/Login Failure", "Payment/Checkout Failure",
         "DNS/TLS Failure", "Performance Emergency", "Data Loss", "Security Incident",
-        "Feature Request", "Non-Urgent Help Request", "Not Relevant"
+        "Feature Request", "Modernization/Migration", "Non-Urgent Help Request", "Not Relevant"
     };
 
     /// <summary>Valid payment-intent values from the strict schema.</summary>

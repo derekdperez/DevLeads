@@ -63,8 +63,8 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
         try
         {
             var timeout = TimeSpan.FromSeconds(Math.Clamp(settings.AiTimeoutSeconds, 30, 300));
-            var (exitCode, stdout, stderr) = await RunCliAsync(cli,
-                new[] { "run", "-m", model, prompt }, timeout, ct);
+            var (exitCode, stdout, stderr, modelUsed) = await RunWithModelFallbackAsync(cli, model, prompt, timeout, ct);
+            response.Model = modelUsed;
 
             var cleaned = StripAnsi(stdout);
             response.ResponseJson = Truncate(cleaned, 8000);
@@ -161,8 +161,8 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
         {
             // Batches produce more output than a single triage — allow the upper bound.
             var timeout = TimeSpan.FromSeconds(Math.Clamp(settings.AiTimeoutSeconds * 2, 60, 600));
-            var (exitCode, stdout, stderr) = await RunCliAsync(cli,
-                new[] { "run", "-m", model, prompt }, timeout, ct);
+            var (exitCode, stdout, stderr, modelUsed) = await RunWithModelFallbackAsync(cli, model, prompt, timeout, ct);
+            response.Model = modelUsed;
 
             var cleaned = StripAnsi(stdout);
             response.ResponseJson = Truncate(cleaned, 24000);
@@ -244,6 +244,7 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
         IReadOnlyList<AiShortlistItem> items,
         OperatorSettings settings,
         int maxSelections,
+        string campaignObjective,
         CancellationToken ct)
     {
         var cli = ResolveCliPath(settings);
@@ -251,7 +252,7 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
             ? OperatorSettings.DefaultOpenCodeModel
             : settings.AiModel.Trim();
         var boundedMax = Math.Clamp(maxSelections, 0, items.Count);
-        var prompt = BuildShortlistPrompt(items, boundedMax);
+        var prompt = BuildShortlistPrompt(items, boundedMax, campaignObjective);
 
         var response = new AiShortlistResponse
         {
@@ -278,8 +279,8 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
         try
         {
             var timeout = TimeSpan.FromSeconds(Math.Clamp(settings.AiTimeoutSeconds, 30, 180));
-            var (exitCode, stdout, stderr) = await RunCliAsync(cli,
-                new[] { "run", "-m", model, prompt }, timeout, ct);
+            var (exitCode, stdout, stderr, modelUsed) = await RunWithModelFallbackAsync(cli, model, prompt, timeout, ct);
+            response.Model = modelUsed;
 
             var cleaned = StripAnsi(stdout);
             response.ResponseJson = Truncate(cleaned, 8000);
@@ -350,6 +351,46 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
         }
     }
 
+    /// <summary>
+    /// Generic long-form generation for the content studio: sends one prompt through the
+    /// CLI and returns the raw (ANSI-stripped) text. No JSON parsing — callers own the
+    /// output contract. Not counted against the triage budget: content calls are operator-
+    /// initiated or once-daily, and their latency profile (minutes) doesn't fit it.
+    /// </summary>
+    public async Task<(bool Succeeded, string Text, string Error, string Model)> GenerateTextAsync(
+        string prompt, OperatorSettings settings, TimeSpan timeout, CancellationToken ct)
+    {
+        var cli = ResolveCliPath(settings);
+        var model = string.IsNullOrWhiteSpace(settings.AiModel)
+            ? OperatorSettings.DefaultOpenCodeModel
+            : settings.AiModel.Trim();
+
+        if (!Probe(cli).Available)
+            return (false, "", AvailabilityMessage(settings), model);
+
+        try
+        {
+            var (exitCode, stdout, stderr, modelUsed) = await RunWithModelFallbackAsync(cli, model, prompt, timeout, ct);
+            if (exitCode != 0)
+                return (false, "", $"opencode exited {exitCode}: {Truncate(StripAnsi(stderr), 400)}", modelUsed);
+
+            var text = StripAnsi(stdout).Trim();
+            return text.Length == 0
+                ? (false, "", "opencode produced no output.", modelUsed)
+                : (true, text, "", modelUsed);
+        }
+        catch (OperationCanceledException) when (!ct.IsCancellationRequested)
+        {
+            return (false, "", "opencode call timed out.", model);
+        }
+        catch (OperationCanceledException) { throw; }
+        catch (Exception ex)
+        {
+            _log.LogWarning(ex, "opencode text generation failed");
+            return (false, "", ex.GetType().Name + ": " + ex.Message, model);
+        }
+    }
+
     // ----- prompt -----
 
     private static string BuildPrompt(AiTriageRequest request) =>
@@ -358,7 +399,7 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
         "\n\nDo not use tools, do not read or write files — respond with the JSON object only, no markdown fences.\n\n" +
         AiTriagePrompts.BuildUserPrompt(request);
 
-    private static string BuildShortlistPrompt(IReadOnlyList<AiShortlistItem> items, int maxSelections)
+    private static string BuildShortlistPrompt(IReadOnlyList<AiShortlistItem> items, int maxSelections, string campaignObjective)
     {
         var payload = items.Select(i => new
         {
@@ -371,9 +412,17 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
             MatchedTerms = i.MatchedTerms.Take(16)
         });
 
+        // Screen against the owning campaign's objective; the urgent-support wording is
+        // only the fallback for campaign-less sources.
+        var screeningGoal = string.IsNullOrWhiteSpace(campaignObjective)
+            ? "You are screening public posts for profitable urgent software-support opportunities.\n"
+            : "You are screening public posts for a lead-generation campaign.\n" +
+              "Campaign objective: " + campaignObjective.Trim() + "\n" +
+              "Pick candidates that could plausibly become the kind of paid engagement the objective describes.\n";
+
         return
-            "You are screening public posts for profitable urgent software-support opportunities.\n" +
-            "Pick only candidates worth a full expensive triage call. Favor posts where the author owns the broken business, asks for hands-on help, names a budget/pay intent, or describes customer/revenue impact.\n" +
+            screeningGoal +
+            "Pick only candidates worth a full expensive triage call. Favor posts where the author owns the affected business, asks for hands-on help, names a budget/pay intent, or describes customer/revenue impact.\n" +
             "Reject generic advice requests, vendor-only support/account issues, learning/homework posts, news, and low-value discussion.\n" +
             $"Return at most {maxSelections} items.\n" +
             "Respond with JSON only, exactly like: {\"selected\":[{\"id\":\"i0\",\"reason\":\"short reason\"}]}\n" +
@@ -449,6 +498,60 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
     public static void ResetProbe()
     {
         lock (ProbeLock) { _probedPath = null; }
+    }
+
+    /// <summary>
+    /// Known-good free models tried in order when the configured model fails with a
+    /// provider-side error (DEGRADED function, worker request caps, 4xx/5xx). Free-tier
+    /// models go down individually and often — one bad model must never stall triage or
+    /// the content studio. Order chosen by the operator; verified working 2026-07-11.
+    /// </summary>
+    private static readonly string[] FallbackModels =
+    {
+        "nvidia/minimaxai/minimax-m2.7",
+        "nvidia/mistralai/mistral-large-3-675b-instruct-2512",
+        "nvidia/deepseek-ai/deepseek-v4-pro"
+    };
+
+    /// <summary>Last fallback that worked — tried right after the configured model to cut failover latency.</summary>
+    private static string? _lastWorkingFallback;
+
+    /// <summary>
+    /// Runs the prompt against the configured model, then walks the fallback chain on any
+    /// non-zero exit. Timeouts propagate immediately (retrying a slow call elsewhere would
+    /// multiply the wait, not fix it). Returns the model that actually answered.
+    /// </summary>
+    private async Task<(int ExitCode, string Stdout, string Stderr, string ModelUsed)> RunWithModelFallbackAsync(
+        string cli, string configuredModel, string prompt, TimeSpan timeout, CancellationToken ct)
+    {
+        var candidates = new List<string> { configuredModel };
+        if (_lastWorkingFallback is { } last) candidates.Add(last);
+        candidates.AddRange(FallbackModels);
+
+        (int ExitCode, string Stdout, string Stderr, string ModelUsed) lastResult = (-1, "", "no model attempted", configuredModel);
+        var tried = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var model in candidates)
+        {
+            if (!tried.Add(model)) continue;
+            ct.ThrowIfCancellationRequested();
+
+            var (exitCode, stdout, stderr) = await RunCliAsync(cli, new[] { "run", "-m", model, prompt }, timeout, ct);
+            if (exitCode == 0)
+            {
+                if (!model.Equals(configuredModel, StringComparison.OrdinalIgnoreCase))
+                {
+                    _lastWorkingFallback = model;
+                    _log.LogInformation("opencode model fallback: {Configured} unavailable — answered by {Model}.",
+                        configuredModel, model);
+                }
+                return (0, stdout, stderr, model);
+            }
+
+            lastResult = (exitCode, stdout, stderr, model);
+            _log.LogWarning("opencode model {Model} failed (exit {Exit}: {Error}); trying next fallback.",
+                model, exitCode, Truncate(StripAnsi(stderr), 200));
+        }
+        return lastResult;
     }
 
     private static async Task<(int ExitCode, string Stdout, string Stderr)> RunCliAsync(

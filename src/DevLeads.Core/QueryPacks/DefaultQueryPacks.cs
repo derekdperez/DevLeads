@@ -125,6 +125,27 @@ public static class DefaultQueryPacks
             "implement this for a fee", "happy to sponsor", "willing to fund"
         });
 
+    public static readonly QueryPackSeed DotNetModernization = new(
+        "DotNetModernization", "Legacy .NET / enterprise application modernization consulting signals", true, false, new[]
+        {
+            // Legacy .NET estate (short terms double as HN Algolia queries).
+            "legacy .net", ".net framework migration", ".net framework 4", ".net 4.8",
+            "migrate to .net", ".net migration", ".net upgrade", "upgrade .net framework",
+            "framework to core", "asp.net mvc migration", "webforms", "web forms migration",
+            "wcf migration", "wcf service", "winforms migration", "vb.net migration", "vb6",
+            "classic asp", "silverlight migration", "crystal reports",
+            // Modernization / replatforming engagements.
+            ".net modernization", "application modernization", "app modernization",
+            "legacy modernization", "modernize legacy", "modernization project",
+            "modernization consultant", "legacy application", "legacy codebase",
+            "legacy system rewrite", "rewrite legacy", "replatform", "re-platform",
+            "monolith migration", "azure migration", "cloud migration",
+            "sql server upgrade", "sql server migration", "database modernization",
+            // Why enterprises pay for it.
+            "end of life framework", "unsupported framework", "out of support",
+            "technical debt reduction", "migration consultant", "migration project"
+        });
+
     public static readonly QueryPackSeed NegativeExclusions = new(
         "NegativeExclusions", "Low-commercial-value / educational exclusions", false, true, new[]
         {
@@ -145,6 +166,6 @@ public static class DefaultQueryPacks
     {
         EmergencyGeneric, DotNetSqlPriority, PaymentEcommerce, AgencyClientUrgency,
         SaaSApiAuth, InfraOps, WordPressHosting, ContractProjectWork, SupportPain,
-        HireIntent, PaidFeatureRequest, NegativeExclusions
+        HireIntent, PaidFeatureRequest, DotNetModernization, NegativeExclusions
     };
 }

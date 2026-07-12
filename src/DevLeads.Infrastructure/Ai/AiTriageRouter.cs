@@ -109,6 +109,7 @@ public sealed class AiTriageRouter
         IReadOnlyList<AiShortlistItem> items,
         OperatorSettings settings,
         int maxSelections,
+        string campaignObjective,
         CancellationToken ct)
     {
         var provider = Resolve(settings);
@@ -120,7 +121,7 @@ public sealed class AiTriageRouter
 
             for (var attempt = 1; attempt <= attempts; attempt++)
             {
-                last = await shortlistProvider.ShortlistAsync(items, settings, boundedMax, ct);
+                last = await shortlistProvider.ShortlistAsync(items, settings, boundedMax, campaignObjective, ct);
                 if (last.Succeeded) return last;
                 if (!last.Retryable) break;
 

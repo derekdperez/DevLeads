@@ -22,6 +22,11 @@ public class DevLeadsDbContext : DbContext
     public DbSet<QueryPack> QueryPacks => Set<QueryPack>();
     public DbSet<OperatorSettings> OperatorSettings => Set<OperatorSettings>();
     public DbSet<Skill> Skills => Set<Skill>();
+    public DbSet<Campaign> Campaigns => Set<Campaign>();
+    public DbSet<TrendSource> TrendSources => Set<TrendSource>();
+    public DbSet<TrendSignal> TrendSignals => Set<TrendSignal>();
+    public DbSet<ContentTopic> ContentTopics => Set<ContentTopic>();
+    public DbSet<ContentDraft> ContentDrafts => Set<ContentDraft>();
 
     // SQLite stores DateTimeOffset as TEXT and cannot order/compare it. Convert every
     // DateTimeOffset to sortable UTC ticks (long) so ORDER BY and range filters translate.
@@ -46,6 +51,9 @@ public class DevLeadsDbContext : DbContext
         b.Properties<QuoteStatus>().HaveConversion<string>();
         b.Properties<WorkSessionStatus>().HaveConversion<string>();
         b.Properties<SuppressionContactType>().HaveConversion<string>();
+        b.Properties<ContentTopicStatus>().HaveConversion<string>();
+        b.Properties<ContentDraftStatus>().HaveConversion<string>();
+        b.Properties<ContentFormat>().HaveConversion<string>();
     }
 
     protected override void OnModelCreating(ModelBuilder mb)
@@ -55,6 +63,7 @@ public class DevLeadsDbContext : DbContext
             e.HasIndex(o => o.Status);
             e.HasIndex(o => o.Score);
             e.HasIndex(o => o.SourceKey);
+            e.HasIndex(o => o.CampaignId);
             e.HasMany(o => o.TriageRuns).WithOne(t => t.Opportunity!).HasForeignKey(t => t.OpportunityId).OnDelete(DeleteBehavior.Cascade);
             e.HasMany(o => o.OutreachAttempts).WithOne(t => t.Opportunity!).HasForeignKey(t => t.OpportunityId).OnDelete(DeleteBehavior.Cascade);
             e.HasMany(o => o.Quotes).WithOne(t => t.Opportunity!).HasForeignKey(t => t.OpportunityId).OnDelete(DeleteBehavior.Cascade);
@@ -68,6 +77,16 @@ public class DevLeadsDbContext : DbContext
         });
 
         mb.Entity<SourceConfig>().HasIndex(s => s.SourceKey).IsUnique();
+        mb.Entity<Campaign>().HasIndex(c => c.Key).IsUnique();
+        mb.Entity<TrendSource>().HasIndex(s => s.SeedKey).IsUnique();
+        mb.Entity<TrendSignal>(e =>
+        {
+            e.HasIndex(s => new { s.SourceKey, s.ExternalId }).IsUnique();
+            e.HasIndex(s => s.PostedAt);
+        });
+        mb.Entity<ContentTopic>()
+            .HasMany(t => t.Drafts).WithOne(d => d.Topic!)
+            .HasForeignKey(d => d.TopicId).OnDelete(DeleteBehavior.Cascade);
         mb.Entity<QueryPack>().HasIndex(q => q.Name).IsUnique();
         mb.Entity<SuppressionEntry>().HasIndex(s => s.ContactValue);
         mb.Entity<AuditEvent>().HasIndex(a => new { a.EntityType, a.EntityId });

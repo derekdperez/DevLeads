@@ -13,12 +13,17 @@ public static class ApiEndpoints
         // Internal automation API: JSON in/out, no browser antiforgery token required.
         var api = app.MapGroup("/api").DisableAntiforgery();
 
+        // ---- Campaigns ----
+        api.MapGet("/campaigns", async (DevLeadsDbContext db) =>
+            Results.Ok(await db.Campaigns.AsNoTracking().OrderBy(c => c.Id).ToListAsync()));
+
         // ---- Opportunities ----
-        api.MapGet("/opportunities", async (DevLeadsDbContext db, string? status, string? priority) =>
+        api.MapGet("/opportunities", async (DevLeadsDbContext db, string? status, string? priority, long? campaignId) =>
         {
             var q = db.Opportunities.AsNoTracking().AsQueryable();
             if (Enum.TryParse<OpportunityStatus>(status, true, out var s)) q = q.Where(o => o.Status == s);
             if (Enum.TryParse<Priority>(priority, true, out var p)) q = q.Where(o => o.Priority == p);
+            if (campaignId is { } cid) q = q.Where(o => o.CampaignId == cid);
             var list = await q.OrderByDescending(o => o.Score).Take(200).ToListAsync();
             return Results.Ok(list);
         });
@@ -35,7 +40,7 @@ public static class ApiEndpoints
         {
             try
             {
-                var opp = await ingest.CreateManualAsync(dto.Title, dto.Body, dto.SourceUrl ?? "", dto.Author, dto.AuthorUrl, default);
+                var opp = await ingest.CreateManualAsync(dto.Title, dto.Body, dto.SourceUrl ?? "", dto.Author, dto.AuthorUrl, default, dto.CampaignId);
                 return Results.Ok(opp);
             }
             catch (ArgumentException ex)
@@ -46,6 +51,7 @@ public static class ApiEndpoints
 
         MapStatusAction(api, "approve", OpportunityStatus.Approved);
         MapStatusAction(api, "reject", OpportunityStatus.Rejected);
+        MapStatusAction(api, "archive", OpportunityStatus.Archived);
         MapStatusAction(api, "watch", OpportunityStatus.FollowUpLater);
         MapStatusAction(api, "mark-contacted", OpportunityStatus.Contacted);
         MapStatusAction(api, "mark-won", OpportunityStatus.Won);
@@ -74,6 +80,13 @@ public static class ApiEndpoints
             return sent ? Results.Ok(new { message }) : Results.BadRequest(new { message });
         });
         api.MapPost("/outreach/{id:long}/cancel", async (long id, OutreachService svc) => { await svc.CancelAsync(id, default); return Results.Ok(); });
+        api.MapPost("/opportunities/{id:long}/queue-response", async (long id, OutreachService svc) =>
+            Results.Ok(await svc.QueueForGenerationAsync(id, default)));
+        api.MapPost("/outreach/generate-queued", async (OutreachService svc) =>
+        {
+            var (generated, message) = await svc.GenerateQueuedResponsesAsync(default);
+            return Results.Ok(new { generated, message });
+        });
 
         // ---- Quotes ----
         api.MapPost("/opportunities/{id:long}/generate-quote", async (long id, QuoteDto dto, QuoteService svc) =>
@@ -112,6 +125,29 @@ public static class ApiEndpoints
             return Results.Ok(new { created, src.LastRunMessage, src.LastRunHealthy });
         });
 
+        // ---- Content studio ----
+        api.MapPost("/content/scan", async (TrendScanService scanner) =>
+            Results.Ok(new { created = await scanner.RunDueAsync(force: true, default) }));
+        api.MapGet("/content/signals", async (DevLeadsDbContext db) =>
+            Results.Ok(await db.TrendSignals.AsNoTracking()
+                .OrderByDescending(s => s.Hotness).Take(50).ToListAsync()));
+        api.MapPost("/content/topics/generate", async (ContentStudioService studio) =>
+        {
+            var (created, message) = await studio.GenerateTopicsAsync(5, default);
+            return Results.Ok(new { created, message });
+        });
+        api.MapGet("/content/topics", async (DevLeadsDbContext db) =>
+            Results.Ok(await db.ContentTopics.AsNoTracking().OrderByDescending(t => t.Id).Take(50).ToListAsync()));
+        api.MapPost("/content/topics/{id:long}/drafts", async (long id, string? format, ContentStudioService studio) =>
+        {
+            if (!Enum.TryParse<ContentFormat>(format, true, out var f))
+                return Results.BadRequest(new { message = "format must be one of: " + string.Join(", ", Enum.GetNames<ContentFormat>()) });
+            var (draft, message) = await studio.GenerateDraftAsync(id, f, default);
+            return draft is null ? Results.BadRequest(new { message }) : Results.Ok(draft);
+        });
+        api.MapGet("/content/drafts", async (DevLeadsDbContext db) =>
+            Results.Ok(await db.ContentDrafts.AsNoTracking().OrderByDescending(d => d.Id).Take(50).ToListAsync()));
+
         // ---- System ----
         api.MapPost("/system/restart", async (AppRestartService restart, DevLeadsDbContext db, AuditService audit) =>
         {
@@ -137,7 +173,7 @@ public static class ApiEndpoints
         });
     }
 
-    public record ManualLeadDto(string Title, string Body, string? SourceUrl, string? Author, string? AuthorUrl);
+    public record ManualLeadDto(string Title, string Body, string? SourceUrl, string? Author, string? AuthorUrl, long? CampaignId = null);
     public record DraftDto(string TemplateKey);
     public record QuoteDto(double? Amount, bool DueOnCompletion);
 }

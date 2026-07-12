@@ -39,6 +39,12 @@ public sealed class ScoringInput
 
     /// <summary>Others already engaging with the post (issue comments, thread participants).</summary>
     public int CompetingResponses { get; set; }
+
+    /// <summary>
+    /// Primary-stack demands outside the operator's profile (Go, Python, Java…) found in
+    /// the post — see <see cref="SkillMatcher.ForeignStackDemands"/>.
+    /// </summary>
+    public IReadOnlyList<string> ForeignStackDemands { get; set; } = Array.Empty<string>();
 }
 
 /// <summary>
@@ -97,6 +103,21 @@ public static class OpportunityScorer
         // a lead that carries an actual pay signal.
         if (!HasPaySignal(input))
             b.Total = Math.Min(b.Total, 52);
+
+        // The operator is a pure-stack consultant: a lead that never matches a single
+        // stack-identity skill (C#/.NET/SQL Server/Azure…) may be payable work, but it is
+        // someone else's work — keep it visible for manual review, capped below Medium.
+        if (input.SkillMatches is not null && !SkillMatcher.HasStackIdentityMatch(input.SkillMatches))
+            b.Total = Math.Min(b.Total, 50);
+
+        // Wrong stack is a hard gate: a post demanding a stack outside the profile
+        // (Go/Python/Java job posts…) that never touches the operator's own stack is not
+        // actionable no matter how strong its pay intent — the operator can't do the work.
+        // "Touches the own stack" means a real identity match (C#, .NET, SQL Server…),
+        // not a transferable capability phrase like "REST API" that every job post contains.
+        if (input.ForeignStackDemands.Count > 0 &&
+            !(input.SkillMatches is { } fm && SkillMatcher.HasStackIdentityMatch(fm)))
+            b.Total = Math.Min(b.Total, 35);
 
         // Someone else already owns the work (assigned issue, PR being merged): the
         // opportunity is effectively missed — keep it around as a Watch-tier record at
@@ -166,6 +187,7 @@ public static class OpportunityScorer
         "Authentication/Login Failure" => 9,
         "Performance Emergency" => 8,
         "Security Incident" => 4, // relevant but authorization-risky
+        "Modernization/Migration" => -6, // planned consulting work, not time-critical
         "Feature Request" => -10, // real paid work, but never time-critical
         "Non-Urgent Help Request" => -20,
         "Not Relevant" => -30,
@@ -176,7 +198,15 @@ public static class OpportunityScorer
     {
         // The operator's configurable skill profile wins over the built-in stack lists.
         if (i.SkillMatches is not null)
-            return SkillMatcher.FitScore(i.SkillMatches);
+        {
+            var fit = SkillMatcher.FitScore(i.SkillMatches);
+            // Every distinct foreign-stack demand dilutes the fit; without a stack-identity
+            // match the post is fundamentally someone else's work.
+            fit -= Math.Min(i.ForeignStackDemands.Count, 3) * 15;
+            if (i.ForeignStackDemands.Count > 0 && !SkillMatcher.HasStackIdentityMatch(i.SkillMatches))
+                fit = Math.Min(fit, 25);
+            return Math.Clamp(fit, 0, 100);
+        }
 
         var stack = i.Ai?.DetectedStack ?? new List<string>();
         var joined = string.Join(' ', stack).ToLowerInvariant();
@@ -208,6 +238,7 @@ public static class OpportunityScorer
                 "Authentication/Login Failure" => 64,
                 "Performance Emergency" => 58,
                 "Security Incident" => 45,
+                "Modernization/Migration" => 75, // multi-week engagements: the highest-value non-incident work
                 "Feature Request" => 50, // bounded paid implementation work
                 "Non-Urgent Help Request" => 25,
                 _ => 30

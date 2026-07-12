@@ -8,104 +8,115 @@ Use this generated context as the project map. Implementation bodies are intenti
 
 ---
 
-## Purpose and Guidelines
-
-The intent of this file, and all related files, is to reduce token usage, context window utilization, and time required to work on any given task. By creating, maintaining, and utilizing generated maps and "shortcut" files, it is possible to understand and diagnose or refactor the application while consuming only a fraction of the context you might otherwise need to. Focus on efficiency at all times, aiming to save tokens whenever possible, compact knowledge and understanding into the smallest possible context window, and don't spend large amounts of time or effort on uneccessary actions. 
-
 # Project Map
 
 Root: `/home/user/repo/UrgentLeads`
 
 ## Summary
 
-- Indexed files: 80
-- Indexed lines: 8,075
-- Public/high-level symbols: 459
+- Indexed files: 95
+- Indexed lines: 11,320
+- Public/high-level symbols: 590
 
 ## File types
 
-- `.cs`: 57
+- `.cs`: 68
 - `.csproj`: 3
 - `.json`: 3
-- `.razor`: 17
+- `.razor`: 21
 
 ## Files
 
-- `src/DevLeads.Core/Ai/AiTriagePrompts.cs` — 113 lines
-- `src/DevLeads.Core/Ai/IAiTriageProvider.cs` — 90 lines
+- `src/DevLeads.Core/Ai/AiTriagePrompts.cs` — 164 lines
+- `src/DevLeads.Core/Ai/ContentPrompts.cs` — 138 lines
+- `src/DevLeads.Core/Ai/IAiTriageProvider.cs` — 126 lines
 - `src/DevLeads.Core/AiTriageResult.cs` — 78 lines
 - `src/DevLeads.Core/Connectors/ISourceConnector.cs` — 42 lines
 - `src/DevLeads.Core/DevLeads.Core.csproj` — 10 lines
 - `src/DevLeads.Core/Entities/AiTriageRun.cs` — 23 lines
 - `src/DevLeads.Core/Entities/AuditEvent.cs` — 15 lines
-- `src/DevLeads.Core/Entities/OperatorSettings.cs` — 61 lines
-- `src/DevLeads.Core/Entities/Opportunity.cs` — 81 lines
+- `src/DevLeads.Core/Entities/Campaign.cs` — 29 lines
+- `src/DevLeads.Core/Entities/ContentDraft.cs` — 27 lines
+- `src/DevLeads.Core/Entities/ContentTopic.cs` — 38 lines
+- `src/DevLeads.Core/Entities/OperatorSettings.cs` — 67 lines
+- `src/DevLeads.Core/Entities/Opportunity.cs` — 84 lines
 - `src/DevLeads.Core/Entities/OutreachAttempt.cs` — 27 lines
 - `src/DevLeads.Core/Entities/QueryPack.cs` — 17 lines
 - `src/DevLeads.Core/Entities/Quote.cs` — 26 lines
 - `src/DevLeads.Core/Entities/RawSourceItem.cs` — 30 lines
 - `src/DevLeads.Core/Entities/Skill.cs` — 30 lines
-- `src/DevLeads.Core/Entities/SourceConfig.cs` — 34 lines
+- `src/DevLeads.Core/Entities/SourceConfig.cs` — 37 lines
 - `src/DevLeads.Core/Entities/SuppressionEntry.cs` — 13 lines
+- `src/DevLeads.Core/Entities/TrendSignal.cs` — 34 lines
+- `src/DevLeads.Core/Entities/TrendSource.cs` — 39 lines
 - `src/DevLeads.Core/Entities/WorkSession.cs` — 21 lines
-- `src/DevLeads.Core/Enums.cs` — 128 lines
-- `src/DevLeads.Core/HeuristicPreFilter.cs` — 187 lines
-- `src/DevLeads.Core/OfferedCompensation.cs` — 55 lines
+- `src/DevLeads.Core/Enums.cs` — 158 lines
+- `src/DevLeads.Core/HeuristicPreFilter.cs` — 243 lines
+- `src/DevLeads.Core/LeadQualityRules.cs` — 273 lines
+- `src/DevLeads.Core/OfferedCompensation.cs` — 84 lines
 - `src/DevLeads.Core/PreFilterResult.cs` — 16 lines
-- `src/DevLeads.Core/QueryPacks/DefaultQueryPacks.cs` — 151 lines
-- `src/DevLeads.Core/QueryPacks/IQueryPackProvider.cs` — 15 lines
-- `src/DevLeads.Core/RedFlagDetector.cs` — 53 lines
-- `src/DevLeads.Core/Scoring/OpportunityScorer.cs` — 304 lines
+- `src/DevLeads.Core/QueryPacks/DefaultQueryPacks.cs` — 172 lines
+- `src/DevLeads.Core/QueryPacks/IQueryPackProvider.cs` — 21 lines
+- `src/DevLeads.Core/RedFlagDetector.cs` — 66 lines
+- `src/DevLeads.Core/Scoring/OpportunityScorer.cs` — 344 lines
 - `src/DevLeads.Core/Skills/DefaultSkills.cs` — 78 lines
 - `src/DevLeads.Core/Skills/SkillMatcher.cs` — 68 lines
 - `src/DevLeads.Core/SourceUrlCanonicalizer.cs` — 27 lines
 - `src/DevLeads.Core/Templates/EmergencyChecklists.cs` — 38 lines
-- `src/DevLeads.Core/Templates/PricingTiers.cs` — 29 lines
+- `src/DevLeads.Core/Templates/PricingTiers.cs` — 31 lines
 - `src/DevLeads.Core/Templates/ResponseTemplates.cs` — 57 lines
-- `src/DevLeads.Infrastructure/Ai/AiTriageRouter.cs` — 129 lines
+- `src/DevLeads.Infrastructure/Ai/AiTriageRouter.cs` — 164 lines
 - `src/DevLeads.Infrastructure/Ai/AnthropicTriageProvider.cs` — 133 lines
-- `src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs` — 293 lines
-- `src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs` — 446 lines
+- `src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs` — 281 lines
+- `src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs` — 611 lines
 - `src/DevLeads.Infrastructure/Connectors/ConnectorSupport.cs` — 37 lines
-- `src/DevLeads.Infrastructure/Connectors/GitHubSearchConnector.cs` — 157 lines
-- `src/DevLeads.Infrastructure/Connectors/HackerNewsConnector.cs` — 85 lines
+- `src/DevLeads.Infrastructure/Connectors/GitHubSearchConnector.cs` — 167 lines
+- `src/DevLeads.Infrastructure/Connectors/HackerNewsConnector.cs` — 91 lines
 - `src/DevLeads.Infrastructure/Connectors/OpireConnector.cs` — 131 lines
-- `src/DevLeads.Infrastructure/Connectors/RedditConnector.cs` — 147 lines
+- `src/DevLeads.Infrastructure/Connectors/RedditConnector.cs` — 160 lines
 - `src/DevLeads.Infrastructure/Connectors/RemotiveConnector.cs` — 115 lines
-- `src/DevLeads.Infrastructure/Connectors/RssConnector.cs` — 106 lines
+- `src/DevLeads.Infrastructure/Connectors/RssConnector.cs` — 174 lines
 - `src/DevLeads.Infrastructure/Connectors/StackExchangeConnector.cs` — 112 lines
-- `src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs` — 562 lines
-- `src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs` — 76 lines
-- `src/DevLeads.Infrastructure/DependencyInjection.cs` — 86 lines
+- `src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs` — 876 lines
+- `src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs` — 95 lines
+- `src/DevLeads.Infrastructure/DependencyInjection.cs` — 92 lines
 - `src/DevLeads.Infrastructure/DevLeads.Infrastructure.csproj` — 21 lines
-- `src/DevLeads.Infrastructure/QueryPacks/DbQueryPackProvider.cs` — 33 lines
+- `src/DevLeads.Infrastructure/QueryPacks/DbQueryPackProvider.cs` — 39 lines
 - `src/DevLeads.Infrastructure/Services/AuditService.cs` — 28 lines
-- `src/DevLeads.Infrastructure/Services/LeadIngestionService.cs` — 546 lines
-- `src/DevLeads.Infrastructure/Services/MaintenanceService.cs` — 64 lines
+- `src/DevLeads.Infrastructure/Services/ContentStudioService.cs` — 215 lines
+- `src/DevLeads.Infrastructure/Services/DiscoveryActivityTracker.cs` — 54 lines
+- `src/DevLeads.Infrastructure/Services/LeadIngestionService.cs` — 695 lines
+- `src/DevLeads.Infrastructure/Services/MaintenanceService.cs` — 111 lines
 - `src/DevLeads.Infrastructure/Services/OutreachService.cs` — 141 lines
 - `src/DevLeads.Infrastructure/Services/QuoteService.cs` — 82 lines
-- `src/DevLeads.Infrastructure/Services/SourceRunner.cs` — 316 lines
-- `src/DevLeads.Infrastructure/Workers/DiscoveryWorker.cs` — 79 lines
-- `src/DevLeads.Web/Api/ApiEndpoints.cs` — 144 lines
+- `src/DevLeads.Infrastructure/Services/SourceRunner.cs` — 445 lines
+- `src/DevLeads.Infrastructure/Services/TrendScanService.cs` — 208 lines
+- `src/DevLeads.Infrastructure/Workers/ContentTrendWorker.cs` — 76 lines
+- `src/DevLeads.Infrastructure/Workers/DiscoveryWorker.cs` — 85 lines
+- `src/DevLeads.Web/Api/ApiEndpoints.cs` — 173 lines
 - `src/DevLeads.Web/AppRestartService.cs` — 100 lines
 - `src/DevLeads.Web/Components/App.razor` — 23 lines
 - `src/DevLeads.Web/Components/Layout/MainLayout.razor` — 17 lines
-- `src/DevLeads.Web/Components/Layout/NavMenu.razor` — 25 lines
+- `src/DevLeads.Web/Components/Layout/NavMenu.razor` — 29 lines
 - `src/DevLeads.Web/Components/Layout/ReconnectModal.razor` — 32 lines
-- `src/DevLeads.Web/Components/Pages/Drafts.razor` — 95 lines
+- `src/DevLeads.Web/Components/Pages/Campaigns.razor` — 186 lines
+- `src/DevLeads.Web/Components/Pages/Content.razor` — 285 lines
+- `src/DevLeads.Web/Components/Pages/Drafts.razor` — 98 lines
 - `src/DevLeads.Web/Components/Pages/Error.razor` — 37 lines
-- `src/DevLeads.Web/Components/Pages/Home.razor` — 150 lines
-- `src/DevLeads.Web/Components/Pages/NewOpportunity.razor` — 72 lines
+- `src/DevLeads.Web/Components/Pages/Home.razor` — 227 lines
+- `src/DevLeads.Web/Components/Pages/NewOpportunity.razor` — 92 lines
 - `src/DevLeads.Web/Components/Pages/NotFound.razor` — 5 lines
-- `src/DevLeads.Web/Components/Pages/Opportunities.razor` — 237 lines
-- `src/DevLeads.Web/Components/Pages/OpportunityDetail.razor` — 384 lines
-- `src/DevLeads.Web/Components/Pages/Quotes.razor` — 97 lines
+- `src/DevLeads.Web/Components/Pages/Opportunities.razor` — 280 lines
+- `src/DevLeads.Web/Components/Pages/OpportunityDetail.razor` — 392 lines
+- `src/DevLeads.Web/Components/Pages/Quotes.razor` — 101 lines
 - `src/DevLeads.Web/Components/Pages/Settings.razor` — 218 lines
 - `src/DevLeads.Web/Components/Pages/SkillProfile.razor` — 162 lines
-- `src/DevLeads.Web/Components/Pages/Sources.razor` — 167 lines
+- `src/DevLeads.Web/Components/Pages/Sources.razor` — 183 lines
 - `src/DevLeads.Web/Components/Routes.razor` — 7 lines
+- `src/DevLeads.Web/Components/Shared/ActivityFeed.razor` — 142 lines
+- `src/DevLeads.Web/Components/Shared/CampaignSwitcher.razor` — 39 lines
 - `src/DevLeads.Web/Components/Shared/UiHelpers.cs` — 106 lines
-- `src/DevLeads.Web/Components/_Imports.razor` — 23 lines
+- `src/DevLeads.Web/Components/_Imports.razor` — 24 lines
 - `src/DevLeads.Web/DevLeads.Web.csproj` — 40 lines
 - `src/DevLeads.Web/Program.cs` — 49 lines
 - `src/DevLeads.Web/Properties/launchSettings.json` — 24 lines
@@ -126,6 +137,8 @@ Read these before opening random implementation files.
 | src/DevLeads.Web/Components/Layout/MainLayout.razor | UI/page/component folder. |
 | src/DevLeads.Web/Components/Layout/NavMenu.razor | UI/page/component folder. |
 | src/DevLeads.Web/Components/Layout/ReconnectModal.razor | UI/page/component folder. |
+| src/DevLeads.Web/Components/Pages/Campaigns.razor | UI/page/component folder. |
+| src/DevLeads.Web/Components/Pages/Content.razor | UI/page/component folder. |
 | src/DevLeads.Web/Components/Pages/Drafts.razor | UI/page/component folder. |
 | src/DevLeads.Web/Components/Pages/Error.razor | UI/page/component folder. |
 | src/DevLeads.Web/Components/Pages/Home.razor | UI/page/component folder. |
@@ -138,6 +151,8 @@ Read these before opening random implementation files.
 | src/DevLeads.Web/Components/Pages/SkillProfile.razor | UI/page/component folder. |
 | src/DevLeads.Web/Components/Pages/Sources.razor | UI/page/component folder. |
 | src/DevLeads.Web/Components/Routes.razor | UI/page/component folder. |
+| src/DevLeads.Web/Components/Shared/ActivityFeed.razor | UI/page/component folder. |
+| src/DevLeads.Web/Components/Shared/CampaignSwitcher.razor | UI/page/component folder. |
 | src/DevLeads.Web/Components/Shared/UiHelpers.cs | UI/page/component folder. |
 | src/DevLeads.Web/Components/_Imports.razor | UI/page/component folder. |
 | src/DevLeads.Web/DevLeads.Web.csproj | Project file; shows target framework and dependencies. |
@@ -213,12 +228,15 @@ _None found._
 | Singleton | IAiTriageProvider |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 60 |
 | Singleton | IAiTriageProvider |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 61 |
 | Singleton | AiTriageRouter |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 62 |
-| Scoped | AuditService |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 65 |
-| Scoped | LeadIngestionService |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 66 |
-| Scoped | OutreachService |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 67 |
-| Scoped | QuoteService |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 68 |
-| Scoped | SourceRunner |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 69 |
-| Scoped | MaintenanceService |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 70 |
+| Singleton | DiscoveryActivityTracker |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 65 |
+| Scoped | AuditService |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 68 |
+| Scoped | LeadIngestionService |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 69 |
+| Scoped | OutreachService |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 70 |
+| Scoped | QuoteService |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 71 |
+| Scoped | SourceRunner |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 72 |
+| Scoped | MaintenanceService |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 73 |
+| Scoped | TrendScanService |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 74 |
+| Scoped | ContentStudioService |  | src/DevLeads.Infrastructure/DependencyInjection.cs | 75 |
 | Singleton | DevLeads.Web.AppRestartService |  | src/DevLeads.Web/Program.cs | 25 |
 
 
@@ -235,7 +253,11 @@ Only public/high-level symbols are listed. Implementation bodies are intentional
 | File | Line | Kind | Signature |
 | --- | --- | --- | --- |
 | src/DevLeads.Core/Ai/AiTriagePrompts.cs | 2 | class | public static class AiTriagePrompts |
-| src/DevLeads.Core/Ai/AiTriagePrompts.cs | 57 | method | public static string BuildUserPrompt(AiTriageRequest r) |
+| src/DevLeads.Core/Ai/AiTriagePrompts.cs | 61 | method | public static string BuildUserPrompt(AiTriageRequest r) |
+| src/DevLeads.Core/Ai/AiTriagePrompts.cs | 95 | method | public static string BuildBatchUserPrompt(IReadOnlyList<AiBatchTriageItem> items) |
+| src/DevLeads.Core/Ai/ContentPrompts.cs | 6 | class | public static class ContentPrompts |
+| src/DevLeads.Core/Ai/ContentPrompts.cs | 10 | method | public static string BuildTopicPrompt(IReadOnlyList<TrendSignal> signals, string operatorSkills, IReadOnlyList<string> existingTopicTitles, int maxTopics) |
+| src/DevLeads.Core/Ai/ContentPrompts.cs | 55 | method | public static string BuildDraftPrompt(ContentTopic topic, ContentFormat format, OperatorSettings op, string operatorSkills) |
 | src/DevLeads.Core/Ai/IAiTriageProvider.cs | 4 | class | public sealed class AiTriageRequest |
 | src/DevLeads.Core/Ai/IAiTriageProvider.cs | 8 | property | public string Title { get; } |
 | src/DevLeads.Core/Ai/IAiTriageProvider.cs | 9 | property | public string Body { get; } |
@@ -244,38 +266,51 @@ Only public/high-level symbols are listed. Implementation bodies are intentional
 | src/DevLeads.Core/Ai/IAiTriageProvider.cs | 12 | property | public IReadOnlyList<string> MatchedTerms { get; } |
 | src/DevLeads.Core/Ai/IAiTriageProvider.cs | 13 | property | public decimal HeuristicScore { get; } |
 | src/DevLeads.Core/Ai/IAiTriageProvider.cs | 14 | property | public string OperatorSkills { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 18 | class | public sealed class AiTriageResponse |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 22 | property | public bool Succeeded { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 23 | property | public AiTriageResult? Result { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 24 | property | public string Provider { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 25 | property | public string Model { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 26 | property | public string RequestJson { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 27 | property | public string? ResponseJson { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 28 | property | public string? ErrorMessage { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 29 | property | public bool Retryable { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 31 | class | public sealed class AiShortlistItem |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 35 | property | public string Id { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 36 | property | public string Title { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 37 | property | public string Snippet { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 38 | property | public string SourceKey { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 39 | property | public DateTimeOffset PostedAt { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 40 | property | public IReadOnlyList<string> MatchedTerms { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 41 | property | public decimal HeuristicScore { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 43 | class | public sealed class AiShortlistDecision |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 46 | property | public string Id { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 47 | property | public bool ShouldTriage { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 48 | property | public string Reason { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 50 | class | public sealed class AiShortlistResponse |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 53 | property | public bool Succeeded { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 54 | property | public IReadOnlyList<AiShortlistDecision> Decisions { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 55 | property | public string Provider { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 56 | property | public string Model { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 57 | property | public string RequestJson { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 58 | property | public string? ResponseJson { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 59 | property | public string? ErrorMessage { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 60 | property | public bool Retryable { get; } |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 62 | interface | public interface IAiBatchShortlistProvider |
-| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 71 | interface | public interface IAiTriageProvider |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 17 | property | public string CampaignObjective { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 21 | class | public sealed class AiTriageResponse |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 25 | property | public bool Succeeded { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 26 | property | public AiTriageResult? Result { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 27 | property | public string Provider { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 28 | property | public string Model { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 29 | property | public string RequestJson { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 30 | property | public string? ResponseJson { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 31 | property | public string? ErrorMessage { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 32 | property | public bool Retryable { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 34 | class | public sealed class AiShortlistItem |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 38 | property | public string Id { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 39 | property | public string Title { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 40 | property | public string Snippet { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 41 | property | public string SourceKey { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 42 | property | public DateTimeOffset PostedAt { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 43 | property | public IReadOnlyList<string> MatchedTerms { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 44 | property | public decimal HeuristicScore { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 46 | class | public sealed class AiShortlistDecision |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 49 | property | public string Id { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 50 | property | public bool ShouldTriage { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 51 | property | public string Reason { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 53 | class | public sealed class AiShortlistResponse |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 56 | property | public bool Succeeded { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 57 | property | public IReadOnlyList<AiShortlistDecision> Decisions { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 58 | property | public string Provider { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 59 | property | public string Model { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 60 | property | public string RequestJson { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 61 | property | public string? ResponseJson { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 62 | property | public string? ErrorMessage { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 63 | property | public bool Retryable { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 65 | interface | public interface IAiBatchShortlistProvider |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 75 | class | public sealed class AiBatchTriageItem |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 79 | property | public string Id { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 80 | property | public AiTriageRequest Request { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 82 | class | public sealed class AiBatchTriageResponse |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 86 | property | public bool Succeeded { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 88 | property | public string Provider { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 89 | property | public string Model { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 90 | property | public string RequestJson { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 91 | property | public string? ResponseJson { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 92 | property | public string? ErrorMessage { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 93 | property | public bool Retryable { get; } |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 95 | interface | public interface IAiBatchTriageProvider |
+| src/DevLeads.Core/Ai/IAiTriageProvider.cs | 107 | interface | public interface IAiTriageProvider |
 | src/DevLeads.Core/AiTriageResult.cs | 4 | class | public sealed class AiTriageResult |
 | src/DevLeads.Core/AiTriageResult.cs | 12 | property | public bool IsTechnicalProblem { get; } |
 | src/DevLeads.Core/AiTriageResult.cs | 14 | property | public bool IsEmergency { get; } |
@@ -324,6 +359,40 @@ Only public/high-level symbols are listed. Implementation bodies are intentional
 | src/DevLeads.Core/Entities/AuditEvent.cs | 11 | property | public string Description { get; } |
 | src/DevLeads.Core/Entities/AuditEvent.cs | 12 | property | public string MetadataJson { get; } |
 | src/DevLeads.Core/Entities/AuditEvent.cs | 13 | property | public DateTimeOffset CreatedAt { get; } |
+| src/DevLeads.Core/Entities/Campaign.cs | 2 | class | public class Campaign |
+| src/DevLeads.Core/Entities/Campaign.cs | 10 | property | public long Id { get; } |
+| src/DevLeads.Core/Entities/Campaign.cs | 11 | property | public string Key { get; } |
+| src/DevLeads.Core/Entities/Campaign.cs | 14 | property | public string Name { get; } |
+| src/DevLeads.Core/Entities/Campaign.cs | 16 | property | public string Emoji { get; } |
+| src/DevLeads.Core/Entities/Campaign.cs | 17 | property | public string Objective { get; } |
+| src/DevLeads.Core/Entities/Campaign.cs | 23 | property | public bool Enabled { get; } |
+| src/DevLeads.Core/Entities/Campaign.cs | 26 | property | public DateTimeOffset CreatedAt { get; } |
+| src/DevLeads.Core/Entities/ContentDraft.cs | 2 | class | public class ContentDraft |
+| src/DevLeads.Core/Entities/ContentDraft.cs | 9 | property | public long Id { get; } |
+| src/DevLeads.Core/Entities/ContentDraft.cs | 10 | property | public long TopicId { get; } |
+| src/DevLeads.Core/Entities/ContentDraft.cs | 11 | property | public ContentFormat Format { get; } |
+| src/DevLeads.Core/Entities/ContentDraft.cs | 13 | property | public string Title { get; } |
+| src/DevLeads.Core/Entities/ContentDraft.cs | 14 | property | public string BodyMarkdown { get; } |
+| src/DevLeads.Core/Entities/ContentDraft.cs | 15 | property | public int WordCount { get; } |
+| src/DevLeads.Core/Entities/ContentDraft.cs | 16 | property | public ContentDraftStatus Status { get; } |
+| src/DevLeads.Core/Entities/ContentDraft.cs | 18 | property | public string Provider { get; } |
+| src/DevLeads.Core/Entities/ContentDraft.cs | 20 | property | public string Model { get; } |
+| src/DevLeads.Core/Entities/ContentDraft.cs | 21 | property | public DateTimeOffset CreatedAt { get; } |
+| src/DevLeads.Core/Entities/ContentDraft.cs | 23 | property | public DateTimeOffset UpdatedAt { get; } |
+| src/DevLeads.Core/Entities/ContentDraft.cs | 24 | property | public ContentTopic? Topic { get; } |
+| src/DevLeads.Core/Entities/ContentTopic.cs | 2 | class | public class ContentTopic |
+| src/DevLeads.Core/Entities/ContentTopic.cs | 9 | property | public long Id { get; } |
+| src/DevLeads.Core/Entities/ContentTopic.cs | 10 | property | public string Title { get; } |
+| src/DevLeads.Core/Entities/ContentTopic.cs | 12 | property | public string Angle { get; } |
+| src/DevLeads.Core/Entities/ContentTopic.cs | 15 | property | public string Rationale { get; } |
+| src/DevLeads.Core/Entities/ContentTopic.cs | 18 | property | public double InterestScore { get; } |
+| src/DevLeads.Core/Entities/ContentTopic.cs | 21 | property | public string SkillsJson { get; } |
+| src/DevLeads.Core/Entities/ContentTopic.cs | 24 | property | public string EvidenceJson { get; } |
+| src/DevLeads.Core/Entities/ContentTopic.cs | 27 | property | public string SuggestedFormatsCsv { get; } |
+| src/DevLeads.Core/Entities/ContentTopic.cs | 30 | property | public ContentTopicStatus Status { get; } |
+| src/DevLeads.Core/Entities/ContentTopic.cs | 32 | property | public DateTimeOffset CreatedAt { get; } |
+| src/DevLeads.Core/Entities/ContentTopic.cs | 34 | property | public DateTimeOffset UpdatedAt { get; } |
+| src/DevLeads.Core/Entities/ContentTopic.cs | 35 | property | public List<ContentDraft> Drafts { get; } |
 | src/DevLeads.Core/Entities/OperatorSettings.cs | 2 | class | public class OperatorSettings |
 | src/DevLeads.Core/Entities/OperatorSettings.cs | 6 | property | public long Id { get; } |
 | src/DevLeads.Core/Entities/OperatorSettings.cs | 7 | property | public string OperatorName { get; } |
@@ -357,58 +426,7 @@ Only public/high-level symbols are listed. Implementation bodies are intentional
 | src/DevLeads.Core/Entities/OperatorSettings.cs | 50 | property | public bool AuditLoggingEnabled { get; } |
 | src/DevLeads.Core/Entities/OperatorSettings.cs | 51 | property | public double DraftScoreThreshold { get; } |
 | src/DevLeads.Core/Entities/OperatorSettings.cs | 54 | property | public double AlertScoreThreshold { get; } |
-| src/DevLeads.Core/Entities/OperatorSettings.cs | 55 | property | public bool DiscoveryEnabled { get; } |
-| src/DevLeads.Core/Entities/OperatorSettings.cs | 58 | property | public int StaleItemMaxAgeHours { get; } |
-| src/DevLeads.Core/Entities/OperatorSettings.cs | 59 | property | public int FollowUpDefaultHours { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 2 | class | public class Opportunity |
-| src/DevLeads.Core/Entities/Opportunity.cs | 8 | property | public long Id { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 9 | property | public string Title { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 11 | property | public string Summary { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 12 | property | public string SourceKey { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 13 | property | public string SourceUrl { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 14 | property | public string? AuthorName { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 15 | property | public string? AuthorProfileUrl { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 16 | property | public OpportunityStatus Status { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 18 | property | public Priority Priority { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 19 | property | public double Score { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 22 | property | public double UrgencyScore { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 23 | property | public double StackFitScore { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 24 | property | public double BusinessValueScore { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 25 | property | public double ReachabilityScore { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 26 | property | public double CompetitionScore { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 27 | property | public double TrustScore { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 28 | property | public string ProblemType { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 31 | property | public string PaymentIntent { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 33 | property | public bool? AssistanceRequested { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 36 | property | public string DetectedStackJson { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 37 | property | public string SuggestedFirstStep { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 38 | property | public string EstimatedCause { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 39 | property | public double? EstimatedFeeMin { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 41 | property | public double? EstimatedFeeMax { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 42 | property | public bool FeeIsEstimate { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 48 | property | public int? EstimatedFixMinutesMin { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 49 | property | public int? EstimatedFixMinutesMax { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 50 | property | public double AiConfidence { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 52 | property | public OutreachRecommendation OutreachRecommendation { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 53 | property | public string? RejectionReason { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 54 | property | public AiJobStatus AiJobStatus { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 56 | property | public double HeuristicScore { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 59 | property | public string MatchedTermsJson { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 60 | property | public string? PreFilterRejectReason { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 61 | property | public bool AutoEligible { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 64 | property | public DateTimeOffset PostedAt { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 66 | property | public DateTimeOffset FirstSeenAt { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 67 | property | public DateTimeOffset LastSeenAt { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 68 | property | public DateTimeOffset CreatedAt { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 69 | property | public DateTimeOffset UpdatedAt { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 70 | property | public DateTimeOffset? NextFollowUpAt { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 73 | property | public string? WorkNotes { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 74 | property | public List<AiTriageRun> TriageRuns { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 77 | property | public List<OutreachAttempt> OutreachAttempts { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 78 | property | public List<Quote> Quotes { get; } |
-| src/DevLeads.Core/Entities/Opportunity.cs | 79 | property | public List<WorkSession> WorkSessions { get; } |
-| src/DevLeads.Core/Entities/OutreachAttempt.cs | 2 | class | public class OutreachAttempt |
-| src/DevLeads.Core/Entities/OutreachAttempt.cs
+| src/DevLeads.Core/Entities/OperatorSettings.cs | 55 | property | public long? SelectedCampai
 ...[truncated]
 
 
@@ -428,9 +446,9 @@ Approximation: 1 token ≈ 4 characters.
 
 | Context | Characters | Estimated tokens |
 | --- | ---: | ---: |
-| Full indexed files | 371,691 | 92,923 |
-| AI_CONTEXT_COMPACT.md | 29,432 | 7,358 |
+| Full indexed files | 524,417 | 131,104 |
+| AI_CONTEXT_COMPACT.md | 31,031 | 7,758 |
 
-Estimated context reduction: **92.1%**
+Estimated context reduction: **94.1%**
 
 This is approximate, but good enough to show whether the script is doing useful work.

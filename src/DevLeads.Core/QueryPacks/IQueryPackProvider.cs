@@ -9,6 +9,12 @@ public interface IQueryPackProvider
     /// <summary>All high-priority emergency terms across packs.</summary>
     IReadOnlyList<string> GetHighPriorityTerms();
 
+    /// <summary>
+    /// High-priority terms restricted to the named packs, so a source (and its campaign)
+    /// is pre-filtered against its own signals instead of every campaign's.
+    /// </summary>
+    IReadOnlyList<string> GetHighPriorityTerms(IReadOnlyCollection<string> packNames);
+
     /// <summary>All negative / exclusion terms.</summary>
     IReadOnlyList<string> GetNegativeTerms();
 }

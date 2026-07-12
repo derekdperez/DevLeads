@@ -1,7 +1,11 @@
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using DevLeads.Core;
+using DevLeads.Core.Ai;
 using DevLeads.Core.Entities;
+using DevLeads.Core.Skills;
 using DevLeads.Core.Templates;
+using DevLeads.Infrastructure.Ai;
 using DevLeads.Infrastructure.Data;
 
 namespace DevLeads.Infrastructure.Services;
@@ -9,16 +13,192 @@ namespace DevLeads.Infrastructure.Services;
 /// <summary>
 /// Manages the human-in-the-loop outreach queue: drafts, approvals, sends, and suppression.
 /// Sending never bypasses the kill switch, suppression list, or approval requirement.
+/// Response bodies are written by batched AI generation: leads are queued, then one model
+/// call writes every queued reply grounded in its original post.
 /// </summary>
 public sealed class OutreachService
 {
     private readonly DevLeadsDbContext _db;
     private readonly AuditService _audit;
+    private readonly OpenCodeTriageProvider _openCode;
+    private readonly DiscoveryActivityTracker _activity;
 
-    public OutreachService(DevLeadsDbContext db, AuditService audit)
+    public OutreachService(DevLeadsDbContext db, AuditService audit,
+        OpenCodeTriageProvider openCode, DiscoveryActivityTracker activity)
     {
         _db = db;
         _audit = audit;
+        _openCode = openCode;
+        _activity = activity;
+    }
+
+    /// <summary>Placeholder body shown while an attempt waits in the generation queue.</summary>
+    public const string QueuedPlaceholder = "(queued — the next AI generation run will write this reply from the original post)";
+
+    /// <summary>
+    /// Adds a lead to the AI generation queue. Idempotent: an existing queued/pending/
+    /// approved attempt for the same lead is returned instead of duplicated.
+    /// </summary>
+    public async Task<OutreachAttempt> QueueForGenerationAsync(long opportunityId, CancellationToken ct)
+    {
+        var opp = await _db.Opportunities.FirstOrDefaultAsync(o => o.Id == opportunityId, ct)
+                  ?? throw new InvalidOperationException("Opportunity not found");
+
+        var existing = await _db.OutreachAttempts.FirstOrDefaultAsync(a =>
+            a.OpportunityId == opportunityId &&
+            (a.Status == OutreachStatus.QueuedForGeneration ||
+             a.Status == OutreachStatus.PendingApproval ||
+             a.Status == OutreachStatus.Approved), ct);
+        if (existing is not null) return existing;
+
+        var settings = await GetSettings(ct);
+        var attempt = new OutreachAttempt
+        {
+            OpportunityId = opportunityId,
+            Channel = OutreachChannel.ManualCopy,
+            Mode = settings.DefaultOutreachMode,
+            TemplateKey = "ai_batch_v1",
+            Body = QueuedPlaceholder,
+            Status = OutreachStatus.QueuedForGeneration,
+            RequiresApproval = true,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+        _db.OutreachAttempts.Add(attempt);
+        _audit.Record("Opportunity", opportunityId, "ResponseQueued", "Lead added to the AI generation queue", "operator");
+        await _db.SaveChangesAsync(ct);
+        return attempt;
+    }
+
+    /// <summary>Count of attempts currently waiting in the generation queue.</summary>
+    public Task<int> QueuedCountAsync(CancellationToken ct) =>
+        _db.OutreachAttempts.CountAsync(a => a.Status == OutreachStatus.QueuedForGeneration, ct);
+
+    /// <summary>
+    /// Writes every queued reply in a single model call (chunked only past
+    /// <see cref="GenerationChunkSize"/> items as a prompt-size guard). Each reply is
+    /// grounded in the lead's original post text; generated attempts move to
+    /// PendingApproval and appear in the approval queue.
+    /// </summary>
+    public async Task<(int Generated, string Message)> GenerateQueuedResponsesAsync(CancellationToken ct)
+    {
+        var queued = await _db.OutreachAttempts
+            .Include(a => a.Opportunity)
+            .Where(a => a.Status == OutreachStatus.QueuedForGeneration)
+            .OrderBy(a => a.Id)
+            .ToListAsync(ct);
+        if (queued.Count == 0) return (0, "The generation queue is empty.");
+
+        var settings = await GetSettings(ct);
+        if (settings.AiProvider.Equals("Heuristic", StringComparison.OrdinalIgnoreCase))
+            return (0, "Response generation needs an AI provider — settings are on Heuristic.");
+
+        var skills = await _db.Skills.AsNoTracking().Where(s => s.Enabled).ToListAsync(ct);
+        var operatorSkills = skills.Count == 0 ? "" : SkillMatcher.PromptSummary(skills);
+        var objectives = await _db.Campaigns.AsNoTracking()
+            .ToDictionaryAsync(c => c.Id, c => c.Objective, ct);
+
+        var oppIds = queued.Select(a => a.OpportunityId).Distinct().ToList();
+        var rawBodies = (await _db.RawSourceItems.AsNoTracking()
+                .Where(r => r.OpportunityId != null && oppIds.Contains(r.OpportunityId.Value))
+                .Select(r => new { r.OpportunityId, r.BodyText })
+                .ToListAsync(ct))
+            .GroupBy(r => r.OpportunityId!.Value)
+            .ToDictionary(g => g.Key, g => string.Join('\n', g.Select(r => r.BodyText)));
+
+        _activity.RunStarted("outreach_generation", $"Writing {queued.Count} queued response(s) — batched AI call");
+        var generated = 0;
+        var emptyBodies = 0;
+        try
+        {
+            foreach (var chunk in queued.Chunk(GenerationChunkSize))
+            {
+                var items = chunk.Select((a, idx) => new OutreachGenerationItem
+                {
+                    Id = "r" + idx,
+                    Title = a.Opportunity?.Title ?? "",
+                    OriginalPost = rawBodies.GetValueOrDefault(a.OpportunityId)
+                                   ?? a.Opportunity?.Summary ?? "",
+                    SourceKey = a.Opportunity?.SourceKey ?? "",
+                    Url = a.Opportunity?.SourceUrl ?? "",
+                    AuthorName = a.Opportunity?.AuthorName,
+                    CampaignObjective = a.Opportunity?.CampaignId is { } cid
+                        ? objectives.GetValueOrDefault(cid, "") : ""
+                }).ToList();
+
+                var prompt = OutreachPrompts.BuildBatchResponsePrompt(items, settings, operatorSkills);
+                var timeout = TimeSpan.FromSeconds(Math.Clamp(settings.AiTimeoutSeconds * 3, 180, 900));
+                var (ok, text, error, model) = await _openCode.GenerateTextAsync(prompt, settings, timeout, ct);
+                if (!ok)
+                {
+                    _activity.RunCompleted("outreach_generation", healthy: false, "Response generation failed: " + error);
+                    return (generated, "Response generation failed: " + error);
+                }
+
+                var json = OpenCodeTriageProvider.ExtractJsonObject(text);
+                if (json is null)
+                {
+                    _activity.RunCompleted("outreach_generation", healthy: false, "Response generation returned no JSON.");
+                    return (generated, "Response generation returned no parsable JSON.");
+                }
+
+                var bodies = ParseResponses(json);
+                for (var i = 0; i < chunk.Length; i++)
+                {
+                    if (!bodies.TryGetValue("r" + i, out var body) || string.IsNullOrWhiteSpace(body))
+                    {
+                        emptyBodies++; // model honestly declined — leave it queued for review
+                        continue;
+                    }
+                    var attempt = chunk[i];
+                    attempt.Body = body.Trim();
+                    attempt.Status = OutreachStatus.PendingApproval;
+                    if (attempt.Opportunity is { } opp &&
+                        opp.Status is OpportunityStatus.New or OpportunityStatus.AiTriaged
+                            or OpportunityStatus.NeedsReview or OpportunityStatus.FollowUpLater)
+                        opp.Status = OpportunityStatus.DraftReady;
+                    generated++;
+                }
+
+                _audit.Record("OutreachAttempt", 0, "BatchGenerated",
+                    $"AI ({model}) wrote {generated} of {chunk.Length} queued response(s) in one call.");
+                await _db.SaveChangesAsync(ct);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            _activity.RunCompleted("outreach_generation", healthy: false, "Response generation cancelled.");
+            throw;
+        }
+
+        var message = $"{generated} response(s) written" +
+                      (emptyBodies > 0 ? $"; {emptyBodies} left queued (model had nothing grounded to say)." : ".");
+        _activity.RunCompleted("outreach_generation", healthy: true, "Outreach generation: " + message);
+        return (generated, message);
+    }
+
+    /// <summary>
+    /// Prompt-size guard only — the whole queue normally fits one call. 12 posts × ~1.6k
+    /// chars of source text stays well inside the free models' context windows.
+    /// </summary>
+    public const int GenerationChunkSize = 12;
+
+    private static Dictionary<string, string> ParseResponses(string json)
+    {
+        var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            if (!doc.RootElement.TryGetProperty("responses", out var arr) || arr.ValueKind != JsonValueKind.Array)
+                return result;
+            foreach (var el in arr.EnumerateArray())
+            {
+                var id = el.TryGetProperty("id", out var idEl) ? idEl.GetString() ?? "" : "";
+                var body = el.TryGetProperty("body", out var bodyEl) ? bodyEl.GetString() ?? "" : "";
+                if (id.Length > 0) result[id] = body;
+            }
+        }
+        catch (JsonException) { /* caller reports the empty result */ }
+        return result;
     }
 
     public async Task<OutreachAttempt> GenerateDraftAsync(long opportunityId, string templateKey, CancellationToken ct)

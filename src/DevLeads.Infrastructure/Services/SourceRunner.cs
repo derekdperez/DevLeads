@@ -20,11 +20,12 @@ public sealed class SourceRunner
     private readonly LeadIngestionService _ingestion;
     private readonly HeuristicPreFilter _preFilter;
     private readonly AiTriageRouter _ai;
+    private readonly DiscoveryActivityTracker _activity;
     private readonly ILogger<SourceRunner> _log;
 
     public SourceRunner(DevLeadsDbContext db, IEnumerable<ISourceConnector> connectors,
         IQueryPackProvider queryPacks, LeadIngestionService ingestion, HeuristicPreFilter preFilter,
-        AiTriageRouter ai, ILogger<SourceRunner> log)
+        AiTriageRouter ai, DiscoveryActivityTracker activity, ILogger<SourceRunner> log)
     {
         _db = db;
         _connectors = connectors;
@@ -32,6 +33,7 @@ public sealed class SourceRunner
         _ingestion = ingestion;
         _preFilter = preFilter;
         _ai = ai;
+        _activity = activity;
         _log = log;
     }
 
@@ -69,6 +71,7 @@ public sealed class SourceRunner
 
         int created = 0, skipped = 0, shortlistRejected = 0;
         ShortlistGate shortlist = ShortlistGate.Disabled;
+        _activity.RunStarted(source.SourceKey, source.DisplayName);
         try
         {
             var items = await connector.FetchAsync(config, ct);
@@ -78,10 +81,12 @@ public sealed class SourceRunner
             // (and triaged) — screening them again would burn calls for nothing.
             var seenIds = await GetSeenExternalIdsAsync(source.SourceKey, items, ct);
             var newItems = items.Where(i => !seenIds.Contains(i.ExternalId)).ToList();
-            var preFilterByItem = newItems.ToDictionary(i => i, i => _preFilter.Analyze(i));
+            var packNames = PackNames(source);
+            var preFilterByItem = newItems.ToDictionary(i => i, i => _preFilter.Analyze(i, packNames));
+            var campaignObjective = await GetCampaignObjectiveAsync(source, ct);
 
-            shortlist = await BuildShortlistGateAsync(newItems, preFilterByItem, source, parameters, settings, ct);
-            var batchTriage = await BatchTriageAsync(newItems, preFilterByItem, shortlist, source, parameters, settings, ct);
+            shortlist = await BuildShortlistGateAsync(newItems, preFilterByItem, source, parameters, settings, campaignObjective, ct);
+            var batchTriage = await BatchTriageAsync(newItems, preFilterByItem, shortlist, source, parameters, settings, campaignObjective, ct);
             foreach (var item in items)
             {
                 ct.ThrowIfCancellationRequested();
@@ -97,7 +102,10 @@ public sealed class SourceRunner
                     // IngestAsync returns null for duplicates and for posts triaged as non-payable.
                     var opp = await _ingestion.IngestAsync(item, source, ct, batchTriage.GetValueOrDefault(item));
                     if (opp is not null)
+                    {
                         created++;
+                        _activity.LeadCreated(source.SourceKey, opp.Title, opp.Score);
+                    }
                 }
                 catch (InvalidOperationException ex) when (ex.Message.Contains("valid source URL", StringComparison.OrdinalIgnoreCase))
                 {
@@ -109,7 +117,11 @@ public sealed class SourceRunner
             source.LastRunItemCount = items.Count;
             source.LastRunMessage = BuildRunMessage(items.Count, created, skipped, shortlist, shortlistRejected);
         }
-        catch (OperationCanceledException) { throw; }
+        catch (OperationCanceledException)
+        {
+            _activity.RunCompleted(source.SourceKey, healthy: false, "Run cancelled.");
+            throw;
+        }
         catch (Exception ex)
         {
             source.LastRunHealthy = false;
@@ -117,6 +129,7 @@ public sealed class SourceRunner
             _log.LogError(ex, "Source run failed for {Source}", source.SourceKey);
         }
 
+        _activity.RunCompleted(source.SourceKey, source.LastRunHealthy, $"{source.DisplayName}: {source.LastRunMessage}");
         await _db.SaveChangesAsync(ct);
         return created;
     }
@@ -150,6 +163,7 @@ public sealed class SourceRunner
         SourceConfig source,
         IReadOnlyDictionary<string, string> parameters,
         OperatorSettings settings,
+        string campaignObjective,
         CancellationToken ct)
     {
         var results = new Dictionary<RawSourceItem, AiTriageResponse>();
@@ -182,7 +196,8 @@ public sealed class SourceRunner
                     PostedAt = item.PostedAt,
                     MatchedTerms = preFilterByItem[item].MatchedTerms,
                     HeuristicScore = preFilterByItem[item].HeuristicScore,
-                    OperatorSkills = operatorSkills
+                    OperatorSkills = operatorSkills,
+                    CampaignObjective = campaignObjective
                 }
             }).ToList();
 
@@ -222,6 +237,7 @@ public sealed class SourceRunner
         SourceConfig source,
         IReadOnlyDictionary<string, string> parameters,
         OperatorSettings settings,
+        string campaignObjective,
         CancellationToken ct)
     {
         if (!ShouldUseBatchShortlist(parameters, ResolveTriageProvider(parameters, settings)))
@@ -259,7 +275,7 @@ public sealed class SourceRunner
             return ShortlistGate.Disabled;
 
         var shortlistSettings = ResolveTriageSettings(settings, parameters);
-        var response = await _ai.ShortlistAsync(requestItems, shortlistSettings, maxSelections, ct);
+        var response = await _ai.ShortlistAsync(requestItems, shortlistSettings, maxSelections, campaignObjective, ct);
         var selectedIds = response.Decisions
             .Where(d => d.ShouldTriage)
             .Select(d => d.Id)
@@ -325,11 +341,20 @@ public sealed class SourceRunner
 
     private IReadOnlyList<string> BuildTerms(SourceConfig source)
     {
-        var packNames = source.QueryPacksCsv.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         var terms = new List<string>();
-        foreach (var name in packNames)
+        foreach (var name in PackNames(source))
             terms.AddRange(_queryPacks.GetTerms(name));
         return terms.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
+    private static string[] PackNames(SourceConfig source) =>
+        source.QueryPacksCsv.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+    private async Task<string> GetCampaignObjectiveAsync(SourceConfig source, CancellationToken ct)
+    {
+        if (source.CampaignId is not { } campaignId) return "";
+        var campaign = await _db.Campaigns.AsNoTracking().FirstOrDefaultAsync(c => c.Id == campaignId, ct);
+        return campaign?.Objective ?? "";
     }
 
     private static IReadOnlyDictionary<string, string> ParseParameters(string json)
