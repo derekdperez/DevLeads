@@ -50,16 +50,22 @@ public static class DependencyInjection
         services.AddScoped<IQueryPackProvider, DbQueryPackProvider>();
         services.AddScoped<HeuristicPreFilter>();
 
-        // AI providers + router. All decision-making AI goes through the router, which
-        // selects a provider by name from settings — OpenCode CLI is the default, with
-        // Anthropic and the offline heuristic as switchable alternatives.
+        // AI providers + routers. Decision-making (triage) AI goes through AiTriageRouter,
+        // which selects a provider by name from settings — OpenCode CLI is the default,
+        // with Codex (OpenAI), Anthropic, and the offline heuristic as alternatives.
+        // Free-text generation goes through AiTextRouter, which picks OpenCode vs Codex
+        // per feature. Both CLI providers are registered concretely so the text router
+        // and services can inject them directly.
         services.AddSingleton<HeuristicTriageProvider>();
         services.AddSingleton<AnthropicTriageProvider>();
         services.AddSingleton<OpenCodeTriageProvider>();
+        services.AddSingleton<CodexCliProvider>();
         services.AddSingleton<IAiTriageProvider>(sp => sp.GetRequiredService<OpenCodeTriageProvider>());
+        services.AddSingleton<IAiTriageProvider>(sp => sp.GetRequiredService<CodexCliProvider>());
         services.AddSingleton<IAiTriageProvider>(sp => sp.GetRequiredService<AnthropicTriageProvider>());
         services.AddSingleton<IAiTriageProvider>(sp => sp.GetRequiredService<HeuristicTriageProvider>());
         services.AddSingleton<AiTriageRouter>();
+        services.AddSingleton<AiTextRouter>();
 
         // Live activity feed: singleton so every circuit and the worker share one view.
         services.AddSingleton<DiscoveryActivityTracker>();
@@ -73,6 +79,7 @@ public static class DependencyInjection
         services.AddScoped<MaintenanceService>();
         services.AddScoped<TrendScanService>();
         services.AddScoped<ContentStudioService>();
+        services.AddScoped<OperatorPostService>();
 
         // Background discovery + maintenance loop, plus the slow content-trend loop.
         services.AddHostedService<DiscoveryWorker>();

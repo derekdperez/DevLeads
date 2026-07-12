@@ -17,6 +17,8 @@ public sealed class DiscoveryWorker : BackgroundService
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<DiscoveryWorker> _log;
     private DateTimeOffset _lastMaintenance = DateTimeOffset.MinValue;
+    private DateTimeOffset _lastMyPostsSync = DateTimeOffset.MinValue;
+    private DateTimeOffset _lastInboxSync = DateTimeOffset.MinValue;
 
     public DiscoveryWorker(IServiceScopeFactory scopeFactory, ILogger<DiscoveryWorker> log)
     {
@@ -91,6 +93,28 @@ public sealed class DiscoveryWorker : BackgroundService
                 var (generated, message) = await outreach.GenerateQueuedResponsesAsync(ct);
                 if (generated > 0) _log.LogInformation("Outreach generation: {Message}", message);
             }
+        }
+
+        // Own-posts tracking: reddit RSS budget is tiny, so a 6-hour cadence
+        // (1 + up-to-10 paced requests) keeps it invisible next to lead discovery.
+        if (now - _lastMyPostsSync > TimeSpan.FromHours(6))
+        {
+            _lastMyPostsSync = now;
+            var posts = scope.ServiceProvider.GetRequiredService<OperatorPostService>();
+            var (imported, refreshed, _) = await posts.SyncRedditAsync(jobPostsOnly: true, ct);
+            if (imported + refreshed > 0)
+                _log.LogInformation("My posts: {Imported} imported, {Refreshed} refreshed.", imported, refreshed);
+        }
+
+        // Inbox sync: a DM is someone reaching out directly — the hottest signal in the
+        // app — and it costs exactly one request, so it runs hourly.
+        if (now - _lastInboxSync > TimeSpan.FromHours(1))
+        {
+            _lastInboxSync = now;
+            var posts = scope.ServiceProvider.GetRequiredService<OperatorPostService>();
+            var (messages, _) = await posts.SyncRedditInboxAsync(ct);
+            if (messages > 0)
+                _log.LogInformation("Inbox: {Count} new message(s).", messages);
         }
     }
 }

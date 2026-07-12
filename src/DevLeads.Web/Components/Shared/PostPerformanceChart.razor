@@ -1,0 +1,184 @@
+@* Engagement-over-time line chart for the operator's posts. One line per post from its
+   snapshot history, vertical dashed markers where optimization revisions were applied.
+   Series colors are assigned by post id in fixed slot order (never re-assigned when the
+   visible set changes); identity is never color-alone — every series carries a direct
+   end-label and the legend below, and every marker has a native tooltip. *@
+
+<div style="display:flex;gap:.6rem;align-items:end;margin-bottom:.4rem">
+    <div class="rr-field" style="max-width:200px;margin:0">
+        <label>Metric</label>
+        <select class="rr-select" @bind="_metric">
+            <option value="views">Views</option>
+            <option value="replies">Replies</option>
+            <option value="upvotes">Upvotes</option>
+        </select>
+    </div>
+    <div class="rr-sub" style="padding-bottom:.45rem">✎ dashed lines mark applied rewrites — hover any point or marker for details.</div>
+</div>
+
+@if (BuildSeries() is not { Count: > 0 } series)
+{
+    <div class="rr-empty">No @_metric data yet — points accrue from reddit syncs and manual count updates.</div>
+}
+else
+{
+    var (t0, t1, yMax) = Bounds(series);
+    <svg viewBox="0 0 @W @H" style="width:100%;height:auto;display:block" role="img"
+         aria-label="@_metric over time per post">
+        @* recessive horizontal gridlines + y ticks *@
+        @for (var i = 0; i <= YDivs; i++)
+        {
+            var yVal = yMax * i / YDivs;
+            var y = Y(yVal, yMax);
+            <line x1="@PadL" x2="@(W - PadR)" y1="@S(y)" y2="@S(y)" stroke="#2a3446" stroke-width="1" />
+            @SvgText(PadL - 6, y + 4, "end", "#97a3b8", FormatTick(yVal))
+        }
+        @* x ticks *@
+        @foreach (var tick in TimeTicks(t0, t1))
+        {
+            @SvgText(X(tick, t0, t1), H - 8, "middle", "#97a3b8", tick.LocalDateTime.ToString("MMM d"))
+        }
+        <line x1="@PadL" x2="@(W - PadR)" y1="@(H - PadB)" y2="@(H - PadB)" stroke="#3a4661" stroke-width="1" />
+
+        @* revision markers (muted ink, never a series color) *@
+        @foreach (var rev in VisibleRevisions(series))
+        {
+            var x = X(rev.AppliedAt!.Value, t0, t1);
+            <g>
+                <title>@RevisionTooltip(rev)</title>
+                <line x1="@S(x)" x2="@S(x)" y1="@PadT" y2="@(H - PadB)" stroke="#97a3b8" stroke-width="1"
+                      stroke-dasharray="4 4" opacity="0.55" />
+                @SvgText(x + 3, PadT + 10, "start", "#97a3b8", "✎")
+            </g>
+        }
+
+        @* series: 2px lines, 8px markers, direct end-labels in ink *@
+        @foreach (var s in series)
+        {
+            <polyline fill="none" stroke="@s.Color" stroke-width="2" stroke-linejoin="round"
+                      points="@string.Join(' ', s.Points.Select(p => $"{S(X(p.At, t0, t1))},{S(Y(p.Value, yMax))}"))" />
+            @foreach (var p in s.Points)
+            {
+                <circle cx="@S(X(p.At, t0, t1))" cy="@S(Y(p.Value, yMax))" r="4" fill="@s.Color" stroke="#171d2b" stroke-width="2">
+                    <title>@s.Name — @p.Value @_metric · @p.At.LocalDateTime.ToString("MMM d, HH:mm")</title>
+                </circle>
+            }
+        }
+        @foreach (var (s, labelY) in EndLabels(series, t0, t1, yMax))
+        {
+            <circle cx="@S(W - PadR + 10)" cy="@S(labelY - 3)" r="4" fill="@s.Color" />
+            @SvgText(W - PadR + 18, labelY, "start", "#e6ebf5", Truncate(s.Name, 24))
+        }
+    </svg>
+    <div style="display:flex;flex-wrap:wrap;gap:.4rem .9rem;margin-top:.4rem">
+        @foreach (var s in series)
+        {
+            <span class="rr-sub" style="display:inline-flex;align-items:center;gap:.35rem">
+                <span style="width:9px;height:9px;border-radius:50%;background:@s.Color;display:inline-block"></span>@Truncate(s.Name, 44)
+            </span>
+        }
+    </div>
+}
+
+@code {
+    // Fixed categorical slot order (dark steps) — validated ≥3:1 on the #171d2b panel;
+    // adjacent-pair CVD separation sits in the floor band, hence labels + legend.
+    private static readonly string[] SeriesColors =
+        { "#3987e5", "#199e70", "#c98500", "#008300", "#9085e9", "#e66767", "#d55181", "#d95926" };
+
+    private const int W = 960, H = 320, PadL = 52, PadR = 210, PadT = 16, PadB = 32, YDivs = 4, MaxSeries = 8;
+
+    [Parameter] public List<OperatorPost> Posts { get; set; } = new();
+    [Parameter] public Dictionary<long, List<OperatorPostSnapshot>> Snapshots { get; set; } = new();
+    [Parameter] public List<OperatorPostRevision> Revisions { get; set; } = new();
+
+    private string _metric = "views";
+
+    private record Pt(DateTimeOffset At, int Value);
+    private record Series(long PostId, string Name, string Color, List<Pt> Points);
+
+    private int Pick(OperatorPostSnapshot s) => _metric switch
+    {
+        "replies" => s.ReplyCount, "upvotes" => s.UpvoteCount, _ => s.ViewCount
+    };
+
+    private int Pick(OperatorPost p) => _metric switch
+    {
+        "replies" => p.ReplyCount, "upvotes" => p.UpvoteCount, _ => p.ViewCount
+    };
+
+    private List<Series> BuildSeries()
+    {
+        var series = new List<Series>();
+        // Color follows the post (id order), independent of which posts currently have data.
+        foreach (var (post, index) in Posts.OrderBy(p => p.Id).Select((p, i) => (p, i)))
+        {
+            if (series.Count >= MaxSeries) break;
+            var pts = (Snapshots.TryGetValue(post.Id, out var snaps) ? snaps : new List<OperatorPostSnapshot>())
+                .Select(s => new Pt(s.At, Pick(s)))
+                .Append(new Pt(post.UpdatedAt, Pick(post)))
+                .GroupBy(p => p.At).Select(g => g.Last())
+                .OrderBy(p => p.At).ToList();
+            if (pts.All(p => p.Value == 0)) continue;
+            series.Add(new Series(post.Id, post.Title, SeriesColors[index % SeriesColors.Length], pts));
+        }
+        return series;
+    }
+
+    private List<OperatorPostRevision> VisibleRevisions(List<Series> series)
+    {
+        var ids = series.Select(s => s.PostId).ToHashSet();
+        return Revisions.Where(r => r.Status == OperatorPostRevisionStatus.Applied && r.AppliedAt is not null &&
+                                    (ids.Contains(r.OperatorPostId) || (r.ResultPostId is { } rp && ids.Contains(rp))))
+            .ToList();
+    }
+
+    private (DateTimeOffset T0, DateTimeOffset T1, double YMax) Bounds(List<Series> series)
+    {
+        var times = series.SelectMany(s => s.Points.Select(p => p.At))
+            .Concat(VisibleRevisions(series).Select(r => r.AppliedAt!.Value)).ToList();
+        var t0 = times.Min(); var t1 = times.Max();
+        if ((t1 - t0).TotalHours < 24) { t0 = t0.AddHours(-12); t1 = t1.AddHours(12); }
+        var max = series.SelectMany(s => s.Points).Max(p => p.Value);
+        return (t0, t1, Math.Max(1, Math.Ceiling(max * 1.15)));
+    }
+
+    private static double X(DateTimeOffset t, DateTimeOffset t0, DateTimeOffset t1) =>
+        PadL + (W - PadL - PadR) * (t - t0).TotalSeconds / Math.Max(1, (t1 - t0).TotalSeconds);
+
+    private static double Y(double v, double yMax) => H - PadB - (H - PadT - PadB) * v / yMax;
+
+    private static IEnumerable<DateTimeOffset> TimeTicks(DateTimeOffset t0, DateTimeOffset t1)
+    {
+        const int ticks = 4;
+        for (var i = 0; i <= ticks; i++) yield return t0 + (t1 - t0) * i / ticks;
+    }
+
+    /// <summary>Direct end-labels, nudged apart so close line-ends stay readable.</summary>
+    private static List<(Series S, double Y)> EndLabels(List<Series> series, DateTimeOffset t0, DateTimeOffset t1, double yMax)
+    {
+        var labels = series
+            .Select(s => (S: s, Y: Y(s.Points[^1].Value, yMax) + 4))
+            .OrderBy(l => l.Y).ToList();
+        for (var i = 1; i < labels.Count; i++)
+            if (labels[i].Y - labels[i - 1].Y < 14) labels[i] = (labels[i].S, labels[i - 1].Y + 14);
+        return labels;
+    }
+
+    private string RevisionTooltip(OperatorPostRevision r)
+    {
+        var post = Posts.FirstOrDefault(p => p.Id == r.OperatorPostId);
+        return $"✎ {r.AppliedAt!.Value.LocalDateTime:MMM d, HH:mm} — {r.Approach} on \"{Truncate(post?.Title ?? "?", 50)}\"" +
+               (r.ResultPostId is not null ? " (reposted)" : " (body edit)") +
+               $" · baseline {r.BaselineViewCount} views ({r.BaselineViewsPerDay:0.#}/day)";
+    }
+
+    // Razor reserves the <text> tag, so SVG text is emitted as encoded markup.
+    private static MarkupString SvgText(double x, double y, string anchor, string fill, string content) =>
+        (MarkupString)($"<text x=\"{S(x)}\" y=\"{S(y)}\" text-anchor=\"{anchor}\" font-size=\"11\" fill=\"{fill}\">" +
+                       System.Net.WebUtility.HtmlEncode(content) + "</text>");
+
+    private static string FormatTick(double v) => v >= 1000 ? $"{v / 1000:0.#}k" : $"{v:0}";
+    private static string S(double v) => v.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+    private static string Truncate(string s, int max) => s.Length <= max ? s : s[..max] + "…";
+}

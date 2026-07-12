@@ -140,6 +140,13 @@ public static class DatabaseSeeder
         if (settings?.SecondarySkills == "DNS, TLS, hosting, WordPress, WooCommerce, Shopify, Python, Node, PHP")
             settings.SecondarySkills = "IIS, Windows Server, DNS, TLS, hosting, SQL performance tuning";
 
+        // Real operator identity (2026-07-11) — only replaces the old placeholder defaults.
+        if (settings is not null)
+        {
+            if (settings.OperatorName == "Senior Engineer") settings.OperatorName = "Derek Perez";
+            if (settings.Location == "Massachusetts") settings.Location = "Florence, Massachusetts (Western MA)";
+        }
+
         await db.SaveChangesAsync(ct);
     }
 
@@ -266,6 +273,116 @@ public static class DatabaseSeeder
             )
             """,
             "CREATE INDEX IF NOT EXISTS \"IX_ContentDrafts_TopicId\" ON \"ContentDrafts\" (\"TopicId\")",
+            "ALTER TABLE OperatorSettings ADD COLUMN RedditUsername TEXT NOT NULL DEFAULT 'Mission_Turn3102'",
+            "ALTER TABLE OperatorSettings ADD COLUMN ContactEmail TEXT NOT NULL DEFAULT 'derekdperez@gmail.com'",
+            """
+            CREATE TABLE IF NOT EXISTS "OperatorPosts" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_OperatorPosts" PRIMARY KEY AUTOINCREMENT,
+                "Platform" TEXT NOT NULL,
+                "ExternalId" TEXT NOT NULL,
+                "Url" TEXT NOT NULL,
+                "Title" TEXT NOT NULL,
+                "Body" TEXT NOT NULL,
+                "Community" TEXT NOT NULL,
+                "Status" TEXT NOT NULL,
+                "CampaignId" INTEGER NULL,
+                "ReplyCount" INTEGER NOT NULL,
+                "LastCheckedAt" INTEGER NULL,
+                "Notes" TEXT NOT NULL,
+                "PostedAt" INTEGER NOT NULL,
+                "CreatedAt" INTEGER NOT NULL,
+                "UpdatedAt" INTEGER NOT NULL
+            )
+            """,
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_OperatorPosts_Platform_ExternalId\" ON \"OperatorPosts\" (\"Platform\", \"ExternalId\")",
+            "ALTER TABLE OperatorPosts ADD COLUMN ViewCount INTEGER NOT NULL DEFAULT 0",
+            "ALTER TABLE OperatorPosts ADD COLUMN ThreadSummary TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorPosts ADD COLUMN SummarizedAt INTEGER NULL",
+            "ALTER TABLE OperatorPosts ADD COLUMN UpvoteCount INTEGER NOT NULL DEFAULT 0",
+            "ALTER TABLE OperatorPostSnapshots ADD COLUMN UpvoteCount INTEGER NOT NULL DEFAULT 0",
+            "ALTER TABLE OperatorPostSnapshots ADD COLUMN ViewCount INTEGER NOT NULL DEFAULT 0",
+            "ALTER TABLE OperatorSettings ADD COLUMN RedditClientId TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN RedditClientSecret TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN RedditAppPassword TEXT NOT NULL DEFAULT ''",
+            """
+            CREATE TABLE IF NOT EXISTS "OperatorPostSnapshots" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_OperatorPostSnapshots" PRIMARY KEY AUTOINCREMENT,
+                "OperatorPostId" INTEGER NOT NULL,
+                "At" INTEGER NOT NULL,
+                "ReplyCount" INTEGER NOT NULL,
+                CONSTRAINT "FK_OperatorPostSnapshots_OperatorPosts_OperatorPostId" FOREIGN KEY ("OperatorPostId") REFERENCES "OperatorPosts" ("Id") ON DELETE CASCADE
+            )
+            """,
+            "CREATE INDEX IF NOT EXISTS \"IX_OperatorPostSnapshots_OperatorPostId\" ON \"OperatorPostSnapshots\" (\"OperatorPostId\")",
+            "ALTER TABLE OperatorSettings ADD COLUMN RedditInboxFeedToken TEXT NOT NULL DEFAULT '7ff9c88db61f73b0ddc5162ab49eb0acf3f79f42'",
+            // Codex (OpenAI) CLI provider + per-feature provider/model overrides. Empty
+            // override = inherit the global AiProvider/AiModel; post optimization defaults
+            // to Codex/gpt-5.6-sol (a stronger, stable writer for the rewrite experiment).
+            "ALTER TABLE OperatorSettings ADD COLUMN CodexCliPath TEXT NOT NULL DEFAULT 'codex'",
+            "ALTER TABLE OperatorSettings ADD COLUMN TriageAiProvider TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN TriageAiModel TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN OutreachAiProvider TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN OutreachAiModel TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN ContentTopicsAiProvider TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN ContentTopicsAiModel TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN ContentDraftsAiProvider TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN ContentDraftsAiModel TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN PostDraftAiProvider TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN PostDraftAiModel TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN ThreadSummaryAiProvider TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN ThreadSummaryAiModel TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN PostOptimizationAiProvider TEXT NOT NULL DEFAULT 'Codex'",
+            "ALTER TABLE OperatorSettings ADD COLUMN PostOptimizationAiModel TEXT NOT NULL DEFAULT 'gpt-5.6-sol'",
+            """
+            CREATE TABLE IF NOT EXISTS "OperatorMessages" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_OperatorMessages" PRIMARY KEY AUTOINCREMENT,
+                "Platform" TEXT NOT NULL,
+                "ExternalId" TEXT NOT NULL,
+                "Kind" TEXT NOT NULL,
+                "Author" TEXT NOT NULL,
+                "Subject" TEXT NOT NULL,
+                "Body" TEXT NOT NULL,
+                "Community" TEXT NOT NULL,
+                "Url" TEXT NOT NULL,
+                "Status" TEXT NOT NULL,
+                "OperatorPostId" INTEGER NULL,
+                "Notes" TEXT NOT NULL,
+                "ReceivedAt" INTEGER NOT NULL,
+                "CreatedAt" INTEGER NOT NULL,
+                "UpdatedAt" INTEGER NOT NULL,
+                CONSTRAINT "FK_OperatorMessages_OperatorPosts_OperatorPostId" FOREIGN KEY ("OperatorPostId") REFERENCES "OperatorPosts" ("Id") ON DELETE SET NULL
+            )
+            """,
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_OperatorMessages_Platform_ExternalId\" ON \"OperatorMessages\" (\"Platform\", \"ExternalId\")",
+            "CREATE INDEX IF NOT EXISTS \"IX_OperatorMessages_Status\" ON \"OperatorMessages\" (\"Status\")",
+            "CREATE INDEX IF NOT EXISTS \"IX_OperatorMessages_OperatorPostId\" ON \"OperatorMessages\" (\"OperatorPostId\")",
+            """
+            CREATE TABLE IF NOT EXISTS "OperatorPostRevisions" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_OperatorPostRevisions" PRIMARY KEY AUTOINCREMENT,
+                "OperatorPostId" INTEGER NOT NULL,
+                "Approach" TEXT NOT NULL,
+                "Rationale" TEXT NOT NULL,
+                "OldTitle" TEXT NOT NULL,
+                "OldBody" TEXT NOT NULL,
+                "NewTitle" TEXT NOT NULL,
+                "NewBody" TEXT NOT NULL,
+                "Status" TEXT NOT NULL,
+                "Provider" TEXT NOT NULL,
+                "Model" TEXT NOT NULL,
+                "BaselineViewCount" INTEGER NOT NULL,
+                "BaselineReplyCount" INTEGER NOT NULL,
+                "BaselineUpvoteCount" INTEGER NOT NULL,
+                "BaselineViewsPerDay" REAL NOT NULL,
+                "BaselineRepliesPerDay" REAL NOT NULL,
+                "ResultPostId" INTEGER NULL,
+                "Notes" TEXT NOT NULL,
+                "CreatedAt" INTEGER NOT NULL,
+                "AppliedAt" INTEGER NULL,
+                CONSTRAINT "FK_OperatorPostRevisions_OperatorPosts_OperatorPostId" FOREIGN KEY ("OperatorPostId") REFERENCES "OperatorPosts" ("Id") ON DELETE CASCADE
+            )
+            """,
+            "CREATE INDEX IF NOT EXISTS \"IX_OperatorPostRevisions_OperatorPostId\" ON \"OperatorPostRevisions\" (\"OperatorPostId\")",
+            "CREATE INDEX IF NOT EXISTS \"IX_OperatorPostRevisions_Status\" ON \"OperatorPostRevisions\" (\"Status\")",
             """
             CREATE TABLE IF NOT EXISTS "Campaigns" (
                 "Id" INTEGER NOT NULL CONSTRAINT "PK_Campaigns" PRIMARY KEY AUTOINCREMENT,

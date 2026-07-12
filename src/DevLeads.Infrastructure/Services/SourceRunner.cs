@@ -302,19 +302,23 @@ public sealed class SourceRunner
     private static string ResolveTriageProvider(IReadOnlyDictionary<string, string> parameters, OperatorSettings settings) =>
         parameters.TryGetValue("triageProvider", out var provider) && !string.IsNullOrWhiteSpace(provider)
             ? TrimJsonString(provider)
-            : settings.AiProvider;
+            : settings.AiFor(AiFeature.Triage).Provider;
 
     private static OperatorSettings ResolveTriageSettings(OperatorSettings settings, IReadOnlyDictionary<string, string> parameters)
     {
+        // Base on the Triage feature's provider/model, then honor a per-source override.
+        var baseSettings = settings.WithAiFor(AiFeature.Triage);
         var provider = ResolveTriageProvider(parameters, settings);
-        if (provider.Equals(settings.AiProvider, StringComparison.OrdinalIgnoreCase))
-            return settings;
+        if (provider.Equals(baseSettings.AiProvider, StringComparison.OrdinalIgnoreCase))
+            return baseSettings;
 
+        var model = OperatorSettings.DefaultModelFor(provider);
         return new OperatorSettings
         {
             AiProvider = provider,
-            AiModel = settings.AiModel,
+            AiModel = model,
             OpenCodeCliPath = settings.OpenCodeCliPath,
+            CodexCliPath = settings.CodexCliPath,
             PromptVersion = settings.PromptVersion,
             AiRetryCount = settings.AiRetryCount,
             AiTimeoutSeconds = settings.AiTimeoutSeconds,

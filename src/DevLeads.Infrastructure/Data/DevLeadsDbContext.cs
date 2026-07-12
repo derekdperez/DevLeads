@@ -27,6 +27,10 @@ public class DevLeadsDbContext : DbContext
     public DbSet<TrendSignal> TrendSignals => Set<TrendSignal>();
     public DbSet<ContentTopic> ContentTopics => Set<ContentTopic>();
     public DbSet<ContentDraft> ContentDrafts => Set<ContentDraft>();
+    public DbSet<OperatorPost> OperatorPosts => Set<OperatorPost>();
+    public DbSet<OperatorPostSnapshot> OperatorPostSnapshots => Set<OperatorPostSnapshot>();
+    public DbSet<OperatorMessage> OperatorMessages => Set<OperatorMessage>();
+    public DbSet<OperatorPostRevision> OperatorPostRevisions => Set<OperatorPostRevision>();
 
     // SQLite stores DateTimeOffset as TEXT and cannot order/compare it. Convert every
     // DateTimeOffset to sortable UTC ticks (long) so ORDER BY and range filters translate.
@@ -54,6 +58,10 @@ public class DevLeadsDbContext : DbContext
         b.Properties<ContentTopicStatus>().HaveConversion<string>();
         b.Properties<ContentDraftStatus>().HaveConversion<string>();
         b.Properties<ContentFormat>().HaveConversion<string>();
+        b.Properties<OperatorPostStatus>().HaveConversion<string>();
+        b.Properties<OperatorMessageKind>().HaveConversion<string>();
+        b.Properties<OperatorMessageStatus>().HaveConversion<string>();
+        b.Properties<OperatorPostRevisionStatus>().HaveConversion<string>();
     }
 
     protected override void OnModelCreating(ModelBuilder mb)
@@ -87,6 +95,26 @@ public class DevLeadsDbContext : DbContext
         mb.Entity<ContentTopic>()
             .HasMany(t => t.Drafts).WithOne(d => d.Topic!)
             .HasForeignKey(d => d.TopicId).OnDelete(DeleteBehavior.Cascade);
+        mb.Entity<OperatorPost>(e =>
+        {
+            e.HasIndex(p => new { p.Platform, p.ExternalId }).IsUnique();
+            e.HasMany(p => p.Snapshots).WithOne(s => s.Post!)
+                .HasForeignKey(s => s.OperatorPostId).OnDelete(DeleteBehavior.Cascade);
+        });
+        mb.Entity<OperatorPostRevision>(e =>
+        {
+            e.HasIndex(r => r.OperatorPostId);
+            e.HasIndex(r => r.Status);
+            e.HasOne(r => r.Post).WithMany()
+                .HasForeignKey(r => r.OperatorPostId).OnDelete(DeleteBehavior.Cascade);
+        });
+        mb.Entity<OperatorMessage>(e =>
+        {
+            e.HasIndex(m => new { m.Platform, m.ExternalId }).IsUnique();
+            e.HasIndex(m => m.Status);
+            e.HasOne(m => m.Post).WithMany()
+                .HasForeignKey(m => m.OperatorPostId).OnDelete(DeleteBehavior.SetNull);
+        });
         mb.Entity<QueryPack>().HasIndex(q => q.Name).IsUnique();
         mb.Entity<SuppressionEntry>().HasIndex(s => s.ContactValue);
         mb.Entity<AuditEvent>().HasIndex(a => new { a.EntityType, a.EntityId });

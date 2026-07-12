@@ -20,15 +20,15 @@ public sealed class OutreachService
 {
     private readonly DevLeadsDbContext _db;
     private readonly AuditService _audit;
-    private readonly OpenCodeTriageProvider _openCode;
+    private readonly AiTextRouter _text;
     private readonly DiscoveryActivityTracker _activity;
 
     public OutreachService(DevLeadsDbContext db, AuditService audit,
-        OpenCodeTriageProvider openCode, DiscoveryActivityTracker activity)
+        AiTextRouter text, DiscoveryActivityTracker activity)
     {
         _db = db;
         _audit = audit;
-        _openCode = openCode;
+        _text = text;
         _activity = activity;
     }
 
@@ -89,8 +89,8 @@ public sealed class OutreachService
         if (queued.Count == 0) return (0, "The generation queue is empty.");
 
         var settings = await GetSettings(ct);
-        if (settings.AiProvider.Equals("Heuristic", StringComparison.OrdinalIgnoreCase))
-            return (0, "Response generation needs an AI provider — settings are on Heuristic.");
+        if (_text.ProviderFor(settings, AiFeature.Outreach).Equals("Heuristic", StringComparison.OrdinalIgnoreCase))
+            return (0, "Response generation is set to Heuristic — choose OpenCode or Codex in Settings.");
 
         var skills = await _db.Skills.AsNoTracking().Where(s => s.Enabled).ToListAsync(ct);
         var operatorSkills = skills.Count == 0 ? "" : SkillMatcher.PromptSummary(skills);
@@ -127,7 +127,7 @@ public sealed class OutreachService
 
                 var prompt = OutreachPrompts.BuildBatchResponsePrompt(items, settings, operatorSkills);
                 var timeout = TimeSpan.FromSeconds(Math.Clamp(settings.AiTimeoutSeconds * 3, 180, 900));
-                var (ok, text, error, model) = await _openCode.GenerateTextAsync(prompt, settings, timeout, ct);
+                var (ok, text, error, model) = await _text.GenerateTextAsync(AiFeature.Outreach, prompt, settings, timeout, ct);
                 if (!ok)
                 {
                     _activity.RunCompleted("outreach_generation", healthy: false, "Response generation failed: " + error);

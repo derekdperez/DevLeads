@@ -9,6 +9,7 @@
 | /content | Content | Trend signals, suggested topics, and publishable draft management. | IDbContextFactory<DevLeadsDbContext>, IServiceScopeFactory, IJSRuntime |
 | /drafts | Drafts | Outreach generation and human approval queues. | IDbContextFactory<DevLeadsDbContext>, IServiceScopeFactory |
 | /Error | Error | Unhandled-error page. |  |
+| /myposts | MyPosts | Blazor component for my posts. | IDbContextFactory<DevLeadsDbContext>, IServiceScopeFactory |
 | /not-found | NotFound | Missing-route page. |  |
 | /opportunities | Opportunities | Searchable and filterable lead-review queue. | IDbContextFactory<DevLeadsDbContext>, IServiceScopeFactory |
 | /opportunities/new | NewOpportunity | Manual lead entry through the normal triage pipeline. | IServiceScopeFactory, IDbContextFactory<DevLeadsDbContext>, NavigationManager |
@@ -29,6 +30,17 @@
 | GET | /api/content/topics | MapDevLeadsApi | Reads topics. | src/DevLeads.Web/Api/ApiEndpoints.cs:139 |
 | POST | /api/content/topics/generate | MapDevLeadsApi | Runs the generate action. | src/DevLeads.Web/Api/ApiEndpoints.cs:134 |
 | POST | /api/content/topics/{id:long}/drafts | MapDevLeadsApi | Runs the drafts action. | src/DevLeads.Web/Api/ApiEndpoints.cs:141 |
+| GET | /api/myposts | MapDevLeadsApi | Reads myposts. | src/DevLeads.Web/Api/ApiEndpoints.cs:152 |
+| POST | /api/myposts/draft | MapDevLeadsApi | Runs the draft action. | src/DevLeads.Web/Api/ApiEndpoints.cs:164 |
+| GET | /api/myposts/messages | MapDevLeadsApi | Reads messages. | src/DevLeads.Web/Api/ApiEndpoints.cs:192 |
+| POST | /api/myposts/messages/{id:long}/status | MapDevLeadsApi | Runs the status action. | src/DevLeads.Web/Api/ApiEndpoints.cs:200 |
+| POST | /api/myposts/optimize | MapDevLeadsApi | Runs the optimize action. | src/DevLeads.Web/Api/ApiEndpoints.cs:169 |
+| GET | /api/myposts/revisions | MapDevLeadsApi | Reads revisions. | src/DevLeads.Web/Api/ApiEndpoints.cs:176 |
+| POST | /api/myposts/revisions/{id:long}/apply | MapDevLeadsApi | Runs the apply action. | src/DevLeads.Web/Api/ApiEndpoints.cs:179 |
+| POST | /api/myposts/revisions/{id:long}/dismiss | MapDevLeadsApi | Runs the dismiss action. | src/DevLeads.Web/Api/ApiEndpoints.cs:184 |
+| POST | /api/myposts/sync-inbox | MapDevLeadsApi | Runs the sync inbox action. | src/DevLeads.Web/Api/ApiEndpoints.cs:195 |
+| POST | /api/myposts/sync-reddit | MapDevLeadsApi | Runs the sync reddit action. | src/DevLeads.Web/Api/ApiEndpoints.cs:154 |
+| POST | /api/myposts/{id:long}/summarize | MapDevLeadsApi | Runs the summarize action. | src/DevLeads.Web/Api/ApiEndpoints.cs:159 |
 | GET | /api/opportunities | MapDevLeadsApi | Reads opportunities. | src/DevLeads.Web/Api/ApiEndpoints.cs:21 |
 | POST | /api/opportunities/manual | MapDevLeadsApi | Runs the manual action. | src/DevLeads.Web/Api/ApiEndpoints.cs:39 |
 | GET | /api/opportunities/{id:long} | MapDevLeadsApi | Reads id. | src/DevLeads.Web/Api/ApiEndpoints.cs:31 |
@@ -56,7 +68,7 @@
 | POST | /api/sources/run-all | MapDevLeadsApi | Runs the run all action. | src/DevLeads.Web/Api/ApiEndpoints.cs:100 |
 | POST | /api/sources/{key}/run-now | MapDevLeadsApi | Runs the run now action. | src/DevLeads.Web/Api/ApiEndpoints.cs:120 |
 | POST | /api/sources/{key}/test | MapDevLeadsApi | Runs the test action. | src/DevLeads.Web/Api/ApiEndpoints.cs:118 |
-| POST | /api/system/restart | MapDevLeadsApi | Runs the restart action. | src/DevLeads.Web/Api/ApiEndpoints.cs:152 |
+| POST | /api/system/restart | MapDevLeadsApi | Runs the restart action. | src/DevLeads.Web/Api/ApiEndpoints.cs:213 |
 | GET | /favicon.ico | startup | Reads favicon.ico. | src/DevLeads.Web/Program.cs:43 |
 
 ## Dependency injection
@@ -75,24 +87,28 @@
 | Transient | ISourceConnector | GitHubSearchConnector | src/DevLeads.Infrastructure/DependencyInjection.cs:47 |
 | Scoped | IQueryPackProvider | DbQueryPackProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:50 |
 | Scoped | HeuristicPreFilter | HeuristicPreFilter | src/DevLeads.Infrastructure/DependencyInjection.cs:51 |
-| Singleton | HeuristicTriageProvider | HeuristicTriageProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:56 |
-| Singleton | AnthropicTriageProvider | AnthropicTriageProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:57 |
-| Singleton | OpenCodeTriageProvider | OpenCodeTriageProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:58 |
-| Singleton | IAiTriageProvider | OpenCodeTriageProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:59 |
-| Singleton | IAiTriageProvider | AnthropicTriageProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:60 |
-| Singleton | IAiTriageProvider | HeuristicTriageProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:61 |
-| Singleton | AiTriageRouter | AiTriageRouter | src/DevLeads.Infrastructure/DependencyInjection.cs:62 |
-| Singleton | DiscoveryActivityTracker | DiscoveryActivityTracker | src/DevLeads.Infrastructure/DependencyInjection.cs:65 |
-| Scoped | AuditService | AuditService | src/DevLeads.Infrastructure/DependencyInjection.cs:68 |
-| Scoped | LeadIngestionService | LeadIngestionService | src/DevLeads.Infrastructure/DependencyInjection.cs:69 |
-| Scoped | OutreachService | OutreachService | src/DevLeads.Infrastructure/DependencyInjection.cs:70 |
-| Scoped | QuoteService | QuoteService | src/DevLeads.Infrastructure/DependencyInjection.cs:71 |
-| Scoped | SourceRunner | SourceRunner | src/DevLeads.Infrastructure/DependencyInjection.cs:72 |
-| Scoped | MaintenanceService | MaintenanceService | src/DevLeads.Infrastructure/DependencyInjection.cs:73 |
-| Scoped | TrendScanService | TrendScanService | src/DevLeads.Infrastructure/DependencyInjection.cs:74 |
-| Scoped | ContentStudioService | ContentStudioService | src/DevLeads.Infrastructure/DependencyInjection.cs:75 |
-| HostedService | IHostedService | DiscoveryWorker | src/DevLeads.Infrastructure/DependencyInjection.cs:78 |
-| HostedService | IHostedService | ContentTrendWorker | src/DevLeads.Infrastructure/DependencyInjection.cs:79 |
+| Singleton | HeuristicTriageProvider | HeuristicTriageProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:59 |
+| Singleton | AnthropicTriageProvider | AnthropicTriageProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:60 |
+| Singleton | OpenCodeTriageProvider | OpenCodeTriageProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:61 |
+| Singleton | CodexCliProvider | CodexCliProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:62 |
+| Singleton | IAiTriageProvider | OpenCodeTriageProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:63 |
+| Singleton | IAiTriageProvider | CodexCliProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:64 |
+| Singleton | IAiTriageProvider | AnthropicTriageProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:65 |
+| Singleton | IAiTriageProvider | HeuristicTriageProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:66 |
+| Singleton | AiTriageRouter | AiTriageRouter | src/DevLeads.Infrastructure/DependencyInjection.cs:67 |
+| Singleton | AiTextRouter | AiTextRouter | src/DevLeads.Infrastructure/DependencyInjection.cs:68 |
+| Singleton | DiscoveryActivityTracker | DiscoveryActivityTracker | src/DevLeads.Infrastructure/DependencyInjection.cs:71 |
+| Scoped | AuditService | AuditService | src/DevLeads.Infrastructure/DependencyInjection.cs:74 |
+| Scoped | LeadIngestionService | LeadIngestionService | src/DevLeads.Infrastructure/DependencyInjection.cs:75 |
+| Scoped | OutreachService | OutreachService | src/DevLeads.Infrastructure/DependencyInjection.cs:76 |
+| Scoped | QuoteService | QuoteService | src/DevLeads.Infrastructure/DependencyInjection.cs:77 |
+| Scoped | SourceRunner | SourceRunner | src/DevLeads.Infrastructure/DependencyInjection.cs:78 |
+| Scoped | MaintenanceService | MaintenanceService | src/DevLeads.Infrastructure/DependencyInjection.cs:79 |
+| Scoped | TrendScanService | TrendScanService | src/DevLeads.Infrastructure/DependencyInjection.cs:80 |
+| Scoped | ContentStudioService | ContentStudioService | src/DevLeads.Infrastructure/DependencyInjection.cs:81 |
+| Scoped | OperatorPostService | OperatorPostService | src/DevLeads.Infrastructure/DependencyInjection.cs:82 |
+| HostedService | IHostedService | DiscoveryWorker | src/DevLeads.Infrastructure/DependencyInjection.cs:85 |
+| HostedService | IHostedService | ContentTrendWorker | src/DevLeads.Infrastructure/DependencyInjection.cs:86 |
 | Singleton | DevLeads.Web.AppRestartService | DevLeads.Web.AppRestartService | src/DevLeads.Web/Program.cs:25 |
 
 ## EF Core DbSets
@@ -104,6 +120,10 @@
 | DevLeadsDbContext | Campaign | Campaigns | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:25 |
 | DevLeadsDbContext | ContentDraft | ContentDrafts | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:29 |
 | DevLeadsDbContext | ContentTopic | ContentTopics | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:28 |
+| DevLeadsDbContext | OperatorMessage | OperatorMessages | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:32 |
+| DevLeadsDbContext | OperatorPostRevision | OperatorPostRevisions | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:33 |
+| DevLeadsDbContext | OperatorPostSnapshot | OperatorPostSnapshots | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:31 |
+| DevLeadsDbContext | OperatorPost | OperatorPosts | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:30 |
 | DevLeadsDbContext | OperatorSettings | OperatorSettings | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:23 |
 | DevLeadsDbContext | Opportunity | Opportunities | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:13 |
 | DevLeadsDbContext | OutreachAttempt | OutreachAttempts | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:16 |
@@ -124,6 +144,10 @@
 | AiTriageRun | many-to-one | Opportunity | Opportunity |
 | ContentDraft | many-to-one | ContentTopic | Topic |
 | ContentTopic | one-to-many | ContentDraft | Drafts |
+| OperatorMessage | many-to-one | OperatorPost | Post |
+| OperatorPost | one-to-many | OperatorPostSnapshot | Snapshots |
+| OperatorPostRevision | many-to-one | OperatorPost | Post |
+| OperatorPostSnapshot | many-to-one | OperatorPost | Post |
 | Opportunity | one-to-many | AiTriageRun | TriageRuns |
 | Opportunity | one-to-many | OutreachAttempt | OutreachAttempts |
 | Opportunity | one-to-many | Quote | Quotes |

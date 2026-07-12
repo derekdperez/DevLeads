@@ -115,8 +115,10 @@ Hourly cleanup rejects stale or non-hirable leads, marks overdue quotes, and opp
 ## Type hierarchy
 
 - `BackgroundService` → `ContentTrendWorker`, `DiscoveryWorker`
-- `ComponentBase` → `ActivityFeed`, `App`, `CampaignSwitcher`, `Campaigns`, `Content`, `Drafts`, `Error`, `Home`, `NavMenu`, `NewOpportunity`, `NotFound`, `Opportunities`, `OpportunityDetail`, `Quotes`, `ReconnectModal`, `Routes`, `Settings`, `SkillProfile`, `Sources`, `_Imports`
+- `ComponentBase` → `ActivityFeed`, `App`, `CampaignSwitcher`, `Campaigns`, `Content`, `Drafts`, `Error`, `Home`, `MyPosts`, `NavMenu`, `NewOpportunity`, `NotFound`, `Opportunities`, `OpportunityDetail`, `PostPerformanceChart`, `Quotes`, `ReconnectModal`, `Routes`, `Settings`, `SkillProfile`, `Sources`, `_Imports`
 - `DbContext` → `DevLeadsDbContext`
-- `IAiTriageProvider` → `AnthropicTriageProvider`, `HeuristicTriageProvider`, `OpenCodeTriageProvider`
+- `IAiBatchShortlistProvider` → `CodexCliProvider`, `OpenCodeTriageProvider`
+- `IAiBatchTriageProvider` → `CodexCliProvider`, `OpenCodeTriageProvider`
+- `IAiTriageProvider` → `AnthropicTriageProvider`, `CodexCliProvider`, `HeuristicTriageProvider`, `OpenCodeTriageProvider`
 - `IQueryPackProvider` → `DbQueryPackProvider`
 - `ISourceConnector` → `GitHubSearchConnector`, `HackerNewsConnector`, `OpireConnector`, `RedditConnector`, `RemotiveConnector`, `RssConnector`, `StackExchangeConnector`

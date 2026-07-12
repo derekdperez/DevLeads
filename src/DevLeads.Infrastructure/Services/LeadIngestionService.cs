@@ -603,25 +603,37 @@ public sealed class LeadIngestionService
 
     private static OperatorSettings ResolveTriageSettings(OperatorSettings settings, SourceConfig? source)
     {
+        // Start from the Triage feature's configured provider/model, then let a source's
+        // explicit triageProvider parameter override the provider for that source.
+        var baseSettings = settings.WithAiFor(AiFeature.Triage);
         var provider = GetSourceParameter(source, "triageProvider");
         if (string.IsNullOrWhiteSpace(provider) ||
-            provider.Equals(settings.AiProvider, StringComparison.OrdinalIgnoreCase))
+            provider.Equals(baseSettings.AiProvider, StringComparison.OrdinalIgnoreCase))
         {
-            return settings;
+            return baseSettings;
         }
 
-        return CloneWithProvider(settings, provider);
+        return CloneWithProvider(baseSettings, provider);
     }
 
-    private static OperatorSettings CloneWithProvider(OperatorSettings settings, string provider) => new()
+    private static OperatorSettings CloneWithProvider(OperatorSettings settings, string provider)
     {
-        AiProvider = provider,
-        AiModel = settings.AiModel,
-        AiRetryCount = settings.AiRetryCount,
-        AiTimeoutSeconds = settings.AiTimeoutSeconds,
-        OpenCodeCliPath = settings.OpenCodeCliPath,
-        PromptVersion = settings.PromptVersion
-    };
+        // A provider switch takes that provider's default model unless the current model
+        // already belongs to it (heuristic ignores the model entirely).
+        var model = provider.Equals(settings.AiProvider, StringComparison.OrdinalIgnoreCase)
+            ? settings.AiModel
+            : OperatorSettings.DefaultModelFor(provider);
+        return new()
+        {
+            AiProvider = provider,
+            AiModel = model,
+            AiRetryCount = settings.AiRetryCount,
+            AiTimeoutSeconds = settings.AiTimeoutSeconds,
+            OpenCodeCliPath = settings.OpenCodeCliPath,
+            CodexCliPath = settings.CodexCliPath,
+            PromptVersion = settings.PromptVersion
+        };
+    }
 
     /// <summary>
     /// True when the count of real (non-heuristic) AI calls in the last hour has hit the

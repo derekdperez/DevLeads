@@ -130,6 +130,20 @@ Prompt for batched outreach-response generation: every queued lead in one model 
 - public `BuildBatchResponsePrompt(IReadOnlyList<OutreachGenerationItem> items, OperatorSettings op, string operatorSkills) → string` — Creates batch response prompt. _(inferred)_
 - private `Compact(string value, int max) → string` — Transforms or resolves compact. _(inferred)_
 
+#### PlatformPostPrompts
+
+public class `PlatformPostPrompts` · `src/DevLeads.Core/Ai/PlatformPostPrompts.cs:11`
+
+Prompt for drafting the operator's OWN posts/ads/profiles for a specific platform (reddit, craigslist, LinkedIn, Upwork, gmail outreach template) in the operator's real identity and voice, informed by which past posts…
+
+Data: `SupportedPlatforms`: string[].
+
+- public `BuildPostPrompt(string platform, OperatorSettings op, string operatorSkills, string campaignObjective, IReadOnlyList<(string Title, string Body, int Replies)> referencePosts, string extraInstructions) → string` — Creates post prompt. _(inferred)_
+- public `BuildOptimizationPrompt(OperatorSettings op, string operatorSkills, IReadOnlyList<(long Id, string Community, string Title, string Body, double AgeDays, int Views, int Replies, int Upvotes)> posts, string extraInstructions) → string` — One batched call for the post-optimization experiment: each selected post gets a rewrite with a DISTINCT named strategy, so the operator can A/B the approaches against a…
+- private `PlatformLabel(string platform) → string` — Handles platform label. _(inferred)_
+- private `PlatformSpec(string platform) → string` — Handles platform spec. _(inferred)_
+- private `Compact(string value, int max) → string` — Transforms or resolves compact. _(inferred)_
+
 ### `DevLeads.Core`
 
 #### AiTriageResult
@@ -211,13 +225,49 @@ An AI-suggested publishing topic distilled from trend signals: what to write abo
 
 Data: `Id`: long, `Title`: string, `Angle`: string, `Rationale`: string, `InterestScore`: double, `SkillsJson`: string, `EvidenceJson`: string, `SuggestedFormatsCsv`: string, `Status`: ContentTopicStatus, `CreatedAt`: DateTimeOffset, `UpdatedAt`: DateTimeOffset, `Drafts`: List<ContentDraft>.
 
+#### OperatorMessage
+
+public class `OperatorMessage` · `src/DevLeads.Core/Entities/OperatorMessage.cs:10`
+
+A private message or reply RECEIVED by the operator on an external platform (a reddit DM, a comment reply on one of their [For Hire] posts, an Upwork message…).
+
+Data: `Id`: long, `Platform`: string, `ExternalId`: string, `Kind`: OperatorMessageKind, `Author`: string, `Subject`: string, `Body`: string, `Community`: string, `Url`: string, `Status`: OperatorMessageStatus, `OperatorPostId`: long?, `Post`: OperatorPost?, `Notes`: string, `ReceivedAt`: DateTimeOffset, `CreatedAt`: DateTimeOffset, `UpdatedAt`: DateTimeOffset.
+
+#### OperatorPost
+
+public class `OperatorPost` · `src/DevLeads.Core/Entities/OperatorPost.cs:9`
+
+One of the operator's OWN posts on an external platform (a [For Hire] reddit post, an Upwork profile/proposal, a Craigslist ad…).
+
+Data: `Id`: long, `Platform`: string, `ExternalId`: string, `Url`: string, `Title`: string, `Body`: string, `Community`: string, `Status`: OperatorPostStatus, `CampaignId`: long?, `ReplyCount`: int, `UpvoteCount`: int, `ViewCount`: int, `ThreadSummary`: string, `SummarizedAt`: DateTimeOffset?, `LastCheckedAt`: DateTimeOffset?, `Notes`: string, `PostedAt`: DateTimeOffset, `CreatedAt`: DateTimeOffset, `UpdatedAt`: DateTimeOffset, `Snapshots`: List<OperatorPostSnapshot>.
+
+#### OperatorPostRevision
+
+public class `OperatorPostRevision` · `src/DevLeads.Core/Entities/OperatorPostRevision.cs:11`
+
+One AI-proposed (or operator-made) rewrite of a tracked post — the experiment unit for post optimization. Generated as a Proposed variant with a named approach; when the operator applies it on the platform, the…
+
+Data: `Id`: long, `OperatorPostId`: long, `Post`: OperatorPost?, `Approach`: string, `Rationale`: string, `OldTitle`: string, `OldBody`: string, `NewTitle`: string, `NewBody`: string, `Status`: OperatorPostRevisionStatus, `Provider`: string, `Model`: string, `BaselineViewCount`: int, `BaselineReplyCount`: int, `BaselineUpvoteCount`: int, `BaselineViewsPerDay`: double, `BaselineRepliesPerDay`: double, `ResultPostId`: long?, `Notes`: string, `CreatedAt`: DateTimeOffset, `AppliedAt`: DateTimeOffset?.
+
+#### OperatorPostSnapshot
+
+public class `OperatorPostSnapshot` · `src/DevLeads.Core/Entities/OperatorPostSnapshot.cs:4`
+
+Point-in-time engagement reading for an operator post — the "learn" trail.
+
+Data: `Id`: long, `OperatorPostId`: long, `At`: DateTimeOffset, `ReplyCount`: int, `UpvoteCount`: int, `ViewCount`: int, `Post`: OperatorPost?.
+
 #### OperatorSettings
 
 public class `OperatorSettings` · `src/DevLeads.Core/Entities/OperatorSettings.cs:4`
 
 Single-row settings for the solo operator: profile, AI, outreach, and safety controls.
 
-Data: `Id`: long, `OperatorName`: string, `BusinessName`: string, `Location`: string, `RemoteAvailability`: string, `CoreSkills`: string, `SecondarySkills`: string, `MinimumFee`: double, `PreferredPaymentTerms`: string, `EmergencyAvailability`: bool, `AiProvider`: string, `AiModel`: string, `OpenCodeCliPath`: string, `DefaultOpenCodeModel`: string, `DefaultAnthropicModel`: string, `PromptVersion`: string, `MaxAiCallsPerHour`: int, `MaxAiSpendPerDay`: double, `MinPreFilterScoreForAi`: double, `MinAiConfidenceForDraft`: double, `ManualReviewConfidenceThreshold`: double, `AiRetryCount`: int, `AiTimeoutSeconds`: int, `DefaultOutreachMode`: OutreachMode, `GlobalAutoModeEnabled`: bool, `GlobalKillSwitch`: bool, `MaxSendsPerHour`: int, `MaxSendsPerDay`: int, `RequireApprovalAboveRisk`: double, `RequireApprovalBelowConfidence`: double, `SuppressionListEnabled`: bool, `AuditLoggingEnabled`: bool, `DraftScoreThreshold`: double, `AlertScoreThreshold`: double, `SelectedCampaignId`: long?, `DiscoveryEnabled`: bool, `ContentDiscoveryEnabled`: bool, `StaleItemMaxAgeHours`: int, `FollowUpDefaultHours`: int.
+Data: `Id`: long, `OperatorName`: string, `BusinessName`: string, `Location`: string, `ContactEmail`: string, `RemoteAvailability`: string, `CoreSkills`: string, `SecondarySkills`: string, `MinimumFee`: double, `PreferredPaymentTerms`: string, `EmergencyAvailability`: bool, `AiProvider`: string, `AiModel`: string, `OpenCodeCliPath`: string, `CodexCliPath`: string, `DefaultOpenCodeModel`: string, `DefaultAnthropicModel`: string, `DefaultCodexModel`: string, `TriageAiProvider`: string, `TriageAiModel`: string, `OutreachAiProvider`: string, `OutreachAiModel`: string, `ContentTopicsAiProvider`: string, `ContentTopicsAiModel`: string, `ContentDraftsAiProvider`: string, `ContentDraftsAiModel`: string, `PostDraftAiProvider`: string, `PostDraftAiModel`: string, `ThreadSummaryAiProvider`: string, `ThreadSummaryAiModel`: string, `PostOptimizationAiProvider`: string, `PostOptimizationAiModel`: string, `PromptVersion`: string, `MaxAiCallsPerHour`: int, `MaxAiSpendPerDay`: double, `MinPreFilterScoreForAi`: double, `MinAiConfidenceForDraft`: double, `ManualReviewConfidenceThreshold`: double, `AiRetryCount`: int, `AiTimeoutSeconds`: int, `DefaultOutreachMode`: OutreachMode, `GlobalAutoModeEnabled`: bool, `GlobalKillSwitch`: bool, `MaxSendsPerHour`: int, `MaxSendsPerDay`: int, `RequireApprovalAboveRisk`: double, `RequireApprovalBelowConfidence`: double, `SuppressionListEnabled`: bool, `AuditLoggingEnabled`: bool, `DraftScoreThreshold`: double, `AlertScoreThreshold`: double, `SelectedCampaignId`: long?, `DiscoveryEnabled`: bool, `ContentDiscoveryEnabled`: bool, `RedditUsername`: string, `RedditClientId`: string, `RedditClientSecret`: string, `RedditAppPassword`: string, `RedditInboxFeedToken`: string, `StaleItemMaxAgeHours`: int, `FollowUpDefaultHours`: int.
+
+- public `AiFor(AiFeature feature) → (string Provider, string Model)` — The provider/model pair a feature actually uses, after override resolution.
+- public `WithAiFor(AiFeature feature) → OperatorSettings` — Copy of these settings with AiProvider/AiModel resolved for a feature.
+- public `DefaultModelFor(string provider) → string` — Handles default model for. _(inferred)_
 
 #### Opportunity
 
@@ -381,11 +431,41 @@ public enum `ContentFormat` · `src/DevLeads.Core/Enums.cs:143`
 
 Publishable formats the content studio can generate.
 
+#### OperatorPostStatus
+
+public enum `OperatorPostStatus` · `src/DevLeads.Core/Enums.cs:153`
+
+Lifecycle of one of the operator's own posts on an external platform.
+
+#### OperatorPostRevisionStatus
+
+public enum `OperatorPostRevisionStatus` · `src/DevLeads.Core/Enums.cs:163`
+
+Lifecycle of an AI-proposed rewrite of one of the operator's posts.
+
+#### OperatorMessageKind
+
+public enum `OperatorMessageKind` · `src/DevLeads.Core/Enums.cs:173`
+
+What kind of inbox item a received operator message is.
+
+#### OperatorMessageStatus
+
+public enum `OperatorMessageStatus` · `src/DevLeads.Core/Enums.cs:187`
+
+Operator-side lifecycle of a received message.
+
 #### SuppressionContactType
 
-public enum `SuppressionContactType` · `src/DevLeads.Core/Enums.cs:153`
+public enum `SuppressionContactType` · `src/DevLeads.Core/Enums.cs:196`
 
 How a contact was added to the suppression list.
+
+#### AiFeature
+
+public enum `AiFeature` · `src/DevLeads.Core/Enums.cs:209`
+
+The distinct AI call sites in the app. Each can carry its own provider/model override in Entities.OperatorSettings; an unset override inherits the global AiProvider/AiModel pair.
 
 #### HeuristicPreFilter
 
@@ -643,6 +723,52 @@ Data: `PublicTechnicalReply`: string, `DirectOutreach`: string, `CompletionSmall
 
 ### `DevLeads.Infrastructure.Ai`
 
+#### AiCliSupport
+
+public class `AiCliSupport` · `src/DevLeads.Infrastructure/Ai/AiCliSupport.cs:13`
+
+Prompt building and output parsing shared by the CLI-backed AI providers (OpenCode, Codex). Both speak the same contract — a strict-JSON triage/shortlist prompt in, arbitrary agent output out — so the schema knowledge…
+
+Data: `ParseOptions`: JsonSerializerOptions, `AnsiPattern`: Regex.
+
+- public `BuildTriagePrompt(AiTriageRequest request) → string` — Creates triage prompt. _(inferred)_
+- public `BuildBatchTriagePrompt(IReadOnlyList<AiBatchTriageItem> items) → string` — Creates batch triage prompt. _(inferred)_
+- public `BuildShortlistPrompt(IReadOnlyList<AiShortlistItem> items, int maxSelections, string campaignObjective) → string` — Creates shortlist prompt. _(inferred)_
+- public `StripAnsi(string text) → string` — Handles strip ansi. _(inferred)_
+- public `ExtractJsonObject(string text) → string?` — Extracts the first balanced JSON object from arbitrary CLI output.
+- public `IsSchemaValid(AiTriageResult r) → bool` — Checks schema valid. _(inferred)_
+- public `Normalize(AiTriageResult r) → void` — Coerces near-miss enum values back onto the strict schema instead of failing the call.
+- public `Truncate(string s, int max) → string` — Handles truncate. _(inferred)_
+
+#### ShortlistOutput
+
+public class `ShortlistOutput` · `src/DevLeads.Infrastructure/Ai/AiCliSupport.cs:62`
+
+Represents shortlist output. _(inferred)_
+
+Data: `Selected`: List<ShortlistSelection>.
+
+#### ShortlistSelection
+
+public class `ShortlistSelection` · `src/DevLeads.Infrastructure/Ai/AiCliSupport.cs:67`
+
+Represents shortlist selection. _(inferred)_
+
+Data: `Id`: string, `Reason`: string?.
+
+#### AiTextRouter
+
+public class `AiTextRouter` · `src/DevLeads.Infrastructure/Ai/AiTextRouter.cs:16`
+
+Routes the app's long-form / free-text generation calls (outreach replies, content drafts, the operator's own posts, thread summaries, optimization rewrites) to the right CLI provider for each AiFeature.
+
+Depends on: `OpenCodeTriageProvider openCode`, `CodexCliProvider codex`, `ILogger<AiTextRouter> log`.
+
+Data: `_openCode`: OpenCodeTriageProvider, `_codex`: CodexCliProvider, `_log`: ILogger<AiTextRouter>.
+
+- public `GenerateTextAsync(AiFeature feature, string prompt, OperatorSettings settings, TimeSpan timeout, CancellationToken ct) → Task<(bool Succeeded, string Text, string Error, string Model)>` — Runs prompt through the provider/model configured for feature. The returned tuple mirrors the CLI providers' GenerateTextAsync contract; callers own the output format.
+- public `ProviderFor(OperatorSettings settings, AiFeature feature) → string` — The provider name a feature will actually use — for pre-flight UI/guards.
+
 #### AiTriageRouter
 
 public class `AiTriageRouter` · `src/DevLeads.Infrastructure/Ai/AiTriageRouter.cs:13`
@@ -671,6 +797,29 @@ Data: `Name`: string, `HasApiKey`: bool, `ParseOptions`: JsonSerializerOptions.
 - public `AvailabilityMessage(OperatorSettings settings) → string` — Human-readable explanation when IsAvailable is false.
 - public `TriageAsync(AiTriageRequest request, OperatorSettings settings, CancellationToken ct) → Task<AiTriageResponse>` — Coordinates triage.
 
+#### CodexCliProvider
+
+public class `CodexCliProvider` : `IAiTriageProvider`, `IAiBatchShortlistProvider`, `IAiBatchTriageProvider` · `src/DevLeads.Infrastructure/Ai/CodexCliProvider.cs:19`
+
+OpenAI-backed provider: runs the same structured triage/shortlist/generation calls through the local `codex` CLI (https://github.com/openai/codex) in non-interactive `exec` mode.
+
+Depends on: `ILogger<CodexCliProvider> log`.
+
+Data: `_log`: ILogger<CodexCliProvider>, `ProbeLock`: object, `_probedPath`: string?, `_probeResult`: bool, `_probeMessage`: string, `Name`: string.
+
+- public `IsAvailable(OperatorSettings settings) → bool` — Whether the provider can currently make calls (CLI present, key set, …).
+- public `AvailabilityMessage(OperatorSettings settings) → string` — Human-readable explanation when IsAvailable is false.
+- private `ResolveModel(OperatorSettings settings) → string` — Transforms or resolves model. _(inferred)_
+- public `TriageAsync(AiTriageRequest request, OperatorSettings settings, CancellationToken ct) → Task<AiTriageResponse>` — Coordinates triage.
+- public `TriageBatchAsync(IReadOnlyList<AiBatchTriageItem> items, OperatorSettings settings, CancellationToken ct) → Task<AiBatchTriageResponse>` — Coordinates batch.
+- public `ShortlistAsync(IReadOnlyList<AiShortlistItem> items, OperatorSettings settings, int maxSelections, string campaignObjective, CancellationToken ct) → Task<AiShortlistResponse>` — Handles shortlist.
+- public `GenerateTextAsync(string prompt, OperatorSettings settings, TimeSpan timeout, CancellationToken ct) → Task<(bool Succeeded, string Text, string Error, string Model)>` — Generic long-form generation, mirroring the OpenCode provider's contract: one prompt through `codex exec`, raw final-message text back.
+- public `ResolveCliPath(OperatorSettings settings) → string` — Resolves the configured CLI path, falling back to the standard install location.
+- private `OnPath(string command) → bool` — Handles on path. _(inferred)_
+- private `Probe(string cliPath) → (bool Available, string Message)` — Handles probe. _(inferred)_
+- public `ResetProbe() → void` — Clears the cached probe so a changed CLI path takes effect immediately.
+- private `RunCliAsync(string cliPath, string model, string prompt, TimeSpan timeout, CancellationToken ct) → Task<(int ExitCode, string Output, string Stderr)>` — One `codex exec` call. Runs in an isolated scratch directory with a read-only sandbox (codex is a coding agent; the prompts already forbid tool use, and the sandbox enforces it).
+
 #### HeuristicTriageProvider
 
 public class `HeuristicTriageProvider` : `IAiTriageProvider` · `src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs:12`
@@ -691,13 +840,13 @@ Data: `Name`: string, `CategoryMap`: (string[] Keywords, string Category)[], `So
 
 #### OpenCodeTriageProvider
 
-public class `OpenCodeTriageProvider` : `IAiTriageProvider`, `IAiBatchShortlistProvider`, `IAiBatchTriageProvider` · `src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs:18`
+public class `OpenCodeTriageProvider` : `IAiTriageProvider`, `IAiBatchShortlistProvider`, `IAiBatchTriageProvider` · `src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs:17`
 
 Default AI provider: runs the single-pass structured triage through the local `opencode` CLI (https://opencode.ai). The CLI brings its own provider/model configuration, so triage works with whatever the operator has…
 
 Depends on: `ILogger<OpenCodeTriageProvider> log`.
 
-Data: `_log`: ILogger<OpenCodeTriageProvider>, `ProbeLock`: object, `_probedPath`: string?, `_probeResult`: bool, `_probeMessage`: string, `Name`: string, `FallbackModels`: string[], `_lastWorkingFallback`: string?, `AnsiPattern`: Regex, `ParseOptions`: JsonSerializerOptions.
+Data: `_log`: ILogger<OpenCodeTriageProvider>, `ProbeLock`: object, `_probedPath`: string?, `_probeResult`: bool, `_probeMessage`: string, `Name`: string, `FallbackModels`: string[], `_lastWorkingFallback`: string?, `ParseOptions`: JsonSerializerOptions.
 
 - public `IsAvailable(OperatorSettings settings) → bool` — Whether the provider can currently make calls (CLI present, key set, …).
 - public `AvailabilityMessage(OperatorSettings settings) → string` — Human-readable explanation when IsAvailable is false.
@@ -705,8 +854,6 @@ Data: `_log`: ILogger<OpenCodeTriageProvider>, `ProbeLock`: object, `_probedPath
 - public `TriageBatchAsync(IReadOnlyList<AiBatchTriageItem> items, OperatorSettings settings, CancellationToken ct) → Task<AiBatchTriageResponse>` — Coordinates batch.
 - public `ShortlistAsync(IReadOnlyList<AiShortlistItem> items, OperatorSettings settings, int maxSelections, string campaignObjective, CancellationToken ct) → Task<AiShortlistResponse>` — Handles shortlist.
 - public `GenerateTextAsync(string prompt, OperatorSettings settings, TimeSpan timeout, CancellationToken ct) → Task<(bool Succeeded, string Text, string Error, string Model)>` — Generic long-form generation for the content studio: sends one prompt through the CLI and returns the raw (ANSI-stripped) text.
-- private `BuildPrompt(AiTriageRequest request) → string` — Creates prompt. _(inferred)_
-- private `BuildShortlistPrompt(IReadOnlyList<AiShortlistItem> items, int maxSelections, string campaignObjective) → string` — Creates shortlist prompt. _(inferred)_
 - public `ResolveCliPath(OperatorSettings settings) → string` — Resolves the configured CLI path, falling back to the standard install location.
 - private `OnPath(string command) → bool` — Handles on path. _(inferred)_
 - private `Probe(string cliPath) → (bool Available, string Message)` — Handles probe. _(inferred)_
@@ -716,24 +863,8 @@ Data: `_log`: ILogger<OpenCodeTriageProvider>, `ProbeLock`: object, `_probedPath
 - private `StripAnsi(string text) → string` — Handles strip ansi. _(inferred)_
 - public `ExtractJsonObject(string text) → string?` — Extracts the first balanced JSON object from arbitrary CLI output.
 - private `IsSchemaValid(AiTriageResult r) → bool` — Checks schema valid. _(inferred)_
-- private `Normalize(AiTriageResult r) → void` — Coerces near-miss enum values back onto the strict schema instead of failing the call.
+- private `Normalize(AiTriageResult r) → void` — Transforms or resolves normalize. _(inferred)_
 - private `Truncate(string s, int max) → string` — Handles truncate. _(inferred)_
-
-#### ShortlistOutput
-
-private class `ShortlistOutput` · `src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs:433`
-
-Represents shortlist output. _(inferred)_
-
-Data: `Selected`: List<ShortlistSelection>.
-
-#### ShortlistSelection
-
-private class `ShortlistSelection` · `src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs:438`
-
-Represents shortlist selection. _(inferred)_
-
-Data: `Id`: string, `Reason`: string?.
 
 ### `DevLeads.Infrastructure.Connectors`
 
@@ -905,14 +1036,14 @@ EF Core context for the SQLite solo database.
 
 Depends on: `DbContextOptions<DevLeadsDbContext> options`.
 
-Data: `Opportunities`: DbSet<Opportunity>, `RawSourceItems`: DbSet<RawSourceItem>, `AiTriageRuns`: DbSet<AiTriageRun>, `OutreachAttempts`: DbSet<OutreachAttempt>, `Quotes`: DbSet<Quote>, `WorkSessions`: DbSet<WorkSession>, `SuppressionEntries`: DbSet<SuppressionEntry>, `AuditEvents`: DbSet<AuditEvent>, `SourceConfigs`: DbSet<SourceConfig>, `QueryPacks`: DbSet<QueryPack>, `OperatorSettings`: DbSet<OperatorSettings>, `Skills`: DbSet<Skill>, `Campaigns`: DbSet<Campaign>, `TrendSources`: DbSet<TrendSource>, `TrendSignals`: DbSet<TrendSignal>, `ContentTopics`: DbSet<ContentTopic>, `ContentDrafts`: DbSet<ContentDraft>.
+Data: `Opportunities`: DbSet<Opportunity>, `RawSourceItems`: DbSet<RawSourceItem>, `AiTriageRuns`: DbSet<AiTriageRun>, `OutreachAttempts`: DbSet<OutreachAttempt>, `Quotes`: DbSet<Quote>, `WorkSessions`: DbSet<WorkSession>, `SuppressionEntries`: DbSet<SuppressionEntry>, `AuditEvents`: DbSet<AuditEvent>, `SourceConfigs`: DbSet<SourceConfig>, `QueryPacks`: DbSet<QueryPack>, `OperatorSettings`: DbSet<OperatorSettings>, `Skills`: DbSet<Skill>, `Campaigns`: DbSet<Campaign>, `TrendSources`: DbSet<TrendSource>, `TrendSignals`: DbSet<TrendSignal>, `ContentTopics`: DbSet<ContentTopic>, `ContentDrafts`: DbSet<ContentDraft>, `OperatorPosts`: DbSet<OperatorPost>, `OperatorPostSnapshots`: DbSet<OperatorPostSnapshot>, `OperatorMessages`: DbSet<OperatorMessage>, `OperatorPostRevisions`: DbSet<OperatorPostRevision>.
 
 - protected `ConfigureConventions(ModelConfigurationBuilder b) → void` — Handles configure conventions. _(inferred)_
 - protected `OnModelCreating(ModelBuilder mb) → void` — Handles on model creating. _(inferred)_
 
 #### DateTimeOffsetToTicksConverter
 
-private class `DateTimeOffsetToTicksConverter` : `ValueConverter<DateTimeOffset, long>` · `src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:33`
+private class `DateTimeOffsetToTicksConverter` : `ValueConverter<DateTimeOffset, long>` · `src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:37`
 
 Represents date time offset to ticks converter. _(inferred)_
 
@@ -965,9 +1096,9 @@ public class `ContentStudioService` · `src/DevLeads.Infrastructure/Services/Con
 
 Turns trend signals into publishable output: AI-suggested topics, then full drafts (blog posts, articles, white/research papers, LinkedIn posts) for the operator to edit and publish on their own channels.
 
-Depends on: `DevLeadsDbContext db`, `OpenCodeTriageProvider openCode`, `AuditService audit`, `DiscoveryActivityTracker activity`, `ILogger<ContentStudioService> log`.
+Depends on: `DevLeadsDbContext db`, `AiTextRouter text`, `AuditService audit`, `DiscoveryActivityTracker activity`, `ILogger<ContentStudioService> log`.
 
-Data: `_db`: DevLeadsDbContext, `_openCode`: OpenCodeTriageProvider, `_audit`: AuditService, `_activity`: DiscoveryActivityTracker, `_log`: ILogger<ContentStudioService>.
+Data: `_db`: DevLeadsDbContext, `_text`: AiTextRouter, `_audit`: AuditService, `_activity`: DiscoveryActivityTracker, `_log`: ILogger<ContentStudioService>.
 
 - public `GenerateTopicsAsync(int maxTopics, CancellationToken ct) → Task<(int Created, string Message)>` — One AI call: distills the hottest recent signals into up to maxTopics new topic suggestions. Returns (created, message).
 - public `GenerateDraftAsync(long topicId, ContentFormat format, CancellationToken ct) → Task<(ContentDraft? Draft, string Message)>` — One AI call: writes a full draft for a topic in the requested format.
@@ -1071,15 +1202,48 @@ Data: `_db`: DevLeadsDbContext, `_audit`: AuditService.
 - public `FlagOverdueQuotesAsync(CancellationToken ct) → Task<int>` — Handles flag overdue quotes. _(inferred)_
 - public `DueFollowUpCountAsync(CancellationToken ct) → Task<int>` — Count of opportunities whose follow-up is now due (surfaced on the dashboard).
 
+#### OperatorPostService
+
+public class `OperatorPostService` · `src/DevLeads.Infrastructure/Services/OperatorPostService.cs:20`
+
+Syncs the operator's OWN reddit posts into "My posts" and tracks their reply counts over time. Uses reddit's anonymous RSS endpoints with 6s pacing (the JSON API 403s from this host and the per-IP RSS budget bursts 429…
+
+Depends on: `DevLeadsDbContext db`, `IHttpClientFactory httpFactory`, `AiTextRouter text`, `DiscoveryActivityTracker activity`, `AuditService audit`, `ILogger<OperatorPostService> log`.
+
+Data: `Atom`: XNamespace, `RequestPacing`: TimeSpan, `JobCommunities`: string[], `_db`: DevLeadsDbContext, `_httpFactory`: IHttpClientFactory, `_text`: AiTextRouter, `_activity`: DiscoveryActivityTracker, `_audit`: AuditService, `_log`: ILogger<OperatorPostService>, `_cachedToken`: string?, `_tokenExpiresAt`: DateTimeOffset, `TokenLock`: SemaphoreSlim.
+
+- public `GeneratePostAsync(string platform, long? campaignId, string extraInstructions, CancellationToken ct) → Task<(OperatorPost? Post, string Message)>` — One AI call drafts a platform-appropriate post (reddit/craigslist/linkedin/upwork/ gmail template) in the operator's real identity, using the best-performing tracked posts as…
+- private `SplitTitle(string text) → (string Title, string Body)` — Transforms or resolves title. _(inferred)_
+- public `SyncRedditAsync(bool jobPostsOnly, CancellationToken ct) → Task<(int Imported, int Refreshed, string Message)>` — Imports the account's submitted posts and refreshes reply counts on tracked ones. jobPostsOnly keeps personal posts out (default): a post imports when its subreddit is…
+- private `ImportSubmittedAsync(HttpClient http, string username, bool jobPostsOnly, CancellationToken ct) → Task<int>` — Handles import submitted. _(inferred)_
+- public `HasApiCredentials(OperatorSettings s) → bool` — Checks api credentials. _(inferred)_
+- private `GetAccessTokenAsync(OperatorSettings settings, string username, CancellationToken ct) → Task<string>` — Loads or resolves access token. _(inferred)_
+- private `SyncViaApiAsync(OperatorSettings settings, string username, bool jobPostsOnly, CancellationToken ct) → Task<(int Imported, int Refreshed)>` — One authenticated listing call covers import AND stats: score (upvotes), num_comments, removed_by_category (reddit-filter removals), full selftext, and view_count (populated…
+- public `SyncRedditInboxAsync(CancellationToken ct) → Task<(int Imported, string Message)>` — Syncs the account's reddit inbox — DMs plus comment/post replies — into tracked messages. Prefers the authenticated API (full listing JSON with unread flags); otherwise uses the…
+- private `UpsertInboxListingAsync(string json, CancellationToken ct) → Task<int>` — Handles upsert inbox listing. _(inferred)_
+- private `GetString(System.Text.Json.JsonElement e, string name) → string` — Loads or resolves string. _(inferred)_
+- private `UpsertInboxFeedAsync(string xml, CancellationToken ct) → Task<int>` — Anonymous fallback: the private inbox feed as Atom. Entry ids are fullnames (t4_/t1_), titles read "from X via sub sent N ago: post reply" for replies (the DM subject for t4s)…
+- private `ParseFeedSubject(string title) → string` — Drops the "from X via sub sent N ago:" feed prefix, keeping the subject/label.
+- private `ExtractFeedBody(string html) → string` — Keeps only the message markdown (between reddit's SC_OFF/SC_ON markers), dropping the header line.
+- private `BackfillCrossPostBodiesAsync(CancellationToken ct) → Task` — A cross-posted ad gets its full selftext in only ONE feed entry ("submitted by" stubs elsewhere). The copies share a title, so the longest same-title body is the authoritative…
+- public `SummarizeThreadAsync(long postId, CancellationToken ct) → Task<(bool Ok, string Message)>` — Pulls the post plus every visible reply, then one AI call summarizes the thread's main points and suggests how to move forward as the original poster.
+- public `OptimizePostsAsync(IReadOnlyList<long> postIds, string extraInstructions, CancellationToken ct) → Task<(int Created, string Message)>` — One batched AI call rewrites each selected post with a DISTINCT strategy and saves them as Proposed revisions (nothing goes live: the operator applies each one on the platform…
+- public `ApplyRevisionAsync(long revisionId, CancellationToken ct) → Task<(bool Ok, string Message)>` — Marks a proposed rewrite as live: freezes the pre-change baseline (counts and views/day) and snapshots the change moment for the graph.
+- private `Truncate(string s, int max) → string` — Handles truncate. _(inferred)_
+- private `IsJobPost(string title, string community) → bool` — Checks job post. _(inferred)_
+- private `RefreshRepliesAsync(HttpClient http, CancellationToken ct) → Task<int>` — Refreshes reply counts on tracked reddit posts (stalest first, paced at 6s per request, capped per run to protect the reddit RSS budget). Snapshots every change.
+- private `StripHtml(string html) → string` — Handles strip html. _(inferred)_
+- private `StripBoilerplate(string text) → string` — Removes reddit's "submitted by /u/… [link] [comments]" feed footer.
+
 #### OutreachService
 
 public class `OutreachService` · `src/DevLeads.Infrastructure/Services/OutreachService.cs:19`
 
 Manages the human-in-the-loop outreach queue: drafts, approvals, sends, and suppression. Sending never bypasses the kill switch, suppression list, or approval requirement.
 
-Depends on: `DevLeadsDbContext db`, `AuditService audit`, `OpenCodeTriageProvider openCode`, `DiscoveryActivityTracker activity`.
+Depends on: `DevLeadsDbContext db`, `AuditService audit`, `AiTextRouter text`, `DiscoveryActivityTracker activity`.
 
-Data: `_db`: DevLeadsDbContext, `_audit`: AuditService, `_openCode`: OpenCodeTriageProvider, `_activity`: DiscoveryActivityTracker, `QueuedPlaceholder`: string, `GenerationChunkSize`: int.
+Data: `_db`: DevLeadsDbContext, `_audit`: AuditService, `_text`: AiTextRouter, `_activity`: DiscoveryActivityTracker, `QueuedPlaceholder`: string, `GenerationChunkSize`: int.
 
 - public `QueueForGenerationAsync(long opportunityId, CancellationToken ct) → Task<OutreachAttempt>` — Adds a lead to the AI generation queue. Idempotent: an existing queued/pending/ approved attempt for the same lead is returned instead of duplicated.
 - public `QueuedCountAsync(CancellationToken ct) → Task<int>` — Count of attempts currently waiting in the generation queue.
@@ -1143,7 +1307,7 @@ Data: `_db`: DevLeadsDbContext, `_connectors`: IEnumerable<ISourceConnector>, `_
 
 #### ShortlistGate
 
-private class `ShortlistGate` · `src/DevLeads.Infrastructure/Services/SourceRunner.cs:413`
+private class `ShortlistGate` · `src/DevLeads.Infrastructure/Services/SourceRunner.cs:417`
 
 Represents shortlist gate. _(inferred)_
 
@@ -1196,7 +1360,7 @@ The core background loop. Every minute it runs any sources that are due (respect
 
 Depends on: `IServiceScopeFactory scopeFactory`, `ILogger<DiscoveryWorker> log`.
 
-Data: `_scopeFactory`: IServiceScopeFactory, `_log`: ILogger<DiscoveryWorker>, `_lastMaintenance`: DateTimeOffset.
+Data: `_scopeFactory`: IServiceScopeFactory, `_log`: ILogger<DiscoveryWorker>, `_lastMaintenance`: DateTimeOffset, `_lastMyPostsSync`: DateTimeOffset, `_lastInboxSync`: DateTimeOffset.
 
 - protected `ExecuteAsync(CancellationToken stoppingToken) → Task` — Coordinates execute. _(inferred)_
 - private `TickAsync(CancellationToken ct) → Task` — Handles tick. _(inferred)_
@@ -1216,7 +1380,7 @@ Internal HTTP API used for automation and integration (the UI calls services dir
 
 #### ManualLeadDto
 
-public record class `ManualLeadDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:176`
+public record class `ManualLeadDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:237`
 
 Transfers manual lead data. _(inferred)_
 
@@ -1224,7 +1388,7 @@ Depends on: `string Title`, `string Body`, `string? SourceUrl`, `string? Author`
 
 #### DraftDto
 
-public record class `DraftDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:177`
+public record class `DraftDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:238`
 
 Transfers draft data. _(inferred)_
 
@@ -1232,7 +1396,7 @@ Depends on: `string TemplateKey`.
 
 #### QuoteDto
 
-public record class `QuoteDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:178`
+public record class `QuoteDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:239`
 
 Transfers quote data. _(inferred)_
 
@@ -1344,6 +1508,39 @@ Campaign-scoped dashboard with lead KPIs, activity, and top opportunities.
 - private `IsDashboardLead(Opportunity o, IReadOnlyDictionary<long, string> bodyByOpportunity) → bool` — Checks dashboard lead. _(inferred)_
 - private `DashboardDuplicateKey(Opportunity o, IReadOnlyDictionary<long, string> bodyByOpportunity) → string` — Handles dashboard duplicate key. _(inferred)_
 
+#### MyPosts
+
+public component `MyPosts` : `ComponentBase` · `src/DevLeads.Web/Components/Pages/MyPosts.razor:1`
+
+Blazor component for my posts.
+
+- protected `OnInitializedAsync() → Task` — Runs the component on initialized lifecycle step. _(inferred)_
+- private `DraftWithAi() → Task` — Handles draft with ai. _(inferred)_
+- private `Load() → Task` — Loads or resolves load. _(inferred)_
+- private `SyncReddit() → Task` — Handles sync reddit. _(inferred)_
+- private `ToggleOptimize() → void` — Handles optimize. _(inferred)_
+- private `ToggleOptimizeId(long id, ChangeEventArgs e) → void` — Handles optimize id. _(inferred)_
+- private `Optimize() → Task` — Handles optimize. _(inferred)_
+- private `ApplyRevision(long id) → Task` — Updates revision. _(inferred)_
+- private `DismissRevision(long id) → Task` — Removes or transitions revision. _(inferred)_
+- private `SaveRevisionNotes(OperatorPostRevision edited) → Task` — Updates revision notes. _(inferred)_
+- private `Delta(double before, double after) → string` — Handles delta. _(inferred)_
+- private `Truncate(string s, int max) → string` — Handles truncate. _(inferred)_
+- private `SyncInbox() → Task` — Handles sync inbox. _(inferred)_
+- private `ToggleMessage(long id) → void` — Handles message. _(inferred)_
+- private `AddMessage() → Task` — Creates message. _(inferred)_
+- private `SaveMessage(OperatorMessage edited) → Task` — Updates message. _(inferred)_
+- private `SetMessageStatus(OperatorMessage edited, OperatorMessageStatus status) → Task` — Updates message status. _(inferred)_
+- private `KindLabel(OperatorMessageKind k) → string` — Handles kind label. _(inferred)_
+- private `MessageChip(OperatorMessageStatus s) → string` — Handles message chip. _(inferred)_
+- private `SaveUsername() → Task` — Updates username. _(inferred)_
+- private `AddPost() → Task` — Creates post. _(inferred)_
+- private `Toggle(long id) → void` — Handles toggle. _(inferred)_
+- private `Summarize(long id) → Task` — Handles summarize. _(inferred)_
+- private `Save(OperatorPost edited) → Task` — Updates save. _(inferred)_
+- private `SetStatus(OperatorPost edited, OperatorPostStatus status) → Task` — Updates status. _(inferred)_
+- private `StatusChip(OperatorPostStatus s) → string` — Handles status chip. _(inferred)_
+
 #### NewOpportunity
 
 public component `NewOpportunity` : `ComponentBase` · `src/DevLeads.Web/Components/Pages/NewOpportunity.razor:1`
@@ -1423,6 +1620,12 @@ Operator, AI, safety, discovery, and restart settings.
 - private `Save() → Task` — Updates save. _(inferred)_
 - private `OnProviderChanged() → void` — Handles on provider changed. _(inferred)_
 - private `OnOpenCodeCliPathChanged() → void` — Handles on open code cli path changed. _(inferred)_
+- private `OnCodexCliPathChanged() → void` — Handles on codex cli path changed. _(inferred)_
+- private `ModelHint(string provider) → string` — Handles model hint. _(inferred)_
+- private `GetFeatureProvider(AiFeature f) → string` — Loads or resolves feature provider. _(inferred)_
+- private `SetFeatureProvider(AiFeature f, string? value) → void` — Updates feature provider. _(inferred)_
+- private `GetFeatureModel(AiFeature f) → string` — Loads or resolves feature model. _(inferred)_
+- private `SetFeatureModel(AiFeature f, string? value) → void` — Updates feature model. _(inferred)_
 
 #### SkillProfile
 
@@ -1470,6 +1673,12 @@ Blazor component for campaign switcher.
 
 - protected `OnInitializedAsync() → Task` — Runs the component on initialized lifecycle step. _(inferred)_
 - private `OnChanged(ChangeEventArgs e) → Task` — Handles on changed. _(inferred)_
+
+#### PostPerformanceChart
+
+public component `PostPerformanceChart` : `ComponentBase` · `src/DevLeads.Web/Components/Shared/PostPerformanceChart.razor:1`
+
+Blazor component for post performance chart.
 
 #### UiHelpers
 

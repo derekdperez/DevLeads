@@ -25,6 +25,23 @@
             <div class="rr-field"><label>Business name</label><input class="rr-input" @bind="_s.BusinessName" /></div>
             <div class="rr-field"><label>Location</label><input class="rr-input" @bind="_s.Location" /></div>
             <div class="rr-field"><label>Remote availability</label><input class="rr-input" @bind="_s.RemoteAvailability" /></div>
+            <div class="rr-field"><label>Contact email (used in generated posts/outreach)</label><input class="rr-input" @bind="_s.ContactEmail" /></div>
+            <div class="rr-field"><label>Reddit username (My posts sync)</label><input class="rr-input" @bind="_s.RedditUsername" /></div>
+        </div>
+        <div class="rr-sub" style="margin:.4rem 0">
+            Reddit API (script app) — needed for accurate views/upvotes/removal state on My posts.
+            Create one at <a href="https://www.reddit.com/prefs/apps" target="_blank" rel="noopener noreferrer">reddit.com/prefs/apps</a>
+            (type: <em>script</em>): the client id is the string under the app name.
+        </div>
+        <div class="rr-grid-2">
+            <div class="rr-field"><label>Reddit client id</label><input class="rr-input" @bind="_s.RedditClientId" /></div>
+            <div class="rr-field"><label>Reddit client secret</label><input class="rr-input" type="password" @bind="_s.RedditClientSecret" /></div>
+            <div class="rr-field"><label>Reddit account password</label><input class="rr-input" type="password" @bind="_s.RedditAppPassword" /></div>
+        </div>
+        <div class="rr-field">
+            <label>Reddit inbox feed token (DM sync without API credentials — the "feed=" value from
+                <a href="https://www.reddit.com/prefs/feeds" target="_blank" rel="noopener noreferrer">reddit.com/prefs/feeds</a>)</label>
+            <input class="rr-input" type="password" @bind="_s.RedditInboxFeedToken" />
         </div>
         <div class="rr-field"><label>Core skills</label><input class="rr-input" @bind="_s.CoreSkills" /></div>
         <div class="rr-field"><label>Secondary skills</label><input class="rr-input" @bind="_s.SecondarySkills" /></div>
@@ -52,15 +69,16 @@
         </div>
         <div class="rr-grid-2">
             <div class="rr-field">
-                <label>Provider</label>
+                <label>Default provider</label>
                 <select class="rr-select" @bind="_s.AiProvider" @bind:after="OnProviderChanged">
                     <option value="OpenCode">OpenCode CLI (default)</option>
+                    <option value="Codex">Codex CLI (OpenAI)</option>
                     <option value="Anthropic">Anthropic (Claude API)</option>
                     <option value="Heuristic">Heuristic (offline)</option>
                 </select>
             </div>
             <div class="rr-field">
-                <label>Model @(_s.AiProvider == "OpenCode" ? "(opencode provider/model)" : "")</label>
+                <label>Default model @ModelHint(_s.AiProvider)</label>
                 <input class="rr-input" @bind="_s.AiModel" />
             </div>
             @if (_s.AiProvider == "OpenCode")
@@ -69,15 +87,57 @@
                     <label>opencode CLI path</label>
                     <input class="rr-input" @bind="_s.OpenCodeCliPath" @bind:after="OnOpenCodeCliPathChanged" />
                 </div>
+            }
+            @if (_s.AiProvider == "Codex")
+            {
                 <div class="rr-field">
-                    <label>Timeout (seconds)</label>
-                    <input class="rr-input" type="number" @bind="_s.AiTimeoutSeconds" />
+                    <label>codex CLI path</label>
+                    <input class="rr-input" @bind="_s.CodexCliPath" @bind:after="OnCodexCliPathChanged" />
                 </div>
             }
+            <div class="rr-field">
+                <label>Timeout (seconds)</label>
+                <input class="rr-input" type="number" @bind="_s.AiTimeoutSeconds" />
+            </div>
             <div class="rr-field"><label>Min pre-filter score for AI</label><input class="rr-input" type="number" @bind="_s.MinPreFilterScoreForAi" /></div>
             <div class="rr-field"><label>Min AI confidence for draft</label><input class="rr-input" type="number" step="0.05" @bind="_s.MinAiConfidenceForDraft" /></div>
             <div class="rr-field"><label>Max AI calls / hour</label><input class="rr-input" type="number" @bind="_s.MaxAiCallsPerHour" /></div>
             <div class="rr-field"><label>Retry count</label><input class="rr-input" type="number" @bind="_s.AiRetryCount" /></div>
+        </div>
+    </div>
+
+    <div class="rr-panel">
+        <h2>AI models per feature</h2>
+        <div class="rr-sub" style="margin-bottom:.6rem">
+            Each feature can use its own provider and model. Leave a row on <strong>Default</strong>
+            to inherit the provider/model above. Triage (the discovery pipeline) can use any provider;
+            the writing features run on a CLI engine — OpenCode or Codex.
+        </div>
+        <div class="rr-feature-models">
+            @foreach (var f in FeatureRows)
+            {
+                var cfg = _s.AiFor(f.Feature);
+                <div class="rr-field" style="margin-bottom:.7rem">
+                    <label>@f.Label <span class="rr-sub">— @f.Hint</span></label>
+                    <div class="rr-grid-2">
+                        <select class="rr-select" value="@GetFeatureProvider(f.Feature)"
+                                @onchange="e => SetFeatureProvider(f.Feature, e.Value?.ToString())">
+                            <option value="">Default (@_s.AiProvider)</option>
+                            <option value="OpenCode">OpenCode CLI</option>
+                            <option value="Codex">Codex CLI (OpenAI)</option>
+                            @if (f.Feature == AiFeature.Triage)
+                            {
+                                <option value="Anthropic">Anthropic</option>
+                                <option value="Heuristic">Heuristic</option>
+                            }
+                        </select>
+                        <input class="rr-input" placeholder="@($"model (blank = {cfg.Model})")"
+                               value="@GetFeatureModel(f.Feature)"
+                               @onchange="e => SetFeatureModel(f.Feature, e.Value?.ToString())" />
+                    </div>
+                    <div class="rr-sub" style="margin-top:.15rem">Effective: <strong>@cfg.Provider</strong> · @cfg.Model</div>
+                </div>
+            }
         </div>
     </div>
 
@@ -201,17 +261,99 @@
     {
         if (_s is null) return;
 
+        // Snap the default model to the newly chosen provider's shape when the current
+        // value clearly belongs to a different provider (opencode uses "provider/model").
         if (_s.AiProvider == "OpenCode" &&
             (string.IsNullOrWhiteSpace(_s.AiModel) || !_s.AiModel.Contains('/')))
             _s.AiModel = OperatorSettings.DefaultOpenCodeModel;
+        else if (_s.AiProvider == "Codex" &&
+                 (string.IsNullOrWhiteSpace(_s.AiModel) || _s.AiModel.Contains('/')))
+            _s.AiModel = OperatorSettings.DefaultCodexModel;
         else if (_s.AiProvider == "Anthropic" &&
                  (string.IsNullOrWhiteSpace(_s.AiModel) || _s.AiModel.Contains('/')))
             _s.AiModel = OperatorSettings.DefaultAnthropicModel;
-
     }
 
-    private void OnOpenCodeCliPathChanged()
+    private void OnOpenCodeCliPathChanged() => OpenCodeTriageProvider.ResetProbe();
+    private void OnCodexCliPathChanged() => CodexCliProvider.ResetProbe();
+
+    private static string ModelHint(string provider) => provider switch
     {
-        OpenCodeTriageProvider.ResetProbe();
+        "OpenCode" => "(opencode provider/model)",
+        "Codex" => "(OpenAI model id, e.g. gpt-5.6-sol)",
+        "Anthropic" => "(Claude model id)",
+        _ => ""
+    };
+
+    private record FeatureRow(AiFeature Feature, string Label, string Hint);
+
+    private static readonly FeatureRow[] FeatureRows =
+    {
+        new(AiFeature.Triage, "Lead triage & shortlist", "the discovery pipeline (high volume)"),
+        new(AiFeature.Outreach, "Outreach replies", "batched reply generation for queued leads"),
+        new(AiFeature.ContentTopics, "Content topics", "trend-signal topic suggestions"),
+        new(AiFeature.ContentDrafts, "Content drafts", "long-form blog/article/paper drafts"),
+        new(AiFeature.PostDrafting, "My-post drafting", "drafting your own platform posts"),
+        new(AiFeature.ThreadSummary, "Thread summaries", "summarizing replies on your posts"),
+        new(AiFeature.PostOptimization, "Post optimization", "the rewrite experiment (defaults to Codex)")
+    };
+
+    private string GetFeatureProvider(AiFeature f) => f switch
+    {
+        AiFeature.Triage => _s!.TriageAiProvider,
+        AiFeature.Outreach => _s!.OutreachAiProvider,
+        AiFeature.ContentTopics => _s!.ContentTopicsAiProvider,
+        AiFeature.ContentDrafts => _s!.ContentDraftsAiProvider,
+        AiFeature.PostDrafting => _s!.PostDraftAiProvider,
+        AiFeature.ThreadSummary => _s!.ThreadSummaryAiProvider,
+        AiFeature.PostOptimization => _s!.PostOptimizationAiProvider,
+        _ => ""
+    };
+
+    private void SetFeatureProvider(AiFeature f, string? value)
+    {
+        if (_s is null) return;
+        var v = value ?? "";
+        switch (f)
+        {
+            case AiFeature.Triage: _s.TriageAiProvider = v; break;
+            case AiFeature.Outreach: _s.OutreachAiProvider = v; break;
+            case AiFeature.ContentTopics: _s.ContentTopicsAiProvider = v; break;
+            case AiFeature.ContentDrafts: _s.ContentDraftsAiProvider = v; break;
+            case AiFeature.PostDrafting: _s.PostDraftAiProvider = v; break;
+            case AiFeature.ThreadSummary: _s.ThreadSummaryAiProvider = v; break;
+            case AiFeature.PostOptimization: _s.PostOptimizationAiProvider = v; break;
+        }
+        // Switching provider invalidates a model id tied to the old one; clear it so the
+        // row falls back to the new provider's default until the operator types one.
+        SetFeatureModel(f, "");
+    }
+
+    private string GetFeatureModel(AiFeature f) => f switch
+    {
+        AiFeature.Triage => _s!.TriageAiModel,
+        AiFeature.Outreach => _s!.OutreachAiModel,
+        AiFeature.ContentTopics => _s!.ContentTopicsAiModel,
+        AiFeature.ContentDrafts => _s!.ContentDraftsAiModel,
+        AiFeature.PostDrafting => _s!.PostDraftAiModel,
+        AiFeature.ThreadSummary => _s!.ThreadSummaryAiModel,
+        AiFeature.PostOptimization => _s!.PostOptimizationAiModel,
+        _ => ""
+    };
+
+    private void SetFeatureModel(AiFeature f, string? value)
+    {
+        if (_s is null) return;
+        var v = value ?? "";
+        switch (f)
+        {
+            case AiFeature.Triage: _s.TriageAiModel = v; break;
+            case AiFeature.Outreach: _s.OutreachAiModel = v; break;
+            case AiFeature.ContentTopics: _s.ContentTopicsAiModel = v; break;
+            case AiFeature.ContentDrafts: _s.ContentDraftsAiModel = v; break;
+            case AiFeature.PostDrafting: _s.PostDraftAiModel = v; break;
+            case AiFeature.ThreadSummary: _s.ThreadSummaryAiModel = v; break;
+            case AiFeature.PostOptimization: _s.PostOptimizationAiModel = v; break;
+        }
     }
 }

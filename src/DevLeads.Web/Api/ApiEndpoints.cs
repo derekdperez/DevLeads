@@ -148,6 +148,67 @@ public static class ApiEndpoints
         api.MapGet("/content/drafts", async (DevLeadsDbContext db) =>
             Results.Ok(await db.ContentDrafts.AsNoTracking().OrderByDescending(d => d.Id).Take(50).ToListAsync()));
 
+        // ---- My posts (operator's own posts on external platforms) ----
+        api.MapGet("/myposts", async (DevLeadsDbContext db) =>
+            Results.Ok(await db.OperatorPosts.AsNoTracking().OrderByDescending(p => p.PostedAt).ToListAsync()));
+        api.MapPost("/myposts/sync-reddit", async (bool? all, OperatorPostService svc) =>
+        {
+            var (imported, refreshed, message) = await svc.SyncRedditAsync(jobPostsOnly: all != true, default);
+            return Results.Ok(new { imported, refreshed, message });
+        });
+        api.MapPost("/myposts/{id:long}/summarize", async (long id, OperatorPostService svc) =>
+        {
+            var (ok, message) = await svc.SummarizeThreadAsync(id, default);
+            return ok ? Results.Ok(new { message }) : Results.BadRequest(new { message });
+        });
+        api.MapPost("/myposts/draft", async (string platform, long? campaignId, string? instructions, OperatorPostService svc) =>
+        {
+            var (post, message) = await svc.GeneratePostAsync(platform, campaignId, instructions ?? "", default);
+            return post is null ? Results.BadRequest(new { message }) : Results.Ok(post);
+        });
+        api.MapPost("/myposts/optimize", async (string ids, string? instructions, OperatorPostService svc) =>
+        {
+            var postIds = ids.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => long.TryParse(s, out var id) ? id : 0).Where(id => id > 0).ToList();
+            var (created, message) = await svc.OptimizePostsAsync(postIds, instructions ?? "", default);
+            return created > 0 ? Results.Ok(new { created, message }) : Results.BadRequest(new { message });
+        });
+        api.MapGet("/myposts/revisions", async (DevLeadsDbContext db) =>
+            Results.Ok(await db.OperatorPostRevisions.AsNoTracking()
+                .OrderByDescending(r => r.Id).Take(100).ToListAsync()));
+        api.MapPost("/myposts/revisions/{id:long}/apply", async (long id, OperatorPostService svc) =>
+        {
+            var (ok, message) = await svc.ApplyRevisionAsync(id, default);
+            return ok ? Results.Ok(new { message }) : Results.BadRequest(new { message });
+        });
+        api.MapPost("/myposts/revisions/{id:long}/dismiss", async (long id, DevLeadsDbContext db) =>
+        {
+            var rev = await db.OperatorPostRevisions.FirstOrDefaultAsync(r => r.Id == id);
+            if (rev is null) return Results.NotFound();
+            rev.Status = OperatorPostRevisionStatus.Dismissed;
+            await db.SaveChangesAsync();
+            return Results.Ok(rev);
+        });
+        api.MapGet("/myposts/messages", async (DevLeadsDbContext db) =>
+            Results.Ok(await db.OperatorMessages.AsNoTracking()
+                .OrderByDescending(m => m.ReceivedAt).Take(200).ToListAsync()));
+        api.MapPost("/myposts/sync-inbox", async (OperatorPostService svc) =>
+        {
+            var (imported, message) = await svc.SyncRedditInboxAsync(default);
+            return Results.Ok(new { imported, message });
+        });
+        api.MapPost("/myposts/messages/{id:long}/status", async (long id, string status, DevLeadsDbContext db) =>
+        {
+            if (!Enum.TryParse<OperatorMessageStatus>(status, true, out var s))
+                return Results.BadRequest(new { message = "status must be one of: " + string.Join(", ", Enum.GetNames<OperatorMessageStatus>()) });
+            var msg = await db.OperatorMessages.FirstOrDefaultAsync(m => m.Id == id);
+            if (msg is null) return Results.NotFound();
+            msg.Status = s;
+            msg.UpdatedAt = DateTimeOffset.UtcNow;
+            await db.SaveChangesAsync();
+            return Results.Ok(msg);
+        });
+
         // ---- System ----
         api.MapPost("/system/restart", async (AppRestartService restart, DevLeadsDbContext db, AuditService audit) =>
         {

@@ -1,0 +1,746 @@
+@page "/myposts"
+@rendermode InteractiveServer
+@inject IDbContextFactory<DevLeadsDbContext> DbFactory
+@inject IServiceScopeFactory ScopeFactory
+<PageTitle>My posts · DevLeads</PageTitle>
+
+<div class="rr-page-head">
+    <div>
+        <h1>My posts</h1>
+        <div class="rr-sub">Your own outreach posts and the private messages they bring in — reddit posts sync every 6h and the inbox hourly; other platforms are tracked by hand for now.</div>
+    </div>
+    <div class="rr-btn-row">
+        <button class="rr-btn primary" @onclick="SyncReddit" disabled="@_busy">🔄 Sync reddit now</button>
+        <button class="rr-btn" @onclick="SyncInbox" disabled="@_busy">📨 Sync inbox</button>
+        <button class="rr-btn" @onclick="() => _showDraft = !_showDraft">✍️ Draft with AI</button>
+        <button class="rr-btn" @onclick="ToggleOptimize">🧪 Optimize posts</button>
+        <button class="rr-btn" @onclick="() => _showAdd = !_showAdd">➕ Add post</button>
+    </div>
+</div>
+
+@if (_flash is not null) { <div class="rr-flash @(_flashOk ? "ok" : "err")">@_flash</div> }
+
+<div class="rr-panel">
+    <div class="rr-panel-head"><h2>📈 What's working</h2></div>
+    <div class="rr-grid-2">
+        <div class="rr-field">
+            <label>Reddit account (username only — synced from its submitted feed)</label>
+            <div style="display:flex;gap:.4rem">
+                <input class="rr-input" @bind="_redditUsername" placeholder="Mission_Turn3102" />
+                <button class="rr-btn sm" @onclick="SaveUsername" disabled="@_busy">💾</button>
+            </div>
+        </div>
+        <label class="rr-check" style="align-self:end">
+            <input type="checkbox" @bind="_importAll" /> Import ALL reddit posts on sync (default: job/for-hire posts only)
+        </label>
+    </div>
+    @if (_platformStats.Count > 0)
+    {
+        <table class="rr-table">
+            <thead><tr><th>Platform</th><th>Active posts</th><th>Total replies</th><th>Best post</th></tr></thead>
+            <tbody>
+                @foreach (var s in _platformStats)
+                {
+                    <tr>
+                        <td><span class="rr-chip active">@s.Platform</span></td>
+                        <td>@s.ActiveCount</td>
+                        <td>@s.TotalReplies</td>
+                        <td class="rr-title-cell">@(s.BestPost ?? "—")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@if (_showDraft)
+{
+    <div class="rr-panel">
+        <div class="rr-panel-head"><h2>✍️ Draft a post with AI</h2></div>
+        <div class="rr-sub" style="margin-bottom:.6rem">Writes a platform-appropriate post in your name (Derek Perez, Florence MA, @_contactEmail), using your best-performing posts as voice reference. Saved as a Draft — you post it manually, then set the URL and mark it Active.</div>
+        <div class="rr-grid-2">
+            <div class="rr-field">
+                <label>Platform</label>
+                <select class="rr-select" @bind="_draftPlatform">
+                    <option value="reddit">reddit — [For Hire] post</option>
+                    <option value="craigslist">craigslist — services ad (Western MA)</option>
+                    <option value="linkedin">LinkedIn — availability post</option>
+                    <option value="upwork">Upwork — profile overview</option>
+                    <option value="gmail">gmail — cold outreach email template</option>
+                </select>
+            </div>
+            <div class="rr-field">
+                <label>Campaign (shapes the offering)</label>
+                <select class="rr-select" @bind="_draftCampaignId">
+                    <option value="">— general —</option>
+                    @foreach (var c in _campaigns)
+                    {
+                        <option value="@c.Id">@c.Emoji @c.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="rr-field">
+            <label>Extra instructions (optional)</label>
+            <input class="rr-input" @bind="_draftInstructions" placeholder="e.g. emphasize legacy .NET Framework migrations and same-week availability" />
+        </div>
+        <button class="rr-btn primary" @onclick="DraftWithAi" disabled="@_busy">@(_busy ? "Writing…" : "Generate draft (1 AI call)")</button>
+    </div>
+}
+
+@if (_showAdd)
+{
+    <div class="rr-panel">
+        <div class="rr-panel-head"><h2>➕ Track a post</h2></div>
+        <div class="rr-grid-2">
+            <div class="rr-field">
+                <label>Platform</label>
+                <select class="rr-select" @bind="_newPlatform">
+                    @foreach (var p in Platforms) { <option value="@p">@p</option> }
+                </select>
+            </div>
+            <div class="rr-field">
+                <label>Community / board (optional)</label>
+                <input class="rr-input" @bind="_newCommunity" placeholder="e.g. boston / .NET Developers" />
+            </div>
+        </div>
+        <div class="rr-field"><label>Title</label><input class="rr-input" @bind="_newTitle" /></div>
+        <div class="rr-field"><label>URL</label><input class="rr-input" @bind="_newUrl" placeholder="https://…" /></div>
+        <div class="rr-field"><label>Post text (optional — kept so you can compare wording against results)</label>
+            <textarea class="rr-textarea" style="min-height:90px" @bind="_newBody"></textarea></div>
+        <button class="rr-btn primary" @onclick="AddPost" disabled="@_busy">Add</button>
+    </div>
+}
+
+@if (_showOptimize)
+{
+    <div class="rr-panel">
+        <div class="rr-panel-head"><h2>🧪 Perform post optimization</h2></div>
+        <div class="rr-sub" style="margin-bottom:.6rem">
+            One AI call (@_optimizeModelLabel) rewrites each selected post with a DISTINCT strategy.
+            Leave one near-identical post unselected — it stays as the experiment's control. Rewrites arrive as proposals:
+            you post each on reddit yourself, then hit Apply to freeze its before/after baseline.
+            <span class="rr-sub">Change the model in <a href="/settings">Settings → AI models</a>.</span>
+        </div>
+        @foreach (var p in _posts.Where(p => p.Status == OperatorPostStatus.Active))
+        {
+            <label class="rr-check" style="display:flex;gap:.4rem;margin:.15rem 0">
+                <input type="checkbox" checked="@_optimizeIds.Contains(p.Id)" @onchange="e => ToggleOptimizeId(p.Id, e)" />
+                <span>@p.Title <span class="rr-sub">(r/@p.Community · @p.ViewCount views · @p.ReplyCount replies)</span></span>
+            </label>
+        }
+        <div class="rr-field" style="margin-top:.5rem">
+            <label>Extra instructions (optional)</label>
+            <input class="rr-input" @bind="_optimizeInstructions" placeholder="e.g. try one price-anchored variant and one aimed at agencies" />
+        </div>
+        <button class="rr-btn primary" @onclick="Optimize" disabled="@(_busy || _optimizeIds.Count == 0)">
+            @(_busy ? "Rewriting…" : $"Generate {_optimizeIds.Count} rewrite(s) (1 AI call)")
+        </button>
+    </div>
+}
+
+@if (_revisions.Any(r => r.Status == OperatorPostRevisionStatus.Proposed))
+{
+    <div class="rr-panel">
+        <div class="rr-panel-head"><h2>🧪 Proposed rewrites</h2>
+            <div class="rr-sub">Post the variant on reddit, then Apply — that starts its experiment clock.</div>
+        </div>
+        @foreach (var r in _revisions.Where(r => r.Status == OperatorPostRevisionStatus.Proposed))
+        {
+            var target = _posts.FirstOrDefault(p => p.Id == r.OperatorPostId);
+            <div style="border:1px solid var(--line);border-radius:10px;padding:.7rem .8rem;margin-bottom:.6rem">
+                <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+                    <span class="rr-chip progress">@r.Approach</span>
+                    <span class="rr-sub">rewrites “@Truncate(target?.Title ?? "?", 60)” (r/@target?.Community)</span>
+                    @if (!string.Equals(r.NewTitle.Trim(), r.OldTitle.Trim(), StringComparison.OrdinalIgnoreCase))
+                    {
+                        <span class="rr-chip quote" title="Reddit titles can't be edited — applying creates a new linked Draft post to repost">title change → repost</span>
+                    }
+                </div>
+                <div style="margin:.4rem 0;font-weight:600">@r.NewTitle</div>
+                <div class="rr-quote" style="white-space:pre-wrap;max-height:220px;overflow-y:auto">@r.NewBody</div>
+                <div class="rr-sub" style="margin:.4rem 0">Why: @r.Rationale</div>
+                <div class="rr-btn-row">
+                    <button class="rr-btn sm primary" @onclick="() => ApplyRevision(r.Id)" disabled="@_busy">✅ Apply (posted it)</button>
+                    <button class="rr-btn sm" @onclick="() => DismissRevision(r.Id)" disabled="@_busy">Dismiss</button>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<div class="rr-panel">
+    <div class="rr-panel-head">
+        <h2>📊 Performance over time</h2>
+        <div class="rr-sub">reddit hides view counts from anonymous access — enter views from your reddit account regularly (💾 snapshots them) so this graph has data.</div>
+    </div>
+    <PostPerformanceChart Posts="_posts" Snapshots="_snapshots" Revisions="_revisions" />
+    @if (_revisions.Any(r => r.Status == OperatorPostRevisionStatus.Applied))
+    {
+        <div class="rr-table-scroll" style="margin-top:.8rem">
+            <table class="rr-table">
+                <thead><tr><th>Applied</th><th>Approach</th><th>Post</th><th>Change</th><th>Views/day</th><th>Replies/day</th><th>Learnings</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var r in _revisions.Where(r => r.Status == OperatorPostRevisionStatus.Applied))
+                    {
+                        var after = AfterRate(r);
+                        <tr>
+                            <td title="@r.AppliedAt?.LocalDateTime.ToString("f")">@r.AppliedAt?.LocalDateTime.ToString("MMM d, HH:mm")</td>
+                            <td><span class="rr-chip progress">@r.Approach</span></td>
+                            <td class="rr-title-cell" title="@r.NewTitle">@Truncate(r.NewTitle, 46)</td>
+                            <td>@(r.ResultPostId is not null ? "repost (new title)" : "body edit")</td>
+                            <td>@r.BaselineViewsPerDay.ToString("0.#") → @(after is { } a1 ? $"{a1.ViewsPerDay:0.#} ({Delta(r.BaselineViewsPerDay, a1.ViewsPerDay)})" : "—")</td>
+                            <td>@r.BaselineRepliesPerDay.ToString("0.#") → @(after is { } a2 ? $"{a2.RepliesPerDay:0.#} ({Delta(r.BaselineRepliesPerDay, a2.RepliesPerDay)})" : "—")</td>
+                            <td style="min-width:180px"><input class="rr-input" @bind="r.Notes" placeholder="what did we learn?" /></td>
+                            <td><button class="rr-btn sm" @onclick="() => SaveRevisionNotes(r)" disabled="@_busy">💾</button></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<div class="rr-panel">
+    <div class="rr-panel-head">
+        <h2>📨 Private messages</h2>
+        <div class="rr-sub">
+            @_messages.Count(m => m.Status == OperatorMessageStatus.Unread) unread · @_messages.Count total
+            · <a style="cursor:pointer" @onclick="() => _showAddMessage = !_showAddMessage">➕ log one manually</a>
+        </div>
+    </div>
+    @if (_showAddMessage)
+    {
+        <div class="rr-grid-2">
+            <div class="rr-field">
+                <label>Platform</label>
+                <select class="rr-select" @bind="_newMsgPlatform">
+                    @foreach (var p in Platforms) { <option value="@p">@p</option> }
+                </select>
+            </div>
+            <div class="rr-field"><label>From</label><input class="rr-input" @bind="_newMsgAuthor" placeholder="handle / name" /></div>
+        </div>
+        <div class="rr-field"><label>Subject</label><input class="rr-input" @bind="_newMsgSubject" /></div>
+        <div class="rr-field"><label>Message</label><textarea class="rr-textarea" style="min-height:80px" @bind="_newMsgBody"></textarea></div>
+        <button class="rr-btn primary" @onclick="AddMessage" disabled="@_busy" style="margin-bottom:.6rem">Log message</button>
+    }
+    @if (_messages.Count == 0)
+    {
+        <div class="rr-empty">No messages yet — reddit DMs and replies land here on the next inbox sync.</div>
+    }
+    else
+    {
+        <div class="rr-table-scroll">
+            <table class="rr-table">
+                <thead><tr><th>From</th><th>Kind</th><th>Subject</th><th>On post</th><th>Received</th><th>Status</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var m in _messages)
+                    {
+                        <tr style="@(m.Status == OperatorMessageStatus.Unread ? "font-weight:600" : "")">
+                            <td><span class="rr-chip active">@m.Platform</span> @m.Author</td>
+                            <td>@KindLabel(m.Kind)@(string.IsNullOrWhiteSpace(m.Community) ? "" : $" · r/{m.Community}")</td>
+                            <td class="rr-title-cell">
+                                @if (string.IsNullOrWhiteSpace(m.Url)) { @m.Subject }
+                                else { <a href="@m.Url" target="_blank" rel="noopener noreferrer">@m.Subject ↗</a> }
+                            </td>
+                            <td class="rr-title-cell">@(m.OperatorPostId is { } pid ? _posts.FirstOrDefault(p => p.Id == pid)?.Title ?? "—" : "—")</td>
+                            <td title="@m.ReceivedAt.LocalDateTime.ToString("f")">@m.ReceivedAt.LocalDateTime.ToString("MMM d, HH:mm")</td>
+                            <td><span class="@MessageChip(m.Status)">@m.Status</span></td>
+                            <td><button class="rr-btn sm" @onclick="() => ToggleMessage(m.Id)">@(_openMessageId == m.Id ? "▲" : "▼")</button></td>
+                        </tr>
+                        @if (_openMessageId == m.Id)
+                        {
+                            <tr><td colspan="7" style="background:transparent">
+                                <div class="rr-quote" style="white-space:pre-wrap;max-height:260px;overflow-y:auto">@m.Body</div>
+                                <div class="rr-field" style="margin-top:.5rem">
+                                    <label>Notes (who this is, outcome, follow-up plan)</label>
+                                    <textarea class="rr-textarea" style="min-height:60px" @bind="m.Notes"></textarea>
+                                </div>
+                                <div class="rr-btn-row" style="margin-top:.4rem">
+                                    <button class="rr-btn sm" @onclick="() => SaveMessage(m)" disabled="@_busy">💾 Save</button>
+                                    @foreach (var st in new[] { OperatorMessageStatus.Read, OperatorMessageStatus.Replied, OperatorMessageStatus.Unread, OperatorMessageStatus.Archived })
+                                    {
+                                        if (st != m.Status)
+                                        {
+                                            <button class="rr-btn sm" @onclick="() => SetMessageStatus(m, st)" disabled="@_busy">@st</button>
+                                        }
+                                    }
+                                </div>
+                            </td></tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<div class="rr-panel">
+    <div class="rr-panel-head">
+        <h2>📌 Tracked posts</h2>
+        <div class="rr-sub">@_posts.Count(p => p.Status == OperatorPostStatus.Active) active · @_posts.Count total</div>
+    </div>
+    @if (_posts.Count == 0)
+    {
+        <div class="rr-empty">Nothing tracked yet — hit “Sync reddit now” or add a post manually.</div>
+    }
+    else
+    {
+        <div class="rr-table-scroll">
+            <table class="rr-table">
+                <thead><tr><th>Platform</th><th>Post</th><th>Replies</th><th title="Synced from the authenticated reddit API (author-only data); add API credentials in Settings">Views</th><th title="Synced from the authenticated reddit API">Upvotes</th><th>Posted</th><th>Updated</th><th>Checked</th><th>Status</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var p in _posts)
+                    {
+                        <tr>
+                            <td><span class="rr-chip active">@p.Platform</span><div class="rr-sub">@p.Community</div></td>
+                            <td class="rr-title-cell">
+                                <a href="@p.Url" target="_blank" rel="noopener noreferrer">@p.Title ↗</a>
+                            </td>
+                            <td><strong>@p.ReplyCount</strong></td>
+                            <td>@(p.ViewCount > 0 ? p.ViewCount.ToString() : "—")</td>
+                            <td>@(p.Platform == "reddit" ? p.UpvoteCount.ToString() : "—")</td>
+                            <td title="@p.PostedAt.LocalDateTime.ToString("f")">@p.PostedAt.LocalDateTime.ToString("MMM d, HH:mm")</td>
+                            <td title="@p.UpdatedAt.LocalDateTime.ToString("f")">@p.UpdatedAt.LocalDateTime.ToString("MMM d, HH:mm")</td>
+                            <td>@(p.LastCheckedAt is { } c ? UiHelpers.Age(c) : "—")</td>
+                            <td><span class="@StatusChip(p.Status)">@p.Status</span></td>
+                            <td><button class="rr-btn sm" @onclick="() => Toggle(p.Id)">@(_openId == p.Id ? "▲" : "▼")</button></td>
+                        </tr>
+                        @if (_openId == p.Id)
+                        {
+                            <tr><td colspan="7" style="background:transparent">
+                                <div class="rr-field">
+                                    <label>Post text</label>
+                                    <textarea class="rr-textarea" style="min-height:160px;white-space:pre-wrap" @bind="p.Body"></textarea>
+                                </div>
+                                <div class="rr-grid-2" style="margin-top:.4rem">
+                                    <div class="rr-field">
+                                        <label>URL (set after posting a draft)</label>
+                                        <input class="rr-input" @bind="p.Url" placeholder="https://…" />
+                                    </div>
+                                    <div class="rr-field">
+                                        <label>Views (from your platform account — reddit hides them from anonymous access)</label>
+                                        <input class="rr-input" type="number" @bind="p.ViewCount" />
+                                    </div>
+                                    <div class="rr-field">
+                                        <label>Upvotes (manual until reddit approves API access)</label>
+                                        <input class="rr-input" type="number" @bind="p.UpvoteCount" />
+                                    </div>
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(p.ThreadSummary))
+                                {
+                                    <div class="rr-field" style="margin-top:.4rem">
+                                        <label>🧠 Thread summary (@(p.SummarizedAt is { } sa ? UiHelpers.Age(sa) : ""))</label>
+                                        <div class="rr-quote" style="white-space:pre-wrap;max-height:260px;overflow-y:auto">@p.ThreadSummary</div>
+                                    </div>
+                                }
+                                <div class="rr-field" style="margin-top:.5rem">
+                                    <label>Notes & learnings (outcomes, replies quality, what to change next time)</label>
+                                    <textarea class="rr-textarea" style="min-height:70px" @bind="p.Notes"></textarea>
+                                </div>
+                                @if (_snapshots.TryGetValue(p.Id, out var snaps) && snaps.Count > 0)
+                                {
+                                    <div class="rr-sub" style="margin:.4rem 0">
+                                        History: @string.Join(" → ", snaps.Select(s => $"{s.ReplyCount}r/{s.UpvoteCount}↑/{s.ViewCount}v ({s.At.LocalDateTime:MMM d HH:mm})"))
+                                    </div>
+                                }
+                                <div class="rr-btn-row" style="margin-top:.4rem">
+                                    <button class="rr-btn sm" @onclick="() => Save(p)" disabled="@_busy">💾 Save</button>
+                                    <button class="rr-btn sm primary" @onclick="() => Summarize(p.Id)" disabled="@_busy"
+                                            title="Fetches the thread + replies and asks the AI to summarize it and suggest how to move forward as OP">🧠 Summarize thread</button>
+                                    @foreach (var st in new[] { OperatorPostStatus.Active, OperatorPostStatus.Expired, OperatorPostStatus.Removed, OperatorPostStatus.Archived })
+                                    {
+                                        if (st != p.Status)
+                                        {
+                                            <button class="rr-btn sm" @onclick="() => SetStatus(p, st)" disabled="@_busy">@st</button>
+                                        }
+                                    }
+                                </div>
+                            </td></tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private static readonly string[] Platforms = { "reddit", "upwork", "craigslist", "monster", "indeed", "linkedin", "gmail", "other" };
+    private record PlatformStats(string Platform, int ActiveCount, int TotalReplies, string? BestPost);
+
+    private List<OperatorPost> _posts = new();
+    private List<OperatorMessage> _messages = new();
+    private List<OperatorPostRevision> _revisions = new();
+    private readonly HashSet<long> _optimizeIds = new();
+    private bool _showOptimize;
+    private string _optimizeInstructions = "";
+    private Dictionary<long, List<OperatorPostSnapshot>> _snapshots = new();
+    private List<PlatformStats> _platformStats = new();
+    private long? _openId, _openMessageId;
+    private bool _busy, _showAdd, _showDraft, _importAll, _showAddMessage;
+    private string _newMsgPlatform = "upwork", _newMsgAuthor = "", _newMsgSubject = "", _newMsgBody = "";
+    private string? _flash; private bool _flashOk = true;
+    private string _redditUsername = "", _contactEmail = "";
+    private string _optimizeModelLabel = "";
+    private string _newPlatform = "upwork", _newCommunity = "", _newTitle = "", _newUrl = "", _newBody = "";
+    private string _draftPlatform = "craigslist", _draftInstructions = "";
+    private long? _draftCampaignId;
+    private List<Campaign> _campaigns = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var settings = await db.OperatorSettings.AsNoTracking().FirstOrDefaultAsync();
+        _redditUsername = settings?.RedditUsername ?? "";
+        _contactEmail = settings?.ContactEmail ?? "";
+        var (optProvider, optModel) = (settings ?? new OperatorSettings()).AiFor(AiFeature.PostOptimization);
+        _optimizeModelLabel = $"{optProvider} · {optModel}";
+        _campaigns = await db.Campaigns.AsNoTracking().OrderBy(c => c.Id).ToListAsync();
+        await Load();
+    }
+
+    private async Task DraftWithAi()
+    {
+        _busy = true; _flash = null;
+        StateHasChanged();
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var (post, message) = await scope.ServiceProvider.GetRequiredService<OperatorPostService>()
+                .GeneratePostAsync(_draftPlatform, _draftCampaignId, _draftInstructions, default);
+            _flash = message; _flashOk = post is not null;
+            if (post is not null) { _openId = post.Id; _showDraft = false; }
+            await Load();
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+
+    private async Task Load()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        _posts = await db.OperatorPosts.AsNoTracking()
+            .OrderByDescending(p => p.Status == OperatorPostStatus.Active)
+            .ThenByDescending(p => p.PostedAt)
+            .ToListAsync();
+        _revisions = await db.OperatorPostRevisions.AsNoTracking()
+            .OrderByDescending(r => r.Id).ToListAsync();
+        _messages = await db.OperatorMessages.AsNoTracking()
+            .OrderBy(m => m.Status == OperatorMessageStatus.Archived)
+            .ThenByDescending(m => m.ReceivedAt)
+            .Take(200).ToListAsync();
+        var ids = _posts.Select(p => p.Id).ToList();
+        _snapshots = (await db.OperatorPostSnapshots.AsNoTracking()
+                .Where(s => ids.Contains(s.OperatorPostId))
+                .OrderBy(s => s.At).ToListAsync())
+            .GroupBy(s => s.OperatorPostId)
+            .ToDictionary(g => g.Key, g => g.ToList());
+        _platformStats = _posts
+            .GroupBy(p => p.Platform)
+            .Select(g => new PlatformStats(
+                g.Key,
+                g.Count(p => p.Status == OperatorPostStatus.Active),
+                g.Sum(p => p.ReplyCount),
+                g.Where(p => p.ReplyCount > 0).OrderByDescending(p => p.ReplyCount)
+                    .Select(p => $"{p.Title} ({p.ReplyCount})").FirstOrDefault()))
+            .OrderByDescending(s => s.TotalReplies)
+            .ToList();
+    }
+
+    private async Task SyncReddit()
+    {
+        _busy = true; _flash = null;
+        StateHasChanged();
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var (_, _, message) = await scope.ServiceProvider.GetRequiredService<OperatorPostService>()
+                .SyncRedditAsync(jobPostsOnly: !_importAll, default);
+            _flash = message; _flashOk = true;
+            await Load();
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+
+    /// <summary>Preselects every active post EXCEPT the best performer — that one stays as the control.</summary>
+    private void ToggleOptimize()
+    {
+        _showOptimize = !_showOptimize;
+        if (!_showOptimize || _optimizeIds.Count > 0) return;
+        var active = _posts.Where(p => p.Status == OperatorPostStatus.Active).ToList();
+        var control = active.OrderByDescending(p => p.ViewCount).ThenByDescending(p => p.ReplyCount).FirstOrDefault();
+        foreach (var p in active.Where(p => p.Id != control?.Id)) _optimizeIds.Add(p.Id);
+    }
+
+    private void ToggleOptimizeId(long id, ChangeEventArgs e)
+    {
+        if (e.Value is true) _optimizeIds.Add(id); else _optimizeIds.Remove(id);
+    }
+
+    private async Task Optimize()
+    {
+        _busy = true; _flash = "⏳ Rewriting posts — one AI call, this can take a minute…"; _flashOk = true;
+        StateHasChanged();
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var (created, message) = await scope.ServiceProvider.GetRequiredService<OperatorPostService>()
+                .OptimizePostsAsync(_optimizeIds.ToList(), _optimizeInstructions, default);
+            _flash = message; _flashOk = created > 0;
+            if (created > 0) _showOptimize = false;
+            await Load();
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+
+    private async Task ApplyRevision(long id)
+    {
+        _busy = true;
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var (ok, message) = await scope.ServiceProvider.GetRequiredService<OperatorPostService>()
+                .ApplyRevisionAsync(id, default);
+            _flash = message; _flashOk = ok;
+            await Load();
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+
+    private async Task DismissRevision(long id)
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var rev = await db.OperatorPostRevisions.FirstOrDefaultAsync(r => r.Id == id);
+        if (rev is null) return;
+        rev.Status = OperatorPostRevisionStatus.Dismissed;
+        await db.SaveChangesAsync();
+        await Load();
+    }
+
+    private async Task SaveRevisionNotes(OperatorPostRevision edited)
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var rev = await db.OperatorPostRevisions.FirstOrDefaultAsync(r => r.Id == edited.Id);
+        if (rev is null) return;
+        rev.Notes = edited.Notes;
+        await db.SaveChangesAsync();
+        _flash = "Learnings saved."; _flashOk = true;
+    }
+
+    /// <summary>
+    /// The revision's "after" rate: a repost is measured over its own life, a body edit
+    /// over the views/replies gained since the change. Compared against the frozen
+    /// baseline rate, this is the experiment's readout.
+    /// </summary>
+    private (double ViewsPerDay, double RepliesPerDay)? AfterRate(OperatorPostRevision r)
+    {
+        if (r.AppliedAt is not { } appliedAt) return null;
+        var now = DateTimeOffset.UtcNow;
+        if (r.ResultPostId is { } resultId)
+        {
+            var repost = _posts.FirstOrDefault(p => p.Id == resultId);
+            if (repost is null) return null;
+            var life = Math.Max(1.0 / 24, (now - repost.PostedAt).TotalDays);
+            return (repost.ViewCount / life, repost.ReplyCount / life);
+        }
+        var post = _posts.FirstOrDefault(p => p.Id == r.OperatorPostId);
+        if (post is null) return null;
+        var days = Math.Max(1.0 / 24, (now - appliedAt).TotalDays);
+        return (Math.Max(0, post.ViewCount - r.BaselineViewCount) / days,
+                Math.Max(0, post.ReplyCount - r.BaselineReplyCount) / days);
+    }
+
+    private static string Delta(double before, double after) =>
+        before <= 0 ? "new" : $"{(after - before) / before * 100:+0;-0}%";
+
+    private static string Truncate(string s, int max) => s.Length <= max ? s : s[..max] + "…";
+
+    private async Task SyncInbox()
+    {
+        _busy = true; _flash = null;
+        StateHasChanged();
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var (_, message) = await scope.ServiceProvider.GetRequiredService<OperatorPostService>()
+                .SyncRedditInboxAsync(default);
+            _flash = message; _flashOk = true;
+            await Load();
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+
+    private void ToggleMessage(long id) => _openMessageId = _openMessageId == id ? null : id;
+
+    private async Task AddMessage()
+    {
+        if (string.IsNullOrWhiteSpace(_newMsgAuthor) && string.IsNullOrWhiteSpace(_newMsgBody))
+        { _flash = "A sender or message text is required."; _flashOk = false; return; }
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var now = DateTimeOffset.UtcNow;
+        db.OperatorMessages.Add(new OperatorMessage
+        {
+            Platform = _newMsgPlatform,
+            ExternalId = Guid.NewGuid().ToString("N"),
+            Kind = OperatorMessageKind.PrivateMessage,
+            Author = _newMsgAuthor.Trim(),
+            Subject = _newMsgSubject.Trim(),
+            Body = _newMsgBody.Trim(),
+            Status = OperatorMessageStatus.Unread,
+            ReceivedAt = now, CreatedAt = now, UpdatedAt = now
+        });
+        await db.SaveChangesAsync();
+        _newMsgAuthor = _newMsgSubject = _newMsgBody = "";
+        _showAddMessage = false;
+        _flash = "Message logged."; _flashOk = true;
+        await Load();
+    }
+
+    private async Task SaveMessage(OperatorMessage edited)
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var m = await db.OperatorMessages.FirstOrDefaultAsync(x => x.Id == edited.Id);
+        if (m is null) return;
+        m.Notes = edited.Notes;
+        m.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+        _flash = "Saved."; _flashOk = true;
+    }
+
+    private async Task SetMessageStatus(OperatorMessage edited, OperatorMessageStatus status)
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var m = await db.OperatorMessages.FirstOrDefaultAsync(x => x.Id == edited.Id);
+        if (m is null) return;
+        m.Status = status;
+        m.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+        await Load();
+    }
+
+    private static string KindLabel(OperatorMessageKind k) => k switch
+    {
+        OperatorMessageKind.PrivateMessage => "DM",
+        OperatorMessageKind.CommentReply => "comment reply",
+        OperatorMessageKind.PostReply => "post reply",
+        OperatorMessageKind.Mention => "mention",
+        _ => "other"
+    };
+
+    private static string MessageChip(OperatorMessageStatus s) => s switch
+    {
+        OperatorMessageStatus.Unread => "rr-chip review",
+        OperatorMessageStatus.Replied => "rr-chip won",
+        OperatorMessageStatus.Archived => "rr-chip",
+        _ => "rr-chip active"
+    };
+
+    private async Task SaveUsername()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var settings = await db.OperatorSettings.FirstOrDefaultAsync();
+        if (settings is null) return;
+        settings.RedditUsername = _redditUsername.Trim();
+        await db.SaveChangesAsync();
+        _flash = "Reddit account saved."; _flashOk = true;
+    }
+
+    private async Task AddPost()
+    {
+        if (string.IsNullOrWhiteSpace(_newTitle)) { _flash = "A title is required."; _flashOk = false; return; }
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var now = DateTimeOffset.UtcNow;
+        db.OperatorPosts.Add(new OperatorPost
+        {
+            Platform = _newPlatform,
+            ExternalId = Guid.NewGuid().ToString("N"),
+            Url = _newUrl.Trim(),
+            Title = _newTitle.Trim(),
+            Body = _newBody.Trim(),
+            Community = _newCommunity.Trim(),
+            Status = OperatorPostStatus.Active,
+            PostedAt = now, CreatedAt = now, UpdatedAt = now
+        });
+        await db.SaveChangesAsync();
+        _newTitle = _newUrl = _newBody = _newCommunity = "";
+        _showAdd = false;
+        _flash = "Post tracked."; _flashOk = true;
+        await Load();
+    }
+
+    private void Toggle(long id) => _openId = _openId == id ? null : id;
+
+    private async Task Summarize(long id)
+    {
+        _busy = true; _flash = "⏳ Fetching the thread and summarizing — one AI call…"; _flashOk = true;
+        StateHasChanged();
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var (ok, message) = await scope.ServiceProvider.GetRequiredService<OperatorPostService>()
+                .SummarizeThreadAsync(id, default);
+            _flash = message; _flashOk = ok;
+            await Load();
+            _openId = id;
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+
+    private async Task Save(OperatorPost edited)
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var p = await db.OperatorPosts.FirstOrDefaultAsync(x => x.Id == edited.Id);
+        if (p is null) return;
+        p.Notes = edited.Notes;
+        p.Body = edited.Body;
+        p.Url = edited.Url.Trim();
+        // Adopt the reddit id from a pasted URL so the next sync recognizes this row
+        // instead of importing the same post again (drafts/reposts start with a GUID).
+        var idMatch = System.Text.RegularExpressions.Regex.Match(p.Url, @"/comments/([a-z0-9]+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        if (p.Platform == "reddit" && idMatch.Success && p.ExternalId != idMatch.Groups[1].Value)
+            p.ExternalId = idMatch.Groups[1].Value;
+        var newViews = Math.Max(0, edited.ViewCount);
+        var newUpvotes = Math.Max(0, edited.UpvoteCount);
+        // Manual counts are the only view data reddit allows — snapshot them so the
+        // performance graph gets a point at every reading.
+        if (newViews != p.ViewCount || newUpvotes != p.UpvoteCount)
+        {
+            db.OperatorPostSnapshots.Add(new OperatorPostSnapshot
+            {
+                OperatorPostId = p.Id, At = DateTimeOffset.UtcNow,
+                ReplyCount = p.ReplyCount, UpvoteCount = newUpvotes, ViewCount = newViews
+            });
+        }
+        p.ViewCount = newViews;
+        p.UpvoteCount = newUpvotes;
+        p.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+        _flash = "Saved."; _flashOk = true;
+        await Load();
+    }
+
+    private async Task SetStatus(OperatorPost edited, OperatorPostStatus status)
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var p = await db.OperatorPosts.FirstOrDefaultAsync(x => x.Id == edited.Id);
+        if (p is null) return;
+        p.Status = status;
+        p.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+        await Load();
+    }
+
+    private static string StatusChip(OperatorPostStatus s) => s switch
+    {
+        OperatorPostStatus.Active => "rr-chip won",
+        OperatorPostStatus.Expired or OperatorPostStatus.Removed => "rr-chip dead",
+        OperatorPostStatus.Archived => "rr-chip",
+        _ => "rr-chip review"
+    };
+}

@@ -18,16 +18,16 @@ namespace DevLeads.Infrastructure.Services;
 public sealed class ContentStudioService
 {
     private readonly DevLeadsDbContext _db;
-    private readonly OpenCodeTriageProvider _openCode;
+    private readonly AiTextRouter _text;
     private readonly AuditService _audit;
     private readonly DiscoveryActivityTracker _activity;
     private readonly ILogger<ContentStudioService> _log;
 
-    public ContentStudioService(DevLeadsDbContext db, OpenCodeTriageProvider openCode,
+    public ContentStudioService(DevLeadsDbContext db, AiTextRouter text,
         AuditService audit, DiscoveryActivityTracker activity, ILogger<ContentStudioService> log)
     {
         _db = db;
-        _openCode = openCode;
+        _text = text;
         _audit = audit;
         _activity = activity;
         _log = log;
@@ -58,7 +58,7 @@ public sealed class ContentStudioService
 
         _activity.RunStarted("content_topics", "Content studio — suggesting topics");
         var timeout = TimeSpan.FromSeconds(Math.Clamp(settings.AiTimeoutSeconds * 2, 120, 600));
-        var (ok, text, error, model) = await _openCode.GenerateTextAsync(prompt, settings, timeout, ct);
+        var (ok, text, error, model) = await _text.GenerateTextAsync(AiFeature.ContentTopics, prompt, settings, timeout, ct);
         if (!ok)
         {
             _activity.RunCompleted("content_topics", healthy: false, "Topic suggestion failed: " + error);
@@ -142,7 +142,7 @@ public sealed class ContentStudioService
         _activity.RunStarted("content_draft", $"Content studio — writing {Spaced(format)}: {topic.Title}");
         // Long-form output takes several minutes on free CLI models; give it room.
         var timeout = TimeSpan.FromSeconds(Math.Clamp(settings.AiTimeoutSeconds * 4, 240, 900));
-        var (ok, text, error, model) = await _openCode.GenerateTextAsync(prompt, settings, timeout, ct);
+        var (ok, text, error, model) = await _text.GenerateTextAsync(AiFeature.ContentDrafts, prompt, settings, timeout, ct);
         if (!ok)
         {
             _activity.RunCompleted("content_draft", healthy: false, $"Draft failed: {error}");
@@ -159,7 +159,7 @@ public sealed class ContentStudioService
             BodyMarkdown = body,
             WordCount = body.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length,
             Status = ContentDraftStatus.Draft,
-            Provider = "OpenCode",
+            Provider = _text.ProviderFor(settings, AiFeature.ContentDrafts),
             Model = model,
             CreatedAt = now,
             UpdatedAt = now

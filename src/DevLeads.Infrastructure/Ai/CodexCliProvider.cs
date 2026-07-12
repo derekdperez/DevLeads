@@ -9,14 +9,16 @@ using DevLeads.Core.Entities;
 namespace DevLeads.Infrastructure.Ai;
 
 /// <summary>
-/// Default AI provider: runs the single-pass structured triage through the local
-/// `opencode` CLI (https://opencode.ai). The CLI brings its own provider/model
-/// configuration, so triage works with whatever the operator has set up in opencode —
-/// including its free models — with no API key in this app at all.
+/// OpenAI-backed provider: runs the same structured triage/shortlist/generation calls
+/// through the local `codex` CLI (https://github.com/openai/codex) in non-interactive
+/// `exec` mode. Auth and model access come from the operator's codex login, so no API
+/// key lives in this app. Unlike OpenCode there is NO model fallback chain: a failed
+/// call surfaces its error so the operator's model choice is never silently swapped
+/// (post-optimization experiments depend on a stable model).
 /// </summary>
-public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlistProvider, IAiBatchTriageProvider
+public sealed class CodexCliProvider : IAiTriageProvider, IAiBatchShortlistProvider, IAiBatchTriageProvider
 {
-    private readonly ILogger<OpenCodeTriageProvider> _log;
+    private readonly ILogger<CodexCliProvider> _log;
 
     // CLI availability probe is cached per resolved path (probe spawns a process).
     private static readonly object ProbeLock = new();
@@ -24,24 +26,25 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
     private static bool _probeResult;
     private static string _probeMessage = "";
 
-    public OpenCodeTriageProvider(ILogger<OpenCodeTriageProvider> log) => _log = log;
+    public CodexCliProvider(ILogger<CodexCliProvider> log) => _log = log;
 
-    public string Name => "OpenCode";
+    public string Name => "Codex";
 
     public bool IsAvailable(OperatorSettings settings) => Probe(ResolveCliPath(settings)).Available;
 
     public string AvailabilityMessage(OperatorSettings settings)
     {
         var (available, message) = Probe(ResolveCliPath(settings));
-        return available ? message : $"opencode CLI not runnable: {message}";
+        return available ? message : $"codex CLI not runnable: {message}";
     }
+
+    private static string ResolveModel(OperatorSettings settings) =>
+        string.IsNullOrWhiteSpace(settings.AiModel) ? OperatorSettings.DefaultCodexModel : settings.AiModel.Trim();
 
     public async Task<AiTriageResponse> TriageAsync(AiTriageRequest request, OperatorSettings settings, CancellationToken ct)
     {
         var cli = ResolveCliPath(settings);
-        var model = string.IsNullOrWhiteSpace(settings.AiModel)
-            ? OperatorSettings.DefaultOpenCodeModel
-            : settings.AiModel.Trim();
+        var model = ResolveModel(settings);
         var prompt = AiCliSupport.BuildTriagePrompt(request);
 
         var response = new AiTriageResponse
@@ -62,39 +65,36 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
         try
         {
             var timeout = TimeSpan.FromSeconds(Math.Clamp(settings.AiTimeoutSeconds, 30, 300));
-            var (exitCode, stdout, stderr, modelUsed) = await RunWithModelFallbackAsync(cli, model, prompt, timeout, ct);
-            response.Model = modelUsed;
-
-            var cleaned = StripAnsi(stdout);
-            response.ResponseJson = Truncate(cleaned, 8000);
+            var (exitCode, output, stderr) = await RunCliAsync(cli, model, prompt, timeout, ct);
+            response.ResponseJson = AiCliSupport.Truncate(output, 8000);
 
             if (exitCode != 0)
             {
                 response.Succeeded = false;
                 response.Retryable = true;
-                response.ErrorMessage = $"opencode exited {exitCode}: {Truncate(StripAnsi(stderr), 400)}";
+                response.ErrorMessage = $"codex exited {exitCode}: {AiCliSupport.Truncate(stderr, 400)}";
                 return response;
             }
 
-            var json = ExtractJsonObject(cleaned);
+            var json = AiCliSupport.ExtractJsonObject(output);
             if (json is null)
             {
                 response.Succeeded = false;
                 response.Retryable = true; // one retry with the same prompt often fixes format drift
-                response.ErrorMessage = "No JSON object found in opencode output.";
+                response.ErrorMessage = "No JSON object found in codex output.";
                 return response;
             }
 
-            var result = JsonSerializer.Deserialize<AiTriageResult>(json, ParseOptions);
-            if (result is null || !IsSchemaValid(result))
+            var result = JsonSerializer.Deserialize<AiTriageResult>(json, AiCliSupport.ParseOptions);
+            if (result is null || !AiCliSupport.IsSchemaValid(result))
             {
                 response.Succeeded = false;
                 response.Retryable = true;
-                response.ErrorMessage = "opencode output did not match the strict triage schema.";
+                response.ErrorMessage = "codex output did not match the strict triage schema.";
                 return response;
             }
 
-            Normalize(result);
+            AiCliSupport.Normalize(result);
             response.Succeeded = true;
             response.Result = result;
             return response;
@@ -103,7 +103,7 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
         {
             response.Succeeded = false;
             response.Retryable = true;
-            response.ErrorMessage = "opencode call timed out.";
+            response.ErrorMessage = "codex call timed out.";
             return response;
         }
         catch (OperationCanceledException) { throw; }
@@ -119,7 +119,7 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
             response.Succeeded = false;
             response.Retryable = false;
             response.ErrorMessage = ex.GetType().Name + ": " + ex.Message;
-            _log.LogWarning(ex, "opencode triage failed");
+            _log.LogWarning(ex, "codex triage failed");
             return response;
         }
     }
@@ -130,10 +130,7 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
         CancellationToken ct)
     {
         var cli = ResolveCliPath(settings);
-        var model = string.IsNullOrWhiteSpace(settings.AiModel)
-            ? OperatorSettings.DefaultOpenCodeModel
-            : settings.AiModel.Trim();
-        var prompt = AiCliSupport.BuildBatchTriagePrompt(items);
+        var model = ResolveModel(settings);
 
         var response = new AiBatchTriageResponse
         {
@@ -156,26 +153,24 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
         {
             // Batches produce more output than a single triage — allow the upper bound.
             var timeout = TimeSpan.FromSeconds(Math.Clamp(settings.AiTimeoutSeconds * 2, 60, 600));
-            var (exitCode, stdout, stderr, modelUsed) = await RunWithModelFallbackAsync(cli, model, prompt, timeout, ct);
-            response.Model = modelUsed;
-
-            var cleaned = StripAnsi(stdout);
-            response.ResponseJson = Truncate(cleaned, 24000);
+            var (exitCode, output, stderr) = await RunCliAsync(
+                cli, model, AiCliSupport.BuildBatchTriagePrompt(items), timeout, ct);
+            response.ResponseJson = AiCliSupport.Truncate(output, 24000);
 
             if (exitCode != 0)
             {
                 response.Succeeded = false;
                 response.Retryable = true;
-                response.ErrorMessage = $"opencode exited {exitCode}: {Truncate(StripAnsi(stderr), 400)}";
+                response.ErrorMessage = $"codex exited {exitCode}: {AiCliSupport.Truncate(stderr, 400)}";
                 return response;
             }
 
-            var json = ExtractJsonObject(cleaned);
+            var json = AiCliSupport.ExtractJsonObject(output);
             if (json is null)
             {
                 response.Succeeded = false;
                 response.Retryable = true;
-                response.ErrorMessage = "No JSON object found in opencode batch output.";
+                response.ErrorMessage = "No JSON object found in codex batch output.";
                 return response;
             }
 
@@ -184,7 +179,7 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
             {
                 response.Succeeded = false;
                 response.Retryable = true;
-                response.ErrorMessage = "opencode batch output did not include a results array.";
+                response.ErrorMessage = "codex batch output did not include a results array.";
                 return response;
             }
 
@@ -194,9 +189,9 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
                     ? idEl.GetString() ?? "" : "";
                 if (id.Length == 0) continue;
 
-                var result = el.Deserialize<AiTriageResult>(ParseOptions);
-                if (result is null || !IsSchemaValid(result)) continue;
-                Normalize(result);
+                var result = el.Deserialize<AiTriageResult>(AiCliSupport.ParseOptions);
+                if (result is null || !AiCliSupport.IsSchemaValid(result)) continue;
+                AiCliSupport.Normalize(result);
                 response.Results[id] = result;
             }
 
@@ -206,7 +201,7 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
             if (!response.Succeeded)
             {
                 response.Retryable = true;
-                response.ErrorMessage = "No valid result objects in opencode batch output.";
+                response.ErrorMessage = "No valid result objects in codex batch output.";
             }
             return response;
         }
@@ -214,7 +209,7 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
         {
             response.Succeeded = false;
             response.Retryable = true;
-            response.ErrorMessage = "opencode batch call timed out.";
+            response.ErrorMessage = "codex batch call timed out.";
             return response;
         }
         catch (OperationCanceledException) { throw; }
@@ -230,7 +225,7 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
             response.Succeeded = false;
             response.Retryable = false;
             response.ErrorMessage = ex.GetType().Name + ": " + ex.Message;
-            _log.LogWarning(ex, "opencode batch triage failed");
+            _log.LogWarning(ex, "codex batch triage failed");
             return response;
         }
     }
@@ -243,9 +238,7 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
         CancellationToken ct)
     {
         var cli = ResolveCliPath(settings);
-        var model = string.IsNullOrWhiteSpace(settings.AiModel)
-            ? OperatorSettings.DefaultOpenCodeModel
-            : settings.AiModel.Trim();
+        var model = ResolveModel(settings);
         var boundedMax = Math.Clamp(maxSelections, 0, items.Count);
         var prompt = AiCliSupport.BuildShortlistPrompt(items, boundedMax, campaignObjective);
 
@@ -274,35 +267,32 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
         try
         {
             var timeout = TimeSpan.FromSeconds(Math.Clamp(settings.AiTimeoutSeconds, 30, 180));
-            var (exitCode, stdout, stderr, modelUsed) = await RunWithModelFallbackAsync(cli, model, prompt, timeout, ct);
-            response.Model = modelUsed;
-
-            var cleaned = StripAnsi(stdout);
-            response.ResponseJson = Truncate(cleaned, 8000);
+            var (exitCode, output, stderr) = await RunCliAsync(cli, model, prompt, timeout, ct);
+            response.ResponseJson = AiCliSupport.Truncate(output, 8000);
 
             if (exitCode != 0)
             {
                 response.Succeeded = false;
                 response.Retryable = true;
-                response.ErrorMessage = $"opencode shortlist exited {exitCode}: {Truncate(StripAnsi(stderr), 400)}";
+                response.ErrorMessage = $"codex shortlist exited {exitCode}: {AiCliSupport.Truncate(stderr, 400)}";
                 return response;
             }
 
-            var json = ExtractJsonObject(cleaned);
+            var json = AiCliSupport.ExtractJsonObject(output);
             if (json is null)
             {
                 response.Succeeded = false;
                 response.Retryable = true;
-                response.ErrorMessage = "No JSON object found in opencode shortlist output.";
+                response.ErrorMessage = "No JSON object found in codex shortlist output.";
                 return response;
             }
 
-            var result = JsonSerializer.Deserialize<AiCliSupport.ShortlistOutput>(json, ParseOptions);
+            var result = JsonSerializer.Deserialize<AiCliSupport.ShortlistOutput>(json, AiCliSupport.ParseOptions);
             if (result?.Selected is null)
             {
                 response.Succeeded = false;
                 response.Retryable = true;
-                response.ErrorMessage = "opencode shortlist output did not include a selected array.";
+                response.ErrorMessage = "codex shortlist output did not include a selected array.";
                 return response;
             }
 
@@ -317,7 +307,7 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
             {
                 Id = i.Id,
                 ShouldTriage = selected.ContainsKey(i.Id),
-                Reason = selected.TryGetValue(i.Id, out var reason) ? Truncate(reason, 300) : ""
+                Reason = selected.TryGetValue(i.Id, out var reason) ? AiCliSupport.Truncate(reason, 300) : ""
             }).ToList();
             return response;
         }
@@ -325,7 +315,7 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
         {
             response.Succeeded = false;
             response.Retryable = true;
-            response.ErrorMessage = "opencode shortlist call timed out.";
+            response.ErrorMessage = "codex shortlist call timed out.";
             return response;
         }
         catch (OperationCanceledException) { throw; }
@@ -341,47 +331,43 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
             response.Succeeded = false;
             response.Retryable = false;
             response.ErrorMessage = ex.GetType().Name + ": " + ex.Message;
-            _log.LogWarning(ex, "opencode shortlist failed");
+            _log.LogWarning(ex, "codex shortlist failed");
             return response;
         }
     }
 
     /// <summary>
-    /// Generic long-form generation for the content studio: sends one prompt through the
-    /// CLI and returns the raw (ANSI-stripped) text. No JSON parsing — callers own the
-    /// output contract. Not counted against the triage budget: content calls are operator-
-    /// initiated or once-daily, and their latency profile (minutes) doesn't fit it.
+    /// Generic long-form generation, mirroring the OpenCode provider's contract: one
+    /// prompt through `codex exec`, raw final-message text back. Callers own the output
+    /// contract; failures surface their error instead of falling back to another model.
     /// </summary>
     public async Task<(bool Succeeded, string Text, string Error, string Model)> GenerateTextAsync(
         string prompt, OperatorSettings settings, TimeSpan timeout, CancellationToken ct)
     {
         var cli = ResolveCliPath(settings);
-        var model = string.IsNullOrWhiteSpace(settings.AiModel)
-            ? OperatorSettings.DefaultOpenCodeModel
-            : settings.AiModel.Trim();
+        var model = ResolveModel(settings);
 
         if (!Probe(cli).Available)
             return (false, "", AvailabilityMessage(settings), model);
 
         try
         {
-            var (exitCode, stdout, stderr, modelUsed) = await RunWithModelFallbackAsync(cli, model, prompt, timeout, ct);
+            var (exitCode, output, stderr) = await RunCliAsync(cli, model, prompt, timeout, ct);
             if (exitCode != 0)
-                return (false, "", $"opencode exited {exitCode}: {Truncate(StripAnsi(stderr), 400)}", modelUsed);
+                return (false, "", $"codex exited {exitCode}: {AiCliSupport.Truncate(stderr, 400)}", model);
 
-            var text = StripAnsi(stdout).Trim();
-            return text.Length == 0
-                ? (false, "", "opencode produced no output.", modelUsed)
-                : (true, text, "", modelUsed);
+            return output.Length == 0
+                ? (false, "", "codex produced no output.", model)
+                : (true, output, "", model);
         }
         catch (OperationCanceledException) when (!ct.IsCancellationRequested)
         {
-            return (false, "", "opencode call timed out.", model);
+            return (false, "", "codex call timed out.", model);
         }
         catch (OperationCanceledException) { throw; }
         catch (Exception ex)
         {
-            _log.LogWarning(ex, "opencode text generation failed");
+            _log.LogWarning(ex, "codex text generation failed");
             return (false, "", ex.GetType().Name + ": " + ex.Message, model);
         }
     }
@@ -391,11 +377,11 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
     /// <summary>Resolves the configured CLI path, falling back to the standard install location.</summary>
     public static string ResolveCliPath(OperatorSettings settings)
     {
-        var configured = string.IsNullOrWhiteSpace(settings.OpenCodeCliPath) ? "opencode" : settings.OpenCodeCliPath.Trim();
-        if (configured != "opencode" || OnPath("opencode")) return configured;
+        var configured = string.IsNullOrWhiteSpace(settings.CodexCliPath) ? "codex" : settings.CodexCliPath.Trim();
+        if (configured != "codex" || OnPath("codex")) return configured;
 
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        var standard = Path.Combine(home, ".opencode", "bin", "opencode");
+        var standard = Path.Combine(home, ".local", "bin", "codex");
         return File.Exists(standard) ? standard : configured;
     }
 
@@ -426,7 +412,7 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
                     var version = process.StandardOutput.ReadToEnd().Trim();
                     process.WaitForExit(10_000);
                     _probeResult = process.HasExited && process.ExitCode == 0;
-                    _probeMessage = _probeResult ? $"opencode {version} at {cliPath}" : "non-zero exit from --version";
+                    _probeMessage = _probeResult ? $"{version} at {cliPath}" : "non-zero exit from --version";
                 }
             }
             catch (Exception ex)
@@ -446,66 +432,17 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
     }
 
     /// <summary>
-    /// Known-good free models tried in order when the configured model fails with a
-    /// provider-side error (DEGRADED function, worker request caps, 4xx/5xx). Free-tier
-    /// models go down individually and often — one bad model must never stall triage or
-    /// the content studio. Order chosen by the operator; verified working 2026-07-11.
+    /// One `codex exec` call. Runs in an isolated scratch directory with a read-only
+    /// sandbox (codex is a coding agent; the prompts already forbid tool use, and the
+    /// sandbox enforces it). The final agent message is read from a --output-last-message
+    /// file, so stdout's event stream never pollutes the returned text.
     /// </summary>
-    private static readonly string[] FallbackModels =
+    private static async Task<(int ExitCode, string Output, string Stderr)> RunCliAsync(
+        string cliPath, string model, string prompt, TimeSpan timeout, CancellationToken ct)
     {
-        "nvidia/minimaxai/minimax-m2.7",
-        "nvidia/mistralai/mistral-large-3-675b-instruct-2512",
-        "nvidia/deepseek-ai/deepseek-v4-pro"
-    };
-
-    /// <summary>Last fallback that worked — tried right after the configured model to cut failover latency.</summary>
-    private static string? _lastWorkingFallback;
-
-    /// <summary>
-    /// Runs the prompt against the configured model, then walks the fallback chain on any
-    /// non-zero exit. Timeouts propagate immediately (retrying a slow call elsewhere would
-    /// multiply the wait, not fix it). Returns the model that actually answered.
-    /// </summary>
-    private async Task<(int ExitCode, string Stdout, string Stderr, string ModelUsed)> RunWithModelFallbackAsync(
-        string cli, string configuredModel, string prompt, TimeSpan timeout, CancellationToken ct)
-    {
-        var candidates = new List<string> { configuredModel };
-        if (_lastWorkingFallback is { } last) candidates.Add(last);
-        candidates.AddRange(FallbackModels);
-
-        (int ExitCode, string Stdout, string Stderr, string ModelUsed) lastResult = (-1, "", "no model attempted", configuredModel);
-        var tried = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var model in candidates)
-        {
-            if (!tried.Add(model)) continue;
-            ct.ThrowIfCancellationRequested();
-
-            var (exitCode, stdout, stderr) = await RunCliAsync(cli, new[] { "run", "-m", model, prompt }, timeout, ct);
-            if (exitCode == 0)
-            {
-                if (!model.Equals(configuredModel, StringComparison.OrdinalIgnoreCase))
-                {
-                    _lastWorkingFallback = model;
-                    _log.LogInformation("opencode model fallback: {Configured} unavailable — answered by {Model}.",
-                        configuredModel, model);
-                }
-                return (0, stdout, stderr, model);
-            }
-
-            lastResult = (exitCode, stdout, stderr, model);
-            _log.LogWarning("opencode model {Model} failed (exit {Exit}: {Error}); trying next fallback.",
-                model, exitCode, Truncate(StripAnsi(stderr), 200));
-        }
-        return lastResult;
-    }
-
-    private static async Task<(int ExitCode, string Stdout, string Stderr)> RunCliAsync(
-        string cliPath, IReadOnlyList<string> args, TimeSpan timeout, CancellationToken ct)
-    {
-        // Run in an isolated scratch directory: opencode is a coding agent, and running it
-        // inside a repository would make it scan project context we don't want in triage.
-        var workDir = Path.Combine(Path.GetTempPath(), "devleads-opencode");
+        var workDir = Path.Combine(Path.GetTempPath(), "devleads-codex");
         Directory.CreateDirectory(workDir);
+        var lastMessageFile = Path.Combine(workDir, "last-message-" + Guid.NewGuid().ToString("N") + ".txt");
 
         var psi = new ProcessStartInfo
         {
@@ -517,7 +454,18 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
             StandardOutputEncoding = Encoding.UTF8,
             StandardErrorEncoding = Encoding.UTF8
         };
-        foreach (var a in args) psi.ArgumentList.Add(a);
+        foreach (var a in new[]
+                 {
+                     "exec",
+                     "--skip-git-repo-check", // the scratch dir is not a repository
+                     "--ephemeral",           // don't accumulate session files across triage calls
+                     "--sandbox", "read-only",
+                     "--color", "never",
+                     "--output-last-message", lastMessageFile,
+                     "--model", model,
+                     prompt
+                 })
+            psi.ArgumentList.Add(a);
 
         using var process = new Process { StartInfo = psi };
         process.Start();
@@ -531,28 +479,24 @@ public sealed class OpenCodeTriageProvider : IAiTriageProvider, IAiBatchShortlis
         try
         {
             await process.WaitForExitAsync(timeoutCts.Token);
+            var stdout = await stdoutTask;
+            var stderr = await stderrTask;
+
+            var output = File.Exists(lastMessageFile)
+                ? (await File.ReadAllTextAsync(lastMessageFile, CancellationToken.None)).Trim()
+                : "";
+            if (output.Length == 0) output = AiCliSupport.StripAnsi(stdout).Trim();
+
+            return (process.ExitCode, output, AiCliSupport.StripAnsi(stderr));
         }
         catch (OperationCanceledException)
         {
             try { process.Kill(entireProcessTree: true); } catch { /* already gone */ }
             throw;
         }
-
-        return (process.ExitCode, await stdoutTask, await stderrTask);
+        finally
+        {
+            try { File.Delete(lastMessageFile); } catch { /* best effort */ }
+        }
     }
-
-    // ----- output parsing (shared with the Codex provider) -----
-
-    private static string StripAnsi(string text) => AiCliSupport.StripAnsi(text);
-
-    /// <summary>Extracts the first balanced JSON object from arbitrary CLI output.</summary>
-    public static string? ExtractJsonObject(string text) => AiCliSupport.ExtractJsonObject(text);
-
-    private static readonly JsonSerializerOptions ParseOptions = AiCliSupport.ParseOptions;
-
-    private static bool IsSchemaValid(AiTriageResult r) => AiCliSupport.IsSchemaValid(r);
-
-    private static void Normalize(AiTriageResult r) => AiCliSupport.Normalize(r);
-
-    private static string Truncate(string s, int max) => AiCliSupport.Truncate(s, max);
 }
