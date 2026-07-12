@@ -1,5 +1,3 @@
-*.min.css
-*.min.js
 .ai_hacks
 .git
 .hg
@@ -17,10 +15,5 @@ dist
 node_modules
 obj
 out
-package-lock.json
-packages.lock.json
-pnpm-lock.yaml
-project.assets.json
 target
 venv
-yarn.lock

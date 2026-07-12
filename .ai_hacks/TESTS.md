@@ -1,5 +1,3 @@
 # Test Map
 
-Test names are often the fastest behavior summary.
-
-_None found._
+No .NET test project is currently present. Generator validation lives in `tests/test_ai_hacks.py`.
