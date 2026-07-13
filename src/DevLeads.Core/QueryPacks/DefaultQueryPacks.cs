@@ -149,8 +149,10 @@ public static class DefaultQueryPacks
     public static readonly QueryPackSeed AiAutomationProjects = new(
         "AiAutomationProjects", "Commercial AI integration and business-automation project signals", true, false, new[]
         {
-            // Concrete implementation work, intentionally avoiding bare "AI" / "automation"
-            // terms that would mostly collect news, product promotion, and tutorials.
+            // Hire-shaped phrasing only: these are HIGH-PRIORITY terms (+20 to the
+            // pre-filter score), so each must indicate someone commissioning work, not
+            // merely an AI topic. Broad topic vocabulary lives in AiAutomationTopic,
+            // which gates campaign relevance without inflating scores.
             "ai automation project", "ai integration project", "llm integration",
             "openai integration", "anthropic integration", "rag implementation",
             "rag pipeline", "build an ai agent", "ai agent development",
@@ -158,13 +160,48 @@ public static class DefaultQueryPacks
             "document processing ai", "ai document processing", "ai proof of concept",
             "machine learning consultant", "ai consultant needed", "ai developer needed",
             "llm developer", "automation consultant", "automation developer",
+            // Direct commissioning language observed in real hiring posts.
+            "build a chatbot", "build me a chatbot", "build us a chatbot",
+            "build an automation", "build me an automation", "set up automation",
+            "integrate openai", "integrate gpt", "integrate chatgpt", "integrate an llm",
+            "integrate ai", "ai integration", "add ai to", "implement ai",
+            "ai engineer", "ai developer", "ai consultant", "ai expert", "ai freelancer",
+            "machine learning engineer", "ml engineer", "llm engineer",
+            "automation expert", "automation specialist", "automation engineer",
+            "n8n expert", "n8n consultant", "n8n workflow", "zapier workflow",
+            "make.com scenario", "power automate flow",
             // Business workflow platforms and outcomes that commonly become paid projects.
             "workflow automation", "business process automation", "automate our workflow",
             "automate my workflow", "automate our business", "automate my business",
+            "automate this process",
             "n8n automation", "n8n developer", "zapier automation", "zapier expert",
             "make.com automation", "make.com expert", "power automate consultant",
             "crm automation", "sales automation", "support automation",
             "email automation", "data extraction automation", "api automation"
+        });
+
+    /// <summary>
+    /// Broad AI/automation vocabulary for the AI campaign's sources: the topic gate
+    /// (requiredQueryPack) and connector search terms. Deliberately NOT high-priority —
+    /// mentioning "gpt" keeps a post inside the campaign's arena, but only hire/pay/
+    /// urgency signals (and the hire-shaped pack above) qualify it as a lead. Terms are
+    /// whole-word matched, so short tokens ("rag", "llm", "ai") are safe.
+    /// </summary>
+    public static readonly QueryPackSeed AiAutomationTopic = new(
+        "AiAutomationTopic", "Broad AI/automation topic vocabulary (relevance gate + search terms; never scores)", false, false, new[]
+        {
+            "ai", "a.i.", "llm", "llms", "gpt", "chatgpt", "openai", "anthropic",
+            "claude", "gemini", "copilot", "rag", "embedding", "embeddings",
+            "vector database", "vector db", "langchain", "llamaindex",
+            "chatbot", "chatbots", "ai agent", "ai agents", "agentic",
+            "machine learning", "deep learning", "computer vision", "nlp",
+            "generative ai", "genai", "fine-tune", "fine-tuning", "finetuning",
+            "prompt engineering", "n8n", "zapier", "make.com",
+            "power automate", "airtable", "automation", "automations", "automate",
+            "automated", "workflow automation", "ocr", "document processing",
+            "data extraction", "web scraping", "scraper", "scraping",
+            "semantic kernel", "azure openai", "ml.net", "hugging face", "ollama",
+            "whisper", "text-to-speech", "speech-to-text", "voice agent", "voice bot"
         });
 
     public static readonly QueryPackSeed NegativeExclusions = new(
@@ -188,6 +225,6 @@ public static class DefaultQueryPacks
         EmergencyGeneric, DotNetSqlPriority, PaymentEcommerce, AgencyClientUrgency,
         SaaSApiAuth, InfraOps, WordPressHosting, ContractProjectWork, SupportPain,
         HireIntent, PaidFeatureRequest, DotNetModernization, AiAutomationProjects,
-        NegativeExclusions
+        AiAutomationTopic, NegativeExclusions
     };
 }

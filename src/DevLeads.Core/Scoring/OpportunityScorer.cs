@@ -91,14 +91,17 @@ public static class OpportunityScorer
             b.CompetitionScore * WCompetition +
             b.TrustScore * WTrust;
 
-        // Freshness matters beyond urgency: a year-old bounty is real money but a poor
-        // use of today's outreach, and stale pain posts are long since resolved. Dampen
-        // the whole score by age so fresh organic pain always outranks old inventory.
+        // Freshness matters beyond urgency: stale pain posts are long since resolved.
+        // Dampen the whole score by age so fresh organic pain always outranks old
+        // inventory. An UNCLAIMED post with real stated money (an open bounty, a named
+        // budget) decays slower — the cash stays claimable until someone takes it, so it
+        // gets a floor rather than the full decay (claimed work already caps at 35).
         // Manual entries are exempt — the operator chose to add them.
         if (input.SourceKey != "manual")
         {
             var ageDays = (now - input.PostedAt).TotalDays;
             var freshness = ageDays <= 7 ? 1.0 : ageDays <= 30 ? 0.9 : ageDays <= 90 ? 0.75 : 0.6;
+            if (HasOpenStatedMoney(input)) freshness = Math.Max(freshness, 0.85);
             b.Total *= freshness;
         }
 
@@ -164,6 +167,13 @@ public static class OpportunityScorer
         i.Ai?.PaymentIntent is "Explicit" or "Implied" ||
         PayHits(i) > 0;
 
+    /// <summary>
+    /// Unclaimed work with meaningful stated compensation ($100 mirrors the operator's
+    /// minimum fee — micro-bounties don't earn the slower age decay).
+    /// </summary>
+    private static bool HasOpenStatedMoney(ScoringInput i) =>
+        i.OfferedAmount is >= 100 && !i.ClaimedByOthers;
+
     public static Priority ToPriority(double total) => total switch
     {
         >= 85 => Priority.Critical,
@@ -188,9 +198,12 @@ public static class OpportunityScorer
             score = Math.Clamp((double)pf.HeuristicScore + 30, 0, 80);
         }
 
-        // Recency decay: fresh posts are more actionable.
+        // Recency decay: fresh posts are more actionable. Open stated-money work
+        // (unclaimed bounty / named budget) keeps a floor — the offer doesn't expire
+        // with the news cycle the way organic pain does.
         var ageHours = (now - i.PostedAt).TotalHours;
         double recency = ageHours <= 1 ? 1.0 : ageHours <= 6 ? 0.92 : ageHours <= 24 ? 0.8 : ageHours <= 72 ? 0.6 : 0.35;
+        if (HasOpenStatedMoney(i)) recency = Math.Max(recency, 0.6);
         return Math.Clamp(score * recency, 0, 100);
     }
 

@@ -1,6 +1,6 @@
 # DevLeads AI Project Context
 
-> Generated; do not hand-edit. Schema 2, source digest `b4aacc3cf633a428ab2481f9447425f6c77e36fb5c39bad79c81a3226e4bc8d7`.
+> Generated; do not hand-edit. Schema 2, source digest `dff5eae8a0a2d5f0f6a6ba953372c5c0141165058295b55674a2a4335f92b348`.
 > Regenerate with `python3 ai_hacks.py`; verify freshness with `python3 ai_hacks.py --check`.
 
 ## How to use this map
@@ -123,6 +123,7 @@ Hourly cleanup rejects stale or non-hirable leads, marks overdue quotes, and opp
 - Campaign objectives are passed into AI shortlist, triage, and outreach generation so relevance stays campaign-specific.
 - Red-flagged, resolved, promotional, reply-feed, autonomous-agent-task, and non-hirable vendor-support posts must not reach actionable outreach.
 - Foreign-stack work without an operator stack-identity match is rejected or score-capped; generic capabilities such as API work are not stack identity.
+- Non-English leads receive a language-friction score penalty before source thresholds; only survivors store/display an English translation, while the original source text remains available for verification.
 - Stated compensation overrides category-based fee estimates and is displayed as an offer rather than an estimate.
 - The selected unavailable AI provider falls back to Heuristic; the lead pipeline remains operable without external AI.
 - Outreach never bypasses the global kill switch, required approval, or enabled suppression list.
@@ -266,6 +267,8 @@ Every source-authored type and callable name is present. Full signatures and dat
   - public `HasPayLanguage` — True when the text contains explicit hire/pay language or a money amount, un-negated.
   - public `Analyze` — Analyzes an item. When packNames is given, high-priority term matching is scoped to those…
   - private `MatchSignals` — Handles match signals. _(inferred)_
+- **`LanguageDetection`** — Lightweight fallback language detection used before scoring. Structured AI triage is authoritative when available; these rules ensure outages cannot… (`src/DevLeads.Core/LanguageDetection.cs:8`)
+  - public `Detect` — Handles detect. _(inferred)_
 - **`LeadQualityRules`** — Shared lead-quality rules used before a post reaches the review queue. (`src/DevLeads.Core/LeadQualityRules.cs:6`)
   - public `IsPromotionalAnnouncement` — True for product-launch/showcase posts: launch language plus the poster's own pricing…
   - public `IsReplyFeedItem` — True for feed items that are replies into an existing thread (WordPress.org reply feeds…
@@ -303,6 +306,7 @@ Every source-authored type and callable name is present. Full signatures and dat
   - public `IsNonEnglish` — Checks non english. _(inferred)_
   - private `PayHits` — Count of explicit "pay:" hits the pre-filter tagged (hire language, budgets, money amounts).
   - private `HasPaySignal` — Any evidence the poster would actually pay: pay-intent source, AI judgment, or pay language.
+  - private `HasOpenStatedMoney` — Unclaimed work with meaningful stated compensation ($100 mirrors the operator's minimum…
   - public `ToPriority` — Handles to priority. _(inferred)_
   - private `Urgency` — Handles urgency. _(inferred)_
   - private `CategorySeverityBonus` — Handles category severity bonus. _(inferred)_
@@ -337,6 +341,8 @@ Every source-authored type and callable name is present. Full signatures and dat
 - **`ResponseTemplate`** — Represents response template. _(inferred)_ (`src/DevLeads.Core/Templates/ResponseTemplates.cs:3`)
 - **`ResponseTemplates`** — Vetted response templates. Placeholders in [brackets] are filled per-opportunity. (`src/DevLeads.Core/Templates/ResponseTemplates.cs:6`)
   - public `Get` — Loads or resolves get. _(inferred)_
+- **`TermMatch`** — Whole-word term matching for query-pack terms and pre-filter signals. Plain substring Contains made short terms unusable ("rag" matched "storage"… (`src/DevLeads.Core/TermMatch.cs:11`)
+  - public `ContainsWholeTerm` — Checks whole term. _(inferred)_
 ## DevLeads.Infrastructure
 
 - **`AiCliSupport`** — Prompt building and output parsing shared by the CLI-backed AI providers (OpenCode, Codex). (`src/DevLeads.Infrastructure/Ai/AiCliSupport.cs:13`)
@@ -381,7 +387,6 @@ Every source-authored type and callable name is present. Full signatures and dat
   - public `AvailabilityMessage` — Human-readable explanation when IsAvailable is false.
   - private `IsPayIntent` — Job boards and hiring threads: the poster is already committed to paying.
   - public `TriageAsync` — Coordinates triage.
-  - private `DetectLanguage` — Handles detect language. _(inferred)_
   - private `Classify` — Handles classify. _(inferred)_
   - private `DetectStack` — Handles detect stack. _(inferred)_
   - private `AddIf` — Creates if. _(inferred)_
@@ -465,6 +470,9 @@ Every source-authored type and callable name is present. Full signatures and dat
   - private `BackfillLeadCampaignsAsync` — Assigns campaign-less leads to their source's campaign (manual/unknown → emergency).
   - private `IsLegacyDefaultSource` — Detects configs still carrying earlier seeded defaults so we can upgrade them in place.
   - private `IsInitialAiTopicGate` — Checks initial ai topic gate. _(inferred)_
+  - private `IsAiTopicGateBroadening` — 2026-07-13: the AI campaign's topic gate moved from the hire-shaped AiAutomationProjects…
+  - private `IsAiThresholdRecalibration` — 2026-07-13: the AI campaign's MinOpportunityScore dropped from 42–48 (emergency…
+  - private `IsAiAutomationSource` — Checks ai automation source. _(inferred)_
   - private `ApplySourceDefaults` — Reapplies seeded defaults, returning whether anything actually changed — a boot with…
   - private `IsAdditiveHiringSubredditExpansion` — Checks additive hiring subreddit expansion. _(inferred)_
   - private `DefaultSources` — Handles default sources. _(inferred)_
@@ -791,7 +799,7 @@ Every source-authored type and callable name is present. Full signatures and dat
 
 ## Completeness
 
-- 148 source-authored C# types and Razor components.
-- 481 source-authored callable members.
+- 150 source-authored C# types and Razor components.
+- 486 source-authored callable members.
 - 14 Blazor page routes; 48 HTTP endpoints; 21 EF DbSets.
-- Full indexed source: 762,941 characters (~190,735 tokens).
+- Full indexed source: 771,910 characters (~192,978 tokens).

@@ -1,11 +1,11 @@
 # Project Map
 
-Source digest: `b4aacc3cf633a428ab2481f9447425f6c77e36fb5c39bad79c81a3226e4bc8d7`
+Source digest: `dff5eae8a0a2d5f0f6a6ba953372c5c0141165058295b55674a2a4335f92b348`
 
-- Files: 110
-- Types/components: 148
-- Callable members: 481
-- XML/manual/inherited descriptions: 277
+- Files: 112
+- Types/components: 150
+- Callable members: 486
+- XML/manual/inherited descriptions: 282
 
 ## Files
 
@@ -40,26 +40,28 @@ Source digest: `b4aacc3cf633a428ab2481f9447425f6c77e36fb5c39bad79c81a3226e4bc8d7
 - `src/DevLeads.Core/Entities/TrendSource.cs` — 39 lines
 - `src/DevLeads.Core/Entities/WorkSession.cs` — 21 lines
 - `src/DevLeads.Core/Enums.cs` — 226 lines
-- `src/DevLeads.Core/HeuristicPreFilter.cs` — 243 lines
+- `src/DevLeads.Core/HeuristicPreFilter.cs` — 264 lines
+- `src/DevLeads.Core/LanguageDetection.cs` — 34 lines
 - `src/DevLeads.Core/LeadQualityRules.cs` — 273 lines
 - `src/DevLeads.Core/OfferedCompensation.cs` — 84 lines
 - `src/DevLeads.Core/PreFilterResult.cs` — 16 lines
-- `src/DevLeads.Core/QueryPacks/DefaultQueryPacks.cs` — 194 lines
+- `src/DevLeads.Core/QueryPacks/DefaultQueryPacks.cs` — 231 lines
 - `src/DevLeads.Core/QueryPacks/IQueryPackProvider.cs` — 21 lines
 - `src/DevLeads.Core/RedFlagDetector.cs` — 66 lines
-- `src/DevLeads.Core/Scoring/OpportunityScorer.cs` — 393 lines
+- `src/DevLeads.Core/Scoring/OpportunityScorer.cs` — 406 lines
 - `src/DevLeads.Core/Skills/DefaultSkills.cs` — 82 lines
 - `src/DevLeads.Core/Skills/SkillMatcher.cs` — 121 lines
 - `src/DevLeads.Core/SourceUrlCanonicalizer.cs` — 27 lines
 - `src/DevLeads.Core/Templates/EmergencyChecklists.cs` — 38 lines
 - `src/DevLeads.Core/Templates/PricingTiers.cs` — 31 lines
 - `src/DevLeads.Core/Templates/ResponseTemplates.cs` — 57 lines
+- `src/DevLeads.Core/TermMatch.cs` — 36 lines
 - `src/DevLeads.Infrastructure/Ai/AiCliSupport.cs` — 147 lines
 - `src/DevLeads.Infrastructure/Ai/AiTextRouter.cs` — 67 lines
 - `src/DevLeads.Infrastructure/Ai/AiTriageRouter.cs` — 164 lines
 - `src/DevLeads.Infrastructure/Ai/AnthropicTriageProvider.cs` — 133 lines
 - `src/DevLeads.Infrastructure/Ai/CodexCliProvider.cs` — 503 lines
-- `src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs` — 305 lines
+- `src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs` — 282 lines
 - `src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs` — 559 lines
 - `src/DevLeads.Infrastructure/Connectors/ConnectorSupport.cs` — 37 lines
 - `src/DevLeads.Infrastructure/Connectors/GitHubSearchConnector.cs` — 167 lines
@@ -69,7 +71,7 @@ Source digest: `b4aacc3cf633a428ab2481f9447425f6c77e36fb5c39bad79c81a3226e4bc8d7
 - `src/DevLeads.Infrastructure/Connectors/RemotiveConnector.cs` — 115 lines
 - `src/DevLeads.Infrastructure/Connectors/RssConnector.cs` — 174 lines
 - `src/DevLeads.Infrastructure/Connectors/StackExchangeConnector.cs` — 112 lines
-- `src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs` — 1285 lines
+- `src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs` — 1315 lines
 - `src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs` — 123 lines
 - `src/DevLeads.Infrastructure/DependencyInjection.cs` — 105 lines
 - `src/DevLeads.Infrastructure/DevLeads.Infrastructure.csproj` — 21 lines
@@ -77,7 +79,7 @@ Source digest: `b4aacc3cf633a428ab2481f9447425f6c77e36fb5c39bad79c81a3226e4bc8d7
 - `src/DevLeads.Infrastructure/Services/AuditService.cs` — 28 lines
 - `src/DevLeads.Infrastructure/Services/ContentStudioService.cs` — 215 lines
 - `src/DevLeads.Infrastructure/Services/DiscoveryActivityTracker.cs` — 54 lines
-- `src/DevLeads.Infrastructure/Services/LeadIngestionService.cs` — 750 lines
+- `src/DevLeads.Infrastructure/Services/LeadIngestionService.cs` — 754 lines
 - `src/DevLeads.Infrastructure/Services/MaintenanceService.cs` — 111 lines
 - `src/DevLeads.Infrastructure/Services/OperatorPostService.cs` — 1087 lines
 - `src/DevLeads.Infrastructure/Services/OutreachService.cs` — 321 lines

@@ -19,18 +19,39 @@ public sealed class HeuristicPreFilter
         "urgent", "asap", "right now", "today", "this morning", "down", "outage",
         "broken", "failing", "failed", "stopped working", "critical", "emergency",
         "production", "live site", "customers cannot", "customers can't", "client",
-        "orders", "payments", "revenue"
+        "clients", "orders", "payments", "revenue"
     };
 
+    // Signals are whole-word matched, so stemmed forms are listed explicitly
+    // ("auth" no longer reaches "authentication" by substring).
     private static readonly string[] TechnicalSignals =
     {
-        ".net", "asp.net", "blazor", "iis", "azure", "sql", "sql server", "database",
-        "api", "webhook", "stripe", "checkout", "woocommerce", "shopify", "wordpress",
+        ".net", "asp.net", "blazor", "iis", "azure", "sql", "sql server", "mysql",
+        "postgres", "postgresql", "database",
+        "api", "apis", "webhook", "webhooks", "stripe", "checkout", "woocommerce",
+        "shopify", "wordpress",
         "server", "hosting", "dns", "ssl", "tls", "certificate", "login", "auth",
-        "oauth", "deployment", "deploy", "500", "502", "503", "timeout", "cloudflare",
-        "nginx", "apache", "web.config", "connection string", "developer", "engineer",
+        "authentication", "authorization",
+        "oauth", "deployment", "deployments", "deploy", "deploying", "500", "502",
+        "503", "timeout", "cloudflare",
+        "nginx", "apache", "web.config", "connection string", "developer", "developers",
+        "engineer", "engineers", "engineering", "software", "programming", "programmer",
+        "website", "web app", "webapp", "mobile app", "saas", "domain",
         "full-stack", "full stack", "backend", "frontend", "devops", "integration",
-        "github", "repository", "open source", "feature request", "plugin", "sdk"
+        "integrations", "github", "repository", "open source", "feature request",
+        "plugin", "sdk",
+        // AI / automation is technical work too — without these, an "AI chatbot for my
+        // firm, budget $2k" post has pay language but zero technical hits and dies at
+        // Rule 1. Whole-word matching keeps the short tokens safe.
+        "ai", "llm", "llms", "gpt", "chatgpt", "openai", "anthropic", "claude",
+        "gemini", "copilot", "chatbot", "chatbots", "rag", "embeddings",
+        "vector database", "langchain", "llamaindex", "machine learning",
+        "deep learning", "computer vision", "nlp", "generative ai", "genai",
+        "fine-tune", "fine-tuning", "prompt engineering", "ai agent", "ai agents",
+        "agentic", "n8n", "zapier", "make.com", "power automate", "airtable",
+        "automation", "automations", "automate", "automated", "workflow", "workflows",
+        "ocr", "document processing", "data extraction", "web scraping", "scraper",
+        "semantic kernel", "azure openai", "ml.net"
     };
 
     /// <summary>
@@ -90,8 +111,8 @@ public sealed class HeuristicPreFilter
 
     /// <summary>True when the text contains explicit hire/pay language or a money amount, un-negated.</summary>
     public static bool HasPayLanguage(string text) =>
-        !AntiPaySignals.Any(s => text.Contains(s, StringComparison.OrdinalIgnoreCase)) &&
-        (PayIntentSignals.Any(s => text.Contains(s, StringComparison.OrdinalIgnoreCase)) ||
+        !AntiPaySignals.Any(s => TermMatch.ContainsWholeTerm(text, s)) &&
+        (PayIntentSignals.Any(s => TermMatch.ContainsWholeTerm(text, s)) ||
          LeadQualityRules.HasThirdPartyPayOffer(text) ||
          MoneyPattern.IsMatch(text));
 
@@ -111,12 +132,12 @@ public sealed class HeuristicPreFilter
         var negativeTerms = _queryPacks.GetNegativeTerms();
 
         var matchedHighPriority = highPriorityTerms
-            .Where(term => text.Contains(term.ToLowerInvariant()))
+            .Where(term => TermMatch.ContainsWholeTerm(text, term))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
         var matchedNegative = negativeTerms
-            .Where(term => text.Contains(term.ToLowerInvariant()))
+            .Where(term => TermMatch.ContainsWholeTerm(text, term))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
@@ -126,7 +147,7 @@ public sealed class HeuristicPreFilter
         var payHits = MatchSignals(text, PayIntentSignals);
         if (MoneyPattern.IsMatch(text)) payHits.Add("$amount");
         // "no budget" / "can't pay" invalidates every pay signal in the post.
-        if (AntiPaySignals.Any(s => text.Contains(s, StringComparison.OrdinalIgnoreCase)))
+        if (AntiPaySignals.Any(s => TermMatch.ContainsWholeTerm(text, s)))
             payHits.Clear();
         var inferredMatches = urgencyHits.Select(s => $"urgency:{s}")
             .Concat(technicalHits.Select(s => $"tech:{s}"))
@@ -236,7 +257,7 @@ public sealed class HeuristicPreFilter
     }
 
     private static List<string> MatchSignals(string text, IEnumerable<string> signals) =>
-        signals.Where(signal => text.Contains(signal, StringComparison.OrdinalIgnoreCase))
+        signals.Where(signal => TermMatch.ContainsWholeTerm(text, signal))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 }

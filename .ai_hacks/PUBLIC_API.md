@@ -481,6 +481,14 @@ Data: `_queryPacks`: IQueryPackProvider, `UrgencySignals`: string[], `TechnicalS
 - public `Analyze(RawSourceItem item, IReadOnlyCollection<string>? packNames) → PreFilterResult` — Analyzes an item. When packNames is given, high-priority term matching is scoped to those packs (the source's own QueryPacksCsv) so one campaign's trigger vocabulary never…
 - private `MatchSignals(string text, IEnumerable<string> signals) → List<string>` — Handles match signals. _(inferred)_
 
+#### LanguageDetection
+
+public class `LanguageDetection` · `src/DevLeads.Core/LanguageDetection.cs:8`
+
+Lightweight fallback language detection used before scoring. Structured AI triage is authoritative when available; these rules ensure outages cannot bypass the language penalty.
+
+- public `Detect(string title, string body) → string` — Handles detect. _(inferred)_
+
 #### LeadQualityRules
 
 public class `LeadQualityRules` · `src/DevLeads.Core/LeadQualityRules.cs:6`
@@ -540,7 +548,7 @@ public class `DefaultQueryPacks` · `src/DevLeads.Core/QueryPacks/DefaultQueryPa
 
 The built-in query packs from the design document, used to seed the database.
 
-Data: `EmergencyGeneric`: QueryPackSeed, `DotNetSqlPriority`: QueryPackSeed, `PaymentEcommerce`: QueryPackSeed, `AgencyClientUrgency`: QueryPackSeed, `SaaSApiAuth`: QueryPackSeed, `InfraOps`: QueryPackSeed, `WordPressHosting`: QueryPackSeed, `ContractProjectWork`: QueryPackSeed, `SupportPain`: QueryPackSeed, `HireIntent`: QueryPackSeed, `PaidFeatureRequest`: QueryPackSeed, `DotNetModernization`: QueryPackSeed, `AiAutomationProjects`: QueryPackSeed, `NegativeExclusions`: QueryPackSeed, `All`: QueryPackSeed[].
+Data: `EmergencyGeneric`: QueryPackSeed, `DotNetSqlPriority`: QueryPackSeed, `PaymentEcommerce`: QueryPackSeed, `AgencyClientUrgency`: QueryPackSeed, `SaaSApiAuth`: QueryPackSeed, `InfraOps`: QueryPackSeed, `WordPressHosting`: QueryPackSeed, `ContractProjectWork`: QueryPackSeed, `SupportPain`: QueryPackSeed, `HireIntent`: QueryPackSeed, `PaidFeatureRequest`: QueryPackSeed, `DotNetModernization`: QueryPackSeed, `AiAutomationProjects`: QueryPackSeed, `AiAutomationTopic`: QueryPackSeed, `NegativeExclusions`: QueryPackSeed, `All`: QueryPackSeed[].
 
 #### IQueryPackProvider
 
@@ -605,6 +613,7 @@ Data: `WUrgency`: double, `WStack`: double, `WBusiness`: double, `WReach`: doubl
 - public `IsNonEnglish(string? languageCode) → bool` — Checks non english. _(inferred)_
 - private `PayHits(ScoringInput i) → int` — Count of explicit "pay:" hits the pre-filter tagged (hire language, budgets, money amounts).
 - private `HasPaySignal(ScoringInput i) → bool` — Any evidence the poster would actually pay: pay-intent source, AI judgment, or pay language.
+- private `HasOpenStatedMoney(ScoringInput i) → bool` — Unclaimed work with meaningful stated compensation ($100 mirrors the operator's minimum fee — micro-bounties don't earn the slower age decay).
 - public `ToPriority(double total) → Priority` — Handles to priority. _(inferred)_
 - private `Urgency(ScoringInput i, DateTimeOffset now) → double` — Handles urgency. _(inferred)_
 - private `CategorySeverityBonus(string category) → double` — Handles category severity bonus. _(inferred)_
@@ -720,6 +729,16 @@ Data: `PublicTechnicalReply`: string, `DirectOutreach`: string, `CompletionSmall
 
 - public `Get(string key) → ResponseTemplate` — Loads or resolves get. _(inferred)_
 
+### `DevLeads.Core`
+
+#### TermMatch
+
+public class `TermMatch` · `src/DevLeads.Core/TermMatch.cs:11`
+
+Whole-word term matching for query-pack terms and pre-filter signals. Plain substring Contains made short terms unusable ("rag" matched "storage", "down" matched "markdown"), which forced packs into long exact phrases…
+
+- public `ContainsWholeTerm(string text, string term) → bool` — Checks whole term. _(inferred)_
+
 ## DevLeads.Infrastructure
 
 ### `DevLeads.Infrastructure.Ai`
@@ -833,7 +852,6 @@ Data: `Name`: string, `CategoryMap`: (string[] Keywords, string Category)[], `So
 - public `AvailabilityMessage(OperatorSettings settings) → string` — Human-readable explanation when IsAvailable is false.
 - private `IsPayIntent(AiTriageRequest request) → bool` — Job boards and hiring threads: the poster is already committed to paying.
 - public `TriageAsync(AiTriageRequest request, OperatorSettings settings, CancellationToken ct) → Task<AiTriageResponse>` — Coordinates triage.
-- private `DetectLanguage(string text) → string` — Handles detect language. _(inferred)_
 - private `Classify(string text) → string` — Handles classify. _(inferred)_
 - private `DetectStack(string text) → IEnumerable<string>` — Handles detect stack. _(inferred)_
 - private `AddIf(string text, HashSet<string> stack, string needle, string label) → void` — Creates if. _(inferred)_
@@ -1017,12 +1035,15 @@ Data: `LegacyPackNames`: Dictionary<string, string>, `EmergencyCampaignKey`: str
 - private `BackfillLeadCampaignsAsync(DevLeadsDbContext db, long emergencyId, CancellationToken ct) → Task` — Assigns campaign-less leads to their source's campaign (manual/unknown → emergency).
 - private `IsLegacyDefaultSource(SourceConfig source) → bool` — Detects configs still carrying earlier seeded defaults so we can upgrade them in place.
 - private `IsInitialAiTopicGate(SourceConfig source) → bool` — Checks initial ai topic gate. _(inferred)_
+- private `IsAiTopicGateBroadening(SourceConfig source) → bool` — 2026-07-13: the AI campaign's topic gate moved from the hire-shaped AiAutomationProjects phrases (which rejected 98% of fetched items, including paid listings) to the broad…
+- private `IsAiThresholdRecalibration(SourceConfig source) → bool` — 2026-07-13: the AI campaign's MinOpportunityScore dropped from 42–48 (emergency calibration) to 36–40.
+- private `IsAiAutomationSource(SourceConfig source) → bool` — Checks ai automation source. _(inferred)_
 - private `ApplySourceDefaults(SourceConfig target, SourceConfig seed) → bool` — Reapplies seeded defaults, returning whether anything actually changed — a boot with unchanged defaults must NOT count as a migration (that would purge + re-triage all discovery…
 - private `IsAdditiveHiringSubredditExpansion(SourceConfig target, SourceConfig seed) → bool` — Checks additive hiring subreddit expansion. _(inferred)_
 - private `DefaultSources(long emergencyCampaignId, long modernizationCampaignId, long aiAutomationCampaignId) → IEnumerable<SourceConfig>` — Handles default sources. _(inferred)_
 - private `EmergencySources() → IEnumerable<SourceConfig>` — Default sources are chosen for commercial intent: places where a business owner, manager, or agency is describing a problem they are prepared to pay to solve.
 - private `ModernizationSources() → IEnumerable<SourceConfig>` — Sources for the.NET legacy modernization consulting campaign. Feeds/queries are chosen to be disjoint from the emergency sources where possible; when a post qualifies for both…
-- private `AiAutomationSources() → IEnumerable<SourceConfig>` — Searches every registered connector for paid AI/automation implementation work. Topic matching finds the project; campaign-aware AI triage still requires explicit hire/pay intent…
+- private `AiAutomationSources() → IEnumerable<SourceConfig>` — Searches every registered connector for paid AI/automation implementation work. The broad AiAutomationTopic pack gates campaign relevance (whole-word matched, so…
 - private `SeedTrendSourcesAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — Content-studio trend sources (add-only; the operator owns them afterwards). Feed URLs verified live 2026-07-11.
 - private `RssParams(string daysBack, string[] feeds, string? triageProvider, string? requiredQueryPack) → string` — Handles rss params. _(inferred)_
 - private `RemoveRetiredSourcesAsync(DevLeadsDbContext db, CancellationToken ct) → Task<bool>` — Deletes retired source configs and every item/lead they produced (e.g. GitHub Issues).

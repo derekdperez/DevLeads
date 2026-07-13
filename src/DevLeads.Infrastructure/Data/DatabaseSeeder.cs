@@ -595,8 +595,11 @@ public static class DatabaseSeeder
                 // rows instead of invoking the destructive source-migration cleanup.
                 var additiveHiringExpansion = IsAdditiveHiringSubredditExpansion(existing, seed);
                 var initialAiTopicGate = IsInitialAiTopicGate(existing);
+                var aiTopicGateBroadening = IsAiTopicGateBroadening(existing);
+                var aiThresholdRecalibration = IsAiThresholdRecalibration(existing);
                 var changed = ApplySourceDefaults(existing, seed);
-                migrated |= changed && !additiveHiringExpansion && !initialAiTopicGate;
+                migrated |= changed && !additiveHiringExpansion && !initialAiTopicGate &&
+                            !aiTopicGateBroadening && !aiThresholdRecalibration;
             }
         }
 
@@ -633,12 +636,37 @@ public static class DatabaseSeeder
             or "reddit_wordpress_shopify" or "reddit_webdev_ops" or "reddit_business_ecommerce"
             or "reddit_stacks" or "reddit_saas_tools" or "hackernews" or "stackexchange_radar"
             or "bounties_opire" or "github_bounties" or "github_feature_requests" ||
-        IsInitialAiTopicGate(source);
+        IsInitialAiTopicGate(source) ||
+        IsAiTopicGateBroadening(source) ||
+        IsAiThresholdRecalibration(source);
 
     private static bool IsInitialAiTopicGate(SourceConfig source) =>
-        (source.SourceKey is "ai_remotive" or "ai_rss" or "ai_reddit" or "ai_hackernews"
-            or "ai_stackexchange" or "ai_github_paid" or "ai_opire") &&
+        IsAiAutomationSource(source) &&
         !source.ParametersJson.Contains("\"requiredQueryPack\"", StringComparison.Ordinal);
+
+    /// <summary>
+    /// 2026-07-13: the AI campaign's topic gate moved from the hire-shaped
+    /// AiAutomationProjects phrases (which rejected 98% of fetched items, including paid
+    /// listings) to the broad whole-word AiAutomationTopic vocabulary. Broadening a gate
+    /// only ADMITS more items, so nothing previously gathered goes stale — never purge.
+    /// </summary>
+    private static bool IsAiTopicGateBroadening(SourceConfig source) =>
+        IsAiAutomationSource(source) &&
+        source.ParametersJson.Contains("\"requiredQueryPack\":\"AiAutomationProjects\"", StringComparison.Ordinal);
+
+    /// <summary>
+    /// 2026-07-13: the AI campaign's MinOpportunityScore dropped from 42–48 (emergency
+    /// calibration) to 36–40. AI/automation leads earn no urgency or .NET stack-fit
+    /// points, so real paid bounties scored 26–42 and every one died at the threshold;
+    /// 36 still sits above the 35 claimed-work competition cap. Loosening a threshold
+    /// only admits more items — nothing gathered before goes stale, never purge.
+    /// </summary>
+    private static bool IsAiThresholdRecalibration(SourceConfig source) =>
+        IsAiAutomationSource(source) && source.MinOpportunityScore >= 42;
+
+    private static bool IsAiAutomationSource(SourceConfig source) =>
+        source.SourceKey is "ai_remotive" or "ai_rss" or "ai_reddit" or "ai_hackernews"
+            or "ai_stackexchange" or "ai_github_paid" or "ai_opire";
 
     /// <summary>
     /// Reapplies seeded defaults, returning whether anything actually changed — a boot with
@@ -997,21 +1025,23 @@ public static class DatabaseSeeder
 
     /// <summary>
     /// Searches every registered connector for paid AI/automation implementation work.
-    /// Topic matching finds the project; campaign-aware AI triage still requires explicit
-    /// hire/pay intent so general AI discussion and product promotion never become leads.
+    /// The broad AiAutomationTopic pack gates campaign relevance (whole-word matched, so
+    /// "gpt"/"llm"/"automation" mentions keep a post in the arena) and supplies short
+    /// connector search terms; the hire-shaped AiAutomationProjects pack plus pay/urgency
+    /// signals still decide what scores, so general AI discussion never becomes a lead.
     /// </summary>
     private static IEnumerable<SourceConfig> AiAutomationSources() => new[]
     {
         new SourceConfig { SourceKey = "ai_remotive", DisplayName = "AI automation — Remotive jobs", Enabled = true,
             PollIntervalMinutes = 120, MaxItemsPerRun = 80,
-            QueryPacksCsv = "AiAutomationProjects,ContractProjectWork,HireIntent",
-            MinPreFilterScore = 20, MinOpportunityScore = 44,
-            ParametersJson = "{\"connector\":\"remotive\",\"category\":\"software-dev\",\"jobTypes\":\"any\",\"requiredQueryPack\":\"AiAutomationProjects\"}" },
+            QueryPacksCsv = "AiAutomationProjects,AiAutomationTopic,ContractProjectWork,HireIntent",
+            MinPreFilterScore = 20, MinOpportunityScore = 36,
+            ParametersJson = "{\"connector\":\"remotive\",\"category\":\"software-dev\",\"jobTypes\":\"any\",\"requiredQueryPack\":\"AiAutomationTopic\"}" },
 
         new SourceConfig { SourceKey = "ai_rss", DisplayName = "AI automation — jobs + project forums", Enabled = true,
             PollIntervalMinutes = 90, MaxItemsPerRun = 140,
-            QueryPacksCsv = "AiAutomationProjects,ContractProjectWork,HireIntent,PaidFeatureRequest",
-            AutoModeEligible = false, MinPreFilterScore = 20, MinOpportunityScore = 44,
+            QueryPacksCsv = "AiAutomationProjects,AiAutomationTopic,ContractProjectWork,HireIntent,PaidFeatureRequest",
+            AutoModeEligible = false, MinPreFilterScore = 20, MinOpportunityScore = 36,
             ParametersJson = RssParams("21", new[] {
                 "https://weworkremotely.com/categories/remote-programming-jobs.rss",
                 "https://remoteok.com/remote-ai-jobs.rss",
@@ -1021,35 +1051,35 @@ public static class DatabaseSeeder
                 "https://community.n8n.io/latest.rss",
                 "https://community.make.com/latest.rss",
                 "https://community.retool.com/latest.rss",
-                "https://forum.bubble.io/latest.rss" }, requiredQueryPack: "AiAutomationProjects") },
+                "https://forum.bubble.io/latest.rss" }, requiredQueryPack: "AiAutomationTopic") },
 
         new SourceConfig { SourceKey = "ai_reddit", DisplayName = "AI automation — Reddit projects + hiring", Enabled = true,
             PollIntervalMinutes = 45, MaxItemsPerRun = 140,
-            QueryPacksCsv = "AiAutomationProjects,ContractProjectWork,HireIntent,PaidFeatureRequest",
-            AutoModeEligible = false, MinPreFilterScore = 20, MinOpportunityScore = 44,
-            ParametersJson = "{\"connector\":\"reddit\",\"subreddits\":\"artificial;MachineLearning;OpenAI;LocalLLaMA;automation;n8n;zapier;SaaS;smallbusiness;Entrepreneur;forhire;freelance_forhire;programmingjobs;dotnetjobs\",\"daysBack\":\"14\",\"requireHiring\":\"false\",\"requiredQueryPack\":\"AiAutomationProjects\"}" },
+            QueryPacksCsv = "AiAutomationProjects,AiAutomationTopic,ContractProjectWork,HireIntent,PaidFeatureRequest",
+            AutoModeEligible = false, MinPreFilterScore = 20, MinOpportunityScore = 36,
+            ParametersJson = "{\"connector\":\"reddit\",\"subreddits\":\"artificial;MachineLearning;OpenAI;LocalLLaMA;automation;n8n;zapier;SaaS;smallbusiness;Entrepreneur;forhire;freelance_forhire;programmingjobs;dotnetjobs\",\"daysBack\":\"14\",\"requireHiring\":\"false\",\"requiredQueryPack\":\"AiAutomationTopic\"}" },
 
         new SourceConfig { SourceKey = "ai_hackernews", DisplayName = "AI automation — Hacker News", Enabled = true,
             PollIntervalMinutes = 90, MaxItemsPerRun = 60,
-            QueryPacksCsv = "AiAutomationProjects,ContractProjectWork,HireIntent",
-            AutoModeEligible = false, MinPreFilterScore = 20, MinOpportunityScore = 44,
-            ParametersJson = "{\"connector\":\"hackernews\",\"daysBack\":\"30\",\"requiredQueryPack\":\"AiAutomationProjects\"}" },
+            QueryPacksCsv = "AiAutomationProjects,AiAutomationTopic,ContractProjectWork,HireIntent",
+            AutoModeEligible = false, MinPreFilterScore = 20, MinOpportunityScore = 36,
+            ParametersJson = "{\"connector\":\"hackernews\",\"daysBack\":\"30\",\"requiredQueryPack\":\"AiAutomationTopic\"}" },
 
         // Low polling frequency protects the shared anonymous Stack Exchange daily quota.
         new SourceConfig { SourceKey = "ai_stackexchange", DisplayName = "AI automation — Stack Exchange radar", Enabled = true,
             PollIntervalMinutes = 1440, MaxItemsPerRun = 50,
-            QueryPacksCsv = "AiAutomationProjects,ContractProjectWork,HireIntent",
-            AutoModeEligible = false, MinPreFilterScore = 24, MinOpportunityScore = 48,
-            ParametersJson = "{\"connector\":\"stackexchange\",\"sites\":\"stackoverflow;ai;datascience;softwareengineering\",\"daysBack\":\"7\",\"requiredQueryPack\":\"AiAutomationProjects\"}" },
+            QueryPacksCsv = "AiAutomationProjects,AiAutomationTopic,ContractProjectWork,HireIntent",
+            AutoModeEligible = false, MinPreFilterScore = 24, MinOpportunityScore = 40,
+            ParametersJson = "{\"connector\":\"stackexchange\",\"sites\":\"stackoverflow;ai;datascience;softwareengineering\",\"daysBack\":\"7\",\"requiredQueryPack\":\"AiAutomationTopic\"}" },
 
         new SourceConfig { SourceKey = "ai_github_paid", DisplayName = "AI automation — paid GitHub issues", Enabled = true,
             PollIntervalMinutes = 240, MaxItemsPerRun = 60,
-            QueryPacksCsv = "AiAutomationProjects,HireIntent,PaidFeatureRequest",
-            AutoModeEligible = false, MinPreFilterScore = 20, MinOpportunityScore = 42,
+            QueryPacksCsv = "AiAutomationProjects,AiAutomationTopic,HireIntent,PaidFeatureRequest",
+            AutoModeEligible = false, MinPreFilterScore = 20, MinOpportunityScore = 36,
             ParametersJson = JsonSerializer.Serialize(new
             {
                 connector = "github_search", daysBack = "120", requireSkillMatch = "false",
-                requiredQueryPack = "AiAutomationProjects",
+                requiredQueryPack = "AiAutomationTopic",
                 queries = string.Join('\n',
                     "*label:bounty \"LLM\"", "*label:bounty \"RAG\"", "*label:bounty \"chatbot\"",
                     "*label:bounty \"OpenAI\"", "*\"willing to pay\" \"AI integration\"",
@@ -1058,9 +1088,9 @@ public static class DatabaseSeeder
 
         new SourceConfig { SourceKey = "ai_opire", DisplayName = "AI automation — Opire bounties", Enabled = true,
             PollIntervalMinutes = 360, MaxItemsPerRun = 80,
-            QueryPacksCsv = "AiAutomationProjects,HireIntent,PaidFeatureRequest",
-            AutoModeEligible = false, MinPreFilterScore = 20, MinOpportunityScore = 42,
-            ParametersJson = "{\"connector\":\"opire\",\"maxPages\":\"8\",\"minAmountUsd\":\"20\",\"requireSkillMatch\":\"false\",\"requiredQueryPack\":\"AiAutomationProjects\"}" },
+            QueryPacksCsv = "AiAutomationProjects,AiAutomationTopic,HireIntent,PaidFeatureRequest",
+            AutoModeEligible = false, MinPreFilterScore = 20, MinOpportunityScore = 36,
+            ParametersJson = "{\"connector\":\"opire\",\"maxPages\":\"8\",\"minAmountUsd\":\"20\",\"requireSkillMatch\":\"false\",\"requiredQueryPack\":\"AiAutomationTopic\"}" },
     };
 
     /// <summary>

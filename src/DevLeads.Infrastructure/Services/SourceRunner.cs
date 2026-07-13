@@ -365,7 +365,7 @@ public sealed class SourceRunner
     private static bool MatchesAny(RawSourceItem item, IReadOnlyCollection<string> terms)
     {
         var text = $"{item.Title}\n{item.BodyText}";
-        return terms.Any(term => text.Contains(term, StringComparison.OrdinalIgnoreCase));
+        return terms.Any(term => TermMatch.ContainsWholeTerm(text, term));
     }
 
     private IReadOnlyList<string> BuildTerms(SourceConfig source)

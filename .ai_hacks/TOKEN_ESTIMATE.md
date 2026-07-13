@@ -1,5 +1,5 @@
 # Token Estimate
 
-- Indexed source: 762,941 characters (~190,735 tokens).
-- Compact context: 77,988 characters (~19,497 tokens).
-- Reduction: 89.8%.
+- Indexed source: 771,910 characters (~192,978 tokens).
+- Compact context: 79,128 characters (~19,782 tokens).
+- Reduction: 89.7%.

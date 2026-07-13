@@ -281,6 +281,10 @@ public sealed class LeadIngestionService
 
         var skills = await GetSkillsAsync(ct);
         var body = await GetBodyAsync(opp, ct);
+        // Guaranteed fallback: language friction still affects score when the configured
+        // AI provider is unavailable or times out. A successful structured result below
+        // may refine this code and provide the actual English translation.
+        opp.LanguageCode = LanguageDetection.Detect(opp.Title, body);
 
         // An amount the poster explicitly stated ("Reward: $15", "[Bounty $250]") is fact —
         // it overrides the category-based fee suggestion and is displayed as the offer.
@@ -368,7 +372,7 @@ public sealed class LeadIngestionService
             PostedAt = opp.PostedAt,
             RedFlagged = redFlag.IsRedFlagged,
             HasContact = !string.IsNullOrWhiteSpace(opp.AuthorProfileUrl),
-            LanguageCode = aiResult?.LanguageCode ?? "en",
+            LanguageCode = opp.LanguageCode,
             SkillMatches = skillMatches,
             OfferedAmount = offered?.Max,
             ClaimedByOthers = LeadQualityRules.IsAlreadyClaimed(competitionText),

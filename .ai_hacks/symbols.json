@@ -1,9 +1,9 @@
 {
   "coverage": {
-    "authored_descriptions": 277,
-    "callables": 481,
-    "source_characters": 762941,
-    "types": 148
+    "authored_descriptions": 282,
+    "callables": 486,
+    "source_characters": 771910,
+    "types": 150
   },
   "dbsets": [
     {
@@ -975,10 +975,16 @@
       "sha256": "3e0dbe66c915f77e0773ce4b33165f057fee25a7cf946c0c4dd00fba22cf147d"
     },
     {
-      "bytes": 12373,
-      "lines": 243,
+      "bytes": 13736,
+      "lines": 264,
       "path": "src/DevLeads.Core/HeuristicPreFilter.cs",
-      "sha256": "26baf7a8c45f011673a3f6010e4e0dcaeacde6eccf5cfbf21b5e0c0ea84861f1"
+      "sha256": "c773a3391b28a4d773d2e5d4e730f252f609cb22dab2233a3d29153568968438"
+    },
+    {
+      "bytes": 1873,
+      "lines": 34,
+      "path": "src/DevLeads.Core/LanguageDetection.cs",
+      "sha256": "61a910d7a24963f402543eb199f34ee9adffd7e787d6e5a1b5728387da6007f4"
     },
     {
       "bytes": 13647,
@@ -999,10 +1005,10 @@
       "sha256": "4eafc8306f27e9e2524241850fd8fe9ef2689713ff1a23d08686d7c40f1c374d"
     },
     {
-      "bytes": 12457,
-      "lines": 194,
+      "bytes": 15045,
+      "lines": 231,
       "path": "src/DevLeads.Core/QueryPacks/DefaultQueryPacks.cs",
-      "sha256": "b115221a05697f5b2126f94d277371d5df9904c2a73cb0212a920ce1b8fc7733"
+      "sha256": "b76d8e1bed3d7ea818363af9fa348eea8a124c416b8d54fcd52c37de25da13cf"
     },
     {
       "bytes": 839,
@@ -1017,10 +1023,10 @@
       "sha256": "d35b1bbc43ed8160105fd555d5b34130d40cfbdf8d951c6cd35819601bb142e9"
     },
     {
-      "bytes": 17840,
-      "lines": 393,
+      "bytes": 18650,
+      "lines": 406,
       "path": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
-      "sha256": "c7876350a5b828e4ce8733824a47aaf16d59e47db619927e974c4f9e1781e3a0"
+      "sha256": "062da8c3580edcd38aead7517cf7be0dac672d8634524195095aa27a141b54a0"
     },
     {
       "bytes": 5315,
@@ -1059,6 +1065,12 @@
       "sha256": "e185fa94ea626a4dae2e2ad16e82f0c896377bba3789f32e70a6eb73ec0eccd8"
     },
     {
+      "bytes": 1428,
+      "lines": 36,
+      "path": "src/DevLeads.Core/TermMatch.cs",
+      "sha256": "2dfadbd16b7589dfa775b6d45d52b1f31e48c0e782e5f3bca1d3c97a9dde7ce5"
+    },
+    {
       "bytes": 6606,
       "lines": 147,
       "path": "src/DevLeads.Infrastructure/Ai/AiCliSupport.cs",
@@ -1089,10 +1101,10 @@
       "sha256": "eb3a4ef3bc7e353fa869bb52005d42ea1f2f6b7062843a694eb2012baa57d734"
     },
     {
-      "bytes": 18987,
-      "lines": 305,
+      "bytes": 17639,
+      "lines": 282,
       "path": "src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs",
-      "sha256": "6a8adccc4b3f21f92d82e4ba30e7d9af92298f31ea275786b3c8d19f912113c3"
+      "sha256": "ad6fadea579789d1bd901f5e20eee52fb0120c2c9c0b967aff274b1980d34c32"
     },
     {
       "bytes": 22592,
@@ -1149,10 +1161,10 @@
       "sha256": "5ff5c65f2e37e4ba4f200d5b500990f4b2fc4048bcd266db3acb88672913ead9"
     },
     {
-      "bytes": 74521,
-      "lines": 1285,
+      "bytes": 76481,
+      "lines": 1315,
       "path": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
-      "sha256": "b659844483838b9c49d65180a7b7d5ace1de78bc12b246c12c18896c3fffaa5b"
+      "sha256": "46a0b3347acc816b6c993470afd0e0712592d6b81986748c2c4f9c4f0a682052"
     },
     {
       "bytes": 6388,
@@ -1197,10 +1209,10 @@
       "sha256": "20a0b9e79f787966914bb60563813940f9a3f473bc9c6197f01970b17a3cfbee"
     },
     {
-      "bytes": 32923,
-      "lines": 750,
+      "bytes": 33234,
+      "lines": 754,
       "path": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
-      "sha256": "42f24e135d28a0bf529a289747ee7d71012122aa40abdf6bbd8b291ec8a75259"
+      "sha256": "b397fb9f0f64bfdc47257e94278458b34e831a9022b855073b6c47fc7e1760ab"
     },
     {
       "bytes": 4658,
@@ -1227,10 +1239,10 @@
       "sha256": "fb575529d5400b452ee91c7686e446f9eac717ac1bd4c8f20951cbe8cdfc3752"
     },
     {
-      "bytes": 21637,
+      "bytes": 21621,
       "lines": 474,
       "path": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
-      "sha256": "96df15240a1f6a995847cdc2a1f6872f65171446aa07b17498092059b21ac547"
+      "sha256": "7d523067ef8bde3ae00f38568d570c745ac4fc7ecf4ccb2bae6b2b9c8a8ad235"
     },
     {
       "bytes": 8460,
@@ -1647,6 +1659,7 @@
       "Campaign objectives are passed into AI shortlist, triage, and outreach generation so relevance stays campaign-specific.",
       "Red-flagged, resolved, promotional, reply-feed, autonomous-agent-task, and non-hirable vendor-support posts must not reach actionable outreach.",
       "Foreign-stack work without an operator stack-identity match is rejected or score-capped; generic capabilities such as API work are not stack identity.",
+      "Non-English leads receive a language-friction score penalty before source thresholds; only survivors store/display an English translation, while the original source text remains available for verification.",
       "Stated compensation overrides category-based fee estimates and is displayed as an offer rather than an estimate.",
       "The selected unavailable AI provider falls back to Heuristic; the lead pipeline remains operable without external AI.",
       "Outreach never bypasses the global kill switch, required approval, or enabled suppression list.",
@@ -2174,7 +2187,7 @@
   "solutions": [
     "DevLeads.slnx"
   ],
-  "source_digest": "b4aacc3cf633a428ab2481f9447425f6c77e36fb5c39bad79c81a3226e4bc8d7",
+  "source_digest": "dff5eae8a0a2d5f0f6a6ba953372c5c0141165058295b55674a2a4335f92b348",
   "types": [
     {
       "access": "public",
@@ -12470,7 +12483,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/HeuristicPreFilter.cs",
           "kind": "field",
-          "line": 25,
+          "line": 27,
           "modifiers": [
             "private",
             "static",
@@ -12485,7 +12498,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/HeuristicPreFilter.cs",
           "kind": "field",
-          "line": 41,
+          "line": 62,
           "modifiers": [
             "private",
             "static",
@@ -12501,7 +12514,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/HeuristicPreFilter.cs",
           "kind": "field",
-          "line": 56,
+          "line": 77,
           "modifiers": [
             "private",
             "static",
@@ -12517,7 +12530,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/HeuristicPreFilter.cs",
           "kind": "field",
-          "line": 75,
+          "line": 96,
           "modifiers": [
             "private",
             "static",
@@ -12533,7 +12546,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/HeuristicPreFilter.cs",
           "kind": "field",
-          "line": 84,
+          "line": 105,
           "modifiers": [
             "private",
             "static",
@@ -12549,7 +12562,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/HeuristicPreFilter.cs",
           "kind": "method",
-          "line": 92,
+          "line": 113,
           "modifiers": [
             "public",
             "static"
@@ -12568,7 +12581,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/HeuristicPreFilter.cs",
           "kind": "method",
-          "line": 104,
+          "line": 125,
           "modifiers": [
             "public"
           ],
@@ -12587,7 +12600,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/HeuristicPreFilter.cs",
           "kind": "method",
-          "line": 238,
+          "line": 259,
           "modifiers": [
             "private",
             "static"
@@ -12609,6 +12622,48 @@
       "namespace": "DevLeads.Core",
       "primaryConstructorParameters": [],
       "summary": "Zero-cost keyword/rule filter deciding whether a raw item is worth an LLM call. Protects the AI budget, cuts latency, and rejects obvious noise before triage.",
+      "typeParameters": []
+    },
+    {
+      "access": "public",
+      "baseTypes": [],
+      "bases": [],
+      "constructors": [],
+      "description": "Lightweight fallback language detection used before scoring. Structured AI triage is authoritative when available; these rules ensure outages cannot bypass the language penalty.",
+      "descriptionSource": "xml-summary",
+      "file": "src/DevLeads.Core/LanguageDetection.cs",
+      "fullName": "DevLeads.Core.LanguageDetection",
+      "kind": "class",
+      "line": 8,
+      "members": [
+        {
+          "access": "public",
+          "description": "Handles detect.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/LanguageDetection.cs",
+          "kind": "method",
+          "line": 10,
+          "modifiers": [
+            "public",
+            "static"
+          ],
+          "name": "Detect",
+          "parameters": [
+            "string title",
+            "string body"
+          ],
+          "returnType": "string",
+          "typeParameters": []
+        }
+      ],
+      "modifiers": [
+        "public",
+        "static"
+      ],
+      "name": "LanguageDetection",
+      "namespace": "DevLeads.Core",
+      "primaryConstructorParameters": [],
+      "summary": "Lightweight fallback language detection used before scoring. Structured AI triage is authoritative when available; these rules ensure outages cannot bypass the language penalty. The detector intentionally stays conservative for code-heavy Latin text.",
       "typeParameters": []
     },
     {
@@ -13667,11 +13722,27 @@
         },
         {
           "access": "public",
+          "description": "Broad AI/automation vocabulary for the AI campaign's sources: the topic gate (requiredQueryPack) and connector search terms.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/QueryPacks/DefaultQueryPacks.cs",
+          "kind": "field",
+          "line": 190,
+          "modifiers": [
+            "public",
+            "static",
+            "readonly"
+          ],
+          "name": "AiAutomationTopic",
+          "summary": "Broad AI/automation vocabulary for the AI campaign's sources: the topic gate (requiredQueryPack) and connector search terms. Deliberately NOT high-priority \u2014 mentioning \"gpt\" keeps a post inside the campaign's arena, but only hire/pay/ urgency signals (and the hire-shaped pack above) qualify it as a lead. Terms are whole-word matched, so short tokens (\"rag\", \"llm\", \"ai\") are safe.",
+          "type": "QueryPackSeed"
+        },
+        {
+          "access": "public",
           "description": "Handles negative exclusions.",
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/QueryPacks/DefaultQueryPacks.cs",
           "kind": "field",
-          "line": 170,
+          "line": 207,
           "modifiers": [
             "public",
             "static",
@@ -13686,7 +13757,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/QueryPacks/DefaultQueryPacks.cs",
           "kind": "field",
-          "line": 186,
+          "line": 223,
           "modifiers": [
             "public",
             "static",
@@ -14491,7 +14562,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 152,
+          "line": 155,
           "modifiers": [
             "public",
             "static"
@@ -14509,7 +14580,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 158,
+          "line": 161,
           "modifiers": [
             "private",
             "static"
@@ -14528,7 +14599,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 162,
+          "line": 165,
           "modifiers": [
             "private",
             "static"
@@ -14542,12 +14613,31 @@
           "typeParameters": []
         },
         {
+          "access": "private",
+          "description": "Unclaimed work with meaningful stated compensation ($100 mirrors the operator's minimum fee \u2014 micro-bounties don't earn the slower age decay).",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+          "kind": "method",
+          "line": 174,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "HasOpenStatedMoney",
+          "parameters": [
+            "ScoringInput i"
+          ],
+          "returnType": "bool",
+          "summary": "Unclaimed work with meaningful stated compensation ($100 mirrors the operator's minimum fee \u2014 micro-bounties don't earn the slower age decay).",
+          "typeParameters": []
+        },
+        {
           "access": "public",
           "description": "Handles to priority.",
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 167,
+          "line": 177,
           "modifiers": [
             "public",
             "static"
@@ -14565,7 +14655,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 176,
+          "line": 186,
           "modifiers": [
             "private",
             "static"
@@ -14584,7 +14674,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 197,
+          "line": 210,
           "modifiers": [
             "private",
             "static"
@@ -14602,7 +14692,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 217,
+          "line": 230,
           "modifiers": [
             "private",
             "static"
@@ -14620,7 +14710,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "field",
-          "line": 241,
+          "line": 254,
           "modifiers": [
             "private",
             "static",
@@ -14636,7 +14726,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 243,
+          "line": 256,
           "modifiers": [
             "private",
             "static"
@@ -14654,7 +14744,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 302,
+          "line": 315,
           "modifiers": [
             "private",
             "static"
@@ -14672,7 +14762,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 309,
+          "line": 322,
           "modifiers": [
             "private",
             "static"
@@ -14690,7 +14780,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 318,
+          "line": 331,
           "modifiers": [
             "private",
             "static"
@@ -14708,7 +14798,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 346,
+          "line": 359,
           "modifiers": [
             "private",
             "static"
@@ -14726,7 +14816,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 358,
+          "line": 371,
           "modifiers": [
             "private",
             "static"
@@ -14744,7 +14834,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 383,
+          "line": 396,
           "modifiers": [
             "private",
             "static"
@@ -15452,6 +15542,48 @@
       "namespace": "DevLeads.Core.Templates",
       "primaryConstructorParameters": [],
       "summary": "Vetted response templates. Placeholders in [brackets] are filled per-opportunity.",
+      "typeParameters": []
+    },
+    {
+      "access": "public",
+      "baseTypes": [],
+      "bases": [],
+      "constructors": [],
+      "description": "Whole-word term matching for query-pack terms and pre-filter signals. Plain substring Contains made short terms unusable (\"rag\" matched \"storage\", \"down\" matched \"markdown\"), which forced packs into long exact phrases\u2026",
+      "descriptionSource": "xml-summary",
+      "file": "src/DevLeads.Core/TermMatch.cs",
+      "fullName": "DevLeads.Core.TermMatch",
+      "kind": "class",
+      "line": 11,
+      "members": [
+        {
+          "access": "public",
+          "description": "Checks whole term.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/TermMatch.cs",
+          "kind": "method",
+          "line": 13,
+          "modifiers": [
+            "public",
+            "static"
+          ],
+          "name": "ContainsWholeTerm",
+          "parameters": [
+            "string text",
+            "string term"
+          ],
+          "returnType": "bool",
+          "typeParameters": []
+        }
+      ],
+      "modifiers": [
+        "public",
+        "static"
+      ],
+      "name": "TermMatch",
+      "namespace": "DevLeads.Core",
+      "primaryConstructorParameters": [],
+      "summary": "Whole-word term matching for query-pack terms and pre-filter signals. Plain substring Contains made short terms unusable (\"rag\" matched \"storage\", \"down\" matched \"markdown\"), which forced packs into long exact phrases real posts never contain. A term edge that is a letter/digit must sit on a word boundary; edges that are punctuation (\".net\", \"[hiring]\") keep substring semantics so \"asp.net\" still matches \".net\". Multi-word phrases match literally.",
       "typeParameters": []
     },
     {
@@ -16755,29 +16887,11 @@
         },
         {
           "access": "private",
-          "description": "Handles detect language.",
-          "descriptionSource": "heuristic",
-          "file": "src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs",
-          "kind": "method",
-          "line": 224,
-          "modifiers": [
-            "private",
-            "static"
-          ],
-          "name": "DetectLanguage",
-          "parameters": [
-            "string text"
-          ],
-          "returnType": "string",
-          "typeParameters": []
-        },
-        {
-          "access": "private",
           "description": "Handles classify.",
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs",
           "kind": "method",
-          "line": 247,
+          "line": 224,
           "modifiers": [
             "private",
             "static"
@@ -16795,7 +16909,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs",
           "kind": "method",
-          "line": 255,
+          "line": 232,
           "modifiers": [
             "private",
             "static"
@@ -16813,7 +16927,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs",
           "kind": "method",
-          "line": 278,
+          "line": 255,
           "modifiers": [
             "private",
             "static"
@@ -16834,7 +16948,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs",
           "kind": "method",
-          "line": 284,
+          "line": 261,
           "modifiers": [
             "private",
             "static"
@@ -16852,7 +16966,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs",
           "kind": "method",
-          "line": 295,
+          "line": 272,
           "modifiers": [
             "private",
             "static"
@@ -19195,7 +19309,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 611,
+          "line": 614,
           "modifiers": [
             "private",
             "static",
@@ -19217,7 +19331,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 625,
+          "line": 628,
           "modifiers": [
             "private",
             "static"
@@ -19236,7 +19350,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 638,
+          "line": 643,
           "modifiers": [
             "private",
             "static"
@@ -19250,11 +19364,67 @@
         },
         {
           "access": "private",
+          "description": "2026-07-13: the AI campaign's topic gate moved from the hire-shaped AiAutomationProjects phrases (which rejected 98% of fetched items, including paid listings) to the broad\u2026",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
+          "kind": "method",
+          "line": 653,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "IsAiTopicGateBroadening",
+          "parameters": [
+            "SourceConfig source"
+          ],
+          "returnType": "bool",
+          "summary": "2026-07-13: the AI campaign's topic gate moved from the hire-shaped AiAutomationProjects phrases (which rejected 98% of fetched items, including paid listings) to the broad whole-word AiAutomationTopic vocabulary. Broadening a gate only ADMITS more items, so nothing previously gathered goes stale \u2014 never purge.",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "2026-07-13: the AI campaign's MinOpportunityScore dropped from 42\u201348 (emergency calibration) to 36\u201340.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
+          "kind": "method",
+          "line": 664,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "IsAiThresholdRecalibration",
+          "parameters": [
+            "SourceConfig source"
+          ],
+          "returnType": "bool",
+          "summary": "2026-07-13: the AI campaign's MinOpportunityScore dropped from 42\u201348 (emergency calibration) to 36\u201340. AI/automation leads earn no urgency or .NET stack-fit points, so real paid bounties scored 26\u201342 and every one died at the threshold; 36 still sits above the 35 claimed-work competition cap. Loosening a threshold only admits more items \u2014 nothing gathered before goes stale, never purge.",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Checks ai automation source.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
+          "kind": "method",
+          "line": 667,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "IsAiAutomationSource",
+          "parameters": [
+            "SourceConfig source"
+          ],
+          "returnType": "bool",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
           "description": "Reapplies seeded defaults, returning whether anything actually changed \u2014 a boot with unchanged defaults must NOT count as a migration (that would purge + re-triage all discovery\u2026",
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 648,
+          "line": 676,
           "modifiers": [
             "private",
             "static"
@@ -19274,7 +19444,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 678,
+          "line": 706,
           "modifiers": [
             "private",
             "static"
@@ -19293,7 +19463,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 723,
+          "line": 751,
           "modifiers": [
             "private",
             "static"
@@ -19313,7 +19483,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 747,
+          "line": 775,
           "modifiers": [
             "private",
             "static"
@@ -19330,7 +19500,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 958,
+          "line": 986,
           "modifiers": [
             "private",
             "static"
@@ -19343,11 +19513,11 @@
         },
         {
           "access": "private",
-          "description": "Searches every registered connector for paid AI/automation implementation work. Topic matching finds the project; campaign-aware AI triage still requires explicit hire/pay intent\u2026",
+          "description": "Searches every registered connector for paid AI/automation implementation work. The broad AiAutomationTopic pack gates campaign relevance (whole-word matched, so\u2026",
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1003,
+          "line": 1033,
           "modifiers": [
             "private",
             "static"
@@ -19355,7 +19525,7 @@
           "name": "AiAutomationSources",
           "parameters": [],
           "returnType": "IEnumerable<SourceConfig>",
-          "summary": "Searches every registered connector for paid AI/automation implementation work. Topic matching finds the project; campaign-aware AI triage still requires explicit hire/pay intent so general AI discussion and product promotion never become leads.",
+          "summary": "Searches every registered connector for paid AI/automation implementation work. The broad AiAutomationTopic pack gates campaign relevance (whole-word matched, so \"gpt\"/\"llm\"/\"automation\" mentions keep a post in the arena) and supplies short connector search terms; the hire-shaped AiAutomationProjects pack plus pay/urgency signals still decide what scores, so general AI discussion never becomes a lead.",
           "typeParameters": []
         },
         {
@@ -19364,7 +19534,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1071,
+          "line": 1101,
           "modifiers": [
             "private",
             "static",
@@ -19385,7 +19555,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1119,
+          "line": 1149,
           "modifiers": [
             "private",
             "static"
@@ -19406,7 +19576,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1129,
+          "line": 1159,
           "modifiers": [
             "private",
             "static",
@@ -19427,7 +19597,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1148,
+          "line": 1178,
           "modifiers": [
             "private",
             "static",
@@ -19448,7 +19618,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "field",
-          "line": 1163,
+          "line": 1193,
           "modifiers": [
             "private",
             "static",
@@ -19464,7 +19634,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1177,
+          "line": 1207,
           "modifiers": [
             "private",
             "static",
@@ -19485,7 +19655,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1205,
+          "line": 1235,
           "modifiers": [
             "private",
             "static",
@@ -19506,7 +19676,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1231,
+          "line": 1261,
           "modifiers": [
             "private",
             "static",
@@ -19526,7 +19696,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1262,
+          "line": 1292,
           "modifiers": [
             "private",
             "static",
@@ -19547,7 +19717,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1273,
+          "line": 1303,
           "modifiers": [
             "private",
             "static",
@@ -21166,7 +21336,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 385,
+          "line": 389,
           "modifiers": [
             "private"
           ],
@@ -21190,7 +21360,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 515,
+          "line": 519,
           "modifiers": [
             "private"
           ],
@@ -21209,7 +21379,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 537,
+          "line": 541,
           "modifiers": [
             "private",
             "static"
@@ -21228,7 +21398,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 544,
+          "line": 548,
           "modifiers": [
             "private",
             "static"
@@ -21247,7 +21417,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 565,
+          "line": 569,
           "modifiers": [
             "private"
           ],
@@ -21265,7 +21435,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 584,
+          "line": 588,
           "modifiers": [
             "private",
             "static"
@@ -21284,7 +21454,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 597,
+          "line": 601,
           "modifiers": [
             "public",
             "static"
@@ -21302,7 +21472,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 606,
+          "line": 610,
           "modifiers": [
             "private",
             "async"
@@ -21320,7 +21490,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "field",
-          "line": 609,
+          "line": 613,
           "modifiers": [
             "private"
           ],
@@ -21333,7 +21503,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 611,
+          "line": 615,
           "modifiers": [
             "private",
             "async"
@@ -21351,7 +21521,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "field",
-          "line": 614,
+          "line": 618,
           "modifiers": [
             "private",
             "readonly"
@@ -21365,7 +21535,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 616,
+          "line": 620,
           "modifiers": [
             "private",
             "async"
@@ -21384,7 +21554,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 624,
+          "line": 628,
           "modifiers": [
             "private",
             "static"
@@ -21402,7 +21572,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 627,
+          "line": 631,
           "modifiers": [
             "private",
             "static"
@@ -21421,7 +21591,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 642,
+          "line": 646,
           "modifiers": [
             "private",
             "static"
@@ -21440,7 +21610,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 666,
+          "line": 670,
           "modifiers": [
             "public",
             "async"
@@ -21460,7 +21630,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 680,
+          "line": 684,
           "modifiers": [
             "private",
             "static"
@@ -21479,7 +21649,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 697,
+          "line": 701,
           "modifiers": [
             "private",
             "async"
@@ -21498,7 +21668,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 706,
+          "line": 710,
           "modifiers": [
             "private",
             "static"
@@ -21516,7 +21686,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 712,
+          "line": 716,
           "modifiers": [
             "private",
             "static"
@@ -21534,7 +21704,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 715,
+          "line": 719,
           "modifiers": [
             "private",
             "async"
@@ -21554,7 +21724,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 747,
+          "line": 751,
           "modifiers": [
             "private",
             "static"

@@ -336,6 +336,7 @@
     "Campaign objectives are passed into AI shortlist, triage, and outreach generation so relevance stays campaign-specific.",
     "Red-flagged, resolved, promotional, reply-feed, autonomous-agent-task, and non-hirable vendor-support posts must not reach actionable outreach.",
     "Foreign-stack work without an operator stack-identity match is rejected or score-capped; generic capabilities such as API work are not stack identity.",
+    "Non-English leads receive a language-friction score penalty before source thresholds; only survivors store/display an English translation, while the original source text remains available for verification.",
     "Stated compensation overrides category-based fee estimates and is displayed as an offer rather than an estimate.",
     "The selected unavailable AI provider falls back to Heuristic; the lead pipeline remains operable without external AI.",
     "Outreach never bypasses the global kill switch, required approval, or enabled suppression list.",
