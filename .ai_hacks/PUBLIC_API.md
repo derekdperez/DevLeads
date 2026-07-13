@@ -152,7 +152,7 @@ public class `AiTriageResult` · `src/DevLeads.Core/AiTriageResult.cs:10`
 
 The strict structured object returned by the single-pass AI triage call. Satisfies all former pipeline stages (relevance, emergency, category, stack, cause, first step, fix time, confidence, recommendation) at once.
 
-Data: `IsTechnicalProblem`: bool, `IsEmergency`: bool, `PaymentIntent`: string, `AssistanceRequested`: bool, `RejectReason`: string?, `ProblemCategory`: string, `DetectedStack`: List<string>, `EstimatedCause`: string, `FirstDiagnosticStep`: string, `EstimatedFixMinutesMin`: int?, `EstimatedFixMinutesMax`: int?, `AiConfidence`: decimal, `OutreachRecommendation`: string, `ProblemCategories`: string[], `PaymentIntents`: string[], `OutreachRecommendations`: string[].
+Data: `LanguageCode`: string, `EnglishTitle`: string, `EnglishBody`: string, `IsTechnicalProblem`: bool, `IsEmergency`: bool, `PaymentIntent`: string, `AssistanceRequested`: bool, `RejectReason`: string?, `ProblemCategory`: string, `DetectedStack`: List<string>, `EstimatedCause`: string, `FirstDiagnosticStep`: string, `EstimatedFixMinutesMin`: int?, `EstimatedFixMinutesMax`: int?, `AiConfidence`: decimal, `OutreachRecommendation`: string, `ProblemCategories`: string[], `PaymentIntents`: string[], `OutreachRecommendations`: string[].
 
 ### `DevLeads.Core.Connectors`
 
@@ -239,7 +239,7 @@ public class `OperatorPost` · `src/DevLeads.Core/Entities/OperatorPost.cs:9`
 
 One of the operator's OWN posts on an external platform (a [For Hire] reddit post, an Upwork profile/proposal, a Craigslist ad…).
 
-Data: `Id`: long, `Platform`: string, `ExternalId`: string, `Url`: string, `Title`: string, `Body`: string, `Community`: string, `Status`: OperatorPostStatus, `CampaignId`: long?, `ReplyCount`: int, `UpvoteCount`: int, `ViewCount`: int, `ThreadSummary`: string, `SummarizedAt`: DateTimeOffset?, `LastCheckedAt`: DateTimeOffset?, `Notes`: string, `PostedAt`: DateTimeOffset, `CreatedAt`: DateTimeOffset, `UpdatedAt`: DateTimeOffset, `Snapshots`: List<OperatorPostSnapshot>.
+Data: `Id`: long, `Platform`: string, `ExternalId`: string, `Url`: string, `Title`: string, `Body`: string, `Community`: string, `Status`: OperatorPostStatus, `CampaignId`: long?, `ReplyCount`: int, `UpvoteCount`: int, `ViewCount`: int, `ViewCountKnown`: bool, `ThreadSummary`: string, `SummarizedAt`: DateTimeOffset?, `LastCheckedAt`: DateTimeOffset?, `Notes`: string, `PostedAt`: DateTimeOffset, `CreatedAt`: DateTimeOffset, `UpdatedAt`: DateTimeOffset, `Snapshots`: List<OperatorPostSnapshot>.
 
 #### OperatorPostRevision
 
@@ -275,7 +275,7 @@ public class `Opportunity` · `src/DevLeads.Core/Entities/Opportunity.cs:6`
 
 A triaged, scored emergency-repair lead. The central aggregate the whole app revolves around.
 
-Data: `Id`: long, `Title`: string, `Summary`: string, `CampaignId`: long?, `SourceKey`: string, `SourceUrl`: string, `AuthorName`: string?, `AuthorProfileUrl`: string?, `Status`: OpportunityStatus, `Priority`: Priority, `Score`: double, `UrgencyScore`: double, `StackFitScore`: double, `BusinessValueScore`: double, `ReachabilityScore`: double, `CompetitionScore`: double, `TrustScore`: double, `ProblemType`: string, `PaymentIntent`: string, `AssistanceRequested`: bool?, `DetectedStackJson`: string, `SuggestedFirstStep`: string, `EstimatedCause`: string, `EstimatedFeeMin`: double?, `EstimatedFeeMax`: double?, `FeeIsEstimate`: bool, `EstimatedFixMinutesMin`: int?, `EstimatedFixMinutesMax`: int?, `AiConfidence`: double, `OutreachRecommendation`: OutreachRecommendation, `RejectionReason`: string?, `AiJobStatus`: AiJobStatus, `HeuristicScore`: double, `MatchedTermsJson`: string, `PreFilterRejectReason`: string?, `AutoEligible`: bool, `PostedAt`: DateTimeOffset, `FirstSeenAt`: DateTimeOffset, `LastSeenAt`: DateTimeOffset, `CreatedAt`: DateTimeOffset, `UpdatedAt`: DateTimeOffset, `NextFollowUpAt`: DateTimeOffset?, `WorkNotes`: string?, `TriageRuns`: List<AiTriageRun>, `OutreachAttempts`: List<OutreachAttempt>, `Quotes`: List<Quote>, `WorkSessions`: List<WorkSession>.
+Data: `Id`: long, `Title`: string, `Summary`: string, `CampaignId`: long?, `SourceKey`: string, `SourceUrl`: string, `AuthorName`: string?, `AuthorProfileUrl`: string?, `Status`: OpportunityStatus, `Priority`: Priority, `Score`: double, `UrgencyScore`: double, `StackFitScore`: double, `BusinessValueScore`: double, `ReachabilityScore`: double, `CompetitionScore`: double, `TrustScore`: double, `LanguagePenalty`: double, `LanguageCode`: string, `TranslatedBody`: string, `ProblemType`: string, `PaymentIntent`: string, `AssistanceRequested`: bool?, `DetectedStackJson`: string, `SuggestedFirstStep`: string, `EstimatedCause`: string, `EstimatedFeeMin`: double?, `EstimatedFeeMax`: double?, `FeeIsEstimate`: bool, `EstimatedFixMinutesMin`: int?, `EstimatedFixMinutesMax`: int?, `AiConfidence`: double, `OutreachRecommendation`: OutreachRecommendation, `RejectionReason`: string?, `AiJobStatus`: AiJobStatus, `HeuristicScore`: double, `MatchedTermsJson`: string, `PreFilterRejectReason`: string?, `AutoEligible`: bool, `PostedAt`: DateTimeOffset, `FirstSeenAt`: DateTimeOffset, `LastSeenAt`: DateTimeOffset, `CreatedAt`: DateTimeOffset, `UpdatedAt`: DateTimeOffset, `NextFollowUpAt`: DateTimeOffset?, `WorkNotes`: string?, `TriageRuns`: List<AiTriageRun>, `OutreachAttempts`: List<OutreachAttempt>, `Quotes`: List<Quote>, `WorkSessions`: List<WorkSession>.
 
 #### OutreachAttempt
 
@@ -540,7 +540,7 @@ public class `DefaultQueryPacks` · `src/DevLeads.Core/QueryPacks/DefaultQueryPa
 
 The built-in query packs from the design document, used to seed the database.
 
-Data: `EmergencyGeneric`: QueryPackSeed, `DotNetSqlPriority`: QueryPackSeed, `PaymentEcommerce`: QueryPackSeed, `AgencyClientUrgency`: QueryPackSeed, `SaaSApiAuth`: QueryPackSeed, `InfraOps`: QueryPackSeed, `WordPressHosting`: QueryPackSeed, `ContractProjectWork`: QueryPackSeed, `SupportPain`: QueryPackSeed, `HireIntent`: QueryPackSeed, `PaidFeatureRequest`: QueryPackSeed, `DotNetModernization`: QueryPackSeed, `NegativeExclusions`: QueryPackSeed, `All`: QueryPackSeed[].
+Data: `EmergencyGeneric`: QueryPackSeed, `DotNetSqlPriority`: QueryPackSeed, `PaymentEcommerce`: QueryPackSeed, `AgencyClientUrgency`: QueryPackSeed, `SaaSApiAuth`: QueryPackSeed, `InfraOps`: QueryPackSeed, `WordPressHosting`: QueryPackSeed, `ContractProjectWork`: QueryPackSeed, `SupportPain`: QueryPackSeed, `HireIntent`: QueryPackSeed, `PaidFeatureRequest`: QueryPackSeed, `DotNetModernization`: QueryPackSeed, `AiAutomationProjects`: QueryPackSeed, `NegativeExclusions`: QueryPackSeed, `All`: QueryPackSeed[].
 
 #### IQueryPackProvider
 
@@ -583,25 +583,26 @@ public class `ScoreBreakdown` · `src/DevLeads.Core/Scoring/OpportunityScorer.cs
 
 The blended score plus its weighted components.
 
-Data: `UrgencyScore`: double, `StackFitScore`: double, `BusinessValueScore`: double, `ReachabilityScore`: double, `CompetitionScore`: double, `TrustScore`: double, `Total`: double, `Priority`: Priority.
+Data: `UrgencyScore`: double, `StackFitScore`: double, `BusinessValueScore`: double, `ReachabilityScore`: double, `CompetitionScore`: double, `TrustScore`: double, `LanguagePenalty`: double, `Total`: double, `Priority`: Priority.
 
 #### ScoringInput
 
-public class `ScoringInput` · `src/DevLeads.Core/Scoring/OpportunityScorer.cs:19`
+public class `ScoringInput` · `src/DevLeads.Core/Scoring/OpportunityScorer.cs:21`
 
 Inputs the scorer needs, decoupled from persistence.
 
-Data: `Ai`: AiTriageResult?, `PreFilter`: PreFilterResult?, `SourceKey`: string, `PostedAt`: DateTimeOffset, `RedFlagged`: bool, `HasContact`: bool, `SkillMatches`: IReadOnlyList<SkillMatch>?, `OfferedAmount`: double?, `ClaimedByOthers`: bool, `CompetingResponses`: int, `ForeignStackDemands`: IReadOnlyList<string>.
+Data: `Ai`: AiTriageResult?, `PreFilter`: PreFilterResult?, `SourceKey`: string, `PostedAt`: DateTimeOffset, `RedFlagged`: bool, `HasContact`: bool, `LanguageCode`: string, `SkillMatches`: IReadOnlyList<SkillMatch>?, `OfferedAmount`: double?, `ClaimedByOthers`: bool, `CompetingResponses`: int, `ForeignStackDemands`: IReadOnlyList<string>.
 
 #### OpportunityScorer
 
-public class `OpportunityScorer` · `src/DevLeads.Core/Scoring/OpportunityScorer.cs:54`
+public class `OpportunityScorer` · `src/DevLeads.Core/Scoring/OpportunityScorer.cs:59`
 
 Blends heuristic, AI, source-reputation, recency, stack-fit, business-value, reachability and trust signals into a single weighted opportunity score.
 
-Data: `WUrgency`: double, `WStack`: double, `WBusiness`: double, `WReach`: double, `WCompetition`: double, `WTrust`: double, `PreferredStack`: string[], `StrongStack`: string[], `MediumHighStack`: string[], `MediumStack`: string[], `PayIntentSources`: string[].
+Data: `WUrgency`: double, `WStack`: double, `WBusiness`: double, `WReach`: double, `WCompetition`: double, `WTrust`: double, `NonEnglishPenalty`: double, `PreferredStack`: string[], `StrongStack`: string[], `MediumHighStack`: string[], `MediumStack`: string[], `PayIntentSources`: string[].
 
 - public `Score(ScoringInput input, DateTimeOffset now) → ScoreBreakdown` — Handles score. _(inferred)_
+- public `IsNonEnglish(string? languageCode) → bool` — Checks non english. _(inferred)_
 - private `PayHits(ScoringInput i) → int` — Count of explicit "pay:" hits the pre-filter tagged (hire language, budgets, money amounts).
 - private `HasPaySignal(ScoringInput i) → bool` — Any evidence the poster would actually pay: pay-intent source, AI judgment, or pay language.
 - public `ToPriority(double total) → Priority` — Handles to priority. _(inferred)_
@@ -832,6 +833,7 @@ Data: `Name`: string, `CategoryMap`: (string[] Keywords, string Category)[], `So
 - public `AvailabilityMessage(OperatorSettings settings) → string` — Human-readable explanation when IsAvailable is false.
 - private `IsPayIntent(AiTriageRequest request) → bool` — Job boards and hiring threads: the poster is already committed to paying.
 - public `TriageAsync(AiTriageRequest request, OperatorSettings settings, CancellationToken ct) → Task<AiTriageResponse>` — Coordinates triage.
+- private `DetectLanguage(string text) → string` — Handles detect language. _(inferred)_
 - private `Classify(string text) → string` — Handles classify. _(inferred)_
 - private `DetectStack(string text) → IEnumerable<string>` — Handles detect stack. _(inferred)_
 - private `AddIf(string text, HashSet<string> stack, string needle, string label) → void` — Creates if. _(inferred)_
@@ -999,7 +1001,7 @@ public class `DatabaseSeeder` · `src/DevLeads.Infrastructure/Data/DatabaseSeede
 
 Creates the database and seeds query packs, source configs, and settings. Also migrates older databases: removes retired sources (GitHub Issues) and purges leads that cannot lead to paid work.
 
-Data: `LegacyPackNames`: Dictionary<string, string>, `EmergencyCampaignKey`: string, `ModernizationCampaignKey`: string, `EngagedStatuses`: OpportunityStatus[].
+Data: `LegacyPackNames`: Dictionary<string, string>, `EmergencyCampaignKey`: string, `ModernizationCampaignKey`: string, `AiAutomationCampaignKey`: string, `EngagedStatuses`: OpportunityStatus[].
 
 - public `InitializeAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — Coordinates initialize. _(inferred)_
 - private `RequeueTemplateDraftsAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — One-time (2026-07-11): unapproved template mad-lib drafts ("I saw your post about [title]…") are moved into the AI generation queue so the batched generator rewrites them…
@@ -1014,12 +1016,15 @@ Data: `LegacyPackNames`: Dictionary<string, string>, `EmergencyCampaignKey`: str
 - private `SeedSourceConfigsAsync(DevLeadsDbContext db, Dictionary<string, long> campaigns, CancellationToken ct) → Task<bool>` — Creates source configs. _(inferred)_
 - private `BackfillLeadCampaignsAsync(DevLeadsDbContext db, long emergencyId, CancellationToken ct) → Task` — Assigns campaign-less leads to their source's campaign (manual/unknown → emergency).
 - private `IsLegacyDefaultSource(SourceConfig source) → bool` — Detects configs still carrying earlier seeded defaults so we can upgrade them in place.
+- private `IsInitialAiTopicGate(SourceConfig source) → bool` — Checks initial ai topic gate. _(inferred)_
 - private `ApplySourceDefaults(SourceConfig target, SourceConfig seed) → bool` — Reapplies seeded defaults, returning whether anything actually changed — a boot with unchanged defaults must NOT count as a migration (that would purge + re-triage all discovery…
-- private `DefaultSources(long emergencyCampaignId, long modernizationCampaignId) → IEnumerable<SourceConfig>` — Handles default sources. _(inferred)_
+- private `IsAdditiveHiringSubredditExpansion(SourceConfig target, SourceConfig seed) → bool` — Checks additive hiring subreddit expansion. _(inferred)_
+- private `DefaultSources(long emergencyCampaignId, long modernizationCampaignId, long aiAutomationCampaignId) → IEnumerable<SourceConfig>` — Handles default sources. _(inferred)_
 - private `EmergencySources() → IEnumerable<SourceConfig>` — Default sources are chosen for commercial intent: places where a business owner, manager, or agency is describing a problem they are prepared to pay to solve.
 - private `ModernizationSources() → IEnumerable<SourceConfig>` — Sources for the.NET legacy modernization consulting campaign. Feeds/queries are chosen to be disjoint from the emergency sources where possible; when a post qualifies for both…
+- private `AiAutomationSources() → IEnumerable<SourceConfig>` — Searches every registered connector for paid AI/automation implementation work. Topic matching finds the project; campaign-aware AI triage still requires explicit hire/pay intent…
 - private `SeedTrendSourcesAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — Content-studio trend sources (add-only; the operator owns them afterwards). Feed URLs verified live 2026-07-11.
-- private `RssParams(string daysBack, string[] feeds, string? triageProvider) → string` — Handles rss params. _(inferred)_
+- private `RssParams(string daysBack, string[] feeds, string? triageProvider, string? requiredQueryPack) → string` — Handles rss params. _(inferred)_
 - private `RemoveRetiredSourcesAsync(DevLeadsDbContext db, CancellationToken ct) → Task<bool>` — Deletes retired source configs and every item/lead they produced (e.g. GitHub Issues).
 - private `RemoveReplacedSourceConfigsAsync(DevLeadsDbContext db, CancellationToken ct) → Task<bool>` — Removes old broad source config rows after splitting them into tuned variants.
 - private `PurgeStaleDiscoveryLeadsAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — One-time after a source-lineup migration: leads still sitting in triage stages were collected under the old, lower-quality configuration — drop them (manual entries and…
@@ -1171,6 +1176,7 @@ Data: `_db`: DevLeadsDbContext, `_preFilter`: HeuristicPreFilter, `_ai`: AiTriag
 - private `CreateDraft(Opportunity opp, AiTriageResult ai, OperatorSettings settings) → void` — Creates draft. _(inferred)_
 - private `ApplyPreFilter(Opportunity opp, PreFilterResult pre) → void` — Updates pre filter. _(inferred)_
 - private `ApplyAiResult(Opportunity opp, AiTriageResult ai) → void` — Updates ai result. _(inferred)_
+- private `ApplyEnglishTranslationIfRetained(Opportunity opp, AiTriageResult? ai) → void` — Updates english translation if retained. _(inferred)_
 - private `ApplyScore(Opportunity opp, ScoreBreakdown s) → void` — Updates score. _(inferred)_
 - public `MapRecommendation(string value) → OutreachRecommendation` — Transforms or resolves recommendation. _(inferred)_
 - private `GetSettingsAsync(CancellationToken ct) → Task<OperatorSettings>` — Loads or resolves settings. _(inferred)_
@@ -1218,8 +1224,11 @@ Data: `Atom`: XNamespace, `RequestPacing`: TimeSpan, `JobCommunities`: string[],
 - private `ImportSubmittedAsync(HttpClient http, string username, bool jobPostsOnly, CancellationToken ct) → Task<int>` — Handles import submitted. _(inferred)_
 - public `HasApiCredentials(OperatorSettings s) → bool` — Checks api credentials. _(inferred)_
 - private `GetAccessTokenAsync(OperatorSettings settings, string username, CancellationToken ct) → Task<string>` — Loads or resolves access token. _(inferred)_
-- private `SyncViaApiAsync(OperatorSettings settings, string username, bool jobPostsOnly, CancellationToken ct) → Task<(int Imported, int Refreshed)>` — One authenticated listing call covers import AND stats: score (upvotes), num_comments, removed_by_category (reddit-filter removals), full selftext, and view_count (populated…
+- private `SyncViaApiAsync(OperatorSettings settings, string username, bool jobPostsOnly, CancellationToken ct) → Task<(int Imported, int Refreshed, int ViewsReported)>` — Authenticated sync combines the submitted listing with one batched /api/info request. Reddit may still omit view_count; ViewCountKnown records that distinction.
+- private `GetPostDetailsAsync(HttpClient http, string token, IEnumerable<string> fullnames, CancellationToken ct) → Task<Dictionary<string, System.Text.Json.JsonElement>>` — Gets the fullest available representation for up to 100 posts in one official API call.
+- private `TryGetNonNegativeInt(System.Text.Json.JsonElement data, string name, out int value) → bool` — Handles try get non negative int. _(inferred)_
 - public `SyncRedditInboxAsync(CancellationToken ct) → Task<(int Imported, string Message)>` — Syncs the account's reddit inbox — DMs plus comment/post replies — into tracked messages. Prefers the authenticated API (full listing JSON with unread flags); otherwise uses the…
+- public `MarkMessageReadAsync(long messageId, CancellationToken ct) → Task<bool>` — Marks a message read locally as soon as it is opened. For Reddit messages, also makes a best-effort official /api/read_message call when OAuth credentials exist.
 - private `UpsertInboxListingAsync(string json, CancellationToken ct) → Task<int>` — Handles upsert inbox listing. _(inferred)_
 - private `GetString(System.Text.Json.JsonElement e, string name) → string` — Loads or resolves string. _(inferred)_
 - private `UpsertInboxFeedAsync(string xml, CancellationToken ct) → Task<int>` — Anonymous fallback: the private inbox feed as Atom. Entry ids are fullnames (t4_/t1_), titles read "from X via sub sent N ago: post reply" for replies (the DM subject for t4s)…
@@ -1293,7 +1302,8 @@ Data: `_db`: DevLeadsDbContext, `_connectors`: IEnumerable<ISourceConnector>, `_
 - private `ResolveShortlistMax(IReadOnlyDictionary<string, string> parameters, int candidateCount) → int` — Transforms or resolves shortlist max. _(inferred)_
 - private `ResolveTriageProvider(IReadOnlyDictionary<string, string> parameters, OperatorSettings settings) → string` — Transforms or resolves triage provider. _(inferred)_
 - private `ResolveTriageSettings(OperatorSettings settings, IReadOnlyDictionary<string, string> parameters) → OperatorSettings` — Transforms or resolves triage settings. _(inferred)_
-- private `BuildRunMessage(int fetched, int created, int skipped, ShortlistGate shortlist, int shortlistRejected) → string` — Creates run message. _(inferred)_
+- private `BuildRunMessage(int fetched, int created, int skipped, ShortlistGate shortlist, int shortlistRejected, int skippedByRequiredPack, string? requiredPack) → string` — Creates run message. _(inferred)_
+- private `MatchesAny(RawSourceItem item, IReadOnlyCollection<string> terms) → bool` — Handles matches any. _(inferred)_
 - private `BuildTerms(SourceConfig source) → IReadOnlyList<string>` — Creates terms. _(inferred)_
 - private `PackNames(SourceConfig source) → string[]` — Handles pack names. _(inferred)_
 - private `GetCampaignObjectiveAsync(SourceConfig source, CancellationToken ct) → Task<string>` — Loads or resolves campaign objective. _(inferred)_
@@ -1307,7 +1317,7 @@ Data: `_db`: DevLeadsDbContext, `_connectors`: IEnumerable<ISourceConnector>, `_
 
 #### ShortlistGate
 
-private class `ShortlistGate` · `src/DevLeads.Infrastructure/Services/SourceRunner.cs:417`
+private class `ShortlistGate` · `src/DevLeads.Infrastructure/Services/SourceRunner.cs:442`
 
 Represents shortlist gate. _(inferred)_
 
@@ -1380,7 +1390,7 @@ Internal HTTP API used for automation and integration (the UI calls services dir
 
 #### ManualLeadDto
 
-public record class `ManualLeadDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:237`
+public record class `ManualLeadDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:243`
 
 Transfers manual lead data. _(inferred)_
 
@@ -1388,7 +1398,7 @@ Depends on: `string Title`, `string Body`, `string? SourceUrl`, `string? Author`
 
 #### DraftDto
 
-public record class `DraftDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:238`
+public record class `DraftDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:244`
 
 Transfers draft data. _(inferred)_
 
@@ -1396,7 +1406,7 @@ Depends on: `string TemplateKey`.
 
 #### QuoteDto
 
-public record class `QuoteDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:239`
+public record class `QuoteDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:245`
 
 Transfers quote data. _(inferred)_
 
@@ -1512,8 +1522,9 @@ Campaign-scoped dashboard with lead KPIs, activity, and top opportunities.
 
 public component `MyPosts` : `ComponentBase` · `src/DevLeads.Web/Components/Pages/MyPosts.razor:1`
 
-Blazor component for my posts.
+Tracks the operator's posts, platform performance, optimization experiments, and received messages.
 
+- private `if(p.Platform == "reddit" && !_redditApiConfigured) → else` — Handles if. _(inferred)_
 - protected `OnInitializedAsync() → Task` — Runs the component on initialized lifecycle step. _(inferred)_
 - private `DraftWithAi() → Task` — Handles draft with ai. _(inferred)_
 - private `Load() → Task` — Loads or resolves load. _(inferred)_
@@ -1527,7 +1538,7 @@ Blazor component for my posts.
 - private `Delta(double before, double after) → string` — Handles delta. _(inferred)_
 - private `Truncate(string s, int max) → string` — Handles truncate. _(inferred)_
 - private `SyncInbox() → Task` — Handles sync inbox. _(inferred)_
-- private `ToggleMessage(long id) → void` — Handles message. _(inferred)_
+- private `ToggleMessage(OperatorMessage message) → Task` — Handles message. _(inferred)_
 - private `AddMessage() → Task` — Creates message. _(inferred)_
 - private `SaveMessage(OperatorMessage edited) → Task` — Updates message. _(inferred)_
 - private `SetMessageStatus(OperatorMessage edited, OperatorMessageStatus status) → Task` — Updates message status. _(inferred)_
@@ -1584,6 +1595,7 @@ Lead detail, triage, scoring, outreach, quotes, work tracking, and audit history
 - protected `OnParametersSetAsync() → Task` — Runs the component on parameters set lifecycle step. _(inferred)_
 - private `Load() → Task` — Loads or resolves load. _(inferred)_
 - private `LoadChecklist(WorkSession ws) → void` — Loads or resolves checklist. _(inferred)_
+- private `LanguageLabel(string? code) → string` — Handles language label. _(inferred)_
 - private `RunScoped(Func<IServiceProvider, Task> action, string okMsg) → Task` — Coordinates scoped. _(inferred)_
 - private `Rerun() → Task` — Handles rerun. _(inferred)_
 - private `Status(OpportunityStatus status) → Task` — Handles status. _(inferred)_

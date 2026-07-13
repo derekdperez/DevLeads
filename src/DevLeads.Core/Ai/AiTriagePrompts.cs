@@ -41,6 +41,8 @@ Set paymentIntent using this rubric. paymentIntent is about whether THE POSTER w
 
 Return a strict JSON object matching the schema. Do not include markdown formatting or extra text.
 
+Detect the predominant natural language of the ORIGINAL title and body and return its lowercase ISO 639-1 languageCode (for example "en", "es", "pt", "fr", "de", "ja"). All analytical fields such as estimatedCause and firstDiagnosticStep must be written in English. If languageCode is not "en", provide a faithful English translation of the complete title and body in englishTitle and englishBody. Preserve technical names, URLs, amounts, and formatting; do not summarize or add facts. For English posts, return empty strings for englishTitle and englishBody.
+
 Use problemCategory "Modernization/Migration" for legacy-system modernization, framework/platform migration, replatforming, or version-upgrade work (e.g. .NET Framework to modern .NET, WebForms/WCF/WinForms rewrites, on-prem to Azure, SQL Server upgrades). These are planned consulting engagements: keep isEmergency false, and use outreachRecommendation "Manual Review" when paymentIntent is "Explicit", "Watch" when "Implied".
 
 Bounties and paid feature requests are also leads, not just emergencies. A bounty (money already attached to an issue) is paymentIntent "Explicit". A feature request where the poster offers to pay, sponsor, or fund the work is problemCategory "Feature Request" with paymentIntent "Explicit"; a feature request from a business whose operations clearly depend on it may be "Implied". A casual wishlist feature request is "Feature Request" with paymentIntent "None".
@@ -142,8 +144,11 @@ Return only the strict JSON object.
 {
   "type": "object",
   "additionalProperties": false,
-  "required": ["isTechnicalProblem","isEmergency","paymentIntent","assistanceRequested","rejectReason","problemCategory","detectedStack","estimatedCause","firstDiagnosticStep","estimatedFixMinutesMin","estimatedFixMinutesMax","aiConfidence","outreachRecommendation"],
+  "required": ["languageCode","englishTitle","englishBody","isTechnicalProblem","isEmergency","paymentIntent","assistanceRequested","rejectReason","problemCategory","detectedStack","estimatedCause","firstDiagnosticStep","estimatedFixMinutesMin","estimatedFixMinutesMax","aiConfidence","outreachRecommendation"],
   "properties": {
+    "languageCode": { "type": "string", "minLength": 2, "maxLength": 3 },
+    "englishTitle": { "type": "string" },
+    "englishBody": { "type": "string" },
     "isTechnicalProblem": { "type": "boolean" },
     "isEmergency": { "type": "boolean" },
     "paymentIntent": { "type": "string", "enum": ["Explicit","Implied","None"] },

@@ -197,17 +197,23 @@ public static class ApiEndpoints
             var (imported, message) = await svc.SyncRedditInboxAsync(default);
             return Results.Ok(new { imported, message });
         });
-        api.MapPost("/myposts/messages/{id:long}/status", async (long id, string status, DevLeadsDbContext db) =>
+        api.MapPost("/myposts/messages/{id:long}/read", async (long id, OperatorPostService posts) =>
+            await posts.MarkMessageReadAsync(id, default) ? Results.Ok() : Results.NotFound())
+            .DisableAntiforgery();
+        api.MapPost("/myposts/messages/{id:long}/status", async (
+            long id, string status, DevLeadsDbContext db, OperatorPostService posts) =>
         {
             if (!Enum.TryParse<OperatorMessageStatus>(status, true, out var s))
                 return Results.BadRequest(new { message = "status must be one of: " + string.Join(", ", Enum.GetNames<OperatorMessageStatus>()) });
+            if (s == OperatorMessageStatus.Read)
+                return await posts.MarkMessageReadAsync(id, default) ? Results.Ok() : Results.NotFound();
             var msg = await db.OperatorMessages.FirstOrDefaultAsync(m => m.Id == id);
             if (msg is null) return Results.NotFound();
             msg.Status = s;
             msg.UpdatedAt = DateTimeOffset.UtcNow;
             await db.SaveChangesAsync();
             return Results.Ok(msg);
-        });
+        }).DisableAntiforgery();
 
         // ---- System ----
         api.MapPost("/system/restart", async (AppRestartService restart, DevLeadsDbContext db, AuditService audit) =>

@@ -111,6 +111,17 @@ public static class AiCliSupport
     /// <summary>Coerces near-miss enum values back onto the strict schema instead of failing the call.</summary>
     public static void Normalize(AiTriageResult r)
     {
+        var language = (r.LanguageCode ?? "").Trim().ToLowerInvariant();
+        if (language.Contains('-')) language = language.Split('-', 2)[0];
+        r.LanguageCode = language.Length is 2 or 3 && language.All(char.IsLetter) ? language : "en";
+        r.EnglishTitle ??= "";
+        r.EnglishBody ??= "";
+        if (!DevLeads.Core.Scoring.OpportunityScorer.IsNonEnglish(r.LanguageCode))
+        {
+            r.EnglishTitle = "";
+            r.EnglishBody = "";
+        }
+
         if (!AiTriageResult.ProblemCategories.Contains(r.ProblemCategory, StringComparer.OrdinalIgnoreCase))
             r.ProblemCategory = r.IsEmergency ? "Production Outage" : "Non-Urgent Help Request";
         else

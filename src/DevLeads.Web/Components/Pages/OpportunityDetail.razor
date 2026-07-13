@@ -55,7 +55,19 @@ else
                 <div style="margin-bottom:.7rem">
                     <a class="rr-btn sm primary" href="@_opp.SourceUrl" target="_blank" rel="noopener noreferrer">Open original source ↗</a>
                 </div>
-                <div style="white-space:pre-wrap;color:var(--text);font-size:.9rem;line-height:1.5">@(_rawBody ?? _opp.Summary)</div>
+                @if (!string.IsNullOrWhiteSpace(_opp.TranslatedBody))
+                {
+                    <div class="rr-chip" style="margin-bottom:.7rem">Translated from @LanguageLabel(_opp.LanguageCode)</div>
+                    <div style="white-space:pre-wrap;color:var(--text);font-size:.9rem;line-height:1.5">@_opp.TranslatedBody</div>
+                    <details style="margin-top:1rem">
+                        <summary>Show original-language text</summary>
+                        <div style="white-space:pre-wrap;color:var(--muted);font-size:.9rem;line-height:1.5;margin-top:.6rem">@(_rawBody ?? _opp.Summary)</div>
+                    </details>
+                }
+                else
+                {
+                    <div style="white-space:pre-wrap;color:var(--text);font-size:.9rem;line-height:1.5">@(_rawBody ?? _opp.Summary)</div>
+                }
                 @if (!string.IsNullOrEmpty(_opp.AuthorName))
                 {
                     <div class="rr-sub" style="margin-top:.6rem">Author: <a href="@_opp.AuthorProfileUrl" target="_blank" rel="noopener noreferrer">@_opp.AuthorName</a></div>
@@ -67,6 +79,7 @@ else
                 <h2>AI triage result</h2>
                 <div class="rr-kv">
                     <div class="k">Problem category</div><div>@(_opp.ProblemType.Length == 0 ? "—" : _opp.ProblemType)</div>
+                    <div class="k">Original language</div><div>@LanguageLabel(_opp.LanguageCode)@(_opp.LanguagePenalty > 0 ? $" (−{_opp.LanguagePenalty:0.#} points)" : "")</div>
                     <div class="k">Payment intent</div><div><strong>@(_opp.PaymentIntent.Length == 0 ? "unknown" : _opp.PaymentIntent)</strong>@(_opp.PaymentIntent == "Explicit" ? " 💰" : "")</div>
                     <div class="k">Assistance requested</div><div>@(_opp.AssistanceRequested switch { true => "Yes — wants hands-on help", false => "No — information only", null => "—" })</div>
                     <div class="k">Emergency</div><div>@(_opp.OutreachRecommendation == OutreachRecommendation.DoNotContact ? "flagged" : (_opp.UrgencyScore >= 70 ? "yes" : "no / low"))</div>
@@ -93,6 +106,10 @@ else
                     @Bar("Reachability (15%)", _opp.ReachabilityScore)
                     @Bar("Competition (10%)", _opp.CompetitionScore)
                     @Bar("Trust (10%)", _opp.TrustScore)
+                    @if (_opp.LanguagePenalty > 0)
+                    {
+                        <div class="rr-sub">Language adjustment: −@_opp.LanguagePenalty.ToString("0.#") points</div>
+                    }
                 </div>
                 <div class="rr-sub" style="margin-top:.7rem">
                     Pre-filter score @_opp.HeuristicScore.ToString("0") ·
@@ -282,6 +299,22 @@ else
     }
 
     private record ChecklistItem(string Item, bool Checked);
+
+    private static string LanguageLabel(string? code) => code?.ToLowerInvariant() switch
+    {
+        "en" or "eng" or null or "" => "English",
+        "es" => "Spanish",
+        "pt" => "Portuguese",
+        "fr" => "French",
+        "de" => "German",
+        "it" => "Italian",
+        "ja" => "Japanese",
+        "ko" => "Korean",
+        "zh" => "Chinese",
+        "ru" => "Russian",
+        "ar" => "Arabic",
+        _ => code!.ToUpperInvariant()
+    };
 
     private async Task RunScoped(Func<IServiceProvider, Task> action, string okMsg)
     {

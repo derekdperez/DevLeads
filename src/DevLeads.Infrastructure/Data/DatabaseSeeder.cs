@@ -201,6 +201,9 @@ public static class DatabaseSeeder
             "ALTER TABLE Opportunities ADD COLUMN AssistanceRequested INTEGER NULL",
             "ALTER TABLE Opportunities ADD COLUMN FeeIsEstimate INTEGER NOT NULL DEFAULT 1",
             "ALTER TABLE Opportunities ADD COLUMN CampaignId INTEGER NULL",
+            "ALTER TABLE Opportunities ADD COLUMN LanguageCode TEXT NOT NULL DEFAULT 'en'",
+            "ALTER TABLE Opportunities ADD COLUMN TranslatedBody TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE Opportunities ADD COLUMN LanguagePenalty REAL NOT NULL DEFAULT 0",
             "ALTER TABLE SourceConfigs ADD COLUMN CampaignId INTEGER NULL",
             "ALTER TABLE OperatorSettings ADD COLUMN SelectedCampaignId INTEGER NULL",
             "ALTER TABLE OperatorSettings ADD COLUMN ContentDiscoveryEnabled INTEGER NOT NULL DEFAULT 1",
@@ -296,6 +299,7 @@ public static class DatabaseSeeder
             """,
             "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_OperatorPosts_Platform_ExternalId\" ON \"OperatorPosts\" (\"Platform\", \"ExternalId\")",
             "ALTER TABLE OperatorPosts ADD COLUMN ViewCount INTEGER NOT NULL DEFAULT 0",
+            "ALTER TABLE OperatorPosts ADD COLUMN ViewCountKnown INTEGER NOT NULL DEFAULT 0",
             "ALTER TABLE OperatorPosts ADD COLUMN ThreadSummary TEXT NOT NULL DEFAULT ''",
             "ALTER TABLE OperatorPosts ADD COLUMN SummarizedAt INTEGER NULL",
             "ALTER TABLE OperatorPosts ADD COLUMN UpvoteCount INTEGER NOT NULL DEFAULT 0",
@@ -494,6 +498,7 @@ public static class DatabaseSeeder
 
     public const string EmergencyCampaignKey = "emergency";
     public const string ModernizationCampaignKey = "dotnet_modernization";
+    public const string AiAutomationCampaignKey = "ai_automation";
 
     /// <summary>
     /// Ensures the built-in campaigns exist (add-only: name/objective edits belong to the
@@ -530,6 +535,21 @@ public static class DatabaseSeeder
                     "multi-week projects, not emergencies.",
                 Enabled = true,
                 CreatedAt = DateTimeOffset.UtcNow
+            },
+            new Campaign
+            {
+                Key = AiAutomationCampaignKey,
+                Name = "AI & automation projects",
+                Emoji = "🤖",
+                Objective =
+                    "Paid consulting and project work to design, build, integrate, or repair practical " +
+                    "AI and business automation: LLM/RAG systems, chatbots and agents, document/data " +
+                    "workflows, API integrations, n8n, Zapier, Make, and internal tools. A qualifying " +
+                    "lead is an owner, company, or team explicitly seeking outside help or offering a " +
+                    "budget. Reject AI news, product promotion, tutorials, hobby or academic projects, " +
+                    "and unpaid open-source or volunteer requests.",
+                Enabled = true,
+                CreatedAt = DateTimeOffset.UtcNow
             }
         };
 
@@ -552,8 +572,9 @@ public static class DatabaseSeeder
     {
         var emergencyId = campaigns[EmergencyCampaignKey];
         var modernizationId = campaigns[ModernizationCampaignKey];
+        var aiAutomationId = campaigns[AiAutomationCampaignKey];
         var migrated = false;
-        foreach (var seed in DefaultSources(emergencyId, modernizationId))
+        foreach (var seed in DefaultSources(emergencyId, modernizationId, aiAutomationId))
         {
             var existing = await db.SourceConfigs.FirstOrDefaultAsync(s => s.SourceKey == seed.SourceKey, ct);
             if (existing is null)
@@ -568,7 +589,15 @@ public static class DatabaseSeeder
             existing.CampaignId ??= seed.CampaignId;
 
             if (IsLegacyDefaultSource(existing))
-                migrated |= ApplySourceDefaults(existing, seed);
+            {
+                // Adding communities to the hiring scan broadens coverage; it does not make
+                // leads gathered under the previous list stale. Preserve all current triage
+                // rows instead of invoking the destructive source-migration cleanup.
+                var additiveHiringExpansion = IsAdditiveHiringSubredditExpansion(existing, seed);
+                var initialAiTopicGate = IsInitialAiTopicGate(existing);
+                var changed = ApplySourceDefaults(existing, seed);
+                migrated |= changed && !additiveHiringExpansion && !initialAiTopicGate;
+            }
         }
 
         // Sources the operator created by hand belong to the emergency campaign by default.
@@ -603,7 +632,13 @@ public static class DatabaseSeeder
         source.SourceKey is "remotive" or "rss_jobs" or "rss_support" or "reddit_hiring" or "hn_hiring"
             or "reddit_wordpress_shopify" or "reddit_webdev_ops" or "reddit_business_ecommerce"
             or "reddit_stacks" or "reddit_saas_tools" or "hackernews" or "stackexchange_radar"
-            or "bounties_opire" or "github_bounties" or "github_feature_requests";
+            or "bounties_opire" or "github_bounties" or "github_feature_requests" ||
+        IsInitialAiTopicGate(source);
+
+    private static bool IsInitialAiTopicGate(SourceConfig source) =>
+        (source.SourceKey is "ai_remotive" or "ai_rss" or "ai_reddit" or "ai_hackernews"
+            or "ai_stackexchange" or "ai_github_paid" or "ai_opire") &&
+        !source.ParametersJson.Contains("\"requiredQueryPack\"", StringComparison.Ordinal);
 
     /// <summary>
     /// Reapplies seeded defaults, returning whether anything actually changed — a boot with
@@ -640,7 +675,53 @@ public static class DatabaseSeeder
         return true;
     }
 
-    private static IEnumerable<SourceConfig> DefaultSources(long emergencyCampaignId, long modernizationCampaignId)
+    private static bool IsAdditiveHiringSubredditExpansion(SourceConfig target, SourceConfig seed)
+    {
+        if (target.SourceKey != "reddit_hiring" ||
+            target.DisplayName != seed.DisplayName || target.Enabled != seed.Enabled ||
+            target.PollIntervalMinutes != seed.PollIntervalMinutes ||
+            target.MaxItemsPerRun != seed.MaxItemsPerRun ||
+            target.QueryPacksCsv != seed.QueryPacksCsv ||
+            target.MinPreFilterScore != seed.MinPreFilterScore ||
+            target.MinOpportunityScore != seed.MinOpportunityScore ||
+            target.DraftThreshold != seed.DraftThreshold ||
+            target.AlertThreshold != seed.AlertThreshold ||
+            target.AutoModeEligible != seed.AutoModeEligible)
+            return false;
+
+        try
+        {
+            using var oldDoc = JsonDocument.Parse(target.ParametersJson);
+            using var newDoc = JsonDocument.Parse(seed.ParametersJson);
+            var oldRoot = oldDoc.RootElement;
+            var newRoot = newDoc.RootElement;
+            if (oldRoot.EnumerateObject().Any(p => p.Name != "connector" && p.Name != "subreddits" &&
+                                                   p.Name != "daysBack" && p.Name != "requireHiring") ||
+                newRoot.EnumerateObject().Any(p => p.Name != "connector" && p.Name != "subreddits" &&
+                                                   p.Name != "daysBack" && p.Name != "requireHiring"))
+                return false;
+
+            static string Text(JsonElement root, string name) =>
+                root.TryGetProperty(name, out var value) ? value.ToString() : "";
+            if (Text(oldRoot, "connector") != Text(newRoot, "connector") ||
+                Text(oldRoot, "daysBack") != Text(newRoot, "daysBack") ||
+                Text(oldRoot, "requireHiring") != Text(newRoot, "requireHiring"))
+                return false;
+
+            var oldSubs = Text(oldRoot, "subreddits").Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var newSubs = Text(newRoot, "subreddits").Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            return oldSubs.Count > 0 && oldSubs.IsProperSubsetOf(newSubs);
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
+    private static IEnumerable<SourceConfig> DefaultSources(
+        long emergencyCampaignId, long modernizationCampaignId, long aiAutomationCampaignId)
     {
         foreach (var source in EmergencySources())
         {
@@ -650,6 +731,11 @@ public static class DatabaseSeeder
         foreach (var source in ModernizationSources())
         {
             source.CampaignId = modernizationCampaignId;
+            yield return source;
+        }
+        foreach (var source in AiAutomationSources())
+        {
+            source.CampaignId = aiAutomationCampaignId;
             yield return source;
         }
     }
@@ -755,7 +841,7 @@ public static class DatabaseSeeder
             PollIntervalMinutes = 30, MaxItemsPerRun = 75,
             QueryPacksCsv = "EmergencyGeneric,DotNetSqlPriority,PaymentEcommerce,SaaSApiAuth,InfraOps,AgencyClientUrgency,ContractProjectWork,HireIntent",
             AutoModeEligible = false, MinPreFilterScore = 1, MinOpportunityScore = 42,
-            ParametersJson = "{\"connector\":\"reddit\",\"subreddits\":\"forhire;hiring;jobbit;hireawebdeveloper;hireaprogrammer;freelance_forhire;devopsjobs;sysadminjobs\",\"daysBack\":\"10\",\"requireHiring\":\"true\"}" },
+            ParametersJson = "{\"connector\":\"reddit\",\"subreddits\":\"forhire;hiring;jobbit;hireawebdeveloper;hireaprogrammer;freelance_forhire;devopsjobs;sysadminjobs;dotnetjobs;programmingjobs;remotejobs;jobs;slavelabour\",\"daysBack\":\"10\",\"requireHiring\":\"true\"}" },
 
         // Bounty platforms: money is already attached to the work. Connector-side
         // skill filtering keeps only bounties that touch the operator's profile.
@@ -910,6 +996,74 @@ public static class DatabaseSeeder
     };
 
     /// <summary>
+    /// Searches every registered connector for paid AI/automation implementation work.
+    /// Topic matching finds the project; campaign-aware AI triage still requires explicit
+    /// hire/pay intent so general AI discussion and product promotion never become leads.
+    /// </summary>
+    private static IEnumerable<SourceConfig> AiAutomationSources() => new[]
+    {
+        new SourceConfig { SourceKey = "ai_remotive", DisplayName = "AI automation — Remotive jobs", Enabled = true,
+            PollIntervalMinutes = 120, MaxItemsPerRun = 80,
+            QueryPacksCsv = "AiAutomationProjects,ContractProjectWork,HireIntent",
+            MinPreFilterScore = 20, MinOpportunityScore = 44,
+            ParametersJson = "{\"connector\":\"remotive\",\"category\":\"software-dev\",\"jobTypes\":\"any\",\"requiredQueryPack\":\"AiAutomationProjects\"}" },
+
+        new SourceConfig { SourceKey = "ai_rss", DisplayName = "AI automation — jobs + project forums", Enabled = true,
+            PollIntervalMinutes = 90, MaxItemsPerRun = 140,
+            QueryPacksCsv = "AiAutomationProjects,ContractProjectWork,HireIntent,PaidFeatureRequest",
+            AutoModeEligible = false, MinPreFilterScore = 20, MinOpportunityScore = 44,
+            ParametersJson = RssParams("21", new[] {
+                "https://weworkremotely.com/categories/remote-programming-jobs.rss",
+                "https://remoteok.com/remote-ai-jobs.rss",
+                "https://remoteok.com/remote-machine-learning-jobs.rss",
+                "https://jobicy.com/jobs/feed?industry=software-engineering&type=contract",
+                "https://community.openai.com/latest.rss",
+                "https://community.n8n.io/latest.rss",
+                "https://community.make.com/latest.rss",
+                "https://community.retool.com/latest.rss",
+                "https://forum.bubble.io/latest.rss" }, requiredQueryPack: "AiAutomationProjects") },
+
+        new SourceConfig { SourceKey = "ai_reddit", DisplayName = "AI automation — Reddit projects + hiring", Enabled = true,
+            PollIntervalMinutes = 45, MaxItemsPerRun = 140,
+            QueryPacksCsv = "AiAutomationProjects,ContractProjectWork,HireIntent,PaidFeatureRequest",
+            AutoModeEligible = false, MinPreFilterScore = 20, MinOpportunityScore = 44,
+            ParametersJson = "{\"connector\":\"reddit\",\"subreddits\":\"artificial;MachineLearning;OpenAI;LocalLLaMA;automation;n8n;zapier;SaaS;smallbusiness;Entrepreneur;forhire;freelance_forhire;programmingjobs;dotnetjobs\",\"daysBack\":\"14\",\"requireHiring\":\"false\",\"requiredQueryPack\":\"AiAutomationProjects\"}" },
+
+        new SourceConfig { SourceKey = "ai_hackernews", DisplayName = "AI automation — Hacker News", Enabled = true,
+            PollIntervalMinutes = 90, MaxItemsPerRun = 60,
+            QueryPacksCsv = "AiAutomationProjects,ContractProjectWork,HireIntent",
+            AutoModeEligible = false, MinPreFilterScore = 20, MinOpportunityScore = 44,
+            ParametersJson = "{\"connector\":\"hackernews\",\"daysBack\":\"30\",\"requiredQueryPack\":\"AiAutomationProjects\"}" },
+
+        // Low polling frequency protects the shared anonymous Stack Exchange daily quota.
+        new SourceConfig { SourceKey = "ai_stackexchange", DisplayName = "AI automation — Stack Exchange radar", Enabled = true,
+            PollIntervalMinutes = 1440, MaxItemsPerRun = 50,
+            QueryPacksCsv = "AiAutomationProjects,ContractProjectWork,HireIntent",
+            AutoModeEligible = false, MinPreFilterScore = 24, MinOpportunityScore = 48,
+            ParametersJson = "{\"connector\":\"stackexchange\",\"sites\":\"stackoverflow;ai;datascience;softwareengineering\",\"daysBack\":\"7\",\"requiredQueryPack\":\"AiAutomationProjects\"}" },
+
+        new SourceConfig { SourceKey = "ai_github_paid", DisplayName = "AI automation — paid GitHub issues", Enabled = true,
+            PollIntervalMinutes = 240, MaxItemsPerRun = 60,
+            QueryPacksCsv = "AiAutomationProjects,HireIntent,PaidFeatureRequest",
+            AutoModeEligible = false, MinPreFilterScore = 20, MinOpportunityScore = 42,
+            ParametersJson = JsonSerializer.Serialize(new
+            {
+                connector = "github_search", daysBack = "120", requireSkillMatch = "false",
+                requiredQueryPack = "AiAutomationProjects",
+                queries = string.Join('\n',
+                    "*label:bounty \"LLM\"", "*label:bounty \"RAG\"", "*label:bounty \"chatbot\"",
+                    "*label:bounty \"OpenAI\"", "*\"willing to pay\" \"AI integration\"",
+                    "*\"willing to pay\" \"workflow automation\"")
+            }) },
+
+        new SourceConfig { SourceKey = "ai_opire", DisplayName = "AI automation — Opire bounties", Enabled = true,
+            PollIntervalMinutes = 360, MaxItemsPerRun = 80,
+            QueryPacksCsv = "AiAutomationProjects,HireIntent,PaidFeatureRequest",
+            AutoModeEligible = false, MinPreFilterScore = 20, MinOpportunityScore = 42,
+            ParametersJson = "{\"connector\":\"opire\",\"maxPages\":\"8\",\"minAmountUsd\":\"20\",\"requireSkillMatch\":\"false\",\"requiredQueryPack\":\"AiAutomationProjects\"}" },
+    };
+
+    /// <summary>
     /// Content-studio trend sources (add-only; the operator owns them afterwards). Feed
     /// URLs verified live 2026-07-11. These fetch *signals* for topic generation, never
     /// leads — see TrendScanService.
@@ -962,10 +1116,12 @@ public static class DatabaseSeeder
     // Single overload on purpose: a (daysBack, params feeds) / (daysBack, provider, params feeds)
     // pair is ambiguous — C# bound the first FEED as the provider, silently dropping the feed
     // and disabling AI triage for the source.
-    private static string RssParams(string daysBack, string[] feeds, string? triageProvider = null)
+    private static string RssParams(string daysBack, string[] feeds, string? triageProvider = null,
+        string? requiredQueryPack = null)
     {
         var p = new Dictionary<string, object> { ["connector"] = "rss", ["daysBack"] = daysBack, ["feeds"] = feeds };
         if (triageProvider is not null) p["triageProvider"] = triageProvider;
+        if (requiredQueryPack is not null) p["requiredQueryPack"] = requiredQueryPack;
         return JsonSerializer.Serialize(p);
     }
 

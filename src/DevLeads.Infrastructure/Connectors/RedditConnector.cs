@@ -44,10 +44,11 @@ public sealed class RedditConnector : ISourceConnector
             // Hiring subs: read the newest posts and keep only [Hiring]/[Task] offers —
             // people explicitly ready to pay. Precision comes from pre-filter + AI triage.
             var url = $"https://www.reddit.com/r/{multi}/new.rss?limit={Math.Clamp(config.MaxItems, 25, 100)}";
-            await FetchListingAsync(http, url, multi, config.SourceKey, items, config.MaxItems, cutoff, ct,
-                title => title.Contains("hiring", StringComparison.OrdinalIgnoreCase) ||
-                         title.Contains("[task]", StringComparison.OrdinalIgnoreCase) ||
-                         title.Contains("[paid]", StringComparison.OrdinalIgnoreCase));
+            if (!await FetchListingAsync(http, url, multi, config.SourceKey, items, config.MaxItems, cutoff, ct,
+                    title => title.Contains("hiring", StringComparison.OrdinalIgnoreCase) ||
+                             title.Contains("[task]", StringComparison.OrdinalIgnoreCase) ||
+                             title.Contains("[paid]", StringComparison.OrdinalIgnoreCase)))
+                throw new HttpRequestException("Reddit rate-limited the hiring feed request.");
         }
         else
         {
@@ -57,7 +58,8 @@ public sealed class RedditConnector : ISourceConnector
             if (!searchMode.Equals("search", StringComparison.OrdinalIgnoreCase))
             {
                 var url = $"https://www.reddit.com/r/{multi}/new.rss?limit={Math.Clamp(config.MaxItems, 25, 100)}";
-                await FetchListingAsync(http, url, multi, config.SourceKey, items, config.MaxItems, cutoff, ct, _ => true);
+                if (!await FetchListingAsync(http, url, multi, config.SourceKey, items, config.MaxItems, cutoff, ct, _ => true))
+                    throw new HttpRequestException("Reddit rate-limited the subreddit feed request.");
                 return items.Values.Take(config.MaxItems).ToList();
             }
 
@@ -71,7 +73,7 @@ public sealed class RedditConnector : ISourceConnector
                     ct.ThrowIfCancellationRequested();
                     var url = $"https://www.reddit.com/r/{Uri.EscapeDataString(sub)}/search.rss?q={Uri.EscapeDataString(term)}&restrict_sr=1&sort=new&t=week&limit={perQuery}";
                     if (!await FetchListingAsync(http, url, sub, config.SourceKey, items, config.MaxItems, cutoff, ct, _ => true))
-                        return items.Values.Take(config.MaxItems).ToList(); // rate-limited
+                        throw new HttpRequestException($"Reddit rate-limited the search request for r/{sub}.");
                     if (items.Count >= config.MaxItems) break;
                 }
                 if (items.Count >= config.MaxItems) break;

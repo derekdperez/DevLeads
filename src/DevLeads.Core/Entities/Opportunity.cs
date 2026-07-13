@@ -28,8 +28,14 @@ public class Opportunity
     public double ReachabilityScore { get; set; }
     public double CompetitionScore { get; set; }
     public double TrustScore { get; set; }
+    /// <summary>Points removed because the original post was not English.</summary>
+    public double LanguagePenalty { get; set; }
 
     // AI triage output.
+    /// <summary>Predominant language of the original source post (ISO 639 code).</summary>
+    public string LanguageCode { get; set; } = "en";
+    /// <summary>English translation of the original body; empty unless a non-English lead survived scoring.</summary>
+    public string TranslatedBody { get; set; } = "";
     public string ProblemType { get; set; } = "";
     /// <summary>"Explicit", "Implied", or "None"; "" when triage predates the field.</summary>
     public string PaymentIntent { get; set; } = "";

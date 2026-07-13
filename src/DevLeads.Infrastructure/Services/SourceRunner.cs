@@ -69,7 +69,7 @@ public sealed class SourceRunner
             SkillTerms = Core.Skills.SkillMatcher.SearchTerms(skills)
         };
 
-        int created = 0, skipped = 0, shortlistRejected = 0;
+        int created = 0, skipped = 0, shortlistRejected = 0, skippedByRequiredPack = 0;
         ShortlistGate shortlist = ShortlistGate.Disabled;
         _activity.RunStarted(source.SourceKey, source.DisplayName);
         try
@@ -82,16 +82,30 @@ public sealed class SourceRunner
             var seenIds = await GetSeenExternalIdsAsync(source.SourceKey, items, ct);
             var newItems = items.Where(i => !seenIds.Contains(i.ExternalId)).ToList();
             var packNames = PackNames(source);
-            var preFilterByItem = newItems.ToDictionary(i => i, i => _preFilter.Analyze(i, packNames));
+            var requiredPack = parameters.GetValueOrDefault("requiredQueryPack");
+            var requiredTerms = string.IsNullOrWhiteSpace(requiredPack)
+                ? Array.Empty<string>()
+                : _queryPacks.GetTerms(requiredPack).ToArray();
+            var topicRejected = requiredTerms.Length == 0
+                ? new HashSet<RawSourceItem>()
+                : newItems.Where(item => !MatchesAny(item, requiredTerms)).ToHashSet();
+            var candidates = newItems.Where(item => !topicRejected.Contains(item)).ToList();
+            var preFilterByItem = candidates.ToDictionary(i => i, i => _preFilter.Analyze(i, packNames));
             var campaignObjective = await GetCampaignObjectiveAsync(source, ct);
 
-            shortlist = await BuildShortlistGateAsync(newItems, preFilterByItem, source, parameters, settings, campaignObjective, ct);
-            var batchTriage = await BatchTriageAsync(newItems, preFilterByItem, shortlist, source, parameters, settings, campaignObjective, ct);
+            shortlist = await BuildShortlistGateAsync(candidates, preFilterByItem, source, parameters, settings, campaignObjective, ct);
+            var batchTriage = await BatchTriageAsync(candidates, preFilterByItem, shortlist, source, parameters, settings, campaignObjective, ct);
             foreach (var item in items)
             {
                 ct.ThrowIfCancellationRequested();
                 try
                 {
+                    if (topicRejected.Contains(item))
+                    {
+                        if (await _ingestion.RecordRawOnlyAsync(item, ct))
+                            skippedByRequiredPack++;
+                        continue;
+                    }
                     if (shortlist.ShouldRecordRawOnly(item))
                     {
                         if (await _ingestion.RecordRawOnlyAsync(item, ct))
@@ -115,7 +129,8 @@ public sealed class SourceRunner
             }
             source.LastRunHealthy = true;
             source.LastRunItemCount = items.Count;
-            source.LastRunMessage = BuildRunMessage(items.Count, created, skipped, shortlist, shortlistRejected);
+            source.LastRunMessage = BuildRunMessage(items.Count, created, skipped, shortlist,
+                shortlistRejected, skippedByRequiredPack, requiredPack);
         }
         catch (OperationCanceledException)
         {
@@ -331,16 +346,26 @@ public sealed class SourceRunner
         int created,
         int skipped,
         ShortlistGate shortlist,
-        int shortlistRejected)
+        int shortlistRejected,
+        int skippedByRequiredPack,
+        string? requiredPack)
     {
         var parts = new List<string> { $"Fetched {fetched} item(s)", $"{created} new lead(s)" };
         if (shortlist.Enabled)
             parts.Add($"shortlisted {shortlist.SelectedCount}/{shortlist.CandidateCount} via {shortlist.Provider}");
         if (shortlistRejected > 0)
             parts.Add($"recorded {shortlistRejected} shortlist reject(s)");
+        if (skippedByRequiredPack > 0)
+            parts.Add($"excluded {skippedByRequiredPack} item(s) outside {requiredPack}");
         if (skipped > 0)
             parts.Add($"skipped {skipped} without source URLs");
         return string.Join("; ", parts) + ".";
+    }
+
+    private static bool MatchesAny(RawSourceItem item, IReadOnlyCollection<string> terms)
+    {
+        var text = $"{item.Title}\n{item.BodyText}";
+        return terms.Any(term => text.Contains(term, StringComparison.OrdinalIgnoreCase));
     }
 
     private IReadOnlyList<string> BuildTerms(SourceConfig source)

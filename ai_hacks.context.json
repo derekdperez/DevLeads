@@ -262,6 +262,20 @@
       ]
     },
     {
+      "concern": "My Posts metrics, Reddit sync, inbox messages, or read state",
+      "startAt": [
+        "DevLeads.Infrastructure.Services.OperatorPostService",
+        "src/DevLeads.Web/Components/Pages/MyPosts.razor"
+      ],
+      "alsoCheck": [
+        "src/DevLeads.Core/Entities/OperatorPost.cs",
+        "src/DevLeads.Core/Entities/OperatorMessage.cs",
+        "src/DevLeads.Web/Components/Shared/PostPerformanceChart.razor",
+        "src/DevLeads.Web/Api/ApiEndpoints.cs"
+      ],
+      "warning": "Reddit can omit view_count even for authenticated requests; preserve the difference between an observed zero and an unavailable count. Opening an unread message here must persist Read immediately."
+    },
+    {
       "concern": "Blazor route or page behavior",
       "startAt": [
         "src/DevLeads.Web/Components/Pages",
@@ -327,7 +341,8 @@
     "Outreach never bypasses the global kill switch, required approval, or enabled suppression list.",
     "Trend items become TrendSignals only and never enter the lead/opportunity pipeline.",
     "Operator-engaged and archived opportunities are never automatically purged by source/default cleanup.",
-    "SQLite DateTimeOffset values are persisted as sortable UTC ticks and enums as readable strings."
+    "SQLite DateTimeOffset values are persisted as sortable UTC ticks and enums as readable strings.",
+    "Unknown platform metrics are never presented as observed zero values, and opening an unread My Posts message persists it as Read."
   ],
   "operations": {
     "run": "dotnet run --project src/DevLeads.Web",

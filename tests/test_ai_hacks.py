@@ -28,6 +28,10 @@ EXPECTED_DBSETS = {
     "ContentDrafts",
     "ContentTopics",
     "Opportunities",
+    "OperatorMessages",
+    "OperatorPostRevisions",
+    "OperatorPostSnapshots",
+    "OperatorPosts",
     "OperatorSettings",
     "OutreachAttempts",
     "QueryPacks",
@@ -48,6 +52,7 @@ EXPECTED_PAGE_ROUTES = {
     "/content",
     "/drafts",
     "/not-found",
+    "/myposts",
     "/opportunities",
     "/opportunities/new",
     "/opportunities/{Id:long}",
@@ -70,7 +75,7 @@ EXPECTED_STATUS_ACTION_ROUTES = {
     )
 }
 
-EXPECTED_HTTP_ENDPOINT_COUNT = 36
+EXPECTED_HTTP_ENDPOINT_COUNT = 48
 EXPECTED_HOSTED_WORKERS = {"ContentTrendWorker", "DiscoveryWorker"}
 EXPECTED_CONNECTORS = {
     "GitHubSearchConnector",

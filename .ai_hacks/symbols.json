@@ -1,8 +1,8 @@
 {
   "coverage": {
-    "authored_descriptions": 274,
-    "callables": 469,
-    "source_characters": 733421,
+    "authored_descriptions": 277,
+    "callables": 481,
+    "source_characters": 762941,
     "types": 148
   },
   "dbsets": [
@@ -180,217 +180,217 @@
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "RssConnector",
       "lifetime": "Transient",
-      "line": 41,
+      "line": 47,
       "service": "ISourceConnector"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "HackerNewsConnector",
       "lifetime": "Transient",
-      "line": 42,
+      "line": 48,
       "service": "ISourceConnector"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "StackExchangeConnector",
       "lifetime": "Transient",
-      "line": 43,
+      "line": 49,
       "service": "ISourceConnector"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "RemotiveConnector",
       "lifetime": "Transient",
-      "line": 44,
+      "line": 50,
       "service": "ISourceConnector"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "RedditConnector",
       "lifetime": "Transient",
-      "line": 45,
+      "line": 51,
       "service": "ISourceConnector"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "OpireConnector",
       "lifetime": "Transient",
-      "line": 46,
+      "line": 52,
       "service": "ISourceConnector"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "GitHubSearchConnector",
       "lifetime": "Transient",
-      "line": 47,
+      "line": 53,
       "service": "ISourceConnector"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "DbQueryPackProvider",
       "lifetime": "Scoped",
-      "line": 50,
+      "line": 56,
       "service": "IQueryPackProvider"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "HeuristicPreFilter",
       "lifetime": "Scoped",
-      "line": 51,
+      "line": 57,
       "service": "HeuristicPreFilter"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "HeuristicTriageProvider",
       "lifetime": "Singleton",
-      "line": 59,
+      "line": 65,
       "service": "HeuristicTriageProvider"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "AnthropicTriageProvider",
       "lifetime": "Singleton",
-      "line": 60,
+      "line": 66,
       "service": "AnthropicTriageProvider"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "OpenCodeTriageProvider",
       "lifetime": "Singleton",
-      "line": 61,
+      "line": 67,
       "service": "OpenCodeTriageProvider"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "CodexCliProvider",
       "lifetime": "Singleton",
-      "line": 62,
+      "line": 68,
       "service": "CodexCliProvider"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "OpenCodeTriageProvider",
       "lifetime": "Singleton",
-      "line": 63,
+      "line": 69,
       "service": "IAiTriageProvider"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "CodexCliProvider",
       "lifetime": "Singleton",
-      "line": 64,
+      "line": 70,
       "service": "IAiTriageProvider"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "AnthropicTriageProvider",
       "lifetime": "Singleton",
-      "line": 65,
+      "line": 71,
       "service": "IAiTriageProvider"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "HeuristicTriageProvider",
       "lifetime": "Singleton",
-      "line": 66,
+      "line": 72,
       "service": "IAiTriageProvider"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "AiTriageRouter",
       "lifetime": "Singleton",
-      "line": 67,
+      "line": 73,
       "service": "AiTriageRouter"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "AiTextRouter",
       "lifetime": "Singleton",
-      "line": 68,
+      "line": 74,
       "service": "AiTextRouter"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "DiscoveryActivityTracker",
       "lifetime": "Singleton",
-      "line": 71,
+      "line": 77,
       "service": "DiscoveryActivityTracker"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "AuditService",
       "lifetime": "Scoped",
-      "line": 74,
+      "line": 80,
       "service": "AuditService"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "LeadIngestionService",
       "lifetime": "Scoped",
-      "line": 75,
+      "line": 81,
       "service": "LeadIngestionService"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "OutreachService",
       "lifetime": "Scoped",
-      "line": 76,
+      "line": 82,
       "service": "OutreachService"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "QuoteService",
       "lifetime": "Scoped",
-      "line": 77,
+      "line": 83,
       "service": "QuoteService"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "SourceRunner",
       "lifetime": "Scoped",
-      "line": 78,
+      "line": 84,
       "service": "SourceRunner"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "MaintenanceService",
       "lifetime": "Scoped",
-      "line": 79,
+      "line": 85,
       "service": "MaintenanceService"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "TrendScanService",
       "lifetime": "Scoped",
-      "line": 80,
+      "line": 86,
       "service": "TrendScanService"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "ContentStudioService",
       "lifetime": "Scoped",
-      "line": 81,
+      "line": 87,
       "service": "ContentStudioService"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "OperatorPostService",
       "lifetime": "Scoped",
-      "line": 82,
+      "line": 88,
       "service": "OperatorPostService"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "DiscoveryWorker",
       "lifetime": "HostedService",
-      "line": 85,
+      "line": 91,
       "service": "IHostedService"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "ContentTrendWorker",
       "lifetime": "HostedService",
-      "line": 86,
+      "line": 92,
       "service": "IHostedService"
     },
     {
@@ -483,9 +483,17 @@
       "verb": "GET"
     },
     {
-      "description": "Runs the status action.",
+      "description": "Runs the read action.",
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
       "line": 200,
+      "owner": "MapDevLeadsApi",
+      "route": "/api/myposts/messages/{id:long}/read",
+      "verb": "POST"
+    },
+    {
+      "description": "Runs the status action.",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 203,
       "owner": "MapDevLeadsApi",
       "route": "/api/myposts/messages/{id:long}/status",
       "verb": "POST"
@@ -765,7 +773,7 @@
     {
       "description": "Runs the restart action.",
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "line": 213,
+      "line": 219,
       "owner": "MapDevLeadsApi",
       "route": "/api/system/restart",
       "verb": "POST"
@@ -787,10 +795,10 @@
       "sha256": "a257b0b8e2b07f3624fe9cd2f1b79e5388e579a5da9ce3032ddfbd7c8ce5d2ee"
     },
     {
-      "bytes": 10263,
-      "lines": 164,
+      "bytes": 11025,
+      "lines": 169,
       "path": "src/DevLeads.Core/Ai/AiTriagePrompts.cs",
-      "sha256": "e0aeeb5e0ea91912f5073bd02abfd0ba2f961b835ad7e045424ba911c415e7a8"
+      "sha256": "b0a9ff23b120ad992abb4bdad733afa7e68d108676809f78e99b8fee384cbbbb"
     },
     {
       "bytes": 8581,
@@ -817,10 +825,10 @@
       "sha256": "bd84ce3ad0bab761005ff2b28a7272546ddb7e0333eb17f947932bf4175f76a3"
     },
     {
-      "bytes": 3038,
-      "lines": 78,
+      "bytes": 3619,
+      "lines": 90,
       "path": "src/DevLeads.Core/AiTriageResult.cs",
-      "sha256": "3d40b0be13a79d04fcbc259c8636a7b78470a6bd227b2b8b43dbd77d6e56103b"
+      "sha256": "08a8091dce7f5c9b7f3d4f9b324e6be8abba896d51ef1c3b7f63721daaf0279d"
     },
     {
       "bytes": 1561,
@@ -871,10 +879,10 @@
       "sha256": "06ef0af9d2c2dae8af0a3c0c679bd339b639d0bddd3180930ad33f3b1ab80ea3"
     },
     {
-      "bytes": 2446,
-      "lines": 60,
+      "bytes": 2591,
+      "lines": 63,
       "path": "src/DevLeads.Core/Entities/OperatorPost.cs",
-      "sha256": "4fa61692fb4ab38e33c5d772beaaba3e9512b3a287ac3cb16a4ce449194cd1f8"
+      "sha256": "a02ef8218c1de20f728441550285e187d25af4e751ababe6fc0c728ae5a2ac2e"
     },
     {
       "bytes": 2268,
@@ -895,10 +903,10 @@
       "sha256": "7610eed93ae09a845d1f1509b30a8a209846aac6749ba71be0f5c38d6e38da00"
     },
     {
-      "bytes": 3445,
-      "lines": 84,
+      "bytes": 3895,
+      "lines": 90,
       "path": "src/DevLeads.Core/Entities/Opportunity.cs",
-      "sha256": "62f124ca9e3b9fa680dea3bfbc77040bfe9ff5f9ffc63dc687f2be6a47b1f9a6"
+      "sha256": "b30f49c60569434250315dd8b2340662a22294006e1a04d618bf050b62285f10"
     },
     {
       "bytes": 960,
@@ -991,10 +999,10 @@
       "sha256": "4eafc8306f27e9e2524241850fd8fe9ef2689713ff1a23d08686d7c40f1c374d"
     },
     {
-      "bytes": 10885,
-      "lines": 172,
+      "bytes": 12457,
+      "lines": 194,
       "path": "src/DevLeads.Core/QueryPacks/DefaultQueryPacks.cs",
-      "sha256": "3678811c5763884ff7ab48a503dc97b9050fcddc918edddadd354446ae4fc754"
+      "sha256": "b115221a05697f5b2126f94d277371d5df9904c2a73cb0212a920ce1b8fc7733"
     },
     {
       "bytes": 839,
@@ -1009,10 +1017,10 @@
       "sha256": "d35b1bbc43ed8160105fd555d5b34130d40cfbdf8d951c6cd35819601bb142e9"
     },
     {
-      "bytes": 16805,
-      "lines": 373,
+      "bytes": 17840,
+      "lines": 393,
       "path": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
-      "sha256": "767d8c94ce83876132f0d1cb49c527984baa926cada87570a6ace7346d1832bc"
+      "sha256": "c7876350a5b828e4ce8733824a47aaf16d59e47db619927e974c4f9e1781e3a0"
     },
     {
       "bytes": 5315,
@@ -1051,10 +1059,10 @@
       "sha256": "e185fa94ea626a4dae2e2ad16e82f0c896377bba3789f32e70a6eb73ec0eccd8"
     },
     {
-      "bytes": 6128,
-      "lines": 136,
+      "bytes": 6606,
+      "lines": 147,
       "path": "src/DevLeads.Infrastructure/Ai/AiCliSupport.cs",
-      "sha256": "bd7a2b3073fbf4ba050ce0f15f33e8a950ea2e5dd620a2846d92d8315e2c3254"
+      "sha256": "fafd0e4ae96c1edca5dc0fe52f8da5fc1140060db5f0fcf6e2d55b29b5537d04"
     },
     {
       "bytes": 3429,
@@ -1081,10 +1089,10 @@
       "sha256": "eb3a4ef3bc7e353fa869bb52005d42ea1f2f6b7062843a694eb2012baa57d734"
     },
     {
-      "bytes": 17557,
-      "lines": 281,
+      "bytes": 18987,
+      "lines": 305,
       "path": "src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs",
-      "sha256": "b8b6fb5d547ff059a24e6601b6a976d4e0b6ea3628a7affd054be63fe8e3ba5a"
+      "sha256": "6a8adccc4b3f21f92d82e4ba30e7d9af92298f31ea275786b3c8d19f912113c3"
     },
     {
       "bytes": 22592,
@@ -1105,10 +1113,10 @@
       "sha256": "7f389a8ab1a469ff8034bd2f698ee3c8cba7194df30fe1e484fba18cd6a87499"
     },
     {
-      "bytes": 4739,
+      "bytes": 4746,
       "lines": 91,
       "path": "src/DevLeads.Infrastructure/Connectors/HackerNewsConnector.cs",
-      "sha256": "2e8acdb17fb3042d6eee2a5fa22dc5de453c97c0c74454ea2d6b139b0c41ec9f"
+      "sha256": "e021b5aa822d887ae5246dbbb56010620126c6c73dea6be26e4aafb105eb0acf"
     },
     {
       "bytes": 6010,
@@ -1117,10 +1125,10 @@
       "sha256": "56247b01720670b118a3a58775797dcefeb3d90ffebc88959eae8134dbceb205"
     },
     {
-      "bytes": 8298,
-      "lines": 160,
+      "bytes": 8539,
+      "lines": 162,
       "path": "src/DevLeads.Infrastructure/Connectors/RedditConnector.cs",
-      "sha256": "db5ab1bf6dcbc8c2f1b7523c02dbd7eb8997fd7fc29c6a136031e47a738da5eb"
+      "sha256": "a43722a785d1a45b6412d79669f13fd51832ec561c60046649271706c7b86d9c"
     },
     {
       "bytes": 5869,
@@ -1141,10 +1149,10 @@
       "sha256": "5ff5c65f2e37e4ba4f200d5b500990f4b2fc4048bcd266db3acb88672913ead9"
     },
     {
-      "bytes": 64125,
-      "lines": 1129,
+      "bytes": 74521,
+      "lines": 1285,
       "path": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
-      "sha256": "6707d079c278528b0ad05839ef8fe8f2252349537f8e0d750b17d0bfb39980b1"
+      "sha256": "b659844483838b9c49d65180a7b7d5ace1de78bc12b246c12c18896c3fffaa5b"
     },
     {
       "bytes": 6388,
@@ -1153,10 +1161,10 @@
       "sha256": "e950767b078df6cc87987eb5adc8275b959202060baa2be8f6320ce13bb9c808"
     },
     {
-      "bytes": 4962,
-      "lines": 99,
+      "bytes": 5403,
+      "lines": 105,
       "path": "src/DevLeads.Infrastructure/DependencyInjection.cs",
-      "sha256": "4429e0cd060bb25381b06a9d812ff58207a6da69d7cf73800df9034ee32eb110"
+      "sha256": "4739a8bf27788b5bfb4f23192962921e2650e50c6da30724e728edec0ac7529d"
     },
     {
       "bytes": 667,
@@ -1189,10 +1197,10 @@
       "sha256": "20a0b9e79f787966914bb60563813940f9a3f473bc9c6197f01970b17a3cfbee"
     },
     {
-      "bytes": 31744,
-      "lines": 727,
+      "bytes": 32923,
+      "lines": 750,
       "path": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
-      "sha256": "c838188bbac0e305d23f633838b58948be0b155bbe3b114dd0430c168dab9d4b"
+      "sha256": "42f24e135d28a0bf529a289747ee7d71012122aa40abdf6bbd8b291ec8a75259"
     },
     {
       "bytes": 4658,
@@ -1201,10 +1209,10 @@
       "sha256": "5be9d70c56568f93221234c6d1009cf4fe2953740861569a61ddb9e988ffd3fc"
     },
     {
-      "bytes": 50794,
-      "lines": 986,
+      "bytes": 56010,
+      "lines": 1087,
       "path": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
-      "sha256": "9c318114186c07485fc3085c0d43614c3d508d587b97d52df433bb4d44c86ac8"
+      "sha256": "87553d2ef015ca3ef494d140ab0490d31111f7fc52360f4a23e6568b422b3ec6"
     },
     {
       "bytes": 15809,
@@ -1219,10 +1227,10 @@
       "sha256": "fb575529d5400b452ee91c7686e446f9eac717ac1bd4c8f20951cbe8cdfc3752"
     },
     {
-      "bytes": 20305,
-      "lines": 449,
+      "bytes": 21637,
+      "lines": 474,
       "path": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
-      "sha256": "ca8648b18331bdac8d9cfec718ac0cf35e8a0ffadf5afd3f77c1bfceb4871919"
+      "sha256": "96df15240a1f6a995847cdc2a1f6872f65171446aa07b17498092059b21ac547"
     },
     {
       "bytes": 8460,
@@ -1243,10 +1251,10 @@
       "sha256": "6a57e9c1a3cef9bd26eac751d2f8ca34b37e171986206b1cc45dce3d206ba39a"
     },
     {
-      "bytes": 13655,
-      "lines": 241,
+      "bytes": 14103,
+      "lines": 247,
       "path": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "sha256": "7a11f5d3aeb83cd94038ec6edc29f85f4dcde56342c982ffe27afc42f51d016e"
+      "sha256": "2965c3e89e5f5e006013970d0cbbf528689e63ad039264475ad414bad8a40a97"
     },
     {
       "bytes": 4129,
@@ -1315,10 +1323,10 @@
       "sha256": "5cbb81b8a51eca15b84a91365406eb4de6b2b65c71a2e69b99c1b5bfb6f45c98"
     },
     {
-      "bytes": 38187,
-      "lines": 747,
+      "bytes": 40374,
+      "lines": 791,
       "path": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
-      "sha256": "1eebc5ff1b5263aecae3ea12e422e047dac6d2b56a016b09131be0e5d2480022"
+      "sha256": "3c8ad68ca37c058808c5b9750e032e3571c26a1b47092d4c9811c3717d2dd685"
     },
     {
       "bytes": 3604,
@@ -1339,10 +1347,10 @@
       "sha256": "fa76a05e18a79a0339a50e30c94a0e548e36cca81a74f6b02b15c33f692d8c6f"
     },
     {
-      "bytes": 21245,
-      "lines": 398,
+      "bytes": 22839,
+      "lines": 431,
       "path": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
-      "sha256": "43af172c4e8aaa8bdb9b458f3fd5cd5bc08376183aa52bfef53e01318841b3cb"
+      "sha256": "e92cabf7181d0213a1cdfa26745422c9b224b4d65c71623487748e10cfe713bb"
     },
     {
       "bytes": 4775,
@@ -1351,10 +1359,10 @@
       "sha256": "f561bbd49eabc411e0b8e12b12418fc19afb34a537726127d8db717a7aa08af5"
     },
     {
-      "bytes": 18517,
+      "bytes": 18543,
       "lines": 360,
       "path": "src/DevLeads.Web/Components/Pages/Settings.razor",
-      "sha256": "ab1996b8b52f307325b414ade4ab1b55efb23a11e169f35ba9016230b7f95429"
+      "sha256": "056a6b18541e0bcd7b3c2c41847637bbba76984349320776ff52453eed3487bd"
     },
     {
       "bytes": 6489,
@@ -1566,6 +1574,20 @@
       },
       {
         "alsoCheck": [
+          "src/DevLeads.Core/Entities/OperatorPost.cs",
+          "src/DevLeads.Core/Entities/OperatorMessage.cs",
+          "src/DevLeads.Web/Components/Shared/PostPerformanceChart.razor",
+          "src/DevLeads.Web/Api/ApiEndpoints.cs"
+        ],
+        "concern": "My Posts metrics, Reddit sync, inbox messages, or read state",
+        "startAt": [
+          "DevLeads.Infrastructure.Services.OperatorPostService",
+          "src/DevLeads.Web/Components/Pages/MyPosts.razor"
+        ],
+        "warning": "Reddit can omit view_count even for authenticated requests; preserve the difference between an observed zero and an unavailable count. Opening an unread message here must persist Read immediately."
+      },
+      {
+        "alsoCheck": [
           "src/DevLeads.Web/Components/Shared",
           "src/DevLeads.Web/Components/Layout",
           "src/DevLeads.Web/wwwroot/app.css"
@@ -1630,7 +1652,8 @@
       "Outreach never bypasses the global kill switch, required approval, or enabled suppression list.",
       "Trend items become TrendSignals only and never enter the lead/opportunity pipeline.",
       "Operator-engaged and archived opportunities are never automatically purged by source/default cleanup.",
-      "SQLite DateTimeOffset values are persisted as sortable UTC ticks and enums as readable strings."
+      "SQLite DateTimeOffset values are persisted as sortable UTC ticks and enums as readable strings.",
+      "Unknown platform metrics are never presented as observed zero values, and opening an unread My Posts message persists it as Read."
     ],
     "operations": {
       "build": "dotnet build DevLeads.slnx",
@@ -1856,7 +1879,7 @@
     },
     {
       "component": "MyPosts",
-      "description": "Blazor component for my posts.",
+      "description": "Tracks the operator's posts, platform performance, optimization experiments, and received messages.",
       "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
       "implements": [],
       "inherits": "ComponentBase",
@@ -2151,7 +2174,7 @@
   "solutions": [
     "DevLeads.slnx"
   ],
-  "source_digest": "a9365f0f94ab9627f9bdfef359365d870c2f71e7c73e81b08e4f42563970a250",
+  "source_digest": "b4aacc3cf633a428ab2481f9447425f6c77e36fb5c39bad79c81a3226e4bc8d7",
   "types": [
     {
       "access": "public",
@@ -2185,7 +2208,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Ai/AiTriagePrompts.cs",
           "kind": "method",
-          "line": 63,
+          "line": 65,
           "modifiers": [
             "public",
             "static"
@@ -2204,7 +2227,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Ai/AiTriagePrompts.cs",
           "kind": "method",
-          "line": 100,
+          "line": 102,
           "modifiers": [
             "public",
             "static"
@@ -2223,7 +2246,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Ai/AiTriagePrompts.cs",
           "kind": "constant",
-          "line": 140,
+          "line": 142,
           "modifiers": [
             "public",
             "const"
@@ -3799,11 +3822,65 @@
             "get",
             "set"
           ],
+          "description": "Predominant natural language of the original post as an ISO 639-1 code.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/AiTriageResult.cs",
+          "kind": "property",
+          "line": 13,
+          "modifiers": [
+            "public"
+          ],
+          "name": "LanguageCode",
+          "summary": "Predominant natural language of the original post as an ISO 639-1 code.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Faithful English title when the post is non-English; empty for English posts.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/AiTriageResult.cs",
+          "kind": "property",
+          "line": 17,
+          "modifiers": [
+            "public"
+          ],
+          "name": "EnglishTitle",
+          "summary": "Faithful English title when the post is non-English; empty for English posts.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Faithful English body when the post is non-English; empty for English posts.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/AiTriageResult.cs",
+          "kind": "property",
+          "line": 21,
+          "modifiers": [
+            "public"
+          ],
+          "name": "EnglishBody",
+          "summary": "Faithful English body when the post is non-English; empty for English posts.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
           "description": "Checks technical problem.",
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/AiTriageResult.cs",
           "kind": "property",
-          "line": 12,
+          "line": 24,
           "modifiers": [
             "public"
           ],
@@ -3820,7 +3897,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/AiTriageResult.cs",
           "kind": "property",
-          "line": 15,
+          "line": 27,
           "modifiers": [
             "public"
           ],
@@ -3837,7 +3914,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/AiTriageResult.cs",
           "kind": "property",
-          "line": 23,
+          "line": 35,
           "modifiers": [
             "public"
           ],
@@ -3855,7 +3932,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/AiTriageResult.cs",
           "kind": "property",
-          "line": 30,
+          "line": 42,
           "modifiers": [
             "public"
           ],
@@ -3873,7 +3950,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/AiTriageResult.cs",
           "kind": "property",
-          "line": 33,
+          "line": 45,
           "modifiers": [
             "public"
           ],
@@ -3890,7 +3967,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/AiTriageResult.cs",
           "kind": "property",
-          "line": 36,
+          "line": 48,
           "modifiers": [
             "public"
           ],
@@ -3907,7 +3984,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/AiTriageResult.cs",
           "kind": "property",
-          "line": 39,
+          "line": 51,
           "modifiers": [
             "public"
           ],
@@ -3924,7 +4001,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/AiTriageResult.cs",
           "kind": "property",
-          "line": 42,
+          "line": 54,
           "modifiers": [
             "public"
           ],
@@ -3941,7 +4018,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/AiTriageResult.cs",
           "kind": "property",
-          "line": 45,
+          "line": 57,
           "modifiers": [
             "public"
           ],
@@ -3958,7 +4035,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/AiTriageResult.cs",
           "kind": "property",
-          "line": 48,
+          "line": 60,
           "modifiers": [
             "public"
           ],
@@ -3975,7 +4052,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/AiTriageResult.cs",
           "kind": "property",
-          "line": 51,
+          "line": 63,
           "modifiers": [
             "public"
           ],
@@ -3992,7 +4069,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/AiTriageResult.cs",
           "kind": "property",
-          "line": 54,
+          "line": 66,
           "modifiers": [
             "public"
           ],
@@ -4009,7 +4086,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/AiTriageResult.cs",
           "kind": "property",
-          "line": 57,
+          "line": 69,
           "modifiers": [
             "public"
           ],
@@ -4022,7 +4099,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/AiTriageResult.cs",
           "kind": "field",
-          "line": 61,
+          "line": 73,
           "modifiers": [
             "public",
             "static",
@@ -4038,7 +4115,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/AiTriageResult.cs",
           "kind": "field",
-          "line": 70,
+          "line": 82,
           "modifiers": [
             "public",
             "static",
@@ -4054,7 +4131,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/AiTriageResult.cs",
           "kind": "field",
-          "line": 73,
+          "line": 85,
           "modifiers": [
             "public",
             "static",
@@ -5872,17 +5949,35 @@
             "get",
             "set"
           ],
-          "description": "Views, where knowable. Reddit only shows view counts to the logged-in author, so for reddit this is operator-entered; platforms with public counts can sync it.",
+          "description": "Views last reported by the platform or explicitly entered by the operator.",
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Entities/OperatorPost.cs",
           "kind": "property",
-          "line": 43,
+          "line": 40,
           "modifiers": [
             "public"
           ],
           "name": "ViewCount",
-          "summary": "Views, where knowable. Reddit only shows view counts to the logged-in author, so for reddit this is operator-entered; platforms with public counts can sync it.",
+          "summary": "Views last reported by the platform or explicitly entered by the operator.",
           "type": "int"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Distinguishes an observed count of zero from a platform that did not expose a view count. Reddit commonly omits this value even from authenticated listings.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/OperatorPost.cs",
+          "kind": "property",
+          "line": 46,
+          "modifiers": [
+            "public"
+          ],
+          "name": "ViewCountKnown",
+          "summary": "Distinguishes an observed count of zero from a platform that did not expose a view count. Reddit commonly omits this value even from authenticated listings.",
+          "type": "bool"
         },
         {
           "access": "public",
@@ -5894,7 +5989,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Entities/OperatorPost.cs",
           "kind": "property",
-          "line": 46,
+          "line": 49,
           "modifiers": [
             "public"
           ],
@@ -5912,7 +6007,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorPost.cs",
           "kind": "property",
-          "line": 47,
+          "line": 50,
           "modifiers": [
             "public"
           ],
@@ -5929,7 +6024,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorPost.cs",
           "kind": "property",
-          "line": 49,
+          "line": 52,
           "modifiers": [
             "public"
           ],
@@ -5946,7 +6041,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Entities/OperatorPost.cs",
           "kind": "property",
-          "line": 52,
+          "line": 55,
           "modifiers": [
             "public"
           ],
@@ -5964,7 +6059,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorPost.cs",
           "kind": "property",
-          "line": 54,
+          "line": 57,
           "modifiers": [
             "public"
           ],
@@ -5981,7 +6076,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorPost.cs",
           "kind": "property",
-          "line": 55,
+          "line": 58,
           "modifiers": [
             "public"
           ],
@@ -5998,7 +6093,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorPost.cs",
           "kind": "property",
-          "line": 56,
+          "line": 59,
           "modifiers": [
             "public"
           ],
@@ -6015,7 +6110,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorPost.cs",
           "kind": "property",
-          "line": 58,
+          "line": 61,
           "modifiers": [
             "public"
           ],
@@ -7977,11 +8072,65 @@
             "get",
             "set"
           ],
+          "description": "Points removed because the original post was not English.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+          "kind": "property",
+          "line": 32,
+          "modifiers": [
+            "public"
+          ],
+          "name": "LanguagePenalty",
+          "summary": "Points removed because the original post was not English.",
+          "type": "double"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Predominant language of the original source post (ISO 639 code).",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+          "kind": "property",
+          "line": 36,
+          "modifiers": [
+            "public"
+          ],
+          "name": "LanguageCode",
+          "summary": "Predominant language of the original source post (ISO 639 code).",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "English translation of the original body; empty unless a non-English lead survived scoring.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/Opportunity.cs",
+          "kind": "property",
+          "line": 38,
+          "modifiers": [
+            "public"
+          ],
+          "name": "TranslatedBody",
+          "summary": "English translation of the original body; empty unless a non-English lead survived scoring.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
           "description": "Handles problem type.",
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 33,
+          "line": 39,
           "modifiers": [
             "public"
           ],
@@ -7998,7 +8147,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 35,
+          "line": 41,
           "modifiers": [
             "public"
           ],
@@ -8016,7 +8165,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 38,
+          "line": 44,
           "modifiers": [
             "public"
           ],
@@ -8034,7 +8183,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 39,
+          "line": 45,
           "modifiers": [
             "public"
           ],
@@ -8051,7 +8200,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 40,
+          "line": 46,
           "modifiers": [
             "public"
           ],
@@ -8068,7 +8217,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 41,
+          "line": 47,
           "modifiers": [
             "public"
           ],
@@ -8085,7 +8234,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 43,
+          "line": 49,
           "modifiers": [
             "public"
           ],
@@ -8102,7 +8251,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 44,
+          "line": 50,
           "modifiers": [
             "public"
           ],
@@ -8119,7 +8268,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 50,
+          "line": 56,
           "modifiers": [
             "public"
           ],
@@ -8137,7 +8286,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 51,
+          "line": 57,
           "modifiers": [
             "public"
           ],
@@ -8154,7 +8303,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 52,
+          "line": 58,
           "modifiers": [
             "public"
           ],
@@ -8171,7 +8320,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 54,
+          "line": 60,
           "modifiers": [
             "public"
           ],
@@ -8188,7 +8337,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 55,
+          "line": 61,
           "modifiers": [
             "public"
           ],
@@ -8205,7 +8354,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 56,
+          "line": 62,
           "modifiers": [
             "public"
           ],
@@ -8222,7 +8371,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 58,
+          "line": 64,
           "modifiers": [
             "public"
           ],
@@ -8239,7 +8388,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 61,
+          "line": 67,
           "modifiers": [
             "public"
           ],
@@ -8256,7 +8405,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 62,
+          "line": 68,
           "modifiers": [
             "public"
           ],
@@ -8273,7 +8422,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 63,
+          "line": 69,
           "modifiers": [
             "public"
           ],
@@ -8290,7 +8439,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 66,
+          "line": 72,
           "modifiers": [
             "public"
           ],
@@ -8307,7 +8456,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 68,
+          "line": 74,
           "modifiers": [
             "public"
           ],
@@ -8324,7 +8473,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 69,
+          "line": 75,
           "modifiers": [
             "public"
           ],
@@ -8341,7 +8490,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 70,
+          "line": 76,
           "modifiers": [
             "public"
           ],
@@ -8358,7 +8507,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 71,
+          "line": 77,
           "modifiers": [
             "public"
           ],
@@ -8375,7 +8524,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 72,
+          "line": 78,
           "modifiers": [
             "public"
           ],
@@ -8392,7 +8541,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 75,
+          "line": 81,
           "modifiers": [
             "public"
           ],
@@ -8409,7 +8558,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 76,
+          "line": 82,
           "modifiers": [
             "public"
           ],
@@ -8426,7 +8575,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 79,
+          "line": 85,
           "modifiers": [
             "public"
           ],
@@ -8443,7 +8592,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 80,
+          "line": 86,
           "modifiers": [
             "public"
           ],
@@ -8460,7 +8609,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 81,
+          "line": 87,
           "modifiers": [
             "public"
           ],
@@ -8477,7 +8626,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/Opportunity.cs",
           "kind": "property",
-          "line": 82,
+          "line": 88,
           "modifiers": [
             "public"
           ],
@@ -13503,11 +13652,26 @@
         },
         {
           "access": "public",
-          "description": "Handles negative exclusions.",
+          "description": "Handles ai automation projects.",
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/QueryPacks/DefaultQueryPacks.cs",
           "kind": "field",
           "line": 149,
+          "modifiers": [
+            "public",
+            "static",
+            "readonly"
+          ],
+          "name": "AiAutomationProjects",
+          "type": "QueryPackSeed"
+        },
+        {
+          "access": "public",
+          "description": "Handles negative exclusions.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/QueryPacks/DefaultQueryPacks.cs",
+          "kind": "field",
+          "line": 170,
           "modifiers": [
             "public",
             "static",
@@ -13522,7 +13686,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/QueryPacks/DefaultQueryPacks.cs",
           "kind": "field",
-          "line": 165,
+          "line": 186,
           "modifiers": [
             "public",
             "static",
@@ -13842,11 +14006,29 @@
             "get",
             "set"
           ],
+          "description": "Points removed when the original post is not English.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+          "kind": "property",
+          "line": 15,
+          "modifiers": [
+            "public"
+          ],
+          "name": "LanguagePenalty",
+          "summary": "Points removed when the original post is not English.",
+          "type": "double"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
           "description": "Handles total.",
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "property",
-          "line": 14,
+          "line": 16,
           "modifiers": [
             "public"
           ],
@@ -13863,7 +14045,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "property",
-          "line": 15,
+          "line": 17,
           "modifiers": [
             "public"
           ],
@@ -13891,7 +14073,7 @@
       "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
       "fullName": "DevLeads.Core.Scoring.ScoringInput",
       "kind": "class",
-      "line": 19,
+      "line": 21,
       "members": [
         {
           "access": "public",
@@ -13903,7 +14085,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "property",
-          "line": 21,
+          "line": 23,
           "modifiers": [
             "public"
           ],
@@ -13920,7 +14102,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "property",
-          "line": 22,
+          "line": 24,
           "modifiers": [
             "public"
           ],
@@ -13937,7 +14119,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "property",
-          "line": 23,
+          "line": 25,
           "modifiers": [
             "public"
           ],
@@ -13954,7 +14136,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "property",
-          "line": 24,
+          "line": 26,
           "modifiers": [
             "public"
           ],
@@ -13971,7 +14153,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "property",
-          "line": 25,
+          "line": 27,
           "modifiers": [
             "public"
           ],
@@ -13988,7 +14170,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "property",
-          "line": 26,
+          "line": 28,
           "modifiers": [
             "public"
           ],
@@ -14001,11 +14183,29 @@
             "get",
             "set"
           ],
+          "description": "Predominant language of the original post; non-English adds response friction.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+          "kind": "property",
+          "line": 31,
+          "modifiers": [
+            "public"
+          ],
+          "name": "LanguageCode",
+          "summary": "Predominant language of the original post; non-English adds response friction.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
           "description": "Skills from the operator profile that matched this lead's text/stack. Null when no skill profile exists (falls back to the built-in stack lists).",
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "property",
-          "line": 32,
+          "line": 37,
           "modifiers": [
             "public"
           ],
@@ -14023,7 +14223,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "property",
-          "line": 35,
+          "line": 40,
           "modifiers": [
             "public"
           ],
@@ -14041,7 +14241,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "property",
-          "line": 38,
+          "line": 43,
           "modifiers": [
             "public"
           ],
@@ -14059,7 +14259,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "property",
-          "line": 41,
+          "line": 46,
           "modifiers": [
             "public"
           ],
@@ -14077,7 +14277,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "property",
-          "line": 47,
+          "line": 52,
           "modifiers": [
             "public"
           ],
@@ -14106,7 +14306,7 @@
       "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
       "fullName": "DevLeads.Core.Scoring.OpportunityScorer",
       "kind": "class",
-      "line": 54,
+      "line": 59,
       "members": [
         {
           "access": "private",
@@ -14114,7 +14314,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "constant",
-          "line": 57,
+          "line": 62,
           "modifiers": [
             "private",
             "const"
@@ -14128,7 +14328,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "constant",
-          "line": 57,
+          "line": 62,
           "modifiers": [
             "private",
             "const"
@@ -14142,7 +14342,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "constant",
-          "line": 57,
+          "line": 62,
           "modifiers": [
             "private",
             "const"
@@ -14156,7 +14356,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "constant",
-          "line": 57,
+          "line": 62,
           "modifiers": [
             "private",
             "const"
@@ -14170,7 +14370,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "constant",
-          "line": 57,
+          "line": 62,
           "modifiers": [
             "private",
             "const"
@@ -14184,7 +14384,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "constant",
-          "line": 57,
+          "line": 62,
           "modifiers": [
             "private",
             "const"
@@ -14193,12 +14393,26 @@
           "type": "double"
         },
         {
+          "access": "public",
+          "description": "Handles non english penalty.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+          "kind": "constant",
+          "line": 63,
+          "modifiers": [
+            "public",
+            "const"
+          ],
+          "name": "NonEnglishPenalty",
+          "type": "double"
+        },
+        {
           "access": "private",
           "description": "Handles preferred stack.",
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "field",
-          "line": 59,
+          "line": 65,
           "modifiers": [
             "private",
             "static",
@@ -14213,7 +14427,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "field",
-          "line": 61,
+          "line": 67,
           "modifiers": [
             "private",
             "static",
@@ -14228,7 +14442,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "field",
-          "line": 63,
+          "line": 69,
           "modifiers": [
             "private",
             "static",
@@ -14243,7 +14457,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "field",
-          "line": 65,
+          "line": 71,
           "modifiers": [
             "private",
             "static",
@@ -14258,7 +14472,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 68,
+          "line": 74,
           "modifiers": [
             "public",
             "static"
@@ -14272,12 +14486,30 @@
           "typeParameters": []
         },
         {
+          "access": "public",
+          "description": "Checks non english.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
+          "kind": "method",
+          "line": 152,
+          "modifiers": [
+            "public",
+            "static"
+          ],
+          "name": "IsNonEnglish",
+          "parameters": [
+            "string? languageCode"
+          ],
+          "returnType": "bool",
+          "typeParameters": []
+        },
+        {
           "access": "private",
           "description": "Count of explicit \"pay:\" hits the pre-filter tagged (hire language, budgets, money amounts).",
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 138,
+          "line": 158,
           "modifiers": [
             "private",
             "static"
@@ -14296,7 +14528,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 142,
+          "line": 162,
           "modifiers": [
             "private",
             "static"
@@ -14315,7 +14547,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 147,
+          "line": 167,
           "modifiers": [
             "public",
             "static"
@@ -14333,7 +14565,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 156,
+          "line": 176,
           "modifiers": [
             "private",
             "static"
@@ -14352,7 +14584,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 177,
+          "line": 197,
           "modifiers": [
             "private",
             "static"
@@ -14370,7 +14602,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 197,
+          "line": 217,
           "modifiers": [
             "private",
             "static"
@@ -14388,7 +14620,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "field",
-          "line": 221,
+          "line": 241,
           "modifiers": [
             "private",
             "static",
@@ -14404,7 +14636,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 223,
+          "line": 243,
           "modifiers": [
             "private",
             "static"
@@ -14422,7 +14654,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 282,
+          "line": 302,
           "modifiers": [
             "private",
             "static"
@@ -14440,7 +14672,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 289,
+          "line": 309,
           "modifiers": [
             "private",
             "static"
@@ -14458,7 +14690,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 298,
+          "line": 318,
           "modifiers": [
             "private",
             "static"
@@ -14476,7 +14708,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 326,
+          "line": 346,
           "modifiers": [
             "private",
             "static"
@@ -14494,7 +14726,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 338,
+          "line": 358,
           "modifiers": [
             "private",
             "static"
@@ -14512,7 +14744,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Scoring/OpportunityScorer.cs",
           "kind": "method",
-          "line": 363,
+          "line": 383,
           "modifiers": [
             "private",
             "static"
@@ -15400,7 +15632,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Ai/AiCliSupport.cs",
           "kind": "method",
-          "line": 134,
+          "line": 145,
           "modifiers": [
             "public",
             "static"
@@ -16523,11 +16755,29 @@
         },
         {
           "access": "private",
+          "description": "Handles detect language.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs",
+          "kind": "method",
+          "line": 224,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "DetectLanguage",
+          "parameters": [
+            "string text"
+          ],
+          "returnType": "string",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
           "description": "Handles classify.",
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs",
           "kind": "method",
-          "line": 223,
+          "line": 247,
           "modifiers": [
             "private",
             "static"
@@ -16545,7 +16795,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs",
           "kind": "method",
-          "line": 231,
+          "line": 255,
           "modifiers": [
             "private",
             "static"
@@ -16563,7 +16813,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs",
           "kind": "method",
-          "line": 254,
+          "line": 278,
           "modifiers": [
             "private",
             "static"
@@ -16584,7 +16834,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs",
           "kind": "method",
-          "line": 260,
+          "line": 284,
           "modifiers": [
             "private",
             "static"
@@ -16602,7 +16852,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs",
           "kind": "method",
-          "line": 271,
+          "line": 295,
           "modifiers": [
             "private",
             "static"
@@ -17891,7 +18141,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Connectors/RedditConnector.cs",
           "kind": "field",
-          "line": 84,
+          "line": 86,
           "modifiers": [
             "private",
             "static",
@@ -17906,7 +18156,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Connectors/RedditConnector.cs",
           "kind": "method",
-          "line": 87,
+          "line": 89,
           "modifiers": [
             "private",
             "async"
@@ -17933,7 +18183,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Connectors/RedditConnector.cs",
           "kind": "method",
-          "line": 136,
+          "line": 138,
           "modifiers": [
             "private",
             "static"
@@ -17951,7 +18201,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Connectors/RedditConnector.cs",
           "kind": "method",
-          "line": 139,
+          "line": 141,
           "modifiers": [
             "private",
             "static"
@@ -17970,7 +18220,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Connectors/RedditConnector.cs",
           "kind": "method",
-          "line": 146,
+          "line": 148,
           "modifiers": [
             "private",
             "static"
@@ -17990,7 +18240,7 @@
           "descriptionSource": "inherited",
           "file": "src/DevLeads.Infrastructure/Connectors/RedditConnector.cs",
           "kind": "method",
-          "line": 149,
+          "line": 151,
           "modifiers": [
             "public",
             "async"
@@ -18783,7 +19033,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 422,
+          "line": 426,
           "modifiers": [
             "private",
             "static",
@@ -18804,7 +19054,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "field",
-          "line": 439,
+          "line": 443,
           "modifiers": [
             "private",
             "static",
@@ -18820,7 +19070,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 451,
+          "line": 455,
           "modifiers": [
             "private",
             "static",
@@ -18840,7 +19090,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 485,
+          "line": 489,
           "modifiers": [
             "private",
             "static",
@@ -18861,7 +19111,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "constant",
-          "line": 495,
+          "line": 499,
           "modifiers": [
             "public",
             "const"
@@ -18875,7 +19125,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "constant",
-          "line": 496,
+          "line": 500,
           "modifiers": [
             "public",
             "const"
@@ -18884,12 +19134,26 @@
           "type": "string"
         },
         {
+          "access": "public",
+          "description": "Handles ai automation campaign key.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
+          "kind": "constant",
+          "line": 501,
+          "modifiers": [
+            "public",
+            "const"
+          ],
+          "name": "AiAutomationCampaignKey",
+          "type": "string"
+        },
+        {
           "access": "private",
           "description": "Ensures the built-in campaigns exist (add-only: name/objective edits belong to the operator afterwards). Returns campaign ids keyed by stable campaign key.",
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 502,
+          "line": 507,
           "modifiers": [
             "private",
             "static",
@@ -18910,7 +19174,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 550,
+          "line": 570,
           "modifiers": [
             "private",
             "static",
@@ -18931,7 +19195,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 582,
+          "line": 611,
           "modifiers": [
             "private",
             "static",
@@ -18953,7 +19217,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 596,
+          "line": 625,
           "modifiers": [
             "private",
             "static"
@@ -18968,11 +19232,29 @@
         },
         {
           "access": "private",
+          "description": "Checks initial ai topic gate.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
+          "kind": "method",
+          "line": 638,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "IsInitialAiTopicGate",
+          "parameters": [
+            "SourceConfig source"
+          ],
+          "returnType": "bool",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
           "description": "Reapplies seeded defaults, returning whether anything actually changed \u2014 a boot with unchanged defaults must NOT count as a migration (that would purge + re-triage all discovery\u2026",
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 613,
+          "line": 648,
           "modifiers": [
             "private",
             "static"
@@ -18988,11 +19270,30 @@
         },
         {
           "access": "private",
+          "description": "Checks additive hiring subreddit expansion.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
+          "kind": "method",
+          "line": 678,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "IsAdditiveHiringSubredditExpansion",
+          "parameters": [
+            "SourceConfig target",
+            "SourceConfig seed"
+          ],
+          "returnType": "bool",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
           "description": "Handles default sources.",
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 643,
+          "line": 723,
           "modifiers": [
             "private",
             "static"
@@ -19000,7 +19301,8 @@
           "name": "DefaultSources",
           "parameters": [
             "long emergencyCampaignId",
-            "long modernizationCampaignId"
+            "long modernizationCampaignId",
+            "long aiAutomationCampaignId"
           ],
           "returnType": "IEnumerable<SourceConfig>",
           "typeParameters": []
@@ -19011,7 +19313,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 661,
+          "line": 747,
           "modifiers": [
             "private",
             "static"
@@ -19028,7 +19330,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 872,
+          "line": 958,
           "modifiers": [
             "private",
             "static"
@@ -19041,11 +19343,28 @@
         },
         {
           "access": "private",
+          "description": "Searches every registered connector for paid AI/automation implementation work. Topic matching finds the project; campaign-aware AI triage still requires explicit hire/pay intent\u2026",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
+          "kind": "method",
+          "line": 1003,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "AiAutomationSources",
+          "parameters": [],
+          "returnType": "IEnumerable<SourceConfig>",
+          "summary": "Searches every registered connector for paid AI/automation implementation work. Topic matching finds the project; campaign-aware AI triage still requires explicit hire/pay intent so general AI discussion and product promotion never become leads.",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
           "description": "Content-studio trend sources (add-only; the operator owns them afterwards). Feed URLs verified live 2026-07-11.",
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 917,
+          "line": 1071,
           "modifiers": [
             "private",
             "static",
@@ -19066,7 +19385,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 965,
+          "line": 1119,
           "modifiers": [
             "private",
             "static"
@@ -19075,7 +19394,8 @@
           "parameters": [
             "string daysBack",
             "string[] feeds",
-            "string? triageProvider"
+            "string? triageProvider",
+            "string? requiredQueryPack"
           ],
           "returnType": "string",
           "typeParameters": []
@@ -19086,7 +19406,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 973,
+          "line": 1129,
           "modifiers": [
             "private",
             "static",
@@ -19107,7 +19427,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 992,
+          "line": 1148,
           "modifiers": [
             "private",
             "static",
@@ -19128,7 +19448,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "field",
-          "line": 1007,
+          "line": 1163,
           "modifiers": [
             "private",
             "static",
@@ -19144,7 +19464,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1021,
+          "line": 1177,
           "modifiers": [
             "private",
             "static",
@@ -19165,7 +19485,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1049,
+          "line": 1205,
           "modifiers": [
             "private",
             "static",
@@ -19186,7 +19506,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1075,
+          "line": 1231,
           "modifiers": [
             "private",
             "static",
@@ -19206,7 +19526,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1106,
+          "line": 1262,
           "modifiers": [
             "private",
             "static",
@@ -19227,7 +19547,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1117,
+          "line": 1273,
           "modifiers": [
             "private",
             "static",
@@ -19747,7 +20067,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
           "kind": "method",
-          "line": 92,
+          "line": 98,
           "modifiers": [
             "public",
             "static",
@@ -20846,7 +21166,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 383,
+          "line": 385,
           "modifiers": [
             "private"
           ],
@@ -20870,7 +21190,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 513,
+          "line": 515,
           "modifiers": [
             "private"
           ],
@@ -20889,7 +21209,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 535,
+          "line": 537,
           "modifiers": [
             "private",
             "static"
@@ -20908,7 +21228,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 542,
+          "line": 544,
           "modifiers": [
             "private",
             "static"
@@ -20923,11 +21243,29 @@
         },
         {
           "access": "private",
+          "description": "Updates english translation if retained.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
+          "kind": "method",
+          "line": 565,
+          "modifiers": [
+            "private"
+          ],
+          "name": "ApplyEnglishTranslationIfRetained",
+          "parameters": [
+            "Opportunity opp",
+            "AiTriageResult? ai"
+          ],
+          "returnType": "void",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
           "description": "Updates score.",
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 562,
+          "line": 584,
           "modifiers": [
             "private",
             "static"
@@ -20946,7 +21284,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 574,
+          "line": 597,
           "modifiers": [
             "public",
             "static"
@@ -20964,7 +21302,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 583,
+          "line": 606,
           "modifiers": [
             "private",
             "async"
@@ -20982,7 +21320,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "field",
-          "line": 586,
+          "line": 609,
           "modifiers": [
             "private"
           ],
@@ -20995,7 +21333,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 588,
+          "line": 611,
           "modifiers": [
             "private",
             "async"
@@ -21013,7 +21351,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "field",
-          "line": 591,
+          "line": 614,
           "modifiers": [
             "private",
             "readonly"
@@ -21027,7 +21365,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 593,
+          "line": 616,
           "modifiers": [
             "private",
             "async"
@@ -21046,7 +21384,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 601,
+          "line": 624,
           "modifiers": [
             "private",
             "static"
@@ -21064,7 +21402,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 604,
+          "line": 627,
           "modifiers": [
             "private",
             "static"
@@ -21083,7 +21421,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 619,
+          "line": 642,
           "modifiers": [
             "private",
             "static"
@@ -21102,7 +21440,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 643,
+          "line": 666,
           "modifiers": [
             "public",
             "async"
@@ -21122,7 +21460,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 657,
+          "line": 680,
           "modifiers": [
             "private",
             "static"
@@ -21141,7 +21479,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 674,
+          "line": 697,
           "modifiers": [
             "private",
             "async"
@@ -21160,7 +21498,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 683,
+          "line": 706,
           "modifiers": [
             "private",
             "static"
@@ -21178,7 +21516,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 689,
+          "line": 712,
           "modifiers": [
             "private",
             "static"
@@ -21196,7 +21534,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 692,
+          "line": 715,
           "modifiers": [
             "private",
             "async"
@@ -21216,7 +21554,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LeadIngestionService.cs",
           "kind": "method",
-          "line": 724,
+          "line": 747,
           "modifiers": [
             "private",
             "static"
@@ -21610,7 +21948,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
           "kind": "method",
-          "line": 169,
+          "line": 172,
           "modifiers": [
             "private",
             "async"
@@ -21631,7 +21969,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
           "kind": "method",
-          "line": 228,
+          "line": 231,
           "modifiers": [
             "public",
             "static"
@@ -21649,7 +21987,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
           "kind": "field",
-          "line": 234,
+          "line": 237,
           "modifiers": [
             "private",
             "static"
@@ -21663,7 +22001,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
           "kind": "field",
-          "line": 235,
+          "line": 238,
           "modifiers": [
             "private",
             "static"
@@ -21677,7 +22015,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
           "kind": "field",
-          "line": 236,
+          "line": 239,
           "modifiers": [
             "private",
             "static",
@@ -21692,7 +22030,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
           "kind": "method",
-          "line": 238,
+          "line": 241,
           "modifiers": [
             "private",
             "async"
@@ -21708,11 +22046,11 @@
         },
         {
           "access": "private",
-          "description": "One authenticated listing call covers import AND stats: score (upvotes), num_comments, removed_by_category (reddit-filter removals), full selftext, and view_count (populated\u2026",
+          "description": "Authenticated sync combines the submitted listing with one batched /api/info request. Reddit may still omit view_count; ViewCountKnown records that distinction.",
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
           "kind": "method",
-          "line": 281,
+          "line": 283,
           "modifiers": [
             "private",
             "async"
@@ -21724,8 +22062,50 @@
             "bool jobPostsOnly",
             "CancellationToken ct"
           ],
-          "returnType": "Task<(int Imported, int Refreshed)>",
-          "summary": "One authenticated listing call covers import AND stats: score (upvotes), num_comments, removed_by_category (reddit-filter removals), full selftext, and view_count (populated because the token belongs to the author).",
+          "returnType": "Task<(int Imported, int Refreshed, int ViewsReported)>",
+          "summary": "Authenticated sync combines the submitted listing with one batched /api/info request. Reddit may still omit view_count; ViewCountKnown records that distinction.",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Gets the fullest available representation for up to 100 posts in one official API call.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
+          "kind": "method",
+          "line": 397,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "GetPostDetailsAsync",
+          "parameters": [
+            "HttpClient http",
+            "string token",
+            "IEnumerable<string> fullnames",
+            "CancellationToken ct"
+          ],
+          "returnType": "Task<Dictionary<string, System.Text.Json.JsonElement>>",
+          "summary": "Gets the fullest available representation for up to 100 posts in one official API call.",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Handles try get non negative int.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
+          "kind": "method",
+          "line": 420,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "TryGetNonNegativeInt",
+          "parameters": [
+            "System.Text.Json.JsonElement data",
+            "string name",
+            "out int value"
+          ],
+          "returnType": "bool",
           "typeParameters": []
         },
         {
@@ -21734,7 +22114,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
           "kind": "method",
-          "line": 389,
+          "line": 437,
           "modifiers": [
             "public",
             "async"
@@ -21748,12 +22128,32 @@
           "typeParameters": []
         },
         {
+          "access": "public",
+          "description": "Marks a message read locally as soon as it is opened. For Reddit messages, also makes a best-effort official /api/read_message call when OAuth credentials exist.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
+          "kind": "method",
+          "line": 499,
+          "modifiers": [
+            "public",
+            "async"
+          ],
+          "name": "MarkMessageReadAsync",
+          "parameters": [
+            "long messageId",
+            "CancellationToken ct"
+          ],
+          "returnType": "Task<bool>",
+          "summary": "Marks a message read locally as soon as it is opened. For Reddit messages, also makes a best-effort official /api/read_message call when OAuth credentials exist. A remote failure never leaves an item unread after the operator read it here.",
+          "typeParameters": []
+        },
+        {
           "access": "private",
           "description": "Handles upsert inbox listing.",
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
           "kind": "method",
-          "line": 446,
+          "line": 547,
           "modifiers": [
             "private",
             "async"
@@ -21772,7 +22172,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
           "kind": "method",
-          "line": 527,
+          "line": 628,
           "modifiers": [
             "private",
             "static"
@@ -21791,7 +22191,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
           "kind": "method",
-          "line": 537,
+          "line": 638,
           "modifiers": [
             "private",
             "async"
@@ -21811,7 +22211,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
           "kind": "method",
-          "line": 614,
+          "line": 715,
           "modifiers": [
             "private",
             "static"
@@ -21830,7 +22230,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
           "kind": "method",
-          "line": 623,
+          "line": 724,
           "modifiers": [
             "private",
             "static"
@@ -21849,7 +22249,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
           "kind": "method",
-          "line": 639,
+          "line": 740,
           "modifiers": [
             "private",
             "async"
@@ -21868,7 +22268,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
           "kind": "method",
-          "line": 660,
+          "line": 761,
           "modifiers": [
             "public",
             "async"
@@ -21888,7 +22288,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
           "kind": "method",
-          "line": 742,
+          "line": 843,
           "modifiers": [
             "public",
             "async"
@@ -21909,7 +22309,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
           "kind": "method",
-          "line": 831,
+          "line": 932,
           "modifiers": [
             "public",
             "async"
@@ -21929,7 +22329,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
           "kind": "method",
-          "line": 895,
+          "line": 996,
           "modifiers": [
             "private",
             "static"
@@ -21948,7 +22348,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
           "kind": "method",
-          "line": 898,
+          "line": 999,
           "modifiers": [
             "private",
             "static"
@@ -21967,7 +22367,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
           "kind": "method",
-          "line": 908,
+          "line": 1009,
           "modifiers": [
             "private",
             "async"
@@ -21987,7 +22387,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
           "kind": "method",
-          "line": 977,
+          "line": 1078,
           "modifiers": [
             "private",
             "static"
@@ -22005,7 +22405,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
           "kind": "method",
-          "line": 981,
+          "line": 1082,
           "modifiers": [
             "private",
             "static"
@@ -22743,7 +23143,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "method",
-          "line": 138,
+          "line": 153,
           "modifiers": [
             "private",
             "async"
@@ -22764,7 +23164,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "method",
-          "line": 159,
+          "line": 174,
           "modifiers": [
             "private",
             "async"
@@ -22790,7 +23190,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "method",
-          "line": 234,
+          "line": 249,
           "modifiers": [
             "private",
             "async"
@@ -22814,7 +23214,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "method",
-          "line": 290,
+          "line": 305,
           "modifiers": [
             "private",
             "static"
@@ -22833,7 +23233,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "method",
-          "line": 296,
+          "line": 311,
           "modifiers": [
             "private",
             "static"
@@ -22852,7 +23252,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "method",
-          "line": 302,
+          "line": 317,
           "modifiers": [
             "private",
             "static"
@@ -22871,7 +23271,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "method",
-          "line": 307,
+          "line": 322,
           "modifiers": [
             "private",
             "static"
@@ -22890,7 +23290,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "method",
-          "line": 329,
+          "line": 344,
           "modifiers": [
             "private",
             "static"
@@ -22901,9 +23301,30 @@
             "int created",
             "int skipped",
             "ShortlistGate shortlist",
-            "int shortlistRejected"
+            "int shortlistRejected",
+            "int skippedByRequiredPack",
+            "string? requiredPack"
           ],
           "returnType": "string",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Handles matches any.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
+          "kind": "method",
+          "line": 365,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "MatchesAny",
+          "parameters": [
+            "RawSourceItem item",
+            "IReadOnlyCollection<string> terms"
+          ],
+          "returnType": "bool",
           "typeParameters": []
         },
         {
@@ -22912,7 +23333,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "method",
-          "line": 346,
+          "line": 371,
           "modifiers": [
             "private"
           ],
@@ -22929,7 +23350,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "method",
-          "line": 354,
+          "line": 379,
           "modifiers": [
             "private",
             "static"
@@ -22947,7 +23368,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "method",
-          "line": 357,
+          "line": 382,
           "modifiers": [
             "private",
             "async"
@@ -22966,7 +23387,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "method",
-          "line": 364,
+          "line": 389,
           "modifiers": [
             "private",
             "static"
@@ -22984,7 +23405,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "method",
-          "line": 380,
+          "line": 405,
           "modifiers": [
             "private",
             "static"
@@ -23004,7 +23425,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "method",
-          "line": 387,
+          "line": 412,
           "modifiers": [
             "private",
             "static"
@@ -23024,7 +23445,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "method",
-          "line": 394,
+          "line": 419,
           "modifiers": [
             "public",
             "async"
@@ -23043,7 +23464,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "method",
-          "line": 404,
+          "line": 429,
           "modifiers": [
             "private",
             "static"
@@ -23062,7 +23483,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "method",
-          "line": 409,
+          "line": 434,
           "modifiers": [
             "private",
             "static"
@@ -23080,7 +23501,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "method",
-          "line": 411,
+          "line": 436,
           "modifiers": [
             "private",
             "static"
@@ -23115,7 +23536,7 @@
       "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
       "fullName": "DevLeads.Infrastructure.Services.SourceRunner.ShortlistGate",
       "kind": "class",
-      "line": 417,
+      "line": 442,
       "members": [
         {
           "access": "public",
@@ -23123,7 +23544,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "field",
-          "line": 419,
+          "line": 444,
           "modifiers": [
             "public",
             "static",
@@ -23138,7 +23559,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "constructor",
-          "line": 422,
+          "line": 447,
           "modifiers": [
             "public"
           ],
@@ -23161,7 +23582,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "property",
-          "line": 436,
+          "line": 461,
           "modifiers": [
             "public"
           ],
@@ -23177,7 +23598,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "property",
-          "line": 437,
+          "line": 462,
           "modifiers": [
             "public"
           ],
@@ -23193,7 +23614,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "property",
-          "line": 438,
+          "line": 463,
           "modifiers": [
             "public"
           ],
@@ -23209,7 +23630,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "property",
-          "line": 439,
+          "line": 464,
           "modifiers": [
             "public"
           ],
@@ -23225,7 +23646,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "property",
-          "line": 440,
+          "line": 465,
           "modifiers": [
             "public"
           ],
@@ -23241,7 +23662,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "property",
-          "line": 441,
+          "line": 466,
           "modifiers": [
             "public"
           ],
@@ -23254,7 +23675,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/SourceRunner.cs",
           "kind": "method",
-          "line": 443,
+          "line": 468,
           "modifiers": [
             "public"
           ],
@@ -23843,7 +24264,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
           "kind": "method",
-          "line": 223,
+          "line": 229,
           "modifiers": [
             "private",
             "static"
@@ -23879,7 +24300,7 @@
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
       "fullName": "DevLeads.Web.Api.ApiEndpoints.ManualLeadDto",
       "kind": "record class",
-      "line": 237,
+      "line": 243,
       "members": [],
       "modifiers": [
         "public"
@@ -23907,7 +24328,7 @@
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
       "fullName": "DevLeads.Web.Api.ApiEndpoints.DraftDto",
       "kind": "record class",
-      "line": 238,
+      "line": 244,
       "members": [],
       "modifiers": [
         "public"
@@ -23930,7 +24351,7 @@
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
       "fullName": "DevLeads.Web.Api.ApiEndpoints.QuoteDto",
       "kind": "record class",
-      "line": 239,
+      "line": 245,
       "members": [],
       "modifiers": [
         "public"
@@ -24772,7 +25193,7 @@
         "ComponentBase"
       ],
       "containingType": null,
-      "description": "Blazor component for my posts.",
+      "description": "Tracks the operator's posts, platform performance, optimization experiments, and received messages.",
       "descriptionSource": "curated",
       "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
       "fullName": "DevLeads.Web.Components.Pages.MyPosts",
@@ -24785,12 +25206,26 @@
       "line": 1,
       "members": [
         {
+          "access": "private",
+          "description": "Handles if.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
+          "kind": "method",
+          "line": 310,
+          "modifiers": [],
+          "name": "if",
+          "parameters": [
+            "p.Platform == \"reddit\" && !_redditApiConfigured"
+          ],
+          "returnType": "else"
+        },
+        {
           "access": "protected",
           "description": "Runs the component on initialized lifecycle step.",
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 390,
+          "line": 405,
           "modifiers": [
             "protected",
             "override",
@@ -24806,7 +25241,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 402,
+          "line": 418,
           "modifiers": [
             "private",
             "async"
@@ -24821,7 +25256,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 419,
+          "line": 435,
           "modifiers": [
             "private",
             "async"
@@ -24836,7 +25271,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 450,
+          "line": 466,
           "modifiers": [
             "private",
             "async"
@@ -24851,7 +25286,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 466,
+          "line": 482,
           "modifiers": [
             "private"
           ],
@@ -24865,7 +25300,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 476,
+          "line": 492,
           "modifiers": [
             "private"
           ],
@@ -24882,7 +25317,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 481,
+          "line": 497,
           "modifiers": [
             "private",
             "async"
@@ -24897,7 +25332,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 498,
+          "line": 514,
           "modifiers": [
             "private",
             "async"
@@ -24914,7 +25349,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 513,
+          "line": 529,
           "modifiers": [
             "private",
             "async"
@@ -24931,7 +25366,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 523,
+          "line": 539,
           "modifiers": [
             "private",
             "async"
@@ -24948,7 +25383,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 556,
+          "line": 572,
           "modifiers": [
             "private",
             "static"
@@ -24966,7 +25401,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 559,
+          "line": 575,
           "modifiers": [
             "private",
             "static"
@@ -24984,7 +25419,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 561,
+          "line": 577,
           "modifiers": [
             "private",
             "async"
@@ -24999,15 +25434,16 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 577,
+          "line": 593,
           "modifiers": [
-            "private"
+            "private",
+            "async"
           ],
           "name": "ToggleMessage",
           "parameters": [
-            "long id"
+            "OperatorMessage message"
           ],
-          "returnType": "void"
+          "returnType": "Task"
         },
         {
           "access": "private",
@@ -25015,7 +25451,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 579,
+          "line": 613,
           "modifiers": [
             "private",
             "async"
@@ -25030,7 +25466,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 603,
+          "line": 637,
           "modifiers": [
             "private",
             "async"
@@ -25047,7 +25483,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 614,
+          "line": 648,
           "modifiers": [
             "private",
             "async"
@@ -25065,7 +25501,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 625,
+          "line": 668,
           "modifiers": [
             "private",
             "static"
@@ -25082,7 +25518,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 634,
+          "line": 677,
           "modifiers": [
             "private",
             "static"
@@ -25099,7 +25535,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 642,
+          "line": 685,
           "modifiers": [
             "private",
             "async"
@@ -25114,7 +25550,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 652,
+          "line": 695,
           "modifiers": [
             "private",
             "async"
@@ -25129,7 +25565,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 675,
+          "line": 718,
           "modifiers": [
             "private"
           ],
@@ -25145,7 +25581,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 677,
+          "line": 720,
           "modifiers": [
             "private",
             "async"
@@ -25162,7 +25598,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 694,
+          "line": 737,
           "modifiers": [
             "private",
             "async"
@@ -25179,7 +25615,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 727,
+          "line": 771,
           "modifiers": [
             "private",
             "async"
@@ -25197,7 +25633,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 738,
+          "line": 782,
           "modifiers": [
             "private",
             "static"
@@ -25218,7 +25654,7 @@
       "routes": [
         "/myposts"
       ],
-      "summary": "Blazor component for my posts."
+      "summary": "Tracks the operator's posts, platform performance, optimization experiments, and received messages."
     },
     {
       "access": "public",
@@ -25570,7 +26006,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
           "kind": "method",
-          "line": 250,
+          "line": 267,
           "modifiers": [
             "protected",
             "override",
@@ -25586,7 +26022,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
           "kind": "method",
-          "line": 252,
+          "line": 269,
           "modifiers": [
             "private",
             "async"
@@ -25601,7 +26037,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
           "kind": "method",
-          "line": 273,
+          "line": 290,
           "modifiers": [
             "private"
           ],
@@ -25613,11 +26049,28 @@
         },
         {
           "access": "private",
+          "description": "Handles language label.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
+          "kind": "method",
+          "line": 302,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "LanguageLabel",
+          "parameters": [
+            "string? code"
+          ],
+          "returnType": "string"
+        },
+        {
+          "access": "private",
           "description": "Coordinates scoped.",
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
           "kind": "method",
-          "line": 285,
+          "line": 318,
           "modifiers": [
             "private",
             "async"
@@ -25635,7 +26088,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
           "kind": "method",
-          "line": 299,
+          "line": 332,
           "modifiers": [
             "private"
           ],
@@ -25649,7 +26102,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
           "kind": "method",
-          "line": 301,
+          "line": 334,
           "modifiers": [
             "private"
           ],
@@ -25665,7 +26118,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
           "kind": "method",
-          "line": 311,
+          "line": 344,
           "modifiers": [
             "private"
           ],
@@ -25679,7 +26132,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
           "kind": "method",
-          "line": 314,
+          "line": 347,
           "modifiers": [
             "private"
           ],
@@ -25693,7 +26146,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
           "kind": "method",
-          "line": 318,
+          "line": 351,
           "modifiers": [
             "private"
           ],
@@ -25710,7 +26163,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
           "kind": "method",
-          "line": 325,
+          "line": 358,
           "modifiers": [
             "private"
           ],
@@ -25726,7 +26179,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
           "kind": "method",
-          "line": 327,
+          "line": 360,
           "modifiers": [
             "private"
           ],
@@ -25742,7 +26195,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
           "kind": "method",
-          "line": 333,
+          "line": 366,
           "modifiers": [
             "private"
           ],
@@ -25758,7 +26211,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
           "kind": "method",
-          "line": 335,
+          "line": 368,
           "modifiers": [
             "private"
           ],
@@ -25772,7 +26225,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
           "kind": "method",
-          "line": 338,
+          "line": 371,
           "modifiers": [
             "private"
           ],
@@ -25788,7 +26241,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
           "kind": "method",
-          "line": 339,
+          "line": 372,
           "modifiers": [
             "private"
           ],
@@ -25804,7 +26257,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
           "kind": "method",
-          "line": 340,
+          "line": 373,
           "modifiers": [
             "private"
           ],
@@ -25818,7 +26271,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
           "kind": "method",
-          "line": 355,
+          "line": 388,
           "modifiers": [
             "private",
             "async"
@@ -25836,7 +26289,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
           "kind": "method",
-          "line": 368,
+          "line": 401,
           "modifiers": [
             "private",
             "async"
@@ -25853,7 +26306,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
           "kind": "method",
-          "line": 374,
+          "line": 407,
           "modifiers": [
             "private"
           ],
@@ -25867,7 +26320,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
           "kind": "method",
-          "line": 377,
+          "line": 410,
           "modifiers": [
             "private"
           ],
@@ -25884,7 +26337,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/OpportunityDetail.razor",
           "kind": "method",
-          "line": 388,
+          "line": 421,
           "modifiers": [
             "private",
             "static"

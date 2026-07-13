@@ -1,6 +1,6 @@
 # DevLeads AI Project Context
 
-> Generated; do not hand-edit. Schema 2, source digest `a9365f0f94ab9627f9bdfef359365d870c2f71e7c73e81b08e4f42563970a250`.
+> Generated; do not hand-edit. Schema 2, source digest `b4aacc3cf633a428ab2481f9447425f6c77e36fb5c39bad79c81a3226e4bc8d7`.
 > Regenerate with `python3 ai_hacks.py`; verify freshness with `python3 ai_hacks.py --check`.
 
 ## How to use this map
@@ -42,6 +42,7 @@ DevLeads.Web  ->  DevLeads.Infrastructure  ->  DevLeads.Core
 | AI triage schema, prompt, provider, model, retry, or budget behavior | `src/DevLeads.Core/Ai/IAiTriageProvider.cs`, `src/DevLeads.Core/AiTriageResult.cs`, `src/DevLeads.Core/Ai/AiTriagePrompts.cs`, `DevLeads.Infrastructure.Ai.AiTriageRouter` | `src/DevLeads.Infrastructure/Ai`, `DevLeads.Infrastructure.Services.SourceRunner.BatchTriageAsync`, `DevLeads.Infrastructure.Services.LeadIngestionService.IsOverAiBudgetAsync`, `src/DevLeads.Web/Components/Pages/Settings.razor` |
 | Outreach generation, approval, sending, follow-up, or suppression | `DevLeads.Infrastructure.Services.OutreachService`, `src/DevLeads.Core/Ai/OutreachPrompts.cs` | `DevLeads.Infrastructure.Services.LeadIngestionService.CreateDraft`, `src/DevLeads.Web/Components/Pages/Drafts.razor`, `src/DevLeads.Web/Components/Pages/OpportunityDetail.razor`, `src/DevLeads.Web/Api/ApiEndpoints.cs` Warning: Several outreach settings are persisted but not currently enforced; verify usages before assuming a UI setting changes runtime behavior. |
 | Content trend source, topic, or draft behavior | `DevLeads.Infrastructure.Services.TrendScanService`, `DevLeads.Infrastructure.Services.ContentStudioService`, `src/DevLeads.Core/Ai/ContentPrompts.cs` | `DevLeads.Infrastructure.Workers.ContentTrendWorker`, `DevLeads.Infrastructure.Data.DatabaseSeeder.SeedTrendSourcesAsync`, `src/DevLeads.Web/Components/Pages/Content.razor` |
+| My Posts metrics, Reddit sync, inbox messages, or read state | `DevLeads.Infrastructure.Services.OperatorPostService`, `src/DevLeads.Web/Components/Pages/MyPosts.razor` | `src/DevLeads.Core/Entities/OperatorPost.cs`, `src/DevLeads.Core/Entities/OperatorMessage.cs`, `src/DevLeads.Web/Components/Shared/PostPerformanceChart.razor`, `src/DevLeads.Web/Api/ApiEndpoints.cs` Warning: Reddit can omit view_count even for authenticated requests; preserve the difference between an observed zero and an unavailable count. Opening an unread message here must persist Read immediately. |
 | Blazor route or page behavior | `src/DevLeads.Web/Components/Pages`, `src/DevLeads.Web/Components/Routes.razor` | `src/DevLeads.Web/Components/Shared`, `src/DevLeads.Web/Components/Layout`, `src/DevLeads.Web/wwwroot/app.css` |
 | Automation API route or JSON contract | `DevLeads.Web.Api.ApiEndpoints.MapDevLeadsApi` | `src/DevLeads.Web/Program.cs`, `src/DevLeads.Core/Entities`, `src/DevLeads.Infrastructure/Services` Warning: The /api group disables antiforgery and currently has no authentication or authorization policy. |
 | Static web asset, reconnect, MIME, or restart behavior | `src/DevLeads.Web/DevLeads.Web.csproj`, `src/DevLeads.Web/Components/App.razor`, `src/DevLeads.Web/Components/Layout/ReconnectModal.razor`, `DevLeads.Web.AppRestartService.Restart` | `src/DevLeads.Web/Program.cs`, `src/DevLeads.Web/Components/Layout/ReconnectModal.razor.js` Warning: The project materializes selected framework, CSS, and component-module assets after build; validate served URLs and MIME types, not only compilation. |
@@ -128,6 +129,7 @@ Hourly cleanup rejects stale or non-hirable leads, marks overdue quotes, and opp
 - Trend items become TrendSignals only and never enter the lead/opportunity pipeline.
 - Operator-engaged and archived opportunities are never automatically purged by source/default cleanup.
 - SQLite DateTimeOffset values are persisted as sortable UTC ticks and enums as readable strings.
+- Unknown platform metrics are never presented as observed zero values, and opening an unread My Posts message persists it as Read.
 
 ## Type hierarchy
 
@@ -152,7 +154,7 @@ Hourly cleanup rejects stale or non-hirable leads, marks overdue quotes, and opp
 - `/content` → `Content` — Trend signals, suggested topics, and publishable draft management.
 - `/drafts` → `Drafts` — Outreach generation and human approval queues.
 - `/Error` → `Error` — Unhandled-error page.
-- `/myposts` → `MyPosts` — Blazor component for my posts.
+- `/myposts` → `MyPosts` — Tracks the operator's posts, platform performance, optimization experiments, and received messages.
 - `/not-found` → `NotFound` — Missing-route page.
 - `/opportunities` → `Opportunities` — Searchable and filterable lead-review queue.
 - `/opportunities/new` → `NewOpportunity` — Manual lead entry through the normal triage pipeline.
@@ -164,7 +166,7 @@ Hourly cleanup rejects stale or non-hirable leads, marks overdue quotes, and opp
 
 ## HTTP, DI, and data
 
-- HTTP endpoint groups: `/api/campaigns` (1), `/api/content` (6), `/api/myposts` (11), `/api/opportunities` (16), `/api/outreach` (4), `/api/quotes` (3), `/api/sources` (4), `/api/system` (1), `/favicon.ico` (1).
+- HTTP endpoint groups: `/api/campaigns` (1), `/api/content` (6), `/api/myposts` (12), `/api/opportunities` (16), `/api/outreach` (4), `/api/quotes` (3), `/api/sources` (4), `/api/system` (1), `/favicon.ico` (1).
 - Hosted workers: `DiscoveryWorker`, `ContentTrendWorker`.
 - EF DbSets: `AiTriageRuns`, `AuditEvents`, `Campaigns`, `ContentDrafts`, `ContentTopics`, `OperatorMessages`, `OperatorPostRevisions`, `OperatorPostSnapshots`, `OperatorPosts`, `OperatorSettings`, `Opportunities`, `OutreachAttempts`, `QueryPacks`, `Quotes`, `RawSourceItems`, `Skills`, `SourceConfigs`, `SuppressionEntries`, `TrendSignals`, `TrendSources`, `WorkSessions`.
 - Complete endpoint, registration, and relationship tables: `ROUTES_AND_DI.md`.
@@ -295,9 +297,10 @@ Every source-authored type and callable name is present. Full signatures and dat
 - **`RedFlagDetector`** — Flags posts that request unauthorized access, credential theft, malware, fraud, or otherwise carry ownership/authorization risk. (`src/DevLeads.Core/RedFlagDetector.cs:13`)
   - public `Scan` — Coordinates scan. _(inferred)_
 - **`ScoreBreakdown`** — The blended score plus its weighted components. (`src/DevLeads.Core/Scoring/OpportunityScorer.cs:6`)
-- **`ScoringInput`** — Inputs the scorer needs, decoupled from persistence. (`src/DevLeads.Core/Scoring/OpportunityScorer.cs:19`)
-- **`OpportunityScorer`** — Blends heuristic, AI, source-reputation, recency, stack-fit, business-value, reachability and trust signals into a single weighted opportunity score. (`src/DevLeads.Core/Scoring/OpportunityScorer.cs:54`)
+- **`ScoringInput`** — Inputs the scorer needs, decoupled from persistence. (`src/DevLeads.Core/Scoring/OpportunityScorer.cs:21`)
+- **`OpportunityScorer`** — Blends heuristic, AI, source-reputation, recency, stack-fit, business-value, reachability and trust signals into a single weighted opportunity score. (`src/DevLeads.Core/Scoring/OpportunityScorer.cs:59`)
   - public `Score` — Handles score. _(inferred)_
+  - public `IsNonEnglish` — Checks non english. _(inferred)_
   - private `PayHits` — Count of explicit "pay:" hits the pre-filter tagged (hire language, budgets, money amounts).
   - private `HasPaySignal` — Any evidence the poster would actually pay: pay-intent source, AI judgment, or pay language.
   - public `ToPriority` — Handles to priority. _(inferred)_
@@ -378,6 +381,7 @@ Every source-authored type and callable name is present. Full signatures and dat
   - public `AvailabilityMessage` — Human-readable explanation when IsAvailable is false.
   - private `IsPayIntent` — Job boards and hiring threads: the poster is already committed to paying.
   - public `TriageAsync` — Coordinates triage.
+  - private `DetectLanguage` — Handles detect language. _(inferred)_
   - private `Classify` — Handles classify. _(inferred)_
   - private `DetectStack` — Handles detect stack. _(inferred)_
   - private `AddIf` — Creates if. _(inferred)_
@@ -460,10 +464,13 @@ Every source-authored type and callable name is present. Full signatures and dat
   - private `SeedSourceConfigsAsync` — Creates source configs. _(inferred)_
   - private `BackfillLeadCampaignsAsync` — Assigns campaign-less leads to their source's campaign (manual/unknown → emergency).
   - private `IsLegacyDefaultSource` — Detects configs still carrying earlier seeded defaults so we can upgrade them in place.
+  - private `IsInitialAiTopicGate` — Checks initial ai topic gate. _(inferred)_
   - private `ApplySourceDefaults` — Reapplies seeded defaults, returning whether anything actually changed — a boot with…
+  - private `IsAdditiveHiringSubredditExpansion` — Checks additive hiring subreddit expansion. _(inferred)_
   - private `DefaultSources` — Handles default sources. _(inferred)_
   - private `EmergencySources` — Default sources are chosen for commercial intent: places where a business owner, manager…
   - private `ModernizationSources` — Sources for the.NET legacy modernization consulting campaign.
+  - private `AiAutomationSources` — Searches every registered connector for paid AI/automation implementation work.
   - private `SeedTrendSourcesAsync` — Content-studio trend sources (add-only; the operator owns them afterwards).
   - private `RssParams` — Handles rss params. _(inferred)_
   - private `RemoveRetiredSourcesAsync` — Deletes retired source configs and every item/lead they produced (e.g. GitHub Issues).
@@ -514,6 +521,7 @@ Every source-authored type and callable name is present. Full signatures and dat
   - private `CreateDraft` — Creates draft. _(inferred)_
   - private `ApplyPreFilter` — Updates pre filter. _(inferred)_
   - private `ApplyAiResult` — Updates ai result. _(inferred)_
+  - private `ApplyEnglishTranslationIfRetained` — Updates english translation if retained. _(inferred)_
   - private `ApplyScore` — Updates score. _(inferred)_
   - public `MapRecommendation` — Transforms or resolves recommendation. _(inferred)_
   - private `GetSettingsAsync` — Loads or resolves settings. _(inferred)_
@@ -541,8 +549,11 @@ Every source-authored type and callable name is present. Full signatures and dat
   - private `ImportSubmittedAsync` — Handles import submitted. _(inferred)_
   - public `HasApiCredentials` — Checks api credentials. _(inferred)_
   - private `GetAccessTokenAsync` — Loads or resolves access token. _(inferred)_
-  - private `SyncViaApiAsync` — One authenticated listing call covers import AND stats: score (upvotes), num_comments…
+  - private `SyncViaApiAsync` — Authenticated sync combines the submitted listing with one batched /api/info request.
+  - private `GetPostDetailsAsync` — Gets the fullest available representation for up to 100 posts in one official API call.
+  - private `TryGetNonNegativeInt` — Handles try get non negative int. _(inferred)_
   - public `SyncRedditInboxAsync` — Syncs the account's reddit inbox — DMs plus comment/post replies — into tracked messages.
+  - public `MarkMessageReadAsync` — Marks a message read locally as soon as it is opened.
   - private `UpsertInboxListingAsync` — Handles upsert inbox listing. _(inferred)_
   - private `GetString` — Loads or resolves string. _(inferred)_
   - private `UpsertInboxFeedAsync` — Anonymous fallback: the private inbox feed as Atom.
@@ -587,6 +598,7 @@ Every source-authored type and callable name is present. Full signatures and dat
   - private `ResolveTriageProvider` — Transforms or resolves triage provider. _(inferred)_
   - private `ResolveTriageSettings` — Transforms or resolves triage settings. _(inferred)_
   - private `BuildRunMessage` — Creates run message. _(inferred)_
+  - private `MatchesAny` — Handles matches any. _(inferred)_
   - private `BuildTerms` — Creates terms. _(inferred)_
   - private `PackNames` — Handles pack names. _(inferred)_
   - private `GetCampaignObjectiveAsync` — Loads or resolves campaign objective. _(inferred)_
@@ -597,7 +609,7 @@ Every source-authored type and callable name is present. Full signatures and dat
   - private `ResolveConnectorKey` — Transforms or resolves connector key. _(inferred)_
   - private `TrimJsonString` — Transforms or resolves json string. _(inferred)_
   - private `Compact` — Transforms or resolves compact. _(inferred)_
-- **`ShortlistGate`** — Represents shortlist gate. _(inferred)_ (`src/DevLeads.Infrastructure/Services/SourceRunner.cs:417`)
+- **`ShortlistGate`** — Represents shortlist gate. _(inferred)_ (`src/DevLeads.Infrastructure/Services/SourceRunner.cs:442`)
   - public `ShouldRecordRawOnly` — Checks record raw only. _(inferred)_
 - **`TrendScanService`** — Polls trend sources (release feeds, vendor blogs, HN, subreddits) and stores skill-relevant items as TrendSignals ranked by hotness. (`src/DevLeads.Infrastructure/Services/TrendScanService.cs:16`)
   - public `RunDueAsync` — Runs every enabled trend source that is due. Returns new signal count.
@@ -620,9 +632,9 @@ Every source-authored type and callable name is present. Full signatures and dat
 - **`ApiEndpoints`** — Internal HTTP API used for automation and integration (the UI calls services directly). (`src/DevLeads.Web/Api/ApiEndpoints.cs:9`)
   - public `MapDevLeadsApi` — Transforms or resolves dev leads api. _(inferred)_
   - private `MapStatusAction` — Transforms or resolves status action. _(inferred)_
-- **`ManualLeadDto`** — Transfers manual lead data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:237`)
-- **`DraftDto`** — Transfers draft data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:238`)
-- **`QuoteDto`** — Transfers quote data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:239`)
+- **`ManualLeadDto`** — Transfers manual lead data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:243`)
+- **`DraftDto`** — Transfers draft data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:244`)
+- **`QuoteDto`** — Transfers quote data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:245`)
 - **`AppRestartService`** — Full-process restart so the app picks up the latest code. Spawns a detached supervisor script that waits for this process to exit, rebuilds the… (`src/DevLeads.Web/AppRestartService.cs:12`)
   - public `Restart` — Schedules the restart. Returns an error message, or null when underway.
 - **`App : ComponentBase`** — Blazor component for app. (`src/DevLeads.Web/Components/App.razor:1`)
@@ -662,7 +674,8 @@ Every source-authored type and callable name is present. Full signatures and dat
   - protected `OnInitializedAsync` — Runs the component on initialized lifecycle step. _(inferred)_
   - private `IsDashboardLead` — Checks dashboard lead. _(inferred)_
   - private `DashboardDuplicateKey` — Handles dashboard duplicate key. _(inferred)_
-- **`MyPosts : ComponentBase`** — Blazor component for my posts. (`src/DevLeads.Web/Components/Pages/MyPosts.razor:1`)
+- **`MyPosts : ComponentBase`** — Tracks the operator's posts, platform performance, optimization experiments, and received messages. (`src/DevLeads.Web/Components/Pages/MyPosts.razor:1`)
+  - private `if` — Handles if. _(inferred)_
   - protected `OnInitializedAsync` — Runs the component on initialized lifecycle step. _(inferred)_
   - private `DraftWithAi` — Handles draft with ai. _(inferred)_
   - private `Load` — Loads or resolves load. _(inferred)_
@@ -710,6 +723,7 @@ Every source-authored type and callable name is present. Full signatures and dat
   - protected `OnParametersSetAsync` — Runs the component on parameters set lifecycle step. _(inferred)_
   - private `Load` — Loads or resolves load. _(inferred)_
   - private `LoadChecklist` — Loads or resolves checklist. _(inferred)_
+  - private `LanguageLabel` — Handles language label. _(inferred)_
   - private `RunScoped` — Coordinates scoped. _(inferred)_
   - private `Rerun` — Handles rerun. _(inferred)_
   - private `Status` — Handles status. _(inferred)_
@@ -778,6 +792,6 @@ Every source-authored type and callable name is present. Full signatures and dat
 ## Completeness
 
 - 148 source-authored C# types and Razor components.
-- 469 source-authored callable members.
-- 14 Blazor page routes; 47 HTTP endpoints; 21 EF DbSets.
-- Full indexed source: 733,421 characters (~183,355 tokens).
+- 481 source-authored callable members.
+- 14 Blazor page routes; 48 HTTP endpoints; 21 EF DbSets.
+- Full indexed source: 762,941 characters (~190,735 tokens).

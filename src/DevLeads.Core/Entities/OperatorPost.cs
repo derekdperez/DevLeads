@@ -36,11 +36,14 @@ public class OperatorPost
     /// <summary>Upvotes/score last observed (requires the authenticated reddit API).</summary>
     public int UpvoteCount { get; set; }
 
-    /// <summary>
-    /// Views, where knowable. Reddit only shows view counts to the logged-in author, so
-    /// for reddit this is operator-entered; platforms with public counts can sync it.
-    /// </summary>
+    /// <summary>Views last reported by the platform or explicitly entered by the operator.</summary>
     public int ViewCount { get; set; }
+
+    /// <summary>
+    /// Distinguishes an observed count of zero from a platform that did not expose a
+    /// view count. Reddit commonly omits this value even from authenticated listings.
+    /// </summary>
+    public bool ViewCountKnown { get; set; }
 
     /// <summary>AI summary of the thread (main points + suggested way forward as OP).</summary>
     public string ThreadSummary { get; set; } = "";

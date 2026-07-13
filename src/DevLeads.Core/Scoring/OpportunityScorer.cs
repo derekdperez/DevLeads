@@ -11,6 +11,8 @@ public sealed class ScoreBreakdown
     public double ReachabilityScore { get; set; }
     public double CompetitionScore { get; set; }
     public double TrustScore { get; set; }
+    /// <summary>Points removed when the original post is not English.</summary>
+    public double LanguagePenalty { get; set; }
     public double Total { get; set; }
     public Priority Priority { get; set; }
 }
@@ -24,6 +26,9 @@ public sealed class ScoringInput
     public DateTimeOffset PostedAt { get; set; }
     public bool RedFlagged { get; set; }
     public bool HasContact { get; set; }
+
+    /// <summary>Predominant language of the original post; non-English adds response friction.</summary>
+    public string LanguageCode { get; set; } = "en";
 
     /// <summary>
     /// Skills from the operator profile that matched this lead's text/stack.
@@ -55,6 +60,7 @@ public static class OpportunityScorer
 {
     // Weights from the design document.
     private const double WUrgency = 0.25, WStack = 0.20, WBusiness = 0.20, WReach = 0.15, WCompetition = 0.10, WTrust = 0.10;
+    public const double NonEnglishPenalty = 8;
 
     private static readonly string[] PreferredStack =
         { ".net", "asp.net", "blazor", "iis", "sql server", "sqlserver", "azure" };
@@ -95,6 +101,15 @@ public static class OpportunityScorer
             var freshness = ageDays <= 7 ? 1.0 : ageDays <= 30 ? 0.9 : ageDays <= 90 ? 0.75 : 0.6;
             b.Total *= freshness;
         }
+
+        // Worldwide work is still eligible, but a language barrier adds response and
+        // clarification friction. Apply the penalty before thresholds/priority so only
+        // otherwise-strong foreign-language leads survive into the review queue.
+        if (IsNonEnglish(input.LanguageCode))
+        {
+            b.LanguagePenalty = NonEnglishPenalty;
+            b.Total = Math.Max(0, b.Total - b.LanguagePenalty);
+        }
         b.Total = Math.Round(b.Total, 1);
 
         // A lead with no willingness-to-pay signal from any layer (source, AI judgment,
@@ -133,6 +148,11 @@ public static class OpportunityScorer
         b.Priority = ToPriority(b.Total);
         return b;
     }
+
+    public static bool IsNonEnglish(string? languageCode) =>
+        !string.IsNullOrWhiteSpace(languageCode) &&
+        !languageCode.Equals("en", StringComparison.OrdinalIgnoreCase) &&
+        !languageCode.Equals("eng", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>Count of explicit "pay:" hits the pre-filter tagged (hire language, budgets, money amounts).</summary>
     private static int PayHits(ScoringInput i) =>

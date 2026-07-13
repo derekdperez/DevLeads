@@ -9,7 +9,7 @@
 | /content | Content | Trend signals, suggested topics, and publishable draft management. | IDbContextFactory<DevLeadsDbContext>, IServiceScopeFactory, IJSRuntime |
 | /drafts | Drafts | Outreach generation and human approval queues. | IDbContextFactory<DevLeadsDbContext>, IServiceScopeFactory |
 | /Error | Error | Unhandled-error page. |  |
-| /myposts | MyPosts | Blazor component for my posts. | IDbContextFactory<DevLeadsDbContext>, IServiceScopeFactory |
+| /myposts | MyPosts | Tracks the operator's posts, platform performance, optimization experiments, and received messages. | IDbContextFactory<DevLeadsDbContext>, IServiceScopeFactory |
 | /not-found | NotFound | Missing-route page. |  |
 | /opportunities | Opportunities | Searchable and filterable lead-review queue. | IDbContextFactory<DevLeadsDbContext>, IServiceScopeFactory |
 | /opportunities/new | NewOpportunity | Manual lead entry through the normal triage pipeline. | IServiceScopeFactory, IDbContextFactory<DevLeadsDbContext>, NavigationManager |
@@ -33,7 +33,8 @@
 | GET | /api/myposts | MapDevLeadsApi | Reads myposts. | src/DevLeads.Web/Api/ApiEndpoints.cs:152 |
 | POST | /api/myposts/draft | MapDevLeadsApi | Runs the draft action. | src/DevLeads.Web/Api/ApiEndpoints.cs:164 |
 | GET | /api/myposts/messages | MapDevLeadsApi | Reads messages. | src/DevLeads.Web/Api/ApiEndpoints.cs:192 |
-| POST | /api/myposts/messages/{id:long}/status | MapDevLeadsApi | Runs the status action. | src/DevLeads.Web/Api/ApiEndpoints.cs:200 |
+| POST | /api/myposts/messages/{id:long}/read | MapDevLeadsApi | Runs the read action. | src/DevLeads.Web/Api/ApiEndpoints.cs:200 |
+| POST | /api/myposts/messages/{id:long}/status | MapDevLeadsApi | Runs the status action. | src/DevLeads.Web/Api/ApiEndpoints.cs:203 |
 | POST | /api/myposts/optimize | MapDevLeadsApi | Runs the optimize action. | src/DevLeads.Web/Api/ApiEndpoints.cs:169 |
 | GET | /api/myposts/revisions | MapDevLeadsApi | Reads revisions. | src/DevLeads.Web/Api/ApiEndpoints.cs:176 |
 | POST | /api/myposts/revisions/{id:long}/apply | MapDevLeadsApi | Runs the apply action. | src/DevLeads.Web/Api/ApiEndpoints.cs:179 |
@@ -68,7 +69,7 @@
 | POST | /api/sources/run-all | MapDevLeadsApi | Runs the run all action. | src/DevLeads.Web/Api/ApiEndpoints.cs:100 |
 | POST | /api/sources/{key}/run-now | MapDevLeadsApi | Runs the run now action. | src/DevLeads.Web/Api/ApiEndpoints.cs:120 |
 | POST | /api/sources/{key}/test | MapDevLeadsApi | Runs the test action. | src/DevLeads.Web/Api/ApiEndpoints.cs:118 |
-| POST | /api/system/restart | MapDevLeadsApi | Runs the restart action. | src/DevLeads.Web/Api/ApiEndpoints.cs:213 |
+| POST | /api/system/restart | MapDevLeadsApi | Runs the restart action. | src/DevLeads.Web/Api/ApiEndpoints.cs:219 |
 | GET | /favicon.ico | startup | Reads favicon.ico. | src/DevLeads.Web/Program.cs:43 |
 
 ## Dependency injection
@@ -78,37 +79,37 @@
 | DbContextFactory | IDbContextFactory<DevLeadsDbContext> | DevLeadsDbContext | src/DevLeads.Infrastructure/DependencyInjection.cs:24 |
 | Scoped | DevLeadsDbContext | IDbContextFactory<DevLeadsDbContext | src/DevLeads.Infrastructure/DependencyInjection.cs:25 |
 | HttpClient | named HttpClient | HttpClient | src/DevLeads.Infrastructure/DependencyInjection.cs:29 |
-| Transient | ISourceConnector | RssConnector | src/DevLeads.Infrastructure/DependencyInjection.cs:41 |
-| Transient | ISourceConnector | HackerNewsConnector | src/DevLeads.Infrastructure/DependencyInjection.cs:42 |
-| Transient | ISourceConnector | StackExchangeConnector | src/DevLeads.Infrastructure/DependencyInjection.cs:43 |
-| Transient | ISourceConnector | RemotiveConnector | src/DevLeads.Infrastructure/DependencyInjection.cs:44 |
-| Transient | ISourceConnector | RedditConnector | src/DevLeads.Infrastructure/DependencyInjection.cs:45 |
-| Transient | ISourceConnector | OpireConnector | src/DevLeads.Infrastructure/DependencyInjection.cs:46 |
-| Transient | ISourceConnector | GitHubSearchConnector | src/DevLeads.Infrastructure/DependencyInjection.cs:47 |
-| Scoped | IQueryPackProvider | DbQueryPackProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:50 |
-| Scoped | HeuristicPreFilter | HeuristicPreFilter | src/DevLeads.Infrastructure/DependencyInjection.cs:51 |
-| Singleton | HeuristicTriageProvider | HeuristicTriageProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:59 |
-| Singleton | AnthropicTriageProvider | AnthropicTriageProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:60 |
-| Singleton | OpenCodeTriageProvider | OpenCodeTriageProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:61 |
-| Singleton | CodexCliProvider | CodexCliProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:62 |
-| Singleton | IAiTriageProvider | OpenCodeTriageProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:63 |
-| Singleton | IAiTriageProvider | CodexCliProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:64 |
-| Singleton | IAiTriageProvider | AnthropicTriageProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:65 |
-| Singleton | IAiTriageProvider | HeuristicTriageProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:66 |
-| Singleton | AiTriageRouter | AiTriageRouter | src/DevLeads.Infrastructure/DependencyInjection.cs:67 |
-| Singleton | AiTextRouter | AiTextRouter | src/DevLeads.Infrastructure/DependencyInjection.cs:68 |
-| Singleton | DiscoveryActivityTracker | DiscoveryActivityTracker | src/DevLeads.Infrastructure/DependencyInjection.cs:71 |
-| Scoped | AuditService | AuditService | src/DevLeads.Infrastructure/DependencyInjection.cs:74 |
-| Scoped | LeadIngestionService | LeadIngestionService | src/DevLeads.Infrastructure/DependencyInjection.cs:75 |
-| Scoped | OutreachService | OutreachService | src/DevLeads.Infrastructure/DependencyInjection.cs:76 |
-| Scoped | QuoteService | QuoteService | src/DevLeads.Infrastructure/DependencyInjection.cs:77 |
-| Scoped | SourceRunner | SourceRunner | src/DevLeads.Infrastructure/DependencyInjection.cs:78 |
-| Scoped | MaintenanceService | MaintenanceService | src/DevLeads.Infrastructure/DependencyInjection.cs:79 |
-| Scoped | TrendScanService | TrendScanService | src/DevLeads.Infrastructure/DependencyInjection.cs:80 |
-| Scoped | ContentStudioService | ContentStudioService | src/DevLeads.Infrastructure/DependencyInjection.cs:81 |
-| Scoped | OperatorPostService | OperatorPostService | src/DevLeads.Infrastructure/DependencyInjection.cs:82 |
-| HostedService | IHostedService | DiscoveryWorker | src/DevLeads.Infrastructure/DependencyInjection.cs:85 |
-| HostedService | IHostedService | ContentTrendWorker | src/DevLeads.Infrastructure/DependencyInjection.cs:86 |
+| Transient | ISourceConnector | RssConnector | src/DevLeads.Infrastructure/DependencyInjection.cs:47 |
+| Transient | ISourceConnector | HackerNewsConnector | src/DevLeads.Infrastructure/DependencyInjection.cs:48 |
+| Transient | ISourceConnector | StackExchangeConnector | src/DevLeads.Infrastructure/DependencyInjection.cs:49 |
+| Transient | ISourceConnector | RemotiveConnector | src/DevLeads.Infrastructure/DependencyInjection.cs:50 |
+| Transient | ISourceConnector | RedditConnector | src/DevLeads.Infrastructure/DependencyInjection.cs:51 |
+| Transient | ISourceConnector | OpireConnector | src/DevLeads.Infrastructure/DependencyInjection.cs:52 |
+| Transient | ISourceConnector | GitHubSearchConnector | src/DevLeads.Infrastructure/DependencyInjection.cs:53 |
+| Scoped | IQueryPackProvider | DbQueryPackProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:56 |
+| Scoped | HeuristicPreFilter | HeuristicPreFilter | src/DevLeads.Infrastructure/DependencyInjection.cs:57 |
+| Singleton | HeuristicTriageProvider | HeuristicTriageProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:65 |
+| Singleton | AnthropicTriageProvider | AnthropicTriageProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:66 |
+| Singleton | OpenCodeTriageProvider | OpenCodeTriageProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:67 |
+| Singleton | CodexCliProvider | CodexCliProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:68 |
+| Singleton | IAiTriageProvider | OpenCodeTriageProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:69 |
+| Singleton | IAiTriageProvider | CodexCliProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:70 |
+| Singleton | IAiTriageProvider | AnthropicTriageProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:71 |
+| Singleton | IAiTriageProvider | HeuristicTriageProvider | src/DevLeads.Infrastructure/DependencyInjection.cs:72 |
+| Singleton | AiTriageRouter | AiTriageRouter | src/DevLeads.Infrastructure/DependencyInjection.cs:73 |
+| Singleton | AiTextRouter | AiTextRouter | src/DevLeads.Infrastructure/DependencyInjection.cs:74 |
+| Singleton | DiscoveryActivityTracker | DiscoveryActivityTracker | src/DevLeads.Infrastructure/DependencyInjection.cs:77 |
+| Scoped | AuditService | AuditService | src/DevLeads.Infrastructure/DependencyInjection.cs:80 |
+| Scoped | LeadIngestionService | LeadIngestionService | src/DevLeads.Infrastructure/DependencyInjection.cs:81 |
+| Scoped | OutreachService | OutreachService | src/DevLeads.Infrastructure/DependencyInjection.cs:82 |
+| Scoped | QuoteService | QuoteService | src/DevLeads.Infrastructure/DependencyInjection.cs:83 |
+| Scoped | SourceRunner | SourceRunner | src/DevLeads.Infrastructure/DependencyInjection.cs:84 |
+| Scoped | MaintenanceService | MaintenanceService | src/DevLeads.Infrastructure/DependencyInjection.cs:85 |
+| Scoped | TrendScanService | TrendScanService | src/DevLeads.Infrastructure/DependencyInjection.cs:86 |
+| Scoped | ContentStudioService | ContentStudioService | src/DevLeads.Infrastructure/DependencyInjection.cs:87 |
+| Scoped | OperatorPostService | OperatorPostService | src/DevLeads.Infrastructure/DependencyInjection.cs:88 |
+| HostedService | IHostedService | DiscoveryWorker | src/DevLeads.Infrastructure/DependencyInjection.cs:91 |
+| HostedService | IHostedService | ContentTrendWorker | src/DevLeads.Infrastructure/DependencyInjection.cs:92 |
 | Singleton | DevLeads.Web.AppRestartService | DevLeads.Web.AppRestartService | src/DevLeads.Web/Program.cs:25 |
 
 ## EF Core DbSets

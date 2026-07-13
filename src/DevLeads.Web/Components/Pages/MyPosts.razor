@@ -172,8 +172,15 @@
 <div class="rr-panel">
     <div class="rr-panel-head">
         <h2>📊 Performance over time</h2>
-        <div class="rr-sub">reddit hides view counts from anonymous access — enter views from your reddit account regularly (💾 snapshots them) so this graph has data.</div>
+        <div class="rr-sub">View counts come from authenticated platform data when available, or from values you confirm manually. Unknown counts are never presented as zero.</div>
     </div>
+    @if (!_redditApiConfigured && _posts.Any(p => p.Platform == "reddit"))
+    {
+        <div class="rr-flash err" style="margin-bottom:.7rem">
+            Reddit view counts are unavailable without script-app credentials. Add them in
+            <a href="/settings">Settings</a>, or expand a post and enter the count shown in Reddit Post Insights.
+        </div>
+    }
     <PostPerformanceChart Posts="_posts" Snapshots="_snapshots" Revisions="_revisions" />
     @if (_revisions.Any(r => r.Status == OperatorPostRevisionStatus.Applied))
     {
@@ -246,7 +253,7 @@
                             <td class="rr-title-cell">@(m.OperatorPostId is { } pid ? _posts.FirstOrDefault(p => p.Id == pid)?.Title ?? "—" : "—")</td>
                             <td title="@m.ReceivedAt.LocalDateTime.ToString("f")">@m.ReceivedAt.LocalDateTime.ToString("MMM d, HH:mm")</td>
                             <td><span class="@MessageChip(m.Status)">@m.Status</span></td>
-                            <td><button class="rr-btn sm" @onclick="() => ToggleMessage(m.Id)">@(_openMessageId == m.Id ? "▲" : "▼")</button></td>
+                            <td><button class="rr-btn sm" @onclick="() => ToggleMessage(m)">@(_openMessageId == m.Id ? "▲" : "▼")</button></td>
                         </tr>
                         @if (_openMessageId == m.Id)
                         {
@@ -288,7 +295,7 @@
     {
         <div class="rr-table-scroll">
             <table class="rr-table">
-                <thead><tr><th>Platform</th><th>Post</th><th>Replies</th><th title="Synced from the authenticated reddit API (author-only data); add API credentials in Settings">Views</th><th title="Synced from the authenticated reddit API">Upvotes</th><th>Posted</th><th>Updated</th><th>Checked</th><th>Status</th><th></th></tr></thead>
+                <thead><tr><th>Platform</th><th>Post</th><th>Replies</th><th title="Synced when the platform reports it; otherwise confirm it manually from platform analytics">Views</th><th title="Synced from the authenticated reddit API">Upvotes</th><th>Posted</th><th>Updated</th><th>Checked</th><th>Status</th><th></th></tr></thead>
                 <tbody>
                     @foreach (var p in _posts)
                     {
@@ -298,7 +305,11 @@
                                 <a href="@p.Url" target="_blank" rel="noopener noreferrer">@p.Title ↗</a>
                             </td>
                             <td><strong>@p.ReplyCount</strong></td>
-                            <td>@(p.ViewCount > 0 ? p.ViewCount.ToString() : "—")</td>
+                            <td>
+                                @if (p.ViewCountKnown || p.ViewCount > 0) { <span>@p.ViewCount</span> }
+                                else if (p.Platform == "reddit" && !_redditApiConfigured) { <a href="/settings" title="Configure Reddit API credentials or enter this count manually">not available</a> }
+                                else { <span title="The platform did not report a view count">not reported</span> }
+                            </td>
                             <td>@(p.Platform == "reddit" ? p.UpvoteCount.ToString() : "—")</td>
                             <td title="@p.PostedAt.LocalDateTime.ToString("f")">@p.PostedAt.LocalDateTime.ToString("MMM d, HH:mm")</td>
                             <td title="@p.UpdatedAt.LocalDateTime.ToString("f")">@p.UpdatedAt.LocalDateTime.ToString("MMM d, HH:mm")</td>
@@ -319,8 +330,11 @@
                                         <input class="rr-input" @bind="p.Url" placeholder="https://…" />
                                     </div>
                                     <div class="rr-field">
-                                        <label>Views (from your platform account — reddit hides them from anonymous access)</label>
+                                        <label>Views (from platform analytics)</label>
                                         <input class="rr-input" type="number" @bind="p.ViewCount" />
+                                        <label class="rr-check" style="margin-top:.3rem">
+                                            <input type="checkbox" @bind="p.ViewCountKnown" /> This count is confirmed (including zero)
+                                        </label>
                                     </div>
                                     <div class="rr-field">
                                         <label>Upvotes (manual until reddit approves API access)</label>
@@ -382,6 +396,7 @@
     private string _newMsgPlatform = "upwork", _newMsgAuthor = "", _newMsgSubject = "", _newMsgBody = "";
     private string? _flash; private bool _flashOk = true;
     private string _redditUsername = "", _contactEmail = "";
+    private bool _redditApiConfigured;
     private string _optimizeModelLabel = "";
     private string _newPlatform = "upwork", _newCommunity = "", _newTitle = "", _newUrl = "", _newBody = "";
     private string _draftPlatform = "craigslist", _draftInstructions = "";
@@ -394,6 +409,7 @@
         var settings = await db.OperatorSettings.AsNoTracking().FirstOrDefaultAsync();
         _redditUsername = settings?.RedditUsername ?? "";
         _contactEmail = settings?.ContactEmail ?? "";
+        _redditApiConfigured = settings is not null && OperatorPostService.HasApiCredentials(settings);
         var (optProvider, optModel) = (settings ?? new OperatorSettings()).AiFor(AiFeature.PostOptimization);
         _optimizeModelLabel = $"{optProvider} · {optModel}";
         _campaigns = await db.Campaigns.AsNoTracking().OrderBy(c => c.Id).ToListAsync();
@@ -575,7 +591,25 @@
         finally { _busy = false; }
     }
 
-    private void ToggleMessage(long id) => _openMessageId = _openMessageId == id ? null : id;
+    private async Task ToggleMessage(OperatorMessage message)
+    {
+        if (_openMessageId == message.Id)
+        {
+            _openMessageId = null;
+            return;
+        }
+
+        _openMessageId = message.Id;
+        if (message.Status != OperatorMessageStatus.Unread) return;
+
+        // Opening the body is the read action. Update the row immediately so the unread
+        // count and styling are correct without waiting for another inbox sync.
+        message.Status = OperatorMessageStatus.Read;
+        message.UpdatedAt = DateTimeOffset.UtcNow;
+        using var scope = ScopeFactory.CreateScope();
+        await scope.ServiceProvider.GetRequiredService<OperatorPostService>()
+            .MarkMessageReadAsync(message.Id, default);
+    }
 
     private async Task AddMessage()
     {
@@ -614,6 +648,15 @@
 
     private async Task SetMessageStatus(OperatorMessage edited, OperatorMessageStatus status)
     {
+        if (status == OperatorMessageStatus.Read)
+        {
+            using var scope = ScopeFactory.CreateScope();
+            await scope.ServiceProvider.GetRequiredService<OperatorPostService>()
+                .MarkMessageReadAsync(edited.Id, default);
+            await Load();
+            return;
+        }
+
         await using var db = await DbFactory.CreateDbContextAsync();
         var m = await db.OperatorMessages.FirstOrDefaultAsync(x => x.Id == edited.Id);
         if (m is null) return;
@@ -718,6 +761,7 @@
             });
         }
         p.ViewCount = newViews;
+        p.ViewCountKnown = edited.ViewCountKnown || newViews > 0;
         p.UpvoteCount = newUpvotes;
         p.UpdatedAt = DateTimeOffset.UtcNow;
         await db.SaveChangesAsync();

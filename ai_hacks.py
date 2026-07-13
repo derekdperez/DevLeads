@@ -563,6 +563,7 @@ RAZOR_METHOD_RE = re.compile(
 def page_description(name: str) -> str:
     descriptions = {
         "Home": "Campaign-scoped dashboard with lead KPIs, activity, and top opportunities.",
+        "MyPosts": "Tracks the operator's posts, platform performance, optimization experiments, and received messages.",
         "Opportunities": "Searchable and filterable lead-review queue.",
         "OpportunityDetail": "Lead detail, triage, scoring, outreach, quotes, work tracking, and audit history.",
         "NewOpportunity": "Manual lead entry through the normal triage pipeline.",

@@ -29,12 +29,18 @@ public static class DependencyInjection
         services.AddHttpClient(ConnectorSupport.HttpClientName, client =>
         {
             client.Timeout = TimeSpan.FromSeconds(20);
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("UrgentLeads.DevLeads/1.0 (local lead discovery; contact: operator)");
+            // Reddit currently rate-limits the longer product-style identifier while this
+            // concise, transparent read-only identifier is accepted by its RSS endpoints.
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("DevLeads/1.0 (+read-only lead discovery)");
             client.DefaultRequestHeaders.Accept.ParseAdd("application/json");
         })
         .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
         {
-            AutomaticDecompression = DecompressionMethods.All
+            AutomaticDecompression = DecompressionMethods.All,
+            // Public connector APIs do not need session state. Reddit's edge assigns a
+            // sticky rate-limited bucket cookie, so retaining it turns later RSS polls into
+            // persistent 429s even while a stateless request succeeds.
+            UseCookies = false
         });
 
         // Connectors — read-only sources of real, public business/operator pain.

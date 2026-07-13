@@ -146,6 +146,27 @@ public static class DefaultQueryPacks
             "technical debt reduction", "migration consultant", "migration project"
         });
 
+    public static readonly QueryPackSeed AiAutomationProjects = new(
+        "AiAutomationProjects", "Commercial AI integration and business-automation project signals", true, false, new[]
+        {
+            // Concrete implementation work, intentionally avoiding bare "AI" / "automation"
+            // terms that would mostly collect news, product promotion, and tutorials.
+            "ai automation project", "ai integration project", "llm integration",
+            "openai integration", "anthropic integration", "rag implementation",
+            "rag pipeline", "build an ai agent", "ai agent development",
+            "custom ai agent", "custom chatbot", "chatbot development",
+            "document processing ai", "ai document processing", "ai proof of concept",
+            "machine learning consultant", "ai consultant needed", "ai developer needed",
+            "llm developer", "automation consultant", "automation developer",
+            // Business workflow platforms and outcomes that commonly become paid projects.
+            "workflow automation", "business process automation", "automate our workflow",
+            "automate my workflow", "automate our business", "automate my business",
+            "n8n automation", "n8n developer", "zapier automation", "zapier expert",
+            "make.com automation", "make.com expert", "power automate consultant",
+            "crm automation", "sales automation", "support automation",
+            "email automation", "data extraction automation", "api automation"
+        });
+
     public static readonly QueryPackSeed NegativeExclusions = new(
         "NegativeExclusions", "Low-commercial-value / educational exclusions", false, true, new[]
         {
@@ -166,6 +187,7 @@ public static class DefaultQueryPacks
     {
         EmergencyGeneric, DotNetSqlPriority, PaymentEcommerce, AgencyClientUrgency,
         SaaSApiAuth, InfraOps, WordPressHosting, ContractProjectWork, SupportPain,
-        HireIntent, PaidFeatureRequest, DotNetModernization, NegativeExclusions
+        HireIntent, PaidFeatureRequest, DotNetModernization, AiAutomationProjects,
+        NegativeExclusions
     };
 }

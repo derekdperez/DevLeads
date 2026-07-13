@@ -9,6 +9,18 @@ namespace DevLeads.Core;
 /// </summary>
 public sealed class AiTriageResult
 {
+    /// <summary>Predominant natural language of the original post as an ISO 639-1 code.</summary>
+    [JsonPropertyName("languageCode")]
+    public string LanguageCode { get; set; } = "en";
+
+    /// <summary>Faithful English title when the post is non-English; empty for English posts.</summary>
+    [JsonPropertyName("englishTitle")]
+    public string EnglishTitle { get; set; } = "";
+
+    /// <summary>Faithful English body when the post is non-English; empty for English posts.</summary>
+    [JsonPropertyName("englishBody")]
+    public string EnglishBody { get; set; } = "";
+
     [JsonPropertyName("isTechnicalProblem")]
     public bool IsTechnicalProblem { get; set; }
 

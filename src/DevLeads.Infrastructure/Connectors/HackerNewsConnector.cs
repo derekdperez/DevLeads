@@ -47,7 +47,7 @@ public sealed class HackerNewsConnector : ISourceConnector
                     var posted = hit.TryGetProperty("created_at", out var c) && c.ValueKind == JsonValueKind.String
                         ? DateTimeOffset.Parse(c.GetString()!) : DateTimeOffset.UtcNow;
 
-                    items[id] = ConnectorSupport.NewItem(SourceKey, id, title, body, storyUrl, author,
+                    items[id] = ConnectorSupport.NewItem(config.SourceKey, id, title, body, storyUrl, author,
                         author is null ? null : $"https://news.ycombinator.com/user?id={author}", posted, hit.GetRawText());
                     if (items.Count >= config.MaxItems) break;
                 }

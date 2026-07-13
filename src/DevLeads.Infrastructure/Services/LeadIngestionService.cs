@@ -368,6 +368,7 @@ public sealed class LeadIngestionService
             PostedAt = opp.PostedAt,
             RedFlagged = redFlag.IsRedFlagged,
             HasContact = !string.IsNullOrWhiteSpace(opp.AuthorProfileUrl),
+            LanguageCode = aiResult?.LanguageCode ?? "en",
             SkillMatches = skillMatches,
             OfferedAmount = offered?.Max,
             ClaimedByOthers = LeadQualityRules.IsAlreadyClaimed(competitionText),
@@ -377,6 +378,7 @@ public sealed class LeadIngestionService
         ApplyScore(opp, score);
 
         DecideStatusAndDraft(opp, aiResult, redFlag, settings, source, body, skillMatches, foreignStacks);
+        ApplyEnglishTranslationIfRetained(opp, aiResult);
         opp.UpdatedAt = DateTimeOffset.UtcNow;
     }
 
@@ -543,6 +545,7 @@ public sealed class LeadIngestionService
     {
         // Models occasionally emit null where the schema says string — never let that
         // reach the NOT NULL columns.
+        opp.LanguageCode = string.IsNullOrWhiteSpace(ai.LanguageCode) ? "en" : ai.LanguageCode;
         opp.ProblemType = ai.ProblemCategory ?? "";
         opp.PaymentIntent = ai.PaymentIntent ?? "";
         opp.AssistanceRequested = ai.AssistanceRequested;
@@ -559,6 +562,25 @@ public sealed class LeadIngestionService
             opp.Summary = ai.ProblemCategory + " — " + Truncate(ai.EstimatedCause, 200);
     }
 
+    private void ApplyEnglishTranslationIfRetained(Opportunity opp, AiTriageResult? ai)
+    {
+        if (ai is null || !OpportunityScorer.IsNonEnglish(ai.LanguageCode) ||
+            opp.Status is OpportunityStatus.Rejected or OpportunityStatus.PreFilteredRejected or OpportunityStatus.DoNotContact)
+            return;
+
+        if (string.IsNullOrWhiteSpace(ai.EnglishTitle) || string.IsNullOrWhiteSpace(ai.EnglishBody))
+        {
+            _audit.Record("Opportunity", opp.Id, "TranslationMissing",
+                $"Detected {ai.LanguageCode}, but the triage provider returned no complete English translation.");
+            return;
+        }
+
+        opp.Title = ai.EnglishTitle.Trim();
+        opp.TranslatedBody = ai.EnglishBody.Trim();
+        _audit.Record("Opportunity", opp.Id, "TranslatedToEnglish",
+            $"Original language {ai.LanguageCode}; English title and body stored for review.");
+    }
+
     private static void ApplyScore(Opportunity opp, ScoreBreakdown s)
     {
         opp.Score = s.Total;
@@ -568,6 +590,7 @@ public sealed class LeadIngestionService
         opp.ReachabilityScore = s.ReachabilityScore;
         opp.CompetitionScore = s.CompetitionScore;
         opp.TrustScore = s.TrustScore;
+        opp.LanguagePenalty = s.LanguagePenalty;
         opp.Priority = s.Priority;
     }
 

@@ -134,13 +134,16 @@ public sealed class OperatorPostService
             // Local first, so bodies heal even when reddit throttles the network calls.
             await BackfillCrossPostBodiesAsync(ct);
 
-            // Authenticated API when credentials exist: one call returns accurate
-            // upvotes, reply counts, removal state, and author-only view counts — the
-            // anonymous RSS path is the degraded fallback.
+            // Authenticated API when credentials exist: the submitted listing supplies
+            // post identity and public stats; /api/info is queried in one batch for the
+            // most complete per-post representation Reddit makes available.
             if (HasApiCredentials(settings))
             {
-                var (imported, refreshed) = await SyncViaApiAsync(settings, username, jobPostsOnly, ct);
-                var apiMessage = $"u/{username} (API): {imported} imported, {refreshed} post(s) updated with live stats.";
+                var (imported, refreshed, viewsReported) = await SyncViaApiAsync(settings, username, jobPostsOnly, ct);
+                var viewMessage = viewsReported > 0
+                    ? $" View counts were reported for {viewsReported} post(s)."
+                    : " Reddit did not expose view counts for these posts; enter them manually from Post Insights.";
+                var apiMessage = $"u/{username} (API): {imported} imported, {refreshed} post(s) updated with live stats.{viewMessage}";
                 _activity.RunCompleted("my_posts", healthy: true, apiMessage);
                 return (imported, refreshed, apiMessage);
             }
@@ -274,11 +277,10 @@ public sealed class OperatorPostService
     }
 
     /// <summary>
-    /// One authenticated listing call covers import AND stats: score (upvotes),
-    /// num_comments, removed_by_category (reddit-filter removals), full selftext, and
-    /// view_count (populated because the token belongs to the author).
+    /// Authenticated sync combines the submitted listing with one batched /api/info
+    /// request. Reddit may still omit view_count; ViewCountKnown records that distinction.
     /// </summary>
-    private async Task<(int Imported, int Refreshed)> SyncViaApiAsync(
+    private async Task<(int Imported, int Refreshed, int ViewsReported)> SyncViaApiAsync(
         OperatorSettings settings, string username, bool jobPostsOnly, CancellationToken ct)
     {
         var token = await GetAccessTokenAsync(settings, username, ct);
@@ -292,17 +294,23 @@ public sealed class OperatorPostService
             throw new InvalidOperationException($"Reddit API listing failed (HTTP {(int)resp.StatusCode}).");
 
         using var doc = System.Text.Json.JsonDocument.Parse(await resp.Content.ReadAsStringAsync(ct));
-        var children = doc.RootElement.GetProperty("data").GetProperty("children");
+        var submitted = doc.RootElement.GetProperty("data").GetProperty("children")
+            .EnumerateArray()
+            .Select(child => child.GetProperty("data").Clone())
+            .ToList();
+        var detailById = await GetPostDetailsAsync(http, token,
+            submitted.Select(d => GetString(d, "name")).Where(name => name.Length > 0), ct);
 
         var tracked = await _db.OperatorPosts.Where(p => p.Platform == "reddit").ToListAsync(ct);
         var byId = tracked.ToDictionary(p => p.ExternalId, StringComparer.OrdinalIgnoreCase);
         var now = DateTimeOffset.UtcNow;
-        int imported = 0, refreshed = 0;
+        int imported = 0, refreshed = 0, viewsReported = 0;
 
-        foreach (var child in children.EnumerateArray())
+        foreach (var submittedData in submitted)
         {
-            var d = child.GetProperty("data");
-            var id = d.GetProperty("id").GetString() ?? "";
+            var id = GetString(submittedData, "id");
+            var hasDetail = detailById.TryGetValue(id, out var detail);
+            var d = hasDetail ? detail : submittedData;
             var title = d.TryGetProperty("title", out var t) ? t.GetString() ?? "" : "";
             var community = d.TryGetProperty("subreddit", out var sr) ? sr.GetString() ?? "" : "";
             if (id.Length == 0) continue;
@@ -332,8 +340,10 @@ public sealed class OperatorPostService
 
             var upvotes = d.TryGetProperty("score", out var sc) ? sc.GetInt32() : post.UpvoteCount;
             var replies = d.TryGetProperty("num_comments", out var nc) ? nc.GetInt32() : post.ReplyCount;
-            var views = d.TryGetProperty("view_count", out var vc) && vc.ValueKind == System.Text.Json.JsonValueKind.Number
-                ? vc.GetInt32() : post.ViewCount; // null for non-author tokens — keep manual value
+            var hasViewCount = TryGetNonNegativeInt(d, "view_count", out var views);
+            if (!hasViewCount && hasDetail)
+                hasViewCount = TryGetNonNegativeInt(submittedData, "view_count", out views);
+            if (!hasViewCount) views = post.ViewCount;
 
             // removed_by_category: "reddit" = automated filters, "moderator", "deleted"…
             var removedBy = d.TryGetProperty("removed_by_category", out var rb) && rb.ValueKind == System.Text.Json.JsonValueKind.String
@@ -364,6 +374,11 @@ public sealed class OperatorPostService
             post.UpvoteCount = upvotes;
             post.ReplyCount = replies;
             post.ViewCount = views;
+            if (hasViewCount)
+            {
+                post.ViewCountKnown = true;
+                viewsReported++;
+            }
             post.LastCheckedAt = now;
             post.UpdatedAt = now;
             refreshed++;
@@ -375,7 +390,40 @@ public sealed class OperatorPostService
             _audit.Record("OperatorPost", 0, "RedditImported", $"Imported {imported} post(s) from u/{username} via API.");
             await _db.SaveChangesAsync(ct);
         }
-        return (imported, refreshed);
+        return (imported, refreshed, viewsReported);
+    }
+
+    /// <summary>Gets the fullest available representation for up to 100 posts in one official API call.</summary>
+    private async Task<Dictionary<string, System.Text.Json.JsonElement>> GetPostDetailsAsync(
+        HttpClient http, string token, IEnumerable<string> fullnames, CancellationToken ct)
+    {
+        var names = fullnames.Distinct(StringComparer.OrdinalIgnoreCase).Take(100).ToList();
+        if (names.Count == 0) return new(StringComparer.OrdinalIgnoreCase);
+
+        using var request = new HttpRequestMessage(HttpMethod.Get,
+            "https://oauth.reddit.com/api/info?id=" + Uri.EscapeDataString(string.Join(',', names)) + "&raw_json=1");
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        using var response = await http.SendAsync(request, ct);
+        if (!response.IsSuccessStatusCode)
+        {
+            _log.LogWarning("Reddit /api/info returned HTTP {Status}; using submitted-listing stats", (int)response.StatusCode);
+            return new(StringComparer.OrdinalIgnoreCase);
+        }
+
+        using var doc = System.Text.Json.JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
+        return doc.RootElement.GetProperty("data").GetProperty("children").EnumerateArray()
+            .Select(child => child.GetProperty("data"))
+            .Where(data => GetString(data, "id").Length > 0)
+            .ToDictionary(data => GetString(data, "id"), data => data.Clone(), StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static bool TryGetNonNegativeInt(System.Text.Json.JsonElement data, string name, out int value)
+    {
+        if (data.TryGetProperty(name, out var element) && element.ValueKind == System.Text.Json.JsonValueKind.Number &&
+            element.TryGetInt32(out value) && value >= 0)
+            return true;
+        value = 0;
+        return false;
     }
 
     /// <summary>
@@ -441,6 +489,59 @@ public sealed class OperatorPostService
             _activity.RunCompleted("my_messages", healthy: false, "Inbox sync failed: " + ex.Message);
             return (0, "Inbox sync failed: " + ex.Message);
         }
+    }
+
+    /// <summary>
+    /// Marks a message read locally as soon as it is opened. For Reddit messages, also
+    /// makes a best-effort official /api/read_message call when OAuth credentials exist.
+    /// A remote failure never leaves an item unread after the operator read it here.
+    /// </summary>
+    public async Task<bool> MarkMessageReadAsync(long messageId, CancellationToken ct)
+    {
+        var message = await _db.OperatorMessages.FirstOrDefaultAsync(m => m.Id == messageId, ct);
+        if (message is null) return false;
+
+        if (message.Status == OperatorMessageStatus.Unread)
+        {
+            message.Status = OperatorMessageStatus.Read;
+            message.UpdatedAt = DateTimeOffset.UtcNow;
+            await _db.SaveChangesAsync(ct);
+        }
+
+        if (!message.Platform.Equals("reddit", StringComparison.OrdinalIgnoreCase) ||
+            string.IsNullOrWhiteSpace(message.ExternalId))
+            return true;
+
+        var settings = await _db.OperatorSettings.AsNoTracking().FirstOrDefaultAsync(ct) ?? new OperatorSettings();
+        var username = settings.RedditUsername.Trim().TrimStart('u', '/').Trim('/');
+        if (!HasApiCredentials(settings) || username.Length == 0) return true;
+
+        try
+        {
+            var token = await GetAccessTokenAsync(settings, username, ct);
+            var http = _httpFactory.CreateClient(ConnectorSupport.HttpClientName);
+            using var request = new HttpRequestMessage(HttpMethod.Post, "https://oauth.reddit.com/api/read_message")
+            {
+                Content = new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    ["id"] = message.ExternalId
+                })
+            };
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            using var response = await http.SendAsync(request, ct);
+            if (!response.IsSuccessStatusCode)
+                _log.LogWarning("Reddit read_message returned HTTP {Status} for {ExternalId}",
+                    (int)response.StatusCode, message.ExternalId);
+        }
+        catch (OperationCanceledException) when (!ct.IsCancellationRequested)
+        {
+            _log.LogWarning("Reddit read_message timed out for {ExternalId}", message.ExternalId);
+        }
+        catch (Exception ex)
+        {
+            _log.LogWarning(ex, "Could not mark Reddit message {ExternalId} read upstream", message.ExternalId);
+        }
+        return true;
     }
 
     private async Task<int> UpsertInboxListingAsync(string json, CancellationToken ct)
