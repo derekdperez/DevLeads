@@ -90,6 +90,7 @@
                             <td><span class="@UiHelpers.PriorityClass(o.Priority)">@o.Priority</span></td>
                             <td class="rr-title-cell">
                                 <a href="opportunities/@o.Id">@o.Title</a>
+                                <div class="src" style="font-style:italic;font-weight:400">@UiHelpers.LeadBlurb(o)</div>
                                 <div class="src">
                                     @if (_campaign is null && o.CampaignId is { } cid && _campaignNames.TryGetValue(cid, out var cname))
                                     {
@@ -159,7 +160,7 @@
 
     private static readonly OpportunityStatus[] Dead =
         { OpportunityStatus.Rejected, OpportunityStatus.PreFilteredRejected, OpportunityStatus.Lost,
-          OpportunityStatus.DoNotContact, OpportunityStatus.Archived };
+          OpportunityStatus.DoNotContact, OpportunityStatus.Archived, OpportunityStatus.JustMissed };
 
     private static readonly FilterDef[] Filters =
     {
@@ -176,7 +177,9 @@
         new("high", "High+", o => o.Score >= 70),
         new("review", "Needs review", o => o.Status == OpportunityStatus.NeedsReview || o.AiJobStatus == AiJobStatus.NeedsManualReview),
         new("drafts", "Draft ready", o => o.Status == OpportunityStatus.DraftReady),
-        new("rejected", "Rejected", o => Dead.Contains(o.Status) && o.Status != OpportunityStatus.Archived),
+        new("justmissed", "Just missed", o => o.Status == OpportunityStatus.JustMissed),
+        new("rejected", "Rejected", o => Dead.Contains(o.Status) &&
+            o.Status is not OpportunityStatus.Archived and not OpportunityStatus.JustMissed),
         new("archived", "🗂 Archived", o => o.Status == OpportunityStatus.Archived),
         new("won", "Won/Paid", o => o.Status is OpportunityStatus.Won or OpportunityStatus.Paid),
         new("all", "All", _ => true),

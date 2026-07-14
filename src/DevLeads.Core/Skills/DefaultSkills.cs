@@ -21,9 +21,7 @@ public static class DefaultSkills
         S("Primary stack", "Blazor", 3, "blazor server\nblazor webassembly\nrazor components"),
         S("Primary stack", "Entity Framework", 3, "ef core\nefcore\nlinq"),
         S("Primary stack", "SQL Server", 3, "mssql\nsqlserver\nt-sql\nstored procedure"),
-        // Weight 2 + Backend on purpose: "REST API" appears in virtually every job post,
-        // so as a weight-3 "Primary stack" skill it made Go/Python jobs look like core
-        // .NET fits. It is a capability, not a stack identity.
+        // REST API is a transferable capability rather than a specific-stack specialty.
         S("Backend", "REST API", 2, "rest apis\nweb api\napi design\napi development"),
         S("Primary stack", "JavaScript", 2, "js\ntypescript"),
         S("Primary stack", "HTML", 2, "css\nhtml/css"),
@@ -49,7 +47,7 @@ public static class DefaultSkills
         S("Cloud & DevOps", "Docker", 2, "container\ndockerfile\ndocker compose"),
         S("Cloud & DevOps", "CI/CD", 2, "github actions\npipeline\ncontinuous integration\ncontinuous deployment"),
         S("Cloud & DevOps", "AWS", 2, "aws ecs\nfargate\nec2\ns3"),
-        // Azure lives in "Primary stack": for scoring it is stack identity, not tooling.
+        // Azure remains grouped with the operator's deepest .NET-era experience.
         S("Primary stack", "Azure", 3, "azure app service\nazure portal\napp service"),
         S("Cloud & DevOps", "Linux deployment", 2, "linux server\nubuntu server\nsystemd"),
         S("Cloud & DevOps", "Windows deployment", 2, "windows server\niis"),

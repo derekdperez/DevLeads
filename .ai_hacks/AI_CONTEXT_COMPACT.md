@@ -1,6 +1,6 @@
 # DevLeads AI Project Context
 
-> Generated; do not hand-edit. Schema 2, source digest `dff5eae8a0a2d5f0f6a6ba953372c5c0141165058295b55674a2a4335f92b348`.
+> Generated; do not hand-edit. Schema 2, source digest `6996e2cc148feac47d6c10b8a533995c1d23368672fc44b531f86cc9a17b9b19`.
 > Regenerate with `python3 ai_hacks.py`; verify freshness with `python3 ai_hacks.py --check`.
 
 ## How to use this map
@@ -17,7 +17,7 @@ Descriptions marked _(inferred)_ come from deterministic name/signature rules; a
 
 # Architecture and Navigation Guide
 
-A solo-operator Blazor application that discovers public paid software-work leads, triages and scores them, manages human-approved outreach and quotes, and turns separate trend signals into content drafts.
+A solo-operator Blazor application that discovers public paid software-work leads, triages and scores them, manages human-approved outreach and quotes, turns trend signals into content drafts, and manages an approved LinkedIn publishing and engagement workflow.
 
 ## Project dependency direction
 
@@ -43,6 +43,7 @@ DevLeads.Web  ->  DevLeads.Infrastructure  ->  DevLeads.Core
 | Outreach generation, approval, sending, follow-up, or suppression | `DevLeads.Infrastructure.Services.OutreachService`, `src/DevLeads.Core/Ai/OutreachPrompts.cs` | `DevLeads.Infrastructure.Services.LeadIngestionService.CreateDraft`, `src/DevLeads.Web/Components/Pages/Drafts.razor`, `src/DevLeads.Web/Components/Pages/OpportunityDetail.razor`, `src/DevLeads.Web/Api/ApiEndpoints.cs` Warning: Several outreach settings are persisted but not currently enforced; verify usages before assuming a UI setting changes runtime behavior. |
 | Content trend source, topic, or draft behavior | `DevLeads.Infrastructure.Services.TrendScanService`, `DevLeads.Infrastructure.Services.ContentStudioService`, `src/DevLeads.Core/Ai/ContentPrompts.cs` | `DevLeads.Infrastructure.Workers.ContentTrendWorker`, `DevLeads.Infrastructure.Data.DatabaseSeeder.SeedTrendSourcesAsync`, `src/DevLeads.Web/Components/Pages/Content.razor` |
 | My Posts metrics, Reddit sync, inbox messages, or read state | `DevLeads.Infrastructure.Services.OperatorPostService`, `src/DevLeads.Web/Components/Pages/MyPosts.razor` | `src/DevLeads.Core/Entities/OperatorPost.cs`, `src/DevLeads.Core/Entities/OperatorMessage.cs`, `src/DevLeads.Web/Components/Shared/PostPerformanceChart.razor`, `src/DevLeads.Web/Api/ApiEndpoints.cs` Warning: Reddit can omit view_count even for authenticated requests; preserve the difference between an observed zero and an unavailable count. Opening an unread message here must persist Read immediately. |
+| LinkedIn OAuth, scheduled publishing, comment monitoring, or engagement replies | `DevLeads.Infrastructure.Services.LinkedInService`, `src/DevLeads.Web/Components/Pages/LinkedIn.razor` | `src/DevLeads.Core/Ai/LinkedInPrompts.cs`, `src/DevLeads.Core/Entities/EngagementDraft.cs`, `src/DevLeads.Core/Entities/OperatorPost.cs`, `src/DevLeads.Core/Entities/OperatorSettings.cs`, `DevLeads.Infrastructure.Workers.DiscoveryWorker.TickAsync`, `DevLeads.Infrastructure.Services.AdvisorService.BuildAgendaAsync`, `src/DevLeads.Web/Api/ApiEndpoints.cs` Warning: Never treat a self-serve posting token as permission to read comments or private messages. OAuth callbacks must validate the short-lived state, scheduled publishing and replies must honor the global kill switch, and AI responses remain human-reviewed. |
 | Blazor route or page behavior | `src/DevLeads.Web/Components/Pages`, `src/DevLeads.Web/Components/Routes.razor` | `src/DevLeads.Web/Components/Shared`, `src/DevLeads.Web/Components/Layout`, `src/DevLeads.Web/wwwroot/app.css` |
 | Automation API route or JSON contract | `DevLeads.Web.Api.ApiEndpoints.MapDevLeadsApi` | `src/DevLeads.Web/Program.cs`, `src/DevLeads.Core/Entities`, `src/DevLeads.Infrastructure/Services` Warning: The /api group disables antiforgery and currently has no authentication or authorization policy. |
 | Static web asset, reconnect, MIME, or restart behavior | `src/DevLeads.Web/DevLeads.Web.csproj`, `src/DevLeads.Web/Components/App.razor`, `src/DevLeads.Web/Components/Layout/ReconnectModal.razor`, `DevLeads.Web.AppRestartService.Restart` | `src/DevLeads.Web/Program.cs`, `src/DevLeads.Web/Components/Layout/ReconnectModal.razor.js` Warning: The project materializes selected framework, CSS, and component-module assets after build; validate served URLs and MIME types, not only compilation. |
@@ -106,6 +107,16 @@ Poll trend-only sources into ranked signals, periodically suggest topics, and ge
 - Content generation injects OpenCode directly rather than using AiTriageRouter.
 - Automatic topic suggestions run at most once per day and only with enough fresh evidence; draft generation is operator-initiated.
 
+### LinkedIn profile management
+
+Connect the operator through state-protected member OAuth, generate/edit text posts, publish immediately or on a worker schedule, and turn approved comment activity or pasted private messages into reviewed response drafts.
+
+`DevLeads.Web.Components.Pages.LinkedIn` → `DevLeads.Web.Api.ApiEndpoints.MapDevLeadsApi` → `DevLeads.Infrastructure.Services.LinkedInService.CreateAuthorizationUrlAsync` → `DevLeads.Infrastructure.Services.LinkedInService.CompleteOAuthAsync` → `DevLeads.Infrastructure.Services.LinkedInService.PublishPostAsync` → `DevLeads.Infrastructure.Services.LinkedInService.SyncEngagementAsync` → `DevLeads.Infrastructure.Services.LinkedInService.GenerateEngagementBatchAsync` → `DevLeads.Infrastructure.Services.LinkedInService.PublishEngagementAsync` → `DevLeads.Infrastructure.Workers.DiscoveryWorker.TickAsync`
+
+- Scheduled LinkedIn publishing runs independently of lead discovery but still honors the global kill switch.
+- Comment reads require LinkedIn's restricted member-social read permission; self-serve posting does not grant that permission.
+- LinkedIn exposes no general member private-inbox API, so private messages are pasted for drafting and sent manually in LinkedIn.
+
 ### Recurring maintenance
 
 Hourly cleanup rejects stale or non-hirable leads, marks overdue quotes, and opportunistically generates queued outreach within the AI budget.
@@ -117,12 +128,15 @@ Hourly cleanup rejects stale or non-hirable leads, marks overdue quotes, and opp
 
 - Every visible opportunity must have a canonical original public SourceUrl.
 - A pay-intent signal must represent first-person ownership, explicit hire/pay language, or a concrete paid source; topic keywords such as payments or budget alone do not qualify a lead.
+- Explicit paid work ranks above networking leads, but a business owner or operator with a concrete hands-on request and implied future commercial potential may remain for human review even without current payment language; generic free-advice posts still do not qualify.
+- Candidates that pass safety and actionability gates but reach only 50–99% of their source opportunity threshold are retained as JustMissed for dashboard scoring review; they remain excluded from normal active-lead and automatic-outreach paths.
 - Automated discovery retains raw seen-item evidence for dedup even when no opportunity survives.
 - One canonical source URL represents at most one opportunity across connectors; near-duplicate checks additionally use source, host, normalized title, and shared clues.
 - Source query packs scope both discovery vocabulary and high-priority prefilter terms to the owning campaign.
 - Campaign objectives are passed into AI shortlist, triage, and outreach generation so relevance stays campaign-specific.
 - Red-flagged, resolved, promotional, reply-feed, autonomous-agent-task, and non-hirable vendor-support posts must not reach actionable outreach.
-- Foreign-stack work without an operator stack-identity match is rejected or score-capped; generic capabilities such as API work are not stack identity.
+- Technology stack is informational and only a light ranking preference; never reject or score-cap a lead solely because it lacks an operator skill-profile match. Paid-work quality, professional compensation, remote feasibility, competition, and poster reliability dominate.
+- Automated discovery ignores public posts older than 30 days before AI triage and removes untouched expired leads while retaining raw dedup evidence; manual and operator-engaged leads are preserved, and the dashboard excludes expired posts.
 - Non-English leads receive a language-friction score penalty before source thresholds; only survivors store/display an English translation, while the original source text remains available for verification.
 - Stated compensation overrides category-based fee estimates and is displayed as an offer rather than an estimate.
 - The selected unavailable AI provider falls back to Heuristic; the lead pipeline remains operable without external AI.
@@ -131,11 +145,14 @@ Hourly cleanup rejects stale or non-hirable leads, marks overdue quotes, and opp
 - Operator-engaged and archived opportunities are never automatically purged by source/default cleanup.
 - SQLite DateTimeOffset values are persisted as sortable UTC ticks and enums as readable strings.
 - Unknown platform metrics are never presented as observed zero values, and opening an unread My Posts message persists it as Read.
+- LinkedIn OAuth callbacks validate the stored short-lived state before exchanging a code, and access tokens are never returned by status endpoints or rendered into the page.
+- LinkedIn scheduled posts and public comment replies honor the global kill switch; AI-generated engagement responses require explicit operator publication.
+- LinkedIn comment monitoring requires an approved restricted read scope, while private inbox messages remain manual because the general member API does not expose them.
 
 ## Type hierarchy
 
 - `BackgroundService` → `ContentTrendWorker`, `DiscoveryWorker`
-- `ComponentBase` → `ActivityFeed`, `App`, `CampaignSwitcher`, `Campaigns`, `Content`, `Drafts`, `Error`, `Home`, `MyPosts`, `NavMenu`, `NewOpportunity`, `NotFound`, `Opportunities`, `OpportunityDetail`, `PostPerformanceChart`, `Quotes`, `ReconnectModal`, `Routes`, `Settings`, `SkillProfile`, `Sources`, `_Imports`
+- `ComponentBase` → `ActivityFeed`, `App`, `CampaignSwitcher`, `Campaigns`, `ClientDetail`, `Clients`, `Content`, `Drafts`, `Error`, `Home`, `LinkedIn`, `MyPosts`, `NavMenu`, `NewOpportunity`, `NotFound`, `Opportunities`, `OpportunityDetail`, `PlatformPresencePanel`, `PostPerformanceChart`, `Quotes`, `ReconnectModal`, `Routes`, `Settings`, `SkillProfile`, `Sources`, `Today`, `_Imports`
 - `DbContext` → `DevLeadsDbContext`
 - `IAiBatchShortlistProvider` → `CodexCliProvider`, `OpenCodeTriageProvider`
 - `IAiBatchTriageProvider` → `CodexCliProvider`, `OpenCodeTriageProvider`
@@ -152,9 +169,12 @@ Hourly cleanup rejects stale or non-hirable leads, marks overdue quotes, and opp
 
 - `/` → `Home` — Campaign-scoped dashboard with lead KPIs, activity, and top opportunities.
 - `/campaigns` → `Campaigns` — Campaign objectives and source/lead ownership management.
+- `/clients` → `Clients` — Blazor component for clients.
+- `/clients/{Id:long}` → `ClientDetail` — Blazor component for client detail.
 - `/content` → `Content` — Trend signals, suggested topics, and publishable draft management.
 - `/drafts` → `Drafts` — Outreach generation and human approval queues.
 - `/Error` → `Error` — Unhandled-error page.
+- `/linkedin` → `LinkedIn` — Blazor component for linked in.
 - `/myposts` → `MyPosts` — Tracks the operator's posts, platform performance, optimization experiments, and received messages.
 - `/not-found` → `NotFound` — Missing-route page.
 - `/opportunities` → `Opportunities` — Searchable and filterable lead-review queue.
@@ -164,12 +184,13 @@ Hourly cleanup rejects stale or non-hirable leads, marks overdue quotes, and opp
 - `/settings` → `Settings` — Operator, AI, safety, discovery, and restart settings.
 - `/skills` → `SkillProfile` — Operator skill-profile management.
 - `/sources` → `Sources` — Source configuration, health checks, and manual discovery runs.
+- `/today` → `Today` — Blazor component for today.
 
 ## HTTP, DI, and data
 
-- HTTP endpoint groups: `/api/campaigns` (1), `/api/content` (6), `/api/myposts` (12), `/api/opportunities` (16), `/api/outreach` (4), `/api/quotes` (3), `/api/sources` (4), `/api/system` (1), `/favicon.ico` (1).
+- HTTP endpoint groups: `/api/advisor` (2), `/api/campaigns` (1), `/api/clients` (2), `/api/content` (6), `/api/documents` (3), `/api/linkedin` (9), `/api/myposts` (12), `/api/opportunities` (17), `/api/outreach` (4), `/api/platforms` (4), `/api/quotes` (3), `/api/sources` (4), `/api/system` (1), `/favicon.ico` (1).
 - Hosted workers: `DiscoveryWorker`, `ContentTrendWorker`.
-- EF DbSets: `AiTriageRuns`, `AuditEvents`, `Campaigns`, `ContentDrafts`, `ContentTopics`, `OperatorMessages`, `OperatorPostRevisions`, `OperatorPostSnapshots`, `OperatorPosts`, `OperatorSettings`, `Opportunities`, `OutreachAttempts`, `QueryPacks`, `Quotes`, `RawSourceItems`, `Skills`, `SourceConfigs`, `SuppressionEntries`, `TrendSignals`, `TrendSources`, `WorkSessions`.
+- EF DbSets: `AdvisorBriefings`, `AiTriageRuns`, `AuditEvents`, `Campaigns`, `ClientInteractions`, `Clients`, `ContentDrafts`, `ContentTopics`, `EngagementDrafts`, `Engagements`, `FollowUps`, `OperatorDocuments`, `OperatorMessages`, `OperatorPostRevisions`, `OperatorPostSnapshots`, `OperatorPosts`, `OperatorSettings`, `Opportunities`, `OutreachAttempts`, `PlatformProfiles`, `QueryPacks`, `Quotes`, `RawSourceItems`, `Skills`, `SourceConfigs`, `SuppressionEntries`, `TrendSignals`, `TrendSources`, `WorkSessions`.
 - Complete endpoint, registration, and relationship tables: `ROUTES_AND_DI.md`.
 
 
@@ -181,6 +202,8 @@ Every source-authored type and callable name is present. Full signatures and dat
 
 ## DevLeads.Core
 
+- **`AdvisorPrompts`** — Prompt for the daily business-advisor briefing on the Today page: one call per day that turns the deterministic agenda snapshot into prioritized… (`src/DevLeads.Core/Ai/AdvisorPrompts.cs:10`)
+  - public `BuildDailyBriefingPrompt` — Creates daily briefing prompt. _(inferred)_
 - **`AiTriagePrompts`** — The unified system prompt, user template, and strict JSON schema for single-pass triage. (`src/DevLeads.Core/Ai/AiTriagePrompts.cs:4`)
   - public `BuildUserPrompt` — Fills the user-prompt template with post + pre-filter context.
   - public `BuildBatchUserPrompt` — Fills the user-prompt template for a batched call: several posts, one response object per…
@@ -205,6 +228,10 @@ Every source-authored type and callable name is present. Full signatures and dat
   - public `IsAvailable` — Whether the provider can currently make calls (CLI present, key set, …).
   - public `AvailabilityMessage` — Human-readable explanation when IsAvailable is false.
   - public `TriageAsync` — Coordinates triage. _(inferred)_
+- **`LinkedInPrompts`** — Grounded batched reply generation for LinkedIn comments and pasted messages. (`src/DevLeads.Core/Ai/LinkedInPrompts.cs:7`)
+  - public `BuildEngagementBatchPrompt` — Creates engagement batch prompt. _(inferred)_
+  - private `Compact` — Transforms or resolves compact. _(inferred)_
+- **`EngagementItem`** — Represents engagement item. _(inferred)_ (`src/DevLeads.Core/Ai/LinkedInPrompts.cs:9`)
 - **`OutreachGenerationItem`** — One queued lead inside a batched response-generation call. (`src/DevLeads.Core/Ai/OutreachPrompts.cs:7`)
 - **`OutreachPrompts`** — Prompt for batched outreach-response generation: every queued lead in one model call, each reply grounded strictly in that lead's original post. (`src/DevLeads.Core/Ai/OutreachPrompts.cs:22`)
   - public `BuildBatchResponsePrompt` — Creates batch response prompt. _(inferred)_
@@ -215,17 +242,27 @@ Every source-authored type and callable name is present. Full signatures and dat
   - private `PlatformLabel` — Handles platform label. _(inferred)_
   - private `PlatformSpec` — Handles platform spec. _(inferred)_
   - private `Compact` — Transforms or resolves compact. _(inferred)_
+- **`PlatformPresencePrompts`** — Prompts for the platform-presence feature on My posts: discovering new platforms worth posting on, and generating the starter kit (profile bio +… (`src/DevLeads.Core/Ai/PlatformPresencePrompts.cs:10`)
+  - public `BuildDiscoveryPrompt` — Creates discovery prompt. _(inferred)_
+  - public `BuildSignupPackPrompt` — One batched call writes the complete signup pack for several platforms at once — every…
 - **`AiTriageResult`** — The strict structured object returned by the single-pass AI triage call. Satisfies all former pipeline stages (relevance, emergency, category… (`src/DevLeads.Core/AiTriageResult.cs:10`)
 - **`SourceConnectorConfig`** — Runtime configuration passed to a connector for a single fetch. (`src/DevLeads.Core/Connectors/ISourceConnector.cs:6`)
 - **`ConnectorHealth`** — Reported health of a connector after a run or health check. (`src/DevLeads.Core/Connectors/ISourceConnector.cs:19`)
 - **`ISourceConnector`** — A read-only ingestion source. Fetches recent public items, respects rate limits, and never sends messages. (`src/DevLeads.Core/Connectors/ISourceConnector.cs:31`)
   - public `FetchAsync` — Loads or resolves fetch. _(inferred)_
   - public `CheckHealthAsync` — Checks health. _(inferred)_
+- **`AdvisorBriefing`** — One day's business-advisor briefing shown on the Today page: top priorities, pipeline observations, and presence nudges. (`src/DevLeads.Core/Entities/AdvisorBriefing.cs:8`)
 - **`AiTriageRun`** — An auditable record of a single-pass structured AI triage call. (`src/DevLeads.Core/Entities/AiTriageRun.cs:4`)
 - **`AuditEvent`** — An immutable audit-trail entry for anything the system generates, sends, or changes. (`src/DevLeads.Core/Entities/AuditEvent.cs:4`)
 - **`Campaign`** — A lead-generation campaign: a named objective (e.g. emergency rescue work,.NET legacy modernization consulting) that owns a set of sources and the… (`src/DevLeads.Core/Entities/Campaign.cs:8`)
+- **`Client`** — A real person/business the operator has a working relationship with — usually promoted from a won or responding Opportunity, sometimes entered by hand. (`src/DevLeads.Core/Entities/Client.cs:8`)
+- **`ClientInteraction`** — One logged touch with a client — a DM, email, call, or public reply, in either direction. (`src/DevLeads.Core/Entities/ClientInteraction.cs:7`)
 - **`ContentDraft`** — A generated piece of publishable content (blog post, article, white paper, research paper, or LinkedIn post) for the operator to edit and post on… (`src/DevLeads.Core/Entities/ContentDraft.cs:7`)
 - **`ContentTopic`** — An AI-suggested publishing topic distilled from trend signals: what to write about, the specific angle, and why an audience would care right now. (`src/DevLeads.Core/Entities/ContentTopic.cs:7`)
+- **`Engagement`** — One bounded piece of work for a client: a fix, a project, or a retainer. Tracks the commercial state (status, fee) and delivery expectations (due… (`src/DevLeads.Core/Entities/Engagement.cs:8`)
+- **`EngagementDraft`** — A human-reviewed response draft for activity on one of the operator's LinkedIn posts. (`src/DevLeads.Core/Entities/EngagementDraft.cs:9`)
+- **`FollowUp`** — A dated reminder to touch a client or push an engagement forward. Due/overdue follow-ups are the backbone of the Today page's "needs your attention"… (`src/DevLeads.Core/Entities/FollowUp.cs:7`)
+- **`OperatorDocument`** — A document the operator uploads once and the app hands out wherever it's needed — the resume today; portfolios, cover letters, or case studies as… (`src/DevLeads.Core/Entities/OperatorDocument.cs:9`)
 - **`OperatorMessage`** — A private message or reply RECEIVED by the operator on an external platform (a reddit DM, a comment reply on one of their [For Hire] posts, an… (`src/DevLeads.Core/Entities/OperatorMessage.cs:10`)
 - **`OperatorPost`** — One of the operator's OWN posts on an external platform (a [For Hire] reddit post, an Upwork profile/proposal, a Craigslist ad…). (`src/DevLeads.Core/Entities/OperatorPost.cs:9`)
 - **`OperatorPostRevision`** — One AI-proposed (or operator-made) rewrite of a tracked post — the experiment unit for post optimization. (`src/DevLeads.Core/Entities/OperatorPostRevision.cs:11`)
@@ -236,9 +273,13 @@ Every source-authored type and callable name is present. Full signatures and dat
   - public `DefaultModelFor` — Handles default model for. _(inferred)_
 - **`Opportunity`** — A triaged, scored emergency-repair lead. The central aggregate the whole app revolves around. (`src/DevLeads.Core/Entities/Opportunity.cs:6`)
 - **`OutreachAttempt`** — A drafted, approved, or sent outreach message tied to an opportunity. (`src/DevLeads.Core/Entities/OutreachAttempt.cs:4`)
+- **`PlatformProfile`** — One platform where the operator does (or could) build a public presence to attract work: hiring subreddits, freelance marketplaces, dev communities… (`src/DevLeads.Core/Entities/PlatformProfile.cs:10`)
 - **`QueryPack`** — A named set of search/keyword terms used by connectors and the heuristic pre-filter. (`src/DevLeads.Core/Entities/QueryPack.cs:4`)
 - **`Quote`** — A flat-fee emergency-repair quote and its payment lifecycle. (`src/DevLeads.Core/Entities/Quote.cs:4`)
 - **`RawSourceItem`** — A normalized public item fetched from a source connector, stored before/after triage. Also serves as the connector output DTO. (`src/DevLeads.Core/Entities/RawSourceItem.cs:7`)
+- **`SignupPack`** — Everything a platform's signup/profile form asks for, pre-written so joining takes minutes of pasting instead of an hour of writing. (`src/DevLeads.Core/Entities/SignupPack.cs:11`)
+  - public `ToJson` — Handles to json. _(inferred)_
+  - public `FromJson` — Handles from json. _(inferred)_
 - **`Skill`** — One operator skill (language, framework, application, capability…). Used to score how well a lead fits the operator, to filter bounty/issue… (`src/DevLeads.Core/Entities/Skill.cs:8`)
 - **`SourceConfig`** — Per-connector configuration and health, editable from the Sources page. (`src/DevLeads.Core/Entities/SourceConfig.cs:4`)
 - **`SuppressionEntry`** — A contact that must never be messaged (opt-out, complaint, or manual block). (`src/DevLeads.Core/Entities/SuppressionEntry.cs:4`)
@@ -246,23 +287,30 @@ Every source-authored type and callable name is present. Full signatures and dat
 - **`TrendSource`** — A feed/community polled for *content* signals (trending topics, releases, updates) rather than leads. (`src/DevLeads.Core/Entities/TrendSource.cs:8`)
 - **`WorkSession`** — Tracks execution once a lead becomes real work: checklist, notes, fix summary. (`src/DevLeads.Core/Entities/WorkSession.cs:4`)
 - **`OpportunityStatus`** — Workflow states an opportunity moves through from discovery to payment. (`src/DevLeads.Core/Enums.cs:4`)
-- **`Priority`** — Priority band derived from the weighted opportunity score. (`src/DevLeads.Core/Enums.cs:34`)
-- **`AiJobStatus`** — Lifecycle of the single-pass AI triage job for an item. (`src/DevLeads.Core/Enums.cs:44`)
-- **`OutreachRecommendation`** — What the system recommends doing with an opportunity. (`src/DevLeads.Core/Enums.cs:56`)
-- **`OutreachMode`** — Outreach delivery mode for a given source/template/contact combination. (`src/DevLeads.Core/Enums.cs:66`)
-- **`OutreachStatus`** — Lifecycle of a single outreach attempt. (`src/DevLeads.Core/Enums.cs:76`)
-- **`OutreachChannel`** — Channel an outreach attempt is delivered over. (`src/DevLeads.Core/Enums.cs:90`)
-- **`QuoteStatus`** — Payment lifecycle for a quote. (`src/DevLeads.Core/Enums.cs:100`)
-- **`WorkSessionStatus`** — Execution state for a hands-on work session. (`src/DevLeads.Core/Enums.cs:115`)
-- **`ContentTopicStatus`** — Lifecycle of an AI-suggested publishing topic. (`src/DevLeads.Core/Enums.cs:126`)
-- **`ContentDraftStatus`** — Lifecycle of a generated content draft. (`src/DevLeads.Core/Enums.cs:134`)
-- **`ContentFormat`** — Publishable formats the content studio can generate. (`src/DevLeads.Core/Enums.cs:143`)
-- **`OperatorPostStatus`** — Lifecycle of one of the operator's own posts on an external platform. (`src/DevLeads.Core/Enums.cs:153`)
-- **`OperatorPostRevisionStatus`** — Lifecycle of an AI-proposed rewrite of one of the operator's posts. (`src/DevLeads.Core/Enums.cs:163`)
-- **`OperatorMessageKind`** — What kind of inbox item a received operator message is. (`src/DevLeads.Core/Enums.cs:173`)
-- **`OperatorMessageStatus`** — Operator-side lifecycle of a received message. (`src/DevLeads.Core/Enums.cs:187`)
-- **`SuppressionContactType`** — How a contact was added to the suppression list. (`src/DevLeads.Core/Enums.cs:196`)
-- **`AiFeature`** — The distinct AI call sites in the app. Each can carry its own provider/model override in Entities.OperatorSettings; an unset override inherits the… (`src/DevLeads.Core/Enums.cs:209`)
+- **`Priority`** — Priority band derived from the weighted opportunity score. (`src/DevLeads.Core/Enums.cs:41`)
+- **`AiJobStatus`** — Lifecycle of the single-pass AI triage job for an item. (`src/DevLeads.Core/Enums.cs:51`)
+- **`OutreachRecommendation`** — What the system recommends doing with an opportunity. (`src/DevLeads.Core/Enums.cs:63`)
+- **`OutreachMode`** — Outreach delivery mode for a given source/template/contact combination. (`src/DevLeads.Core/Enums.cs:73`)
+- **`OutreachStatus`** — Lifecycle of a single outreach attempt. (`src/DevLeads.Core/Enums.cs:83`)
+- **`OutreachChannel`** — Channel an outreach attempt is delivered over. (`src/DevLeads.Core/Enums.cs:97`)
+- **`QuoteStatus`** — Payment lifecycle for a quote. (`src/DevLeads.Core/Enums.cs:107`)
+- **`WorkSessionStatus`** — Execution state for a hands-on work session. (`src/DevLeads.Core/Enums.cs:122`)
+- **`ContentTopicStatus`** — Lifecycle of an AI-suggested publishing topic. (`src/DevLeads.Core/Enums.cs:133`)
+- **`ContentDraftStatus`** — Lifecycle of a generated content draft. (`src/DevLeads.Core/Enums.cs:141`)
+- **`ContentFormat`** — Publishable formats the content studio can generate. (`src/DevLeads.Core/Enums.cs:150`)
+- **`OperatorPostStatus`** — Lifecycle of one of the operator's own posts on an external platform. (`src/DevLeads.Core/Enums.cs:160`)
+- **`OperatorPostRevisionStatus`** — Lifecycle of an AI-proposed rewrite of one of the operator's posts. (`src/DevLeads.Core/Enums.cs:170`)
+- **`OperatorMessageKind`** — What kind of inbox item a received operator message is. (`src/DevLeads.Core/Enums.cs:180`)
+- **`OperatorMessageStatus`** — Operator-side lifecycle of a received message. (`src/DevLeads.Core/Enums.cs:194`)
+- **`EngagementDraftKind`** — The LinkedIn interaction an engagement draft responds to. (`src/DevLeads.Core/Enums.cs:203`)
+- **`EngagementDraftStatus`** — Human-in-the-loop lifecycle for a LinkedIn engagement response. (`src/DevLeads.Core/Enums.cs:212`)
+- **`ClientStatus`** — Relationship stage of a client (a real person/business the operator works with). (`src/DevLeads.Core/Enums.cs:221`)
+- **`EngagementStatus`** — Lifecycle of a client engagement (a bounded project, fix, or retainer). (`src/DevLeads.Core/Enums.cs:234`)
+- **`FollowUpStatus`** — Lifecycle of a scheduled follow-up reminder. (`src/DevLeads.Core/Enums.cs:246`)
+- **`InteractionDirection`** — Direction of a logged client interaction. (`src/DevLeads.Core/Enums.cs:254`)
+- **`PlatformPresenceStatus`** — Where a platform sits in the operator's presence-building funnel. (`src/DevLeads.Core/Enums.cs:261`)
+- **`SuppressionContactType`** — How a contact was added to the suppression list. (`src/DevLeads.Core/Enums.cs:274`)
+- **`AiFeature`** — The distinct AI call sites in the app. Each can carry its own provider/model override in Entities.OperatorSettings; an unset override inherits the… (`src/DevLeads.Core/Enums.cs:287`)
 - **`HeuristicPreFilter`** — Zero-cost keyword/rule filter deciding whether a raw item is worth an LLM call. Protects the AI budget, cuts latency, and rejects obvious noise… (`src/DevLeads.Core/HeuristicPreFilter.cs:11`)
   - public `HasPayLanguage` — True when the text contains explicit hire/pay language or a money amount, un-negated.
   - public `Analyze` — Analyzes an item. When packNames is given, high-priority term matching is scoped to those…
@@ -270,6 +318,7 @@ Every source-authored type and callable name is present. Full signatures and dat
 - **`LanguageDetection`** — Lightweight fallback language detection used before scoring. Structured AI triage is authoritative when available; these rules ensure outages cannot… (`src/DevLeads.Core/LanguageDetection.cs:8`)
   - public `Detect` — Handles detect. _(inferred)_
 - **`LeadQualityRules`** — Shared lead-quality rules used before a post reaches the review queue. (`src/DevLeads.Core/LeadQualityRules.cs:6`)
+  - public `IsWithinAutomatedLeadAge` — Checks within automated lead age. _(inferred)_
   - public `IsPromotionalAnnouncement` — True for product-launch/showcase posts: launch language plus the poster's own pricing…
   - public `IsReplyFeedItem` — True for feed items that are replies into an existing thread (WordPress.org reply feeds…
   - public `IsAlreadyClaimed` — True when the post shows someone else already owns the work: the issue is assigned, or the…
@@ -288,6 +337,8 @@ Every source-authored type and callable name is present. Full signatures and dat
   - private `NormalizeHost` — Transforms or resolves host. _(inferred)_
 - **`OfferedCompensation`** — Extracts a compensation amount the poster explicitly stated ("Reward: $15", "[Bounty $250]", "budget of $500–$800"). (`src/DevLeads.Core/OfferedCompensation.cs:11`)
   - public `Extract` — Returns the stated amount range, or null when no explicit offer exists.
+- **`PlatformSeed`** — Seed definition for a platform-presence catalog entry. (`src/DevLeads.Core/Platforms/DefaultPlatformCatalog.cs:4`)
+- **`DefaultPlatformCatalog`** — The curated starter catalog of platforms where a solo consultant can win paid work or build reputation. (`src/DevLeads.Core/Platforms/DefaultPlatformCatalog.cs:21`)
 - **`PreFilterResult`** — Result of the zero-cost heuristic pre-filter that gates AI analysis. (`src/DevLeads.Core/PreFilterResult.cs:4`)
 - **`QueryPackSeed`** — Seed definition for a query pack. (`src/DevLeads.Core/QueryPacks/DefaultQueryPacks.cs:4`)
 - **`DefaultQueryPacks`** — The built-in query packs from the design document, used to seed the database. (`src/DevLeads.Core/QueryPacks/DefaultQueryPacks.cs:7`)
@@ -301,7 +352,7 @@ Every source-authored type and callable name is present. Full signatures and dat
   - public `Scan` — Coordinates scan. _(inferred)_
 - **`ScoreBreakdown`** — The blended score plus its weighted components. (`src/DevLeads.Core/Scoring/OpportunityScorer.cs:6`)
 - **`ScoringInput`** — Inputs the scorer needs, decoupled from persistence. (`src/DevLeads.Core/Scoring/OpportunityScorer.cs:21`)
-- **`OpportunityScorer`** — Blends heuristic, AI, source-reputation, recency, stack-fit, business-value, reachability and trust signals into a single weighted opportunity score. (`src/DevLeads.Core/Scoring/OpportunityScorer.cs:59`)
+- **`OpportunityScorer`** — Blends heuristic, AI, source-reputation, recency, stack-fit, business-value, reachability and trust signals into a single weighted opportunity score. (`src/DevLeads.Core/Scoring/OpportunityScorer.cs:54`)
   - public `Score` — Handles score. _(inferred)_
   - public `IsNonEnglish` — Checks non english. _(inferred)_
   - private `PayHits` — Count of explicit "pay:" hits the pre-filter tagged (hire language, budgets, money amounts).
@@ -320,12 +371,10 @@ Every source-authored type and callable name is present. Full signatures and dat
   - private `IsPayIntentSource` — Checks pay intent source. _(inferred)_
 - **`DefaultSkills`** — The operator's seeded skill profile (from the operator's own skillset document). Only seeds when the Skills table is empty — the Skills page is the… (`src/DevLeads.Core/Skills/DefaultSkills.cs:10`)
   - private `S` — Handles s. _(inferred)_
-- **`SkillMatch`** — A skill that matched a piece of lead text, with its profile weight and category. (`src/DevLeads.Core/Skills/SkillMatcher.cs:7`)
-- **`SkillMatcher`** — Matches lead text against the operator's skill profile and scores the fit. (`src/DevLeads.Core/Skills/SkillMatcher.cs:10`)
+- **`SkillMatch`** — A skill that matched a piece of lead text, with its profile weight and category. (`src/DevLeads.Core/Skills/SkillMatcher.cs:6`)
+- **`SkillMatcher`** — Matches lead text against the operator's skill profile and scores the fit. (`src/DevLeads.Core/Skills/SkillMatcher.cs:9`)
   - public `Match` — All enabled skills whose name or any alias appears in the text (case-insensitive).
-  - public `HasStackIdentityMatch` — True when the text matched at least one weight-3 skill from an identity category.
-  - public `ForeignStackDemands` — Foreign primary-stack demands found in the text, excluding stacks the operator has an…
-  - public `FitScore` — 0–100 fit score mirroring the legacy stack tiers: a core-skill match scores like the…
+  - public `FitScore` — 0–100 familiarity score. A known core skill is a small ranking advantage; no match still…
   - public `PromptSummary` — Compact profile description for the AI triage prompt, strongest skills first.
   - public `SearchTerms` — Search keywords for connectors (bounty/issue queries): short, high-weight names first.
   - private `ContainsTerm` — Checks term. _(inferred)_
@@ -354,8 +403,8 @@ Every source-authored type and callable name is present. Full signatures and dat
   - public `IsSchemaValid` — Checks schema valid. _(inferred)_
   - public `Normalize` — Coerces near-miss enum values back onto the strict schema instead of failing the call.
   - public `Truncate` — Handles truncate. _(inferred)_
-- **`ShortlistOutput`** — Represents shortlist output. _(inferred)_ (`src/DevLeads.Infrastructure/Ai/AiCliSupport.cs:62`)
-- **`ShortlistSelection`** — Represents shortlist selection. _(inferred)_ (`src/DevLeads.Infrastructure/Ai/AiCliSupport.cs:67`)
+- **`ShortlistOutput`** — Represents shortlist output. _(inferred)_ (`src/DevLeads.Infrastructure/Ai/AiCliSupport.cs:63`)
+- **`ShortlistSelection`** — Represents shortlist selection. _(inferred)_ (`src/DevLeads.Infrastructure/Ai/AiCliSupport.cs:68`)
 - **`AiTextRouter`** — Routes the app's long-form / free-text generation calls (outreach replies, content drafts, the operator's own posts, thread summaries, optimization… (`src/DevLeads.Infrastructure/Ai/AiTextRouter.cs:16`)
   - public `GenerateTextAsync` — Runs prompt through the provider/model configured for feature.
   - public `ProviderFor` — The provider name a feature will actually use — for pre-flight UI/guards.
@@ -458,9 +507,7 @@ Every source-authored type and callable name is present. Full signatures and dat
 - **`DatabaseSeeder`** — Creates the database and seeds query packs, source configs, and settings. Also migrates older databases: removes retired sources (GitHub Issues) and… (`src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs:14`)
   - public `InitializeAsync` — Coordinates initialize. _(inferred)_
   - private `RequeueTemplateDraftsAsync` — One-time (2026-07-11): unapproved template mad-lib drafts ("I saw your post about…
-  - private `ApplyStackIdentityCapsAsync` — Applies the stack-identity score cap (50, below Medium) to leads scored before the gate…
   - private `DemoteGenericCapabilitySkillsAsync` — One-time data fix (2026-07-11): "REST API" was seeded as a weight-3 "Primary stack" skill…
-  - private `PurgeForeignStackLeadsAsync` — Removes discovery leads that demand a stack outside the operator's profile without…
   - private `ApplySchemaUpgradesAsync` — EnsureCreated never alters existing tables, so columns added after first release are…
   - private `MigrateAiProviderDefaultsAsync` — Moves settings still on an old AI default onto the current one (OpenCode CLI).
   - private `SeedQueryPacksAsync` — Creates query packs. _(inferred)_
@@ -472,6 +519,7 @@ Every source-authored type and callable name is present. Full signatures and dat
   - private `IsInitialAiTopicGate` — Checks initial ai topic gate. _(inferred)_
   - private `IsAiTopicGateBroadening` — 2026-07-13: the AI campaign's topic gate moved from the hire-shaped AiAutomationProjects…
   - private `IsAiThresholdRecalibration` — 2026-07-13: the AI campaign's MinOpportunityScore dropped from 42–48 (emergency…
+  - private `IsTechnologyAgnosticSourceBroadening` — 2026-07-13: bounty and paid-feature sources stopped requiring a.NET-profile text match.
   - private `IsAiAutomationSource` — Checks ai automation source. _(inferred)_
   - private `ApplySourceDefaults` — Reapplies seeded defaults, returning whether anything actually changed — a boot with…
   - private `IsAdditiveHiringSubredditExpansion` — Checks additive hiring subreddit expansion. _(inferred)_
@@ -480,18 +528,20 @@ Every source-authored type and callable name is present. Full signatures and dat
   - private `ModernizationSources` — Sources for the.NET legacy modernization consulting campaign.
   - private `AiAutomationSources` — Searches every registered connector for paid AI/automation implementation work.
   - private `SeedTrendSourcesAsync` — Content-studio trend sources (add-only; the operator owns them afterwards).
+  - private `SeedPlatformProfilesAsync` — Platform-presence catalog (add-only by Key; the operator owns rows afterwards).
   - private `RssParams` — Handles rss params. _(inferred)_
   - private `RemoveRetiredSourcesAsync` — Deletes retired source configs and every item/lead they produced (e.g. GitHub Issues).
   - private `RemoveReplacedSourceConfigsAsync` — Removes old broad source config rows after splitting them into tuned variants.
   - private `PurgeStaleDiscoveryLeadsAsync` — One-time after a source-lineup migration: leads still sitting in triage stages were…
-  - private `PurgeNonActionableLeadsAsync` — Purges leads that will not lead to financial compensation: pre-filter rejects, triage…
+  - private `PurgeExpiredDiscoveryLeadsAsync` — Removes untouched automated leads older than the standard discovery window while…
+  - private `PurgeNonActionableLeadsAsync` — Purges leads that will not lead to paid work or a useful owner/operator relationship…
   - private `PurgeNonHirableVendorSupportLeadsAsync` — Removes or transitions non hirable vendor support leads. _(inferred)_
   - private `PurgeSourceLessLeadsAsync` — Every visible opportunity must point back to its original public source.
   - private `DeleteLeadsKeepDedupAsync` — Removes lead rows while detaching raw items, so dedup never re-ingests the same post.
 - **`DevLeadsDbContext : DbContext`** — EF Core context for the SQLite solo database. (`src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:9`)
   - protected `ConfigureConventions` — Handles configure conventions. _(inferred)_
   - protected `OnModelCreating` — Handles on model creating. _(inferred)_
-- **`DateTimeOffsetToTicksConverter : ValueConverter<DateTimeOffset, long>`** — Represents date time offset to ticks converter. _(inferred)_ (`src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:37`)
+- **`DateTimeOffsetToTicksConverter : ValueConverter<DateTimeOffset, long>`** — Represents date time offset to ticks converter. _(inferred)_ (`src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:45`)
 - **`DependencyInjection`** — Represents dependency injection. _(inferred)_ (`src/DevLeads.Infrastructure/DependencyInjection.cs:17`)
   - public `AddDevLeads` — Registers the database, connectors, AI providers, domain services, and worker.
   - public `InitializeDevLeadsAsync` — Creates the database schema and seeds default settings, query packs, and sources.
@@ -501,8 +551,20 @@ Every source-authored type and callable name is present. Full signatures and dat
   - public `GetHighPriorityTerms` — All high-priority emergency terms across packs.
   - public `GetHighPriorityTerms` — All high-priority emergency terms across packs.
   - public `GetNegativeTerms` — All negative / exclusion terms.
+- **`AgendaItem`** — One actionable line on the Today page, with where to go to act on it. (`src/DevLeads.Infrastructure/Services/AdvisorService.cs:13`)
+- **`TodayAgenda`** — The deterministic snapshot the Today page renders and the daily briefing reasons over: what needs attention, the best open leads, live engagements… (`src/DevLeads.Infrastructure/Services/AdvisorService.cs:19`)
+- **`AdvisorService`** — The manager layer: assembles the zero-cost Today agenda from live data, and writes the one-per-day advisor briefing (AI when available; a… (`src/DevLeads.Infrastructure/Services/AdvisorService.cs:39`)
+  - public `BuildAgendaAsync` — Creates agenda. _(inferred)_
+  - public `GetTodayBriefingAsync` — Loads or resolves today briefing. _(inferred)_
+  - public `GenerateDailyBriefingAsync` — Writes today's briefing if it doesn't exist yet (force rewrites it).
+  - private `BuildAgendaContext` — Compact factual snapshot the AI is allowed to reason over.
+  - private `BuildFallbackBriefing` — The no-AI briefing: the same priorities the prompt encodes, applied by rule.
+  - private `Truncate` — Handles truncate. _(inferred)_
 - **`AuditService`** — Writes audit-trail entries for generated/sent messages and state changes. (`src/DevLeads.Infrastructure/Services/AuditService.cs:8`)
   - public `Record` — Handles record. _(inferred)_
+- **`ClientService`** — Client-relationship operations that involve more than one aggregate: promoting a lead into a client + first engagement, and the shared "due… (`src/DevLeads.Infrastructure/Services/ClientService.cs:14`)
+  - public `PromoteOpportunityAsync` — Turns a lead into a client with a prospective engagement and a default follow-up.
+  - private `PlatformFromSource` — Handles platform from source. _(inferred)_
 - **`ContentStudioService`** — Turns trend signals into publishable output: AI-suggested topics, then full drafts (blog posts, articles, white/research papers, LinkedIn posts) for… (`src/DevLeads.Infrastructure/Services/ContentStudioService.cs:18`)
   - public `GenerateTopicsAsync` — One AI call: distills the hottest recent signals into up to maxTopics new topic suggestions.
   - public `GenerateDraftAsync` — One AI call: writes a full draft for a topic in the requested format.
@@ -545,6 +607,33 @@ Every source-authored type and callable name is present. Full signatures and dat
   - private `NormalizeSourceUrl` — Transforms or resolves source url. _(inferred)_
   - private `FindNearDuplicateOpportunityAsync` — Loads or resolves near duplicate opportunity. _(inferred)_
   - private `Truncate` — Handles truncate. _(inferred)_
+- **`LinkedInService`** — LinkedIn member OAuth, text-post publishing, scheduled publishing, comment monitoring, and human-reviewed response drafts. (`src/DevLeads.Infrastructure/Services/LinkedInService.cs:23`)
+  - public `GetConnectionStatusAsync` — Loads or resolves connection status. _(inferred)_
+  - public `CreateAuthorizationUrlAsync` — Creates a state-protected three-legged OAuth authorization URL.
+  - public `CompleteOAuthAsync` — Validates OAuth state, exchanges the code, and resolves the member profile.
+  - public `DisconnectAsync` — Handles disconnect. _(inferred)_
+  - public `PublishPostAsync` — Publishes one approved text draft and updates its tracking identity.
+  - public `PublishDueAsync` — Publishes every due LinkedIn draft; one failure does not block later rows.
+  - public `SyncEngagementAsync` — Imports top-level comments for tracked posts. LinkedIn grants the required read permission…
+  - public `GenerateEngagementBatchAsync` — Syncs what is available, then drafts all undrafted pending responses in one AI call.
+  - public `CreateManualEngagementAsync` — Creates manual engagement. _(inferred)_
+  - public `PublishEngagementAsync` — Publishes a reviewed public-comment response. Pasted private messages stay copy-only.
+  - private `ApiRequest` — Handles api request. _(inferred)_
+  - private `LoadMemberProfileAsync` — Loads or resolves member profile. _(inferred)_
+  - private `GetSettingsAsync` — Loads or resolves settings. _(inferred)_
+  - private `ConnectionError` — Handles connection error. _(inferred)_
+  - private `ResolveRedirectUri` — Transforms or resolves redirect uri. _(inferred)_
+  - private `NormalizeScopes` — Transforms or resolves scopes. _(inferred)_
+  - private `HasScope` — Checks scope. _(inferred)_
+  - private `NormalizeApiVersion` — Transforms or resolves api version. _(inferred)_
+  - private `PersonUrn` — Handles person urn. _(inferred)_
+  - private `FixedTimeEquals` — Handles fixed time equals. _(inferred)_
+  - private `ParseReplies` — Transforms or resolves replies. _(inferred)_
+  - private `TryJson` — Handles try json. _(inferred)_
+  - private `GetString` — Loads or resolves string. _(inferred)_
+  - private `GetInt64` — Loads or resolves int64. _(inferred)_
+  - private `ApiError` — Handles api error. _(inferred)_
+- **`ConnectionStatus`** — Represents connection status. _(inferred)_ (`src/DevLeads.Infrastructure/Services/LinkedInService.cs:46`)
 - **`MaintenanceService`** — Periodic housekeeping: stale-lead archiving and overdue-quote flagging. (`src/DevLeads.Infrastructure/Services/MaintenanceService.cs:9`)
   - public `ArchiveStaleLeadsAsync` — Removes or transitions stale leads. _(inferred)_
   - public `RejectNonHirableVendorSupportAsync` — Removes or transitions non hirable vendor support. _(inferred)_
@@ -590,6 +679,15 @@ Every source-authored type and callable name is present. Full signatures and dat
   - public `AddSuppressionAsync` — Creates suppression. _(inferred)_
   - private `GetSettings` — Loads or resolves settings. _(inferred)_
   - private `Get` — Loads or resolves get. _(inferred)_
+- **`PlatformPresenceService`** — Grows the operator's public presence: AI discovery of new platforms worth joining, and the starter kit (profile bio + first post) for a platform… (`src/DevLeads.Infrastructure/Services/PlatformPresenceService.cs:20`)
+  - public `DiscoverPlatformsAsync` — One AI call proposes new platforms (grounded in the skill profile and campaign…
+  - public `GenerateSignupPacksAsync` — Writes signup packs (headline, bios, skills, rate line, first post) for the given…
+  - public `ActivateAsync` — Marks a platform's account as created and starts tracking it.
+  - private `Slug` — Handles slug. _(inferred)_
+- **`PackListOutput`** — Represents pack list output. _(inferred)_ (`src/DevLeads.Infrastructure/Services/PlatformPresenceService.cs:264`)
+- **`PackOutput`** — Represents pack output. _(inferred)_ (`src/DevLeads.Infrastructure/Services/PlatformPresenceService.cs:269`)
+- **`DiscoveryOutput`** — Represents discovery output. _(inferred)_ (`src/DevLeads.Infrastructure/Services/PlatformPresenceService.cs:284`)
+- **`SuggestedPlatform`** — Represents suggested platform. _(inferred)_ (`src/DevLeads.Infrastructure/Services/PlatformPresenceService.cs:289`)
 - **`QuoteService`** — Quote generation and payment-state tracking for bounded emergency fixes. (`src/DevLeads.Infrastructure/Services/QuoteService.cs:10`)
   - public `GenerateAsync` — Creates generate. _(inferred)_
   - public `SendAsync` — Handles send. _(inferred)_
@@ -617,7 +715,7 @@ Every source-authored type and callable name is present. Full signatures and dat
   - private `ResolveConnectorKey` — Transforms or resolves connector key. _(inferred)_
   - private `TrimJsonString` — Transforms or resolves json string. _(inferred)_
   - private `Compact` — Transforms or resolves compact. _(inferred)_
-- **`ShortlistGate`** — Represents shortlist gate. _(inferred)_ (`src/DevLeads.Infrastructure/Services/SourceRunner.cs:442`)
+- **`ShortlistGate`** — Represents shortlist gate. _(inferred)_ (`src/DevLeads.Infrastructure/Services/SourceRunner.cs:466`)
   - public `ShouldRecordRawOnly` — Checks record raw only. _(inferred)_
 - **`TrendScanService`** — Polls trend sources (release feeds, vendor blogs, HN, subreddits) and stores skill-relevant items as TrendSignals ranked by hotness. (`src/DevLeads.Infrastructure/Services/TrendScanService.cs:16`)
   - public `RunDueAsync` — Runs every enabled trend source that is due. Returns new signal count.
@@ -640,9 +738,9 @@ Every source-authored type and callable name is present. Full signatures and dat
 - **`ApiEndpoints`** — Internal HTTP API used for automation and integration (the UI calls services directly). (`src/DevLeads.Web/Api/ApiEndpoints.cs:9`)
   - public `MapDevLeadsApi` — Transforms or resolves dev leads api. _(inferred)_
   - private `MapStatusAction` — Transforms or resolves status action. _(inferred)_
-- **`ManualLeadDto`** — Transfers manual lead data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:243`)
-- **`DraftDto`** — Transfers draft data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:244`)
-- **`QuoteDto`** — Transfers quote data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:245`)
+- **`ManualLeadDto`** — Transfers manual lead data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:397`)
+- **`DraftDto`** — Transfers draft data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:398`)
+- **`QuoteDto`** — Transfers quote data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:399`)
 - **`AppRestartService`** — Full-process restart so the app picks up the latest code. Spawns a detached supervisor script that waits for this process to exit, rebuilds the… (`src/DevLeads.Web/AppRestartService.cs:12`)
   - public `Restart` — Schedules the restart. Returns an error message, or null when underway.
 - **`App : ComponentBase`** — Blazor component for app. (`src/DevLeads.Web/Components/App.razor:1`)
@@ -660,6 +758,25 @@ Every source-authored type and callable name is present. Full signatures and dat
   - private `Create` — Creates create. _(inferred)_
   - private `Delete` — Removes or transitions delete. _(inferred)_
   - private `MakeKey` — Creates key. _(inferred)_
+- **`ClientDetail : ComponentBase`** — Blazor component for client detail. (`src/DevLeads.Web/Components/Pages/ClientDetail.razor:1`)
+  - protected `OnParametersSetAsync` — Runs the component on parameters set lifecycle step. _(inferred)_
+  - private `Load` — Loads or resolves load. _(inferred)_
+  - private `SaveClient` — Updates client. _(inferred)_
+  - private `SetStatus` — Updates status. _(inferred)_
+  - private `AddEngagement` — Creates engagement. _(inferred)_
+  - private `SaveEngagement` — Updates engagement. _(inferred)_
+  - private `SetEngagementStatus` — Updates engagement status. _(inferred)_
+  - private `AddInteraction` — Creates interaction. _(inferred)_
+  - private `AddFollowUp` — Creates follow up. _(inferred)_
+  - private `CloseFollowUp` — Handles close follow up. _(inferred)_
+  - private `TouchClientAndSave` — Handles touch client and save. _(inferred)_
+  - private `StatusChip` — Handles status chip. _(inferred)_
+  - private `EngagementChip` — Handles engagement chip. _(inferred)_
+- **`Clients : ComponentBase`** — Blazor component for clients. (`src/DevLeads.Web/Components/Pages/Clients.razor:1`)
+  - protected `OnInitializedAsync` — Runs the component on initialized lifecycle step. _(inferred)_
+  - private `Load` — Loads or resolves load. _(inferred)_
+  - private `AddClient` — Creates client. _(inferred)_
+  - private `StatusChip` — Handles status chip. _(inferred)_
 - **`Content : ComponentBase`** — Trend signals, suggested topics, and publishable draft management. (`src/DevLeads.Web/Components/Pages/Content.razor:1`)
   - protected `OnInitializedAsync` — Runs the component on initialized lifecycle step. _(inferred)_
   - private `Load` — Loads or resolves load. _(inferred)_
@@ -678,10 +795,7 @@ Every source-authored type and callable name is present. Full signatures and dat
 - **`Drafts : ComponentBase`** — Outreach generation and human approval queues. (`src/DevLeads.Web/Components/Pages/Drafts.razor:1`)
 - **`Error : ComponentBase`** — Unhandled-error page. (`src/DevLeads.Web/Components/Pages/Error.razor:1`)
 - **`Home : ComponentBase`** — Campaign-scoped dashboard with lead KPIs, activity, and top opportunities. (`src/DevLeads.Web/Components/Pages/Home.razor:1`)
-  - private `Truncate` — Handles truncate. _(inferred)_
-  - protected `OnInitializedAsync` — Runs the component on initialized lifecycle step. _(inferred)_
-  - private `IsDashboardLead` — Checks dashboard lead. _(inferred)_
-  - private `DashboardDuplicateKey` — Handles dashboard duplicate key. _(inferred)_
+- **`LinkedIn : ComponentBase`** — Blazor component for linked in. (`src/DevLeads.Web/Components/Pages/LinkedIn.razor:1`)
 - **`MyPosts : ComponentBase`** — Tracks the operator's posts, platform performance, optimization experiments, and received messages. (`src/DevLeads.Web/Components/Pages/MyPosts.razor:1`)
   - private `if` — Handles if. _(inferred)_
   - protected `OnInitializedAsync` — Runs the component on initialized lifecycle step. _(inferred)_
@@ -735,6 +849,7 @@ Every source-authored type and callable name is present. Full signatures and dat
   - private `RunScoped` — Coordinates scoped. _(inferred)_
   - private `Rerun` — Handles rerun. _(inferred)_
   - private `Status` — Handles status. _(inferred)_
+  - private `PromoteToClient` — Handles promote to client. _(inferred)_
   - private `GenerateDraft` — Creates draft. _(inferred)_
   - private `QueueResponse` — Handles response. _(inferred)_
   - private `SaveDraft` — Updates draft. _(inferred)_
@@ -765,6 +880,7 @@ Every source-authored type and callable name is present. Full signatures and dat
   - private `SetFeatureModel` — Updates feature model. _(inferred)_
 - **`SkillProfile : ComponentBase`** — Operator skill-profile management. (`src/DevLeads.Web/Components/Pages/SkillProfile.razor:1`)
 - **`Sources : ComponentBase`** — Source configuration, health checks, and manual discovery runs. (`src/DevLeads.Web/Components/Pages/Sources.razor:1`)
+- **`Today : ComponentBase`** — Blazor component for today. (`src/DevLeads.Web/Components/Pages/Today.razor:1`)
 - **`Routes : ComponentBase`** — Blazor component for routes. (`src/DevLeads.Web/Components/Routes.razor:1`)
 - **`ActivityFeed : ComponentBase, IDisposable`** — Blazor component for activity feed. (`src/DevLeads.Web/Components/Shared/ActivityFeed.razor:1`)
   - protected `OnInitializedAsync` — Runs the component on initialized lifecycle step. _(inferred)_
@@ -779,6 +895,26 @@ Every source-authored type and callable name is present. Full signatures and dat
 - **`CampaignSwitcher : ComponentBase`** — Blazor component for campaign switcher. (`src/DevLeads.Web/Components/Shared/CampaignSwitcher.razor:1`)
   - protected `OnInitializedAsync` — Runs the component on initialized lifecycle step. _(inferred)_
   - private `OnChanged` — Handles on changed. _(inferred)_
+- **`PlatformPresencePanel : ComponentBase`** — Blazor component for platform presence panel. (`src/DevLeads.Web/Components/Shared/PlatformPresencePanel.razor:1`)
+  - protected `OnInitializedAsync` — Runs the component on initialized lifecycle step. _(inferred)_
+  - private `Load` — Loads or resolves load. _(inferred)_
+  - private `SuggestionCard` — Handles suggestion card. _(inferred)_
+  - private `DetailRow` — Handles detail row. _(inferred)_
+  - private `Toggle` — Handles toggle. _(inferred)_
+  - private `ToggleDismissed` — Handles dismissed. _(inferred)_
+  - private `GenerateKit` — Creates kit. _(inferred)_
+  - private `HasPack` — Checks pack. _(inferred)_
+  - private `PackView` — Handles pack view. _(inferred)_
+  - private `ResumeRow` — Handles resume row. _(inferred)_
+  - private `PackField` — Handles pack field. _(inferred)_
+  - private `Copy` — Handles copy. _(inferred)_
+  - private `RunKit` — Coordinates kit. _(inferred)_
+  - private `GenerateAllPacks` — Creates all packs. _(inferred)_
+  - private `Activate` — Handles activate. _(inferred)_
+  - private `Discover` — Handles discover. _(inferred)_
+  - private `SetStatus` — Updates status. _(inferred)_
+  - private `SaveProfile` — Updates profile. _(inferred)_
+  - private `AddPlatform` — Creates platform. _(inferred)_
 - **`PostPerformanceChart : ComponentBase`** — Blazor component for post performance chart. (`src/DevLeads.Web/Components/Shared/PostPerformanceChart.razor:1`)
 - **`UiHelpers`** — Presentation helpers: badge classes, labels, and formatting used across pages. (`src/DevLeads.Web/Components/Shared/UiHelpers.cs:8`)
   - public `PriorityClass` — Handles priority class. _(inferred)_
@@ -792,6 +928,8 @@ Every source-authored type and callable name is present. Full signatures and dat
   - public `Fee` — Handles fee. _(inferred)_
   - public `Fee` — Fee with provenance: an amount the poster stated is fact ("$15 offered"); a category-based…
   - public `ParseStringList` — Transforms or resolves string list. _(inferred)_
+  - public `LeadBlurb` — One italic sentence for lead lists: what the lead is, why it scored high enough to be…
+  - private `Humanize` — "payment_processing_down" / "PaymentProcessingDown" → "Payment processing down".
 - **`_Imports : ComponentBase`** — Blazor component for imports. (`src/DevLeads.Web/Components/_Imports.razor:1`)
 
 
@@ -799,7 +937,7 @@ Every source-authored type and callable name is present. Full signatures and dat
 
 ## Completeness
 
-- 150 source-authored C# types and Razor components.
-- 486 source-authored callable members.
-- 14 Blazor page routes; 48 HTTP endpoints; 21 EF DbSets.
-- Full indexed source: 771,910 characters (~192,978 tokens).
+- 188 source-authored C# types and Razor components.
+- 569 source-authored callable members.
+- 18 Blazor page routes; 69 HTTP endpoints; 29 EF DbSets.
+- Full indexed source: 998,815 characters (~249,704 tokens).

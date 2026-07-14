@@ -9,7 +9,7 @@ namespace DevLeads.Infrastructure.Data;
 /// <summary>
 /// Creates the database and seeds query packs, source configs, and settings.
 /// Also migrates older databases: removes retired sources (GitHub Issues) and purges
-/// leads that cannot lead to paid work. Never seeds demo/sample leads.
+/// leads that cannot become paid work or useful owner/operator relationships. Never seeds demo/sample leads.
 /// </summary>
 public static class DatabaseSeeder
 {
@@ -30,6 +30,7 @@ public static class DatabaseSeeder
         var campaigns = await SeedCampaignsAsync(db, ct);
         var migrated = await SeedSourceConfigsAsync(db, campaigns, ct);
         await SeedTrendSourcesAsync(db, ct);
+        await SeedPlatformProfilesAsync(db, ct);
         await db.SaveChangesAsync(ct);
         await BackfillLeadCampaignsAsync(db, campaigns[EmergencyCampaignKey], ct);
 
@@ -43,9 +44,8 @@ public static class DatabaseSeeder
         await PurgeNonActionableLeadsAsync(db, ct);
         await PurgeNonHirableVendorSupportLeadsAsync(db, ct);
         await PurgeSourceLessLeadsAsync(db, ct);
+        await PurgeExpiredDiscoveryLeadsAsync(db, ct);
         await DemoteGenericCapabilitySkillsAsync(db, ct);
-        await PurgeForeignStackLeadsAsync(db, ct);
-        await ApplyStackIdentityCapsAsync(db, ct);
         await RequeueTemplateDraftsAsync(db, ct);
     }
 
@@ -71,46 +71,6 @@ public static class DatabaseSeeder
     }
 
     /// <summary>
-    /// Applies the stack-identity score cap (50, below Medium) to leads scored before the
-    /// gate existed, so off-stack posts stop outranking .NET work without waiting for a
-    /// re-triage. Cheap stored-score adjustment — components are recomputed on next triage.
-    /// </summary>
-    private static async Task ApplyStackIdentityCapsAsync(DevLeadsDbContext db, CancellationToken ct)
-    {
-        var skills = await db.Skills.AsNoTracking().Where(s => s.Enabled).ToListAsync(ct);
-        if (skills.Count == 0) return;
-
-        var active = await db.Opportunities
-            .Where(o => o.SourceKey != "manual" && o.Score > 50 && !EngagedStatuses.Contains(o.Status))
-            .ToListAsync(ct);
-        if (active.Count == 0) return;
-
-        var ids = active.Select(o => o.Id).ToHashSet();
-        var bodies = await db.RawSourceItems
-            .Where(r => r.OpportunityId != null && ids.Contains(r.OpportunityId.Value))
-            .Select(r => new { r.OpportunityId, r.BodyText })
-            .ToListAsync(ct);
-        var bodyByOpp = bodies
-            .GroupBy(r => r.OpportunityId!.Value)
-            .ToDictionary(g => g.Key, g => string.Join('\n', g.Select(r => r.BodyText)));
-
-        var changed = false;
-        foreach (var o in active)
-        {
-            bodyByOpp.TryGetValue(o.Id, out var body);
-            var text = $"{o.Title}\n{o.Summary}\n{body}\n{o.DetectedStackJson}";
-            if (Core.Skills.SkillMatcher.HasStackIdentityMatch(Core.Skills.SkillMatcher.Match(text, skills)))
-                continue;
-
-            o.Score = 50;
-            o.Priority = Core.Scoring.OpportunityScorer.ToPriority(o.Score);
-            o.UpdatedAt = DateTimeOffset.UtcNow;
-            changed = true;
-        }
-        if (changed) await db.SaveChangesAsync(ct);
-    }
-
-    /// <summary>
     /// One-time data fix (2026-07-11): "REST API" was seeded as a weight-3 "Primary stack"
     /// skill, which made every Go/Python job post score as a core .NET fit. Demote it in
     /// place unless the operator already re-weighted it themselves.
@@ -125,8 +85,7 @@ public static class DatabaseSeeder
             restApi.Category = "Backend";
         }
 
-        // Azure and .NET modernization ARE stack identity — move them into "Primary stack"
-        // so the identity gate recognizes them (only while still on their seeded category).
+        // Keep the strongest .NET/Azure specialties grouped consistently in the profile.
         foreach (var (name, oldCategory) in new[] { ("Azure", "Cloud & DevOps"), (".NET modernization", "Specialized") })
         {
             var skill = await db.Skills.FirstOrDefaultAsync(
@@ -134,11 +93,16 @@ public static class DatabaseSeeder
             if (skill is not null) skill.Category = "Primary stack";
         }
 
-        // Same pass: the old SecondarySkills default advertised Python/Node/PHP/WordPress —
-        // wrong for a pure .NET consultant. Only replaced while still on the old default.
+        // Migrate either prior seeded default to the operator's generalist profile. Custom
+        // values remain operator-owned and are never overwritten.
         var settings = await db.OperatorSettings.FirstOrDefaultAsync(ct);
-        if (settings?.SecondarySkills == "DNS, TLS, hosting, WordPress, WooCommerce, Shopify, Python, Node, PHP")
-            settings.SecondarySkills = "IIS, Windows Server, DNS, TLS, hosting, SQL performance tuning";
+        if (settings?.SecondarySkills is
+            "DNS, TLS, hosting, WordPress, WooCommerce, Shopify, Python, Node, PHP" or
+            "IIS, Windows Server, DNS, TLS, hosting, SQL performance tuning")
+        {
+            settings.SecondarySkills =
+                "Python, Node.js, React, Angular, PHP, Java, Go, mobile, WordPress, Shopify, Linux, cloud";
+        }
 
         // Real operator identity (2026-07-11) — only replaces the old placeholder defaults.
         if (settings is not null)
@@ -148,44 +112,6 @@ public static class DatabaseSeeder
         }
 
         await db.SaveChangesAsync(ct);
-    }
-
-    /// <summary>
-    /// Removes discovery leads that demand a stack outside the operator's profile without
-    /// touching the operator's own stack (Go/Python/Java job posts etc.) — they scored high
-    /// on pay intent before the wrong-stack gate existed. Manual and engaged leads are kept;
-    /// raw items stay detached so the same posts are never re-ingested.
-    /// </summary>
-    private static async Task PurgeForeignStackLeadsAsync(DevLeadsDbContext db, CancellationToken ct)
-    {
-        var skills = await db.Skills.AsNoTracking().Where(s => s.Enabled).ToListAsync(ct);
-        if (skills.Count == 0) return;
-
-        var active = await db.Opportunities
-            .Where(o => o.SourceKey != "manual" && !EngagedStatuses.Contains(o.Status))
-            .ToListAsync(ct);
-        if (active.Count == 0) return;
-
-        var ids = active.Select(o => o.Id).ToHashSet();
-        var bodies = await db.RawSourceItems
-            .Where(r => r.OpportunityId != null && ids.Contains(r.OpportunityId.Value))
-            .Select(r => new { r.OpportunityId, r.BodyText })
-            .ToListAsync(ct);
-        var bodyByOpp = bodies
-            .GroupBy(r => r.OpportunityId!.Value)
-            .ToDictionary(g => g.Key, g => string.Join('\n', g.Select(r => r.BodyText)));
-
-        var dead = active.Where(o =>
-        {
-            bodyByOpp.TryGetValue(o.Id, out var body);
-            var text = $"{o.Title}\n{o.Summary}\n{body}\n{o.DetectedStackJson}";
-            return Core.Skills.SkillMatcher.ForeignStackDemands(text, skills).Count > 0 &&
-                   !Core.Skills.SkillMatcher.HasStackIdentityMatch(
-                       Core.Skills.SkillMatcher.Match(text, skills));
-        }).ToList();
-        if (dead.Count == 0) return;
-
-        await DeleteLeadsKeepDedupAsync(db, dead, ct);
     }
 
     /// <summary>
@@ -410,7 +336,178 @@ public static class DatabaseSeeder
                 "Enabled" INTEGER NOT NULL,
                 "Aliases" TEXT NOT NULL
             )
+            """,
+            // Clients & engagements + Today advisor + platform presence (2026-07-13).
+            "ALTER TABLE OperatorSettings ADD COLUMN AdvisorAiProvider TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN AdvisorAiModel TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN PlatformDiscoveryAiProvider TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN PlatformDiscoveryAiModel TEXT NOT NULL DEFAULT ''",
             """
+            CREATE TABLE IF NOT EXISTS "Clients" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_Clients" PRIMARY KEY AUTOINCREMENT,
+                "Name" TEXT NOT NULL,
+                "Company" TEXT NOT NULL,
+                "Platform" TEXT NOT NULL,
+                "Handle" TEXT NOT NULL,
+                "Email" TEXT NOT NULL,
+                "ProfileUrl" TEXT NOT NULL,
+                "Status" TEXT NOT NULL,
+                "SourceOpportunityId" INTEGER NULL,
+                "CampaignId" INTEGER NULL,
+                "Notes" TEXT NOT NULL,
+                "CreatedAt" INTEGER NOT NULL,
+                "UpdatedAt" INTEGER NOT NULL
+            )
+            """,
+            "CREATE INDEX IF NOT EXISTS \"IX_Clients_Status\" ON \"Clients\" (\"Status\")",
+            "CREATE INDEX IF NOT EXISTS \"IX_Clients_SourceOpportunityId\" ON \"Clients\" (\"SourceOpportunityId\")",
+            """
+            CREATE TABLE IF NOT EXISTS "Engagements" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_Engagements" PRIMARY KEY AUTOINCREMENT,
+                "ClientId" INTEGER NOT NULL,
+                "Title" TEXT NOT NULL,
+                "Description" TEXT NOT NULL,
+                "Status" TEXT NOT NULL,
+                "AgreedFee" REAL NULL,
+                "OpportunityId" INTEGER NULL,
+                "StartedAt" INTEGER NULL,
+                "DueAt" INTEGER NULL,
+                "ClosedAt" INTEGER NULL,
+                "NextDeliverable" TEXT NOT NULL,
+                "Notes" TEXT NOT NULL,
+                "CreatedAt" INTEGER NOT NULL,
+                "UpdatedAt" INTEGER NOT NULL,
+                CONSTRAINT "FK_Engagements_Clients_ClientId" FOREIGN KEY ("ClientId") REFERENCES "Clients" ("Id") ON DELETE CASCADE
+            )
+            """,
+            "CREATE INDEX IF NOT EXISTS \"IX_Engagements_ClientId\" ON \"Engagements\" (\"ClientId\")",
+            "CREATE INDEX IF NOT EXISTS \"IX_Engagements_Status\" ON \"Engagements\" (\"Status\")",
+            """
+            CREATE TABLE IF NOT EXISTS "ClientInteractions" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_ClientInteractions" PRIMARY KEY AUTOINCREMENT,
+                "ClientId" INTEGER NOT NULL,
+                "OccurredAt" INTEGER NOT NULL,
+                "Channel" TEXT NOT NULL,
+                "Direction" TEXT NOT NULL,
+                "Summary" TEXT NOT NULL,
+                "Url" TEXT NOT NULL,
+                "CreatedAt" INTEGER NOT NULL,
+                CONSTRAINT "FK_ClientInteractions_Clients_ClientId" FOREIGN KEY ("ClientId") REFERENCES "Clients" ("Id") ON DELETE CASCADE
+            )
+            """,
+            "CREATE INDEX IF NOT EXISTS \"IX_ClientInteractions_ClientId\" ON \"ClientInteractions\" (\"ClientId\")",
+            """
+            CREATE TABLE IF NOT EXISTS "FollowUps" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_FollowUps" PRIMARY KEY AUTOINCREMENT,
+                "ClientId" INTEGER NOT NULL,
+                "EngagementId" INTEGER NULL,
+                "Note" TEXT NOT NULL,
+                "DueAt" INTEGER NOT NULL,
+                "Status" TEXT NOT NULL,
+                "CompletedAt" INTEGER NULL,
+                "CreatedAt" INTEGER NOT NULL,
+                CONSTRAINT "FK_FollowUps_Clients_ClientId" FOREIGN KEY ("ClientId") REFERENCES "Clients" ("Id") ON DELETE CASCADE
+            )
+            """,
+            "CREATE INDEX IF NOT EXISTS \"IX_FollowUps_ClientId\" ON \"FollowUps\" (\"ClientId\")",
+            "CREATE INDEX IF NOT EXISTS \"IX_FollowUps_Status\" ON \"FollowUps\" (\"Status\")",
+            "CREATE INDEX IF NOT EXISTS \"IX_FollowUps_DueAt\" ON \"FollowUps\" (\"DueAt\")",
+            """
+            CREATE TABLE IF NOT EXISTS "PlatformProfiles" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_PlatformProfiles" PRIMARY KEY AUTOINCREMENT,
+                "Key" TEXT NOT NULL,
+                "Name" TEXT NOT NULL,
+                "Url" TEXT NOT NULL,
+                "SignupUrl" TEXT NOT NULL,
+                "Category" TEXT NOT NULL,
+                "Audience" TEXT NOT NULL,
+                "Rationale" TEXT NOT NULL,
+                "PostingNotes" TEXT NOT NULL,
+                "CostModel" TEXT NOT NULL,
+                "Source" TEXT NOT NULL,
+                "Status" TEXT NOT NULL,
+                "Handle" TEXT NOT NULL,
+                "ProfileUrl" TEXT NOT NULL,
+                "GeneratedBio" TEXT NOT NULL,
+                "Notes" TEXT NOT NULL,
+                "ActivatedAt" INTEGER NULL,
+                "CreatedAt" INTEGER NOT NULL,
+                "UpdatedAt" INTEGER NOT NULL
+            )
+            """,
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_PlatformProfiles_Key\" ON \"PlatformProfiles\" (\"Key\")",
+            "CREATE INDEX IF NOT EXISTS \"IX_PlatformProfiles_Status\" ON \"PlatformProfiles\" (\"Status\")",
+            """
+            CREATE TABLE IF NOT EXISTS "AdvisorBriefings" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_AdvisorBriefings" PRIMARY KEY AUTOINCREMENT,
+                "ForDate" INTEGER NOT NULL,
+                "BodyMarkdown" TEXT NOT NULL,
+                "Provider" TEXT NOT NULL,
+                "Model" TEXT NOT NULL,
+                "CreatedAt" INTEGER NOT NULL
+            )
+            """,
+            "CREATE INDEX IF NOT EXISTS \"IX_AdvisorBriefings_ForDate\" ON \"AdvisorBriefings\" (\"ForDate\")",
+            "ALTER TABLE PlatformProfiles ADD COLUMN SignupPackJson TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE PlatformProfiles ADD COLUMN RequiresResume INTEGER NOT NULL DEFAULT 0",
+            """
+            CREATE TABLE IF NOT EXISTS "OperatorDocuments" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_OperatorDocuments" PRIMARY KEY AUTOINCREMENT,
+                "Kind" TEXT NOT NULL,
+                "FileName" TEXT NOT NULL,
+                "ContentType" TEXT NOT NULL,
+                "SizeBytes" INTEGER NOT NULL,
+                "Data" BLOB NOT NULL,
+                "UploadedAt" INTEGER NOT NULL
+            )
+            """,
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_OperatorDocuments_Kind\" ON \"OperatorDocuments\" (\"Kind\")",
+            // LinkedIn profile management, OAuth, scheduling, and reviewed engagement drafts.
+            "ALTER TABLE OperatorPosts ADD COLUMN ScheduledAt INTEGER NULL",
+            "ALTER TABLE OperatorSettings ADD COLUMN LinkedInEngagementAiProvider TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN LinkedInEngagementAiModel TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN LinkedInClientId TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN LinkedInClientSecret TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN LinkedInRedirectUri TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN LinkedInScopes TEXT NOT NULL DEFAULT 'openid profile email w_member_social'",
+            "ALTER TABLE OperatorSettings ADD COLUMN LinkedInApiVersion TEXT NOT NULL DEFAULT '202606'",
+            "ALTER TABLE OperatorSettings ADD COLUMN LinkedInAccessToken TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN LinkedInAccessTokenExpiresAt INTEGER NULL",
+            "ALTER TABLE OperatorSettings ADD COLUMN LinkedInRefreshToken TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN LinkedInRefreshTokenExpiresAt INTEGER NULL",
+            "ALTER TABLE OperatorSettings ADD COLUMN LinkedInMemberId TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN LinkedInMemberName TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN LinkedInMemberPictureUrl TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN LinkedInOAuthState TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN LinkedInOAuthStateExpiresAt INTEGER NULL",
+            """
+            CREATE TABLE IF NOT EXISTS "EngagementDrafts" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_EngagementDrafts" PRIMARY KEY AUTOINCREMENT,
+                "Platform" TEXT NOT NULL,
+                "Kind" TEXT NOT NULL,
+                "ExternalId" TEXT NOT NULL,
+                "OperatorPostId" INTEGER NULL,
+                "ThreadUrn" TEXT NOT NULL,
+                "ParentCommentUrn" TEXT NOT NULL,
+                "AuthorUrn" TEXT NOT NULL,
+                "AuthorName" TEXT NOT NULL,
+                "SourceText" TEXT NOT NULL,
+                "SourceUrl" TEXT NOT NULL,
+                "DraftText" TEXT NOT NULL,
+                "Status" TEXT NOT NULL,
+                "Provider" TEXT NOT NULL,
+                "Model" TEXT NOT NULL,
+                "LastError" TEXT NOT NULL,
+                "ReceivedAt" INTEGER NOT NULL,
+                "CreatedAt" INTEGER NOT NULL,
+                "UpdatedAt" INTEGER NOT NULL,
+                "PublishedAt" INTEGER NULL,
+                CONSTRAINT "FK_EngagementDrafts_OperatorPosts_OperatorPostId" FOREIGN KEY ("OperatorPostId") REFERENCES "OperatorPosts" ("Id") ON DELETE SET NULL
+            )
+            """,
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_EngagementDrafts_Platform_ExternalId\" ON \"EngagementDrafts\" (\"Platform\", \"ExternalId\")",
+            "CREATE INDEX IF NOT EXISTS \"IX_EngagementDrafts_Status\" ON \"EngagementDrafts\" (\"Status\")",
+            "CREATE INDEX IF NOT EXISTS \"IX_EngagementDrafts_OperatorPostId\" ON \"EngagementDrafts\" (\"OperatorPostId\")"
         };
         foreach (var sql in upgrades)
         {
@@ -597,9 +694,11 @@ public static class DatabaseSeeder
                 var initialAiTopicGate = IsInitialAiTopicGate(existing);
                 var aiTopicGateBroadening = IsAiTopicGateBroadening(existing);
                 var aiThresholdRecalibration = IsAiThresholdRecalibration(existing);
+                var technologyAgnosticBroadening = IsTechnologyAgnosticSourceBroadening(existing);
                 var changed = ApplySourceDefaults(existing, seed);
                 migrated |= changed && !additiveHiringExpansion && !initialAiTopicGate &&
-                            !aiTopicGateBroadening && !aiThresholdRecalibration;
+                            !aiTopicGateBroadening && !aiThresholdRecalibration &&
+                            !technologyAgnosticBroadening;
             }
         }
 
@@ -663,6 +762,26 @@ public static class DatabaseSeeder
     /// </summary>
     private static bool IsAiThresholdRecalibration(SourceConfig source) =>
         IsAiAutomationSource(source) && source.MinOpportunityScore >= 42;
+
+    /// <summary>
+    /// 2026-07-13: bounty and paid-feature sources stopped requiring a .NET-profile text
+    /// match. This only broadens discovery, so existing leads remain valid.
+    /// </summary>
+    private static bool IsTechnologyAgnosticSourceBroadening(SourceConfig source)
+    {
+        if (source.SourceKey == "bounties_opire")
+        {
+            // The old built-in omitted the flag, and Opire historically interpreted an
+            // omitted value as true.
+            return !source.ParametersJson.Contains(
+                "\"requireSkillMatch\":\"false\"", StringComparison.OrdinalIgnoreCase);
+        }
+
+        return source.SourceKey is "github_bounties" or "github_feature_requests" &&
+               (source.ParametersJson.Contains("requireSkillMatch", StringComparison.OrdinalIgnoreCase) ||
+                source.ParametersJson.Contains("language:C#", StringComparison.OrdinalIgnoreCase) ||
+                source.ParametersJson.Contains("language:TypeScript", StringComparison.OrdinalIgnoreCase));
+    }
 
     private static bool IsAiAutomationSource(SourceConfig source) =>
         source.SourceKey is "ai_remotive" or "ai_rss" or "ai_reddit" or "ai_hackernews"
@@ -877,7 +996,7 @@ public static class DatabaseSeeder
             PollIntervalMinutes = 240, MaxItemsPerRun = 40,
             QueryPacksCsv = "HireIntent,PaidFeatureRequest,ContractProjectWork",
             AutoModeEligible = false, MinPreFilterScore = 1, MinOpportunityScore = 40,
-            ParametersJson = "{\"connector\":\"opire\",\"maxPages\":\"4\",\"minAmountUsd\":\"20\"}" },
+            ParametersJson = "{\"connector\":\"opire\",\"maxPages\":\"4\",\"minAmountUsd\":\"20\",\"requireSkillMatch\":\"false\"}" },
 
         // GitHub bounty ecosystem: BountyHub, Algora, IssueHunt etc. all anchor bounties
         // to public GitHub issues — one search net catches them all, skill-filtered.
@@ -885,20 +1004,19 @@ public static class DatabaseSeeder
             PollIntervalMinutes = 120, MaxItemsPerRun = 60,
             QueryPacksCsv = "HireIntent,PaidFeatureRequest,ContractProjectWork",
             AutoModeEligible = false, MinPreFilterScore = 1, MinOpportunityScore = 40,
-            // '*' = the query already encodes fit (language:) or is a tiny platform net,
-            // so its results skip the per-item skill-text filter. Bounties stay open for
-            // months, hence the wide daysBack.
+            // '*' skips the old per-item stack filter. All technologies are eligible;
+            // the downstream pay, freshness, competition, and trust gates decide fit.
             ParametersJson = JsonSerializer.Serialize(new
             {
                 connector = "github_search",
-                daysBack = "365", requireSkillMatch = "true",
+                daysBack = LeadQualityRules.MaxAutomatedLeadAgeDays.ToString(), requireSkillMatch = "false",
                 queries = string.Join('\n',
-                    "*label:bounty language:C#",
-                    "*label:bounty language:TypeScript",
-                    "*label:\"💎 Bounty\" language:C#",   // Algora's standard bounty label
+                    "*label:bounty",
+                    "*label:\"💎 Bounty\"",              // Algora's standard bounty label
                     "*bountyhub.dev in:body,comments",     // BountyHub (~all volume, it's small)
-                    "label:\"💵 Funded on Issuehunt\"",
-                    "label:bounty")
+                    "*label:\"💵 Funded on Issuehunt\"",
+                    "*label:reward",
+                    "*bounty in:title")
             }) },
 
         // Feature requests where the poster offers money: "willing to pay", sponsorships,
@@ -910,14 +1028,14 @@ public static class DatabaseSeeder
             ParametersJson = JsonSerializer.Serialize(new
             {
                 connector = "github_search",
-                daysBack = "60", requireSkillMatch = "true",
+                daysBack = LeadQualityRules.MaxAutomatedLeadAgeDays.ToString(), requireSkillMatch = "false",
                 queries = string.Join('\n',
-                    "*\"willing to pay\" language:C#",
-                    "*\"would pay for\" language:C#",
-                    "*\"willing to pay\" language:TypeScript",
-                    "\"willing to pay\"",
-                    "\"would pay for\"",
-                    "bounty in:title")
+                    "*\"willing to pay\"",
+                    "*\"would pay for\"",
+                    "*\"happy to sponsor\"",
+                    "*\"willing to fund\"",
+                    "*\"paid feature request\"",
+                    "*bounty in:title")
             }) },
 
         // Hacker News hiring threads: "Who is hiring?" job comments and the monthly
@@ -1143,6 +1261,55 @@ public static class DatabaseSeeder
                 db.TrendSources.Add(seed);
     }
 
+    /// <summary>
+    /// Platform-presence catalog (add-only by Key; the operator owns rows afterwards).
+    /// A catalog entry whose key already has tracked operator posts starts Active —
+    /// the account demonstrably exists — everything else starts as a suggestion.
+    /// </summary>
+    private static async Task SeedPlatformProfilesAsync(DevLeadsDbContext db, CancellationToken ct)
+    {
+        var existingKeys = (await db.PlatformProfiles.Select(p => p.Key).ToListAsync(ct))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var postPlatforms = (await db.OperatorPosts.Select(p => p.Platform).Distinct().ToListAsync(ct))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var now = DateTimeOffset.UtcNow;
+
+        foreach (var seed in Core.Platforms.DefaultPlatformCatalog.All)
+        {
+            if (existingKeys.Contains(seed.Key)) continue;
+            var active = postPlatforms.Contains(seed.Key);
+            db.PlatformProfiles.Add(new PlatformProfile
+            {
+                Key = seed.Key,
+                Name = seed.Name,
+                Url = seed.Url,
+                SignupUrl = seed.SignupUrl,
+                Category = seed.Category,
+                Audience = seed.Audience,
+                Rationale = seed.Rationale,
+                PostingNotes = seed.PostingNotes,
+                CostModel = seed.CostModel,
+                RequiresResume = seed.RequiresResume,
+                Source = "seed",
+                Status = active ? PlatformPresenceStatus.Active : PlatformPresenceStatus.Suggested,
+                ActivatedAt = active ? now : null,
+                CreatedAt = now, UpdatedAt = now
+            });
+        }
+
+        // One-time backfill after the RequiresResume column lands: rows seeded before the
+        // flag existed pick up the catalog's value. Guarded so an operator who later
+        // unchecks a platform isn't fought every boot.
+        if (!await db.PlatformProfiles.AnyAsync(p => p.RequiresResume, ct))
+        {
+            var resumeKeys = Core.Platforms.DefaultPlatformCatalog.All
+                .Where(s => s.RequiresResume).Select(s => s.Key).ToList();
+            foreach (var row in await db.PlatformProfiles
+                         .Where(p => resumeKeys.Contains(p.Key)).ToListAsync(ct))
+                row.RequiresResume = true;
+        }
+    }
+
     // Single overload on purpose: a (daysBack, params feeds) / (daysBack, provider, params feeds)
     // pair is ambiguous — C# bound the first FEED as the provider, silently dropping the feed
     // and disabling AI triage for the source.
@@ -1227,8 +1394,24 @@ public static class DatabaseSeeder
     }
 
     /// <summary>
-    /// Purges leads that will not lead to financial compensation: pre-filter rejects,
-    /// triage rejects, do-not-contact posts, and non-urgent/irrelevant help requests.
+    /// Removes untouched automated leads older than the standard discovery window while
+    /// preserving raw dedup evidence, manual entries, and anything the operator engaged.
+    /// </summary>
+    private static async Task PurgeExpiredDiscoveryLeadsAsync(DevLeadsDbContext db, CancellationToken ct)
+    {
+        var cutoff = DateTimeOffset.UtcNow.AddDays(-LeadQualityRules.MaxAutomatedLeadAgeDays);
+        var expired = await db.Opportunities
+            .Where(o => o.SourceKey != "manual" && o.PostedAt < cutoff &&
+                        !EngagedStatuses.Contains(o.Status))
+            .ToListAsync(ct);
+        if (expired.Count == 0) return;
+
+        await DeleteLeadsKeepDedupAsync(db, expired, ct);
+    }
+
+    /// <summary>
+    /// Purges leads that will not lead to paid work or a useful owner/operator relationship:
+    /// pre-filter rejects, triage rejects, do-not-contact posts, and irrelevant help requests.
     /// Leads from pay-intent sources (job boards, hiring subs) are kept unless dead —
     /// a non-urgent contract posting is still paid work.
     /// </summary>
@@ -1249,7 +1432,8 @@ public static class DatabaseSeeder
 
         var dead = await db.Opportunities
             .Where(o => deadStatuses.Contains(o.Status) ||
-                        (!payIntentSources.Contains(o.SourceKey) &&
+                        (o.Status != OpportunityStatus.JustMissed &&
+                         !payIntentSources.Contains(o.SourceKey) &&
                          (deadCategories.Contains(o.ProblemType) ||
                           o.OutreachRecommendation == OutreachRecommendation.Ignore)))
             .ToListAsync(ct);

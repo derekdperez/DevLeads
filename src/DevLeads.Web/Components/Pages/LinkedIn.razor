@@ -1,0 +1,438 @@
+@page "/linkedin"
+@rendermode InteractiveServer
+@inject IDbContextFactory<DevLeadsDbContext> DbFactory
+@inject IServiceScopeFactory ScopeFactory
+@inject NavigationManager Nav
+@inject IJSRuntime JS
+<PageTitle>LinkedIn · DevLeads</PageTitle>
+
+<div class="rr-page-head">
+    <div>
+        <h1>LinkedIn</h1>
+        <div class="rr-sub">Connect your profile, write and schedule posts, monitor approved comment activity, and review every response before it goes out.</div>
+    </div>
+    <div class="rr-btn-row">
+        @if (_connection?.Connected == true)
+        {
+            <span class="rr-chip won">● Connected</span>
+        }
+        else
+        {
+            <span class="rr-chip review">Not connected</span>
+        }
+        <button class="rr-btn" @onclick="Load" disabled="@_busy">🔄 Refresh</button>
+    </div>
+</div>
+
+@if (_flash is not null) { <div class="rr-flash @(_flashOk ? "ok" : "err")">@_flash</div> }
+
+@if (_settings is null)
+{
+    <div class="rr-empty">Loading…</div>
+}
+else
+{
+    <div class="rr-panel">
+        <div class="rr-panel-head">
+            <h2>🔗 Account connection</h2>
+            @if (_connection?.Connected == true)
+            {
+                <div class="rr-sub">
+                    <strong>@_connection.MemberName</strong>
+                    · token expires @(_connection.ExpiresAt?.LocalDateTime.ToString("MMM d, yyyy HH:mm") ?? "unknown")
+                </div>
+            }
+        </div>
+
+        @if (_connection?.TokenExpired == true)
+        {
+            <div class="rr-flash err">The LinkedIn access token expired. Reconnect before publishing or syncing.</div>
+        }
+
+        <div class="rr-sub" style="margin-bottom:.7rem">
+            Create an app in the LinkedIn Developer Portal, add <strong>Sign In with LinkedIn using OpenID Connect</strong>
+            and <strong>Share on LinkedIn</strong>, then register this exact redirect URL:<br />
+            <code>@EffectiveCallbackUrl</code>
+        </div>
+        <div class="rr-grid-2">
+            <div class="rr-field"><label>Client id</label><input class="rr-input" @bind="_settings.LinkedInClientId" /></div>
+            <div class="rr-field"><label>Client secret</label><input class="rr-input" type="password" @bind="_settings.LinkedInClientSecret" /></div>
+            <div class="rr-field">
+                <label>Redirect URI (blank = URL above)</label>
+                <input class="rr-input" @bind="_settings.LinkedInRedirectUri" placeholder="https://…/api/linkedin/callback" />
+            </div>
+            <div class="rr-field"><label>LinkedIn API version (YYYYMM)</label><input class="rr-input" @bind="_settings.LinkedInApiVersion" /></div>
+        </div>
+        <div class="rr-field">
+            <label>OAuth scopes</label>
+            <input class="rr-input" @bind="_settings.LinkedInScopes" />
+            <div class="rr-sub">Keep <code>openid profile email w_member_social</code>. Add <code>r_member_social</code> only if LinkedIn approved Community Management access for this app; it is required to read comments.</div>
+        </div>
+        <div class="rr-btn-row">
+            <button class="rr-btn" @onclick="SaveSettings" disabled="@_busy">💾 Save LinkedIn settings</button>
+            <a class="rr-btn primary" href="/api/linkedin/authorize">@(_connection?.Connected == true ? "Reconnect LinkedIn" : "Connect LinkedIn")</a>
+            @if (_connection?.Connected == true)
+            {
+                <button class="rr-btn" @onclick="Disconnect" disabled="@_busy">Disconnect</button>
+            }
+        </div>
+        <div class="rr-sub" style="margin-top:.7rem">
+            Posting is available with <code>w_member_social</code>. Reading posts/comments is restricted by LinkedIn and may require a vetted Community Management app.
+            LinkedIn does not provide a general API for a member's private inbox, so private messages can be pasted below for drafting and then sent manually in LinkedIn.
+        </div>
+    </div>
+
+    <div class="rr-panel">
+        <div class="rr-panel-head">
+            <h2>✍️ Create content</h2>
+            <div class="rr-sub">AI creates a grounded draft; nothing is published until you click Publish or set a schedule.</div>
+        </div>
+        <div class="rr-grid-2">
+            <div class="rr-field">
+                <label>Campaign / offering</label>
+                <select class="rr-select" @bind="_campaignId">
+                    <option value="">General consulting presence</option>
+                    @foreach (var c in _campaigns) { <option value="@c.Id">@c.Emoji @c.Name</option> }
+                </select>
+            </div>
+            <div class="rr-field"><label>Extra instructions</label><input class="rr-input" @bind="_postInstructions" placeholder="angle, audience, announcement…" /></div>
+        </div>
+        <div class="rr-btn-row">
+            <button class="rr-btn primary" @onclick="GeneratePost" disabled="@_busy">@(_busy ? "Working…" : "🧠 Draft LinkedIn post (1 AI call)")</button>
+            <button class="rr-btn" @onclick="AddBlankPost" disabled="@_busy">➕ Blank draft</button>
+        </div>
+    </div>
+
+    <div class="rr-panel">
+        <div class="rr-panel-head">
+            <h2>🗓️ Drafts &amp; scheduled posts</h2>
+            <div class="rr-sub">@_posts.Count(p => p.Status == OperatorPostStatus.Draft) draft(s) · the worker checks due schedules once a minute</div>
+        </div>
+        @if (!_posts.Any(p => p.Status == OperatorPostStatus.Draft))
+        {
+            <div class="rr-empty">No LinkedIn drafts. Generate one above or add a blank draft.</div>
+        }
+        @foreach (var p in _posts.Where(p => p.Status == OperatorPostStatus.Draft))
+        {
+            <div style="border:1px solid var(--line);border-radius:10px;padding:.8rem;margin-bottom:.7rem">
+                <div class="rr-field"><label>Internal title</label><input class="rr-input" @bind="p.Title" /></div>
+                <div class="rr-field"><label>Post text</label><textarea class="rr-textarea" style="min-height:180px" @bind="p.Body"></textarea></div>
+                <div class="rr-grid-2">
+                    <div class="rr-field">
+                        <label>Publish at (your local time; blank = unscheduled)</label>
+                        <input class="rr-input" type="datetime-local" value="@ScheduleValue(p)" @onchange="e => SetSchedule(p, e.Value?.ToString())" />
+                    </div>
+                    <div class="rr-field"><label>Notes</label><input class="rr-input" @bind="p.Notes" /></div>
+                </div>
+                <div class="rr-btn-row">
+                    <button class="rr-btn" @onclick="() => SavePost(p)" disabled="@_busy">💾 Save</button>
+                    <button class="rr-btn primary" @onclick="() => PublishPost(p.Id)" disabled="@(_busy || _connection?.Connected != true)">Publish now</button>
+                    @if (p.ScheduledAt is not null)
+                    {
+                        <span class="rr-chip progress">Scheduled @p.ScheduledAt.Value.LocalDateTime.ToString("MMM d, HH:mm")</span>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="rr-panel">
+        <div class="rr-panel-head">
+            <h2>📊 Published posts</h2>
+            <div class="rr-sub">Known posts and comment counts available to the connected app.</div>
+        </div>
+        @if (!_posts.Any(p => p.Status != OperatorPostStatus.Draft))
+        {
+            <div class="rr-empty">No published LinkedIn posts are tracked yet.</div>
+        }
+        else
+        {
+            <div class="rr-table-scroll"><table class="rr-table">
+                <thead><tr><th>Post</th><th>Published</th><th>Comments</th><th>Last checked</th><th>Status</th></tr></thead>
+                <tbody>
+                @foreach (var p in _posts.Where(p => p.Status != OperatorPostStatus.Draft))
+                {
+                    <tr>
+                        <td class="rr-title-cell">@if (p.Url.Length > 0) { <a href="@p.Url" target="_blank" rel="noopener noreferrer">@p.Title ↗</a> } else { @p.Title }</td>
+                        <td>@p.PostedAt.LocalDateTime.ToString("MMM d, yyyy HH:mm")</td>
+                        <td>@p.ReplyCount</td>
+                        <td>@(p.LastCheckedAt is { } checkedAt ? UiHelpers.Age(checkedAt) : "—")</td>
+                        <td><span class="rr-chip active">@p.Status</span></td>
+                    </tr>
+                }
+                </tbody>
+            </table></div>
+        }
+    </div>
+
+    <div class="rr-panel">
+        <div class="rr-panel-head">
+            <h2>💬 Engagement inbox</h2>
+            <div class="rr-sub">Comment replies can publish after review; pasted private-message replies are copy-only.</div>
+        </div>
+        <div class="rr-btn-row" style="margin-bottom:.7rem">
+            <button class="rr-btn" @onclick="SyncEngagement" disabled="@(_busy || _connection?.Connected != true)">🔄 Sync comments</button>
+            <button class="rr-btn primary" @onclick="GenerateEngagement" disabled="@_busy">🧠 Draft pending responses (1 batch call)</button>
+            <button class="rr-btn" @onclick="() => _showPaste = !_showPaste" disabled="@_busy">Paste private message</button>
+        </div>
+        <div class="rr-field"><label>Reply-writing instructions (optional)</label><input class="rr-input" @bind="_engagementInstructions" placeholder="tone, next step, questions to ask…" /></div>
+
+        @if (_showPaste)
+        {
+            <div style="border:1px solid var(--line);border-radius:10px;padding:.7rem;margin:.7rem 0">
+                <div class="rr-grid-2">
+                    <div class="rr-field"><label>From</label><input class="rr-input" @bind="_manualAuthor" placeholder="name / handle" /></div>
+                    <div class="rr-field">
+                        <label>Kind</label>
+                        <select class="rr-select" @bind="_manualKind">
+                            <option value="@EngagementDraftKind.PrivateMessageReply">Private message</option>
+                            <option value="@EngagementDraftKind.MentionReply">Mention</option>
+                            <option value="@EngagementDraftKind.Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="rr-field"><label>Message</label><textarea class="rr-textarea" @bind="_manualText"></textarea></div>
+                <button class="rr-btn primary" @onclick="AddManualEngagement" disabled="@_busy">Add for drafting</button>
+            </div>
+        }
+
+        @if (_engagements.Count == 0)
+        {
+            <div class="rr-empty">No LinkedIn engagements yet. Sync approved comment activity or paste a private message.</div>
+        }
+        @foreach (var d in _engagements)
+        {
+            <div style="border:1px solid var(--line);border-radius:10px;padding:.8rem;margin-bottom:.7rem;opacity:@(d.Status == EngagementDraftStatus.Dismissed ? ".65" : "1")">
+                <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+                    <span class="rr-chip @(d.Kind == EngagementDraftKind.CommentReply ? "active" : "review")">@UiHelpers.Spaced(d.Kind)</span>
+                    <strong>@(d.AuthorName.Length > 0 ? d.AuthorName : "Unknown sender")</strong>
+                    <span class="rr-sub">@d.ReceivedAt.LocalDateTime.ToString("MMM d, HH:mm")</span>
+                    <span class="rr-chip @(d.Status == EngagementDraftStatus.Published ? "won" : d.Status == EngagementDraftStatus.Failed ? "dead" : "progress")">@UiHelpers.Spaced(d.Status)</span>
+                </div>
+                <div class="rr-quote" style="white-space:pre-wrap;margin:.5rem 0">@d.SourceText</div>
+                <div class="rr-field"><label>Reviewed response</label><textarea class="rr-textarea" style="min-height:90px" @bind="d.DraftText"></textarea></div>
+                @if (d.LastError.Length > 0) { <div class="rr-sub" style="color:#fca5a5">@d.LastError</div> }
+                <div class="rr-btn-row">
+                    <button class="rr-btn" @onclick="() => SaveEngagement(d)" disabled="@_busy">💾 Save</button>
+                    @if (d.Kind == EngagementDraftKind.CommentReply)
+                    {
+                        <button class="rr-btn primary" @onclick="() => PublishEngagement(d.Id)" disabled="@(_busy || d.Status == EngagementDraftStatus.Published || _connection?.Connected != true)">Publish reply</button>
+                    }
+                    else
+                    {
+                        <button class="rr-btn primary" @onclick="() => Copy(d.DraftText)" disabled="@(d.DraftText.Length == 0)">Copy for LinkedIn inbox</button>
+                        <a class="rr-btn" href="https://www.linkedin.com/messaging/" target="_blank" rel="noopener noreferrer">Open inbox ↗</a>
+                    }
+                    @if (d.Status != EngagementDraftStatus.Dismissed && d.Status != EngagementDraftStatus.Published)
+                    {
+                        <button class="rr-btn" @onclick="() => DismissEngagement(d)" disabled="@_busy">Dismiss</button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [SupplyParameterFromQuery(Name = "oauth")] public string? OAuthMessage { get; set; }
+    [SupplyParameterFromQuery(Name = "oauthError")] public string? OAuthError { get; set; }
+
+    private OperatorSettings? _settings;
+    private LinkedInService.ConnectionStatus? _connection;
+    private List<OperatorPost> _posts = new();
+    private List<EngagementDraft> _engagements = new();
+    private List<Campaign> _campaigns = new();
+    private bool _busy, _showPaste;
+    private string? _flash;
+    private bool _flashOk = true;
+    private long? _campaignId;
+    private string _postInstructions = "", _engagementInstructions = "";
+    private string _manualAuthor = "", _manualText = "";
+    private EngagementDraftKind _manualKind = EngagementDraftKind.PrivateMessageReply;
+
+    private string DefaultCallbackUrl => new Uri(new Uri(Nav.BaseUri), "api/linkedin/callback").ToString();
+    private string EffectiveCallbackUrl => string.IsNullOrWhiteSpace(_settings?.LinkedInRedirectUri)
+        ? DefaultCallbackUrl : _settings.LinkedInRedirectUri;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(OAuthError)) { _flash = OAuthError; _flashOk = false; }
+        else if (!string.IsNullOrWhiteSpace(OAuthMessage)) { _flash = OAuthMessage; _flashOk = true; }
+        await Load();
+    }
+
+    private async Task Load()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        _settings = await db.OperatorSettings.AsNoTracking().FirstOrDefaultAsync() ?? new OperatorSettings { Id = 1 };
+        _posts = await db.OperatorPosts.AsNoTracking().Where(p => p.Platform == "linkedin")
+            .OrderBy(p => p.Status != OperatorPostStatus.Draft).ThenByDescending(p => p.CreatedAt).ToListAsync();
+        _engagements = await db.EngagementDrafts.AsNoTracking().Where(d => d.Platform == "linkedin")
+            .OrderBy(d => d.Status == EngagementDraftStatus.Dismissed)
+            .ThenBy(d => d.Status == EngagementDraftStatus.Published)
+            .ThenByDescending(d => d.ReceivedAt).Take(100).ToListAsync();
+        _campaigns = await db.Campaigns.AsNoTracking().Where(c => c.Enabled).OrderBy(c => c.Name).ToListAsync();
+        using var scope = ScopeFactory.CreateScope();
+        _connection = await scope.ServiceProvider.GetRequiredService<LinkedInService>().GetConnectionStatusAsync(default);
+    }
+
+    private async Task SaveSettings()
+    {
+        if (_settings is null) return;
+        await Run(async () =>
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<DevLeadsDbContext>();
+            var row = await db.OperatorSettings.FirstOrDefaultAsync();
+            if (row is null) db.OperatorSettings.Add(_settings);
+            else db.Entry(row).CurrentValues.SetValues(_settings);
+            await db.SaveChangesAsync();
+            return (true, "LinkedIn settings saved. Reconnect after changing scopes or credentials.");
+        });
+    }
+
+    private async Task Disconnect() => await Run(async () =>
+    {
+        using var scope = ScopeFactory.CreateScope();
+        await scope.ServiceProvider.GetRequiredService<LinkedInService>().DisconnectAsync(default);
+        return (true, "LinkedIn disconnected.");
+    });
+
+    private async Task GeneratePost() => await Run(async () =>
+    {
+        using var scope = ScopeFactory.CreateScope();
+        var (post, message) = await scope.ServiceProvider.GetRequiredService<OperatorPostService>()
+            .GeneratePostAsync("linkedin", _campaignId, _postInstructions, default);
+        return (post is not null, message);
+    });
+
+    private async Task AddBlankPost() => await Run(async () =>
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var now = DateTimeOffset.UtcNow;
+        db.OperatorPosts.Add(new OperatorPost
+        {
+            Platform = "linkedin", ExternalId = Guid.NewGuid().ToString("N"),
+            Title = "LinkedIn draft", Status = OperatorPostStatus.Draft,
+            CampaignId = _campaignId, PostedAt = now, CreatedAt = now, UpdatedAt = now
+        });
+        await db.SaveChangesAsync();
+        return (true, "Blank LinkedIn draft added.");
+    });
+
+    private async Task SavePost(OperatorPost post) => await Run(async () =>
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var row = await db.OperatorPosts.FirstOrDefaultAsync(p => p.Id == post.Id);
+        if (row is null) return (false, "Post no longer exists.");
+        row.Title = post.Title.Trim(); row.Body = post.Body.Trim(); row.Notes = post.Notes.Trim();
+        row.ScheduledAt = post.ScheduledAt; row.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+        return (true, row.ScheduledAt is null ? "Draft saved." : $"Draft scheduled for {row.ScheduledAt.Value.LocalDateTime:f}.");
+    });
+
+    private async Task PublishPost(long id) => await Run(async () =>
+    {
+        using var scope = ScopeFactory.CreateScope();
+        return await scope.ServiceProvider.GetRequiredService<LinkedInService>().PublishPostAsync(id, default);
+    });
+
+    private async Task SyncEngagement() => await Run(async () =>
+    {
+        using var scope = ScopeFactory.CreateScope();
+        var (_, _, message) = await scope.ServiceProvider.GetRequiredService<LinkedInService>().SyncEngagementAsync(default);
+        return (true, message);
+    });
+
+    private async Task GenerateEngagement() => await Run(async () =>
+    {
+        using var scope = ScopeFactory.CreateScope();
+        var (generated, message) = await scope.ServiceProvider.GetRequiredService<LinkedInService>()
+            .GenerateEngagementBatchAsync(_engagementInstructions, default);
+        return (generated > 0, message);
+    });
+
+    private async Task AddManualEngagement()
+    {
+        if (string.IsNullOrWhiteSpace(_manualText)) { _flash = "Paste the message text first."; _flashOk = false; return; }
+        await Run(async () =>
+        {
+            using var scope = ScopeFactory.CreateScope();
+            await scope.ServiceProvider.GetRequiredService<LinkedInService>()
+                .CreateManualEngagementAsync(_manualAuthor, _manualText, _manualKind, default);
+            _manualAuthor = _manualText = ""; _showPaste = false;
+            return (true, "Message added. Use Draft pending responses to generate a reply.");
+        });
+    }
+
+    private async Task SaveEngagement(EngagementDraft draft) => await Run(async () =>
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var row = await db.EngagementDrafts.FirstOrDefaultAsync(d => d.Id == draft.Id);
+        if (row is null) return (false, "Engagement no longer exists.");
+        row.DraftText = draft.DraftText.Trim();
+        if (row.Status == EngagementDraftStatus.Failed) row.Status = EngagementDraftStatus.PendingReview;
+        row.LastError = ""; row.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+        return (true, "Response draft saved.");
+    });
+
+    private async Task PublishEngagement(long id) => await Run(async () =>
+    {
+        var current = _engagements.FirstOrDefault(d => d.Id == id);
+        if (current is not null) await SaveEngagementDirect(current);
+        using var scope = ScopeFactory.CreateScope();
+        return await scope.ServiceProvider.GetRequiredService<LinkedInService>().PublishEngagementAsync(id, default);
+    });
+
+    private async Task SaveEngagementDirect(EngagementDraft draft)
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var row = await db.EngagementDrafts.FirstOrDefaultAsync(d => d.Id == draft.Id);
+        if (row is null) return;
+        row.DraftText = draft.DraftText.Trim(); row.UpdatedAt = DateTimeOffset.UtcNow;
+        if (row.Status == EngagementDraftStatus.Failed) row.Status = EngagementDraftStatus.PendingReview;
+        row.LastError = "";
+        await db.SaveChangesAsync();
+    }
+
+    private async Task DismissEngagement(EngagementDraft draft) => await Run(async () =>
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var row = await db.EngagementDrafts.FirstOrDefaultAsync(d => d.Id == draft.Id);
+        if (row is null) return (false, "Engagement no longer exists.");
+        row.Status = EngagementDraftStatus.Dismissed; row.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+        return (true, "Engagement dismissed.");
+    });
+
+    private async Task Copy(string text)
+    {
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", text);
+        _flash = "Copied to clipboard."; _flashOk = true;
+    }
+
+    private static string ScheduleValue(OperatorPost post) =>
+        post.ScheduledAt?.LocalDateTime.ToString("yyyy-MM-ddTHH:mm") ?? "";
+
+    private static void SetSchedule(OperatorPost post, string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) { post.ScheduledAt = null; return; }
+        if (DateTime.TryParse(value, out var local))
+            post.ScheduledAt = new DateTimeOffset(DateTime.SpecifyKind(local, DateTimeKind.Local)).ToUniversalTime();
+    }
+
+    private async Task Run(Func<Task<(bool Ok, string Message)>> action)
+    {
+        _busy = true; _flash = null;
+        StateHasChanged();
+        try
+        {
+            var result = await action();
+            _flash = result.Message; _flashOk = result.Ok;
+            await Load();
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+}

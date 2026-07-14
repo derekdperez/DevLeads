@@ -6,6 +6,14 @@ All source-authored types and callable members are listed; implementation bodies
 
 ### `DevLeads.Core.Ai`
 
+#### AdvisorPrompts
+
+public class `AdvisorPrompts` · `src/DevLeads.Core/Ai/AdvisorPrompts.cs:10`
+
+Prompt for the daily business-advisor briefing on the Today page: one call per day that turns the deterministic agenda snapshot into prioritized, opinionated guidance.
+
+- public `BuildDailyBriefingPrompt(OperatorSettings op, string agendaContext) → string` — Creates daily briefing prompt. _(inferred)_
+
 #### AiTriagePrompts
 
 public class `AiTriagePrompts` · `src/DevLeads.Core/Ai/AiTriagePrompts.cs:4`
@@ -113,6 +121,23 @@ Data: `Name`: string.
 - public `AvailabilityMessage(OperatorSettings settings) → string` — Human-readable explanation when IsAvailable is false.
 - public `TriageAsync(AiTriageRequest request, OperatorSettings settings, CancellationToken ct) → Task<AiTriageResponse>` — Coordinates triage. _(inferred)_
 
+#### LinkedInPrompts
+
+public class `LinkedInPrompts` · `src/DevLeads.Core/Ai/LinkedInPrompts.cs:7`
+
+Grounded batched reply generation for LinkedIn comments and pasted messages.
+
+- public `BuildEngagementBatchPrompt(OperatorSettings op, string operatorSkills, IReadOnlyList<EngagementItem> items, string extraInstructions) → string` — Creates engagement batch prompt. _(inferred)_
+- private `Compact(string value, int max) → string` — Transforms or resolves compact. _(inferred)_
+
+#### EngagementItem
+
+public record class `EngagementItem` · `src/DevLeads.Core/Ai/LinkedInPrompts.cs:9`
+
+Represents engagement item. _(inferred)_
+
+Depends on: `long Id`, `EngagementDraftKind Kind`, `string Author`, `string SourceText`, `string PostTitle`, `string PostBody`.
+
 #### OutreachGenerationItem
 
 public class `OutreachGenerationItem` · `src/DevLeads.Core/Ai/OutreachPrompts.cs:7`
@@ -143,6 +168,17 @@ Data: `SupportedPlatforms`: string[].
 - private `PlatformLabel(string platform) → string` — Handles platform label. _(inferred)_
 - private `PlatformSpec(string platform) → string` — Handles platform spec. _(inferred)_
 - private `Compact(string value, int max) → string` — Transforms or resolves compact. _(inferred)_
+
+#### PlatformPresencePrompts
+
+public class `PlatformPresencePrompts` · `src/DevLeads.Core/Ai/PlatformPresencePrompts.cs:10`
+
+Prompts for the platform-presence feature on My posts: discovering new platforms worth posting on, and generating the starter kit (profile bio + first post) for one of them.
+
+Data: `SignupPackChunkSize`: int.
+
+- public `BuildDiscoveryPrompt(OperatorSettings op, string operatorSkills, IReadOnlyList<string> campaignObjectives, IReadOnlyList<string> knownPlatforms) → string` — Creates discovery prompt. _(inferred)_
+- public `BuildSignupPackPrompt(IReadOnlyList<PlatformProfile> platforms, OperatorSettings op, string operatorSkills, string campaignObjective, string extraInstructions) → string` — One batched call writes the complete signup pack for several platforms at once — every field a signup/profile form asks for plus the first post, each shaped by that platform's…
 
 ### `DevLeads.Core`
 
@@ -185,6 +221,14 @@ Data: `SourceKey`: string, `DisplayName`: string.
 
 ### `DevLeads.Core.Entities`
 
+#### AdvisorBriefing
+
+public class `AdvisorBriefing` · `src/DevLeads.Core/Entities/AdvisorBriefing.cs:8`
+
+One day's business-advisor briefing shown on the Today page: top priorities, pipeline observations, and presence nudges. At most one per calendar day; written by AI when available, otherwise by the deterministic…
+
+Data: `Id`: long, `ForDate`: DateTimeOffset, `BodyMarkdown`: string, `Provider`: string, `Model`: string, `CreatedAt`: DateTimeOffset.
+
 #### AiTriageRun
 
 public class `AiTriageRun` · `src/DevLeads.Core/Entities/AiTriageRun.cs:4`
@@ -209,6 +253,22 @@ A lead-generation campaign: a named objective (e.g. emergency rescue work,.NET l
 
 Data: `Id`: long, `Key`: string, `Name`: string, `Emoji`: string, `Objective`: string, `Enabled`: bool, `CreatedAt`: DateTimeOffset.
 
+#### Client
+
+public class `Client` · `src/DevLeads.Core/Entities/Client.cs:8`
+
+A real person/business the operator has a working relationship with — usually promoted from a won or responding Opportunity, sometimes entered by hand.
+
+Data: `Id`: long, `Name`: string, `Company`: string, `Platform`: string, `Handle`: string, `Email`: string, `ProfileUrl`: string, `Status`: ClientStatus, `SourceOpportunityId`: long?, `CampaignId`: long?, `Notes`: string, `CreatedAt`: DateTimeOffset, `UpdatedAt`: DateTimeOffset, `Engagements`: List<Engagement>, `Interactions`: List<ClientInteraction>, `FollowUps`: List<FollowUp>.
+
+#### ClientInteraction
+
+public class `ClientInteraction` · `src/DevLeads.Core/Entities/ClientInteraction.cs:7`
+
+One logged touch with a client — a DM, email, call, or public reply, in either direction. The contact history that makes follow-ups informed instead of awkward.
+
+Data: `Id`: long, `ClientId`: long, `Client`: Client?, `OccurredAt`: DateTimeOffset, `Channel`: string, `Direction`: InteractionDirection, `Summary`: string, `Url`: string, `CreatedAt`: DateTimeOffset.
+
 #### ContentDraft
 
 public class `ContentDraft` · `src/DevLeads.Core/Entities/ContentDraft.cs:7`
@@ -225,6 +285,38 @@ An AI-suggested publishing topic distilled from trend signals: what to write abo
 
 Data: `Id`: long, `Title`: string, `Angle`: string, `Rationale`: string, `InterestScore`: double, `SkillsJson`: string, `EvidenceJson`: string, `SuggestedFormatsCsv`: string, `Status`: ContentTopicStatus, `CreatedAt`: DateTimeOffset, `UpdatedAt`: DateTimeOffset, `Drafts`: List<ContentDraft>.
 
+#### Engagement
+
+public class `Engagement` · `src/DevLeads.Core/Entities/Engagement.cs:8`
+
+One bounded piece of work for a client: a fix, a project, or a retainer. Tracks the commercial state (status, fee) and delivery expectations (due date, next deliverable) so the Today page can surface deadlines before…
+
+Data: `Id`: long, `ClientId`: long, `Client`: Client?, `Title`: string, `Description`: string, `Status`: EngagementStatus, `AgreedFee`: double?, `OpportunityId`: long?, `StartedAt`: DateTimeOffset?, `DueAt`: DateTimeOffset?, `ClosedAt`: DateTimeOffset?, `NextDeliverable`: string, `Notes`: string, `CreatedAt`: DateTimeOffset, `UpdatedAt`: DateTimeOffset.
+
+#### EngagementDraft
+
+public class `EngagementDraft` · `src/DevLeads.Core/Entities/EngagementDraft.cs:9`
+
+A human-reviewed response draft for activity on one of the operator's LinkedIn posts. LinkedIn comment activity can be imported when the connected app has an approved read scope; private inbox messages can be pasted…
+
+Data: `Id`: long, `Platform`: string, `Kind`: EngagementDraftKind, `ExternalId`: string, `OperatorPostId`: long?, `Post`: OperatorPost?, `ThreadUrn`: string, `ParentCommentUrn`: string, `AuthorUrn`: string, `AuthorName`: string, `SourceText`: string, `SourceUrl`: string, `DraftText`: string, `Status`: EngagementDraftStatus, `Provider`: string, `Model`: string, `LastError`: string, `ReceivedAt`: DateTimeOffset, `CreatedAt`: DateTimeOffset, `UpdatedAt`: DateTimeOffset, `PublishedAt`: DateTimeOffset?.
+
+#### FollowUp
+
+public class `FollowUp` · `src/DevLeads.Core/Entities/FollowUp.cs:7`
+
+A dated reminder to touch a client or push an engagement forward. Due/overdue follow-ups are the backbone of the Today page's "needs your attention" list.
+
+Data: `Id`: long, `ClientId`: long, `Client`: Client?, `EngagementId`: long?, `Note`: string, `DueAt`: DateTimeOffset, `Status`: FollowUpStatus, `CompletedAt`: DateTimeOffset?, `CreatedAt`: DateTimeOffset.
+
+#### OperatorDocument
+
+public class `OperatorDocument` · `src/DevLeads.Core/Entities/OperatorDocument.cs:9`
+
+A document the operator uploads once and the app hands out wherever it's needed — the resume today; portfolios, cover letters, or case studies as features grow.
+
+Data: `ResumeKind`: string, `Id`: long, `Kind`: string, `FileName`: string, `ContentType`: string, `SizeBytes`: long, `Data`: byte[], `UploadedAt`: DateTimeOffset.
+
 #### OperatorMessage
 
 public class `OperatorMessage` · `src/DevLeads.Core/Entities/OperatorMessage.cs:10`
@@ -239,7 +331,7 @@ public class `OperatorPost` · `src/DevLeads.Core/Entities/OperatorPost.cs:9`
 
 One of the operator's OWN posts on an external platform (a [For Hire] reddit post, an Upwork profile/proposal, a Craigslist ad…).
 
-Data: `Id`: long, `Platform`: string, `ExternalId`: string, `Url`: string, `Title`: string, `Body`: string, `Community`: string, `Status`: OperatorPostStatus, `CampaignId`: long?, `ReplyCount`: int, `UpvoteCount`: int, `ViewCount`: int, `ViewCountKnown`: bool, `ThreadSummary`: string, `SummarizedAt`: DateTimeOffset?, `LastCheckedAt`: DateTimeOffset?, `Notes`: string, `PostedAt`: DateTimeOffset, `CreatedAt`: DateTimeOffset, `UpdatedAt`: DateTimeOffset, `Snapshots`: List<OperatorPostSnapshot>.
+Data: `Id`: long, `Platform`: string, `ExternalId`: string, `Url`: string, `Title`: string, `Body`: string, `Community`: string, `Status`: OperatorPostStatus, `CampaignId`: long?, `ReplyCount`: int, `UpvoteCount`: int, `ViewCount`: int, `ViewCountKnown`: bool, `ThreadSummary`: string, `SummarizedAt`: DateTimeOffset?, `LastCheckedAt`: DateTimeOffset?, `Notes`: string, `ScheduledAt`: DateTimeOffset?, `PostedAt`: DateTimeOffset, `CreatedAt`: DateTimeOffset, `UpdatedAt`: DateTimeOffset, `Snapshots`: List<OperatorPostSnapshot>.
 
 #### OperatorPostRevision
 
@@ -263,7 +355,7 @@ public class `OperatorSettings` · `src/DevLeads.Core/Entities/OperatorSettings.
 
 Single-row settings for the solo operator: profile, AI, outreach, and safety controls.
 
-Data: `Id`: long, `OperatorName`: string, `BusinessName`: string, `Location`: string, `ContactEmail`: string, `RemoteAvailability`: string, `CoreSkills`: string, `SecondarySkills`: string, `MinimumFee`: double, `PreferredPaymentTerms`: string, `EmergencyAvailability`: bool, `AiProvider`: string, `AiModel`: string, `OpenCodeCliPath`: string, `CodexCliPath`: string, `DefaultOpenCodeModel`: string, `DefaultAnthropicModel`: string, `DefaultCodexModel`: string, `TriageAiProvider`: string, `TriageAiModel`: string, `OutreachAiProvider`: string, `OutreachAiModel`: string, `ContentTopicsAiProvider`: string, `ContentTopicsAiModel`: string, `ContentDraftsAiProvider`: string, `ContentDraftsAiModel`: string, `PostDraftAiProvider`: string, `PostDraftAiModel`: string, `ThreadSummaryAiProvider`: string, `ThreadSummaryAiModel`: string, `PostOptimizationAiProvider`: string, `PostOptimizationAiModel`: string, `PromptVersion`: string, `MaxAiCallsPerHour`: int, `MaxAiSpendPerDay`: double, `MinPreFilterScoreForAi`: double, `MinAiConfidenceForDraft`: double, `ManualReviewConfidenceThreshold`: double, `AiRetryCount`: int, `AiTimeoutSeconds`: int, `DefaultOutreachMode`: OutreachMode, `GlobalAutoModeEnabled`: bool, `GlobalKillSwitch`: bool, `MaxSendsPerHour`: int, `MaxSendsPerDay`: int, `RequireApprovalAboveRisk`: double, `RequireApprovalBelowConfidence`: double, `SuppressionListEnabled`: bool, `AuditLoggingEnabled`: bool, `DraftScoreThreshold`: double, `AlertScoreThreshold`: double, `SelectedCampaignId`: long?, `DiscoveryEnabled`: bool, `ContentDiscoveryEnabled`: bool, `RedditUsername`: string, `RedditClientId`: string, `RedditClientSecret`: string, `RedditAppPassword`: string, `RedditInboxFeedToken`: string, `StaleItemMaxAgeHours`: int, `FollowUpDefaultHours`: int.
+Data: `Id`: long, `OperatorName`: string, `BusinessName`: string, `Location`: string, `ContactEmail`: string, `RemoteAvailability`: string, `CoreSkills`: string, `SecondarySkills`: string, `MinimumFee`: double, `PreferredPaymentTerms`: string, `EmergencyAvailability`: bool, `AiProvider`: string, `AiModel`: string, `OpenCodeCliPath`: string, `CodexCliPath`: string, `DefaultOpenCodeModel`: string, `DefaultAnthropicModel`: string, `DefaultCodexModel`: string, `TriageAiProvider`: string, `TriageAiModel`: string, `OutreachAiProvider`: string, `OutreachAiModel`: string, `ContentTopicsAiProvider`: string, `ContentTopicsAiModel`: string, `ContentDraftsAiProvider`: string, `ContentDraftsAiModel`: string, `PostDraftAiProvider`: string, `PostDraftAiModel`: string, `ThreadSummaryAiProvider`: string, `ThreadSummaryAiModel`: string, `PostOptimizationAiProvider`: string, `PostOptimizationAiModel`: string, `AdvisorAiProvider`: string, `AdvisorAiModel`: string, `PlatformDiscoveryAiProvider`: string, `PlatformDiscoveryAiModel`: string, `LinkedInEngagementAiProvider`: string, `LinkedInEngagementAiModel`: string, `PromptVersion`: string, `MaxAiCallsPerHour`: int, `MaxAiSpendPerDay`: double, `MinPreFilterScoreForAi`: double, `MinAiConfidenceForDraft`: double, `ManualReviewConfidenceThreshold`: double, `AiRetryCount`: int, `AiTimeoutSeconds`: int, `DefaultOutreachMode`: OutreachMode, `GlobalAutoModeEnabled`: bool, `GlobalKillSwitch`: bool, `MaxSendsPerHour`: int, `MaxSendsPerDay`: int, `RequireApprovalAboveRisk`: double, `RequireApprovalBelowConfidence`: double, `SuppressionListEnabled`: bool, `AuditLoggingEnabled`: bool, `DraftScoreThreshold`: double, `AlertScoreThreshold`: double, `SelectedCampaignId`: long?, `DiscoveryEnabled`: bool, `ContentDiscoveryEnabled`: bool, `RedditUsername`: string, `RedditClientId`: string, `RedditClientSecret`: string, `RedditAppPassword`: string, `RedditInboxFeedToken`: string, `LinkedInClientId`: string, `LinkedInClientSecret`: string, `LinkedInRedirectUri`: string, `LinkedInScopes`: string, `LinkedInApiVersion`: string, `LinkedInAccessToken`: string, `LinkedInAccessTokenExpiresAt`: DateTimeOffset?, `LinkedInRefreshToken`: string, `LinkedInRefreshTokenExpiresAt`: DateTimeOffset?, `LinkedInMemberId`: string, `LinkedInMemberName`: string, `LinkedInMemberPictureUrl`: string, `LinkedInOAuthState`: string, `LinkedInOAuthStateExpiresAt`: DateTimeOffset?, `StaleItemMaxAgeHours`: int, `FollowUpDefaultHours`: int.
 
 - public `AiFor(AiFeature feature) → (string Provider, string Model)` — The provider/model pair a feature actually uses, after override resolution.
 - public `WithAiFor(AiFeature feature) → OperatorSettings` — Copy of these settings with AiProvider/AiModel resolved for a feature.
@@ -284,6 +376,14 @@ public class `OutreachAttempt` · `src/DevLeads.Core/Entities/OutreachAttempt.cs
 A drafted, approved, or sent outreach message tied to an opportunity.
 
 Data: `Id`: long, `OpportunityId`: long, `Channel`: OutreachChannel, `Mode`: OutreachMode, `Subject`: string?, `Body`: string, `TemplateKey`: string, `Status`: OutreachStatus, `RequiresApproval`: bool, `ApprovedAt`: DateTimeOffset?, `SentAt`: DateTimeOffset?, `ResponseReceivedAt`: DateTimeOffset?, `ErrorMessage`: string?, `CreatedAt`: DateTimeOffset, `Opportunity`: Opportunity?.
+
+#### PlatformProfile
+
+public class `PlatformProfile` · `src/DevLeads.Core/Entities/PlatformProfile.cs:10`
+
+One platform where the operator does (or could) build a public presence to attract work: hiring subreddits, freelance marketplaces, dev communities, job boards, local channels.
+
+Data: `Id`: long, `Key`: string, `Name`: string, `Url`: string, `SignupUrl`: string, `Category`: string, `Audience`: string, `Rationale`: string, `PostingNotes`: string, `CostModel`: string, `RequiresResume`: bool, `Source`: string, `Status`: PlatformPresenceStatus, `Handle`: string, `ProfileUrl`: string, `GeneratedBio`: string, `SignupPackJson`: string, `Notes`: string, `ActivatedAt`: DateTimeOffset?, `CreatedAt`: DateTimeOffset, `UpdatedAt`: DateTimeOffset.
 
 #### QueryPack
 
@@ -308,6 +408,17 @@ public class `RawSourceItem` · `src/DevLeads.Core/Entities/RawSourceItem.cs:7`
 A normalized public item fetched from a source connector, stored before/after triage. Also serves as the connector output DTO.
 
 Data: `Id`: long, `OpportunityId`: long?, `SourceKey`: string, `ExternalId`: string, `Url`: string, `AuthorName`: string?, `AuthorProfileUrl`: string?, `Title`: string, `BodyText`: string, `PostedAt`: DateTimeOffset, `FetchedAt`: DateTimeOffset, `RawJson`: string, `ContentHash`: string, `Opportunity`: Opportunity?.
+
+#### SignupPack
+
+public class `SignupPack` · `src/DevLeads.Core/Entities/SignupPack.cs:11`
+
+Everything a platform's signup/profile form asks for, pre-written so joining takes minutes of pasting instead of an hour of writing.
+
+Data: `Headline`: string, `BioShort`: string, `BioLong`: string, `Skills`: string, `RateLine`: string, `PostTitle`: string, `PostBody`: string, `IsEmpty`: bool.
+
+- public `ToJson() → string` — Handles to json. _(inferred)_
+- public `FromJson(string json) → SignupPack?` — Handles from json. _(inferred)_
 
 #### Skill
 
@@ -367,103 +478,145 @@ Workflow states an opportunity moves through from discovery to payment.
 
 #### Priority
 
-public enum `Priority` · `src/DevLeads.Core/Enums.cs:34`
+public enum `Priority` · `src/DevLeads.Core/Enums.cs:41`
 
 Priority band derived from the weighted opportunity score.
 
 #### AiJobStatus
 
-public enum `AiJobStatus` · `src/DevLeads.Core/Enums.cs:44`
+public enum `AiJobStatus` · `src/DevLeads.Core/Enums.cs:51`
 
 Lifecycle of the single-pass AI triage job for an item.
 
 #### OutreachRecommendation
 
-public enum `OutreachRecommendation` · `src/DevLeads.Core/Enums.cs:56`
+public enum `OutreachRecommendation` · `src/DevLeads.Core/Enums.cs:63`
 
 What the system recommends doing with an opportunity.
 
 #### OutreachMode
 
-public enum `OutreachMode` · `src/DevLeads.Core/Enums.cs:66`
+public enum `OutreachMode` · `src/DevLeads.Core/Enums.cs:73`
 
 Outreach delivery mode for a given source/template/contact combination.
 
 #### OutreachStatus
 
-public enum `OutreachStatus` · `src/DevLeads.Core/Enums.cs:76`
+public enum `OutreachStatus` · `src/DevLeads.Core/Enums.cs:83`
 
 Lifecycle of a single outreach attempt.
 
 #### OutreachChannel
 
-public enum `OutreachChannel` · `src/DevLeads.Core/Enums.cs:90`
+public enum `OutreachChannel` · `src/DevLeads.Core/Enums.cs:97`
 
 Channel an outreach attempt is delivered over.
 
 #### QuoteStatus
 
-public enum `QuoteStatus` · `src/DevLeads.Core/Enums.cs:100`
+public enum `QuoteStatus` · `src/DevLeads.Core/Enums.cs:107`
 
 Payment lifecycle for a quote.
 
 #### WorkSessionStatus
 
-public enum `WorkSessionStatus` · `src/DevLeads.Core/Enums.cs:115`
+public enum `WorkSessionStatus` · `src/DevLeads.Core/Enums.cs:122`
 
 Execution state for a hands-on work session.
 
 #### ContentTopicStatus
 
-public enum `ContentTopicStatus` · `src/DevLeads.Core/Enums.cs:126`
+public enum `ContentTopicStatus` · `src/DevLeads.Core/Enums.cs:133`
 
 Lifecycle of an AI-suggested publishing topic.
 
 #### ContentDraftStatus
 
-public enum `ContentDraftStatus` · `src/DevLeads.Core/Enums.cs:134`
+public enum `ContentDraftStatus` · `src/DevLeads.Core/Enums.cs:141`
 
 Lifecycle of a generated content draft.
 
 #### ContentFormat
 
-public enum `ContentFormat` · `src/DevLeads.Core/Enums.cs:143`
+public enum `ContentFormat` · `src/DevLeads.Core/Enums.cs:150`
 
 Publishable formats the content studio can generate.
 
 #### OperatorPostStatus
 
-public enum `OperatorPostStatus` · `src/DevLeads.Core/Enums.cs:153`
+public enum `OperatorPostStatus` · `src/DevLeads.Core/Enums.cs:160`
 
 Lifecycle of one of the operator's own posts on an external platform.
 
 #### OperatorPostRevisionStatus
 
-public enum `OperatorPostRevisionStatus` · `src/DevLeads.Core/Enums.cs:163`
+public enum `OperatorPostRevisionStatus` · `src/DevLeads.Core/Enums.cs:170`
 
 Lifecycle of an AI-proposed rewrite of one of the operator's posts.
 
 #### OperatorMessageKind
 
-public enum `OperatorMessageKind` · `src/DevLeads.Core/Enums.cs:173`
+public enum `OperatorMessageKind` · `src/DevLeads.Core/Enums.cs:180`
 
 What kind of inbox item a received operator message is.
 
 #### OperatorMessageStatus
 
-public enum `OperatorMessageStatus` · `src/DevLeads.Core/Enums.cs:187`
+public enum `OperatorMessageStatus` · `src/DevLeads.Core/Enums.cs:194`
 
 Operator-side lifecycle of a received message.
 
+#### EngagementDraftKind
+
+public enum `EngagementDraftKind` · `src/DevLeads.Core/Enums.cs:203`
+
+The LinkedIn interaction an engagement draft responds to.
+
+#### EngagementDraftStatus
+
+public enum `EngagementDraftStatus` · `src/DevLeads.Core/Enums.cs:212`
+
+Human-in-the-loop lifecycle for a LinkedIn engagement response.
+
+#### ClientStatus
+
+public enum `ClientStatus` · `src/DevLeads.Core/Enums.cs:221`
+
+Relationship stage of a client (a real person/business the operator works with).
+
+#### EngagementStatus
+
+public enum `EngagementStatus` · `src/DevLeads.Core/Enums.cs:234`
+
+Lifecycle of a client engagement (a bounded project, fix, or retainer).
+
+#### FollowUpStatus
+
+public enum `FollowUpStatus` · `src/DevLeads.Core/Enums.cs:246`
+
+Lifecycle of a scheduled follow-up reminder.
+
+#### InteractionDirection
+
+public enum `InteractionDirection` · `src/DevLeads.Core/Enums.cs:254`
+
+Direction of a logged client interaction.
+
+#### PlatformPresenceStatus
+
+public enum `PlatformPresenceStatus` · `src/DevLeads.Core/Enums.cs:261`
+
+Where a platform sits in the operator's presence-building funnel.
+
 #### SuppressionContactType
 
-public enum `SuppressionContactType` · `src/DevLeads.Core/Enums.cs:196`
+public enum `SuppressionContactType` · `src/DevLeads.Core/Enums.cs:274`
 
 How a contact was added to the suppression list.
 
 #### AiFeature
 
-public enum `AiFeature` · `src/DevLeads.Core/Enums.cs:209`
+public enum `AiFeature` · `src/DevLeads.Core/Enums.cs:287`
 
 The distinct AI call sites in the app. Each can carry its own provider/model override in Entities.OperatorSettings; an unset override inherits the global AiProvider/AiModel pair.
 
@@ -495,8 +648,9 @@ public class `LeadQualityRules` · `src/DevLeads.Core/LeadQualityRules.cs:6`
 
 Shared lead-quality rules used before a post reaches the review queue.
 
-Data: `EmailPattern`: Regex, `UrlHostPattern`: Regex, `NonWordPattern`: Regex, `ThirdPartyPaySignals`: string[], `AntiPaySignals`: string[], `VendorSupportSignals`: string[], `ResolvedSignals`: string[], `ConcretePaidSources`: string[], `LaunchSignals`: string[], `PricingCopySignals`: string[], `ProblemReportSignals`: string[], `GitHubMetaPattern`: Regex, `DiscourseFooterPattern`: Regex, `ClaimedWorkSignals`: string[].
+Data: `MaxAutomatedLeadAgeDays`: int, `EmailPattern`: Regex, `UrlHostPattern`: Regex, `NonWordPattern`: Regex, `ThirdPartyPaySignals`: string[], `AntiPaySignals`: string[], `VendorSupportSignals`: string[], `ResolvedSignals`: string[], `ConcretePaidSources`: string[], `LaunchSignals`: string[], `PricingCopySignals`: string[], `ProblemReportSignals`: string[], `GitHubMetaPattern`: Regex, `DiscourseFooterPattern`: Regex, `ClaimedWorkSignals`: string[].
 
+- public `IsWithinAutomatedLeadAge(DateTimeOffset postedAt, DateTimeOffset now) → bool` — Checks within automated lead age. _(inferred)_
 - public `IsPromotionalAnnouncement(string text) → bool` — True for product-launch/showcase posts: launch language plus the poster's own pricing copy, with no actual problem being reported.
 - public `IsReplyFeedItem(string title) → bool` — True for feed items that are replies into an existing thread (WordPress.org reply feeds emit "Reply To: …" items) — the reply author is answering, not asking.
 - public `IsAlreadyClaimed(string text) → bool` — True when the post shows someone else already owns the work: the issue is assigned, or the visible text contains claim/PR-in-flight language.
@@ -523,6 +677,26 @@ Extracts a compensation amount the poster explicitly stated ("Reward: $15", "[Bo
 Data: `Money`: Regex, `Keyword`: Regex, `RateSuffix`: Regex, `CryptoMoney`: Regex, `CryptoUsdRate`: Dictionary<string, double>.
 
 - public `Extract(string title, string body) → (double Min, double Max)?` — Returns the stated amount range, or null when no explicit offer exists.
+
+### `DevLeads.Core.Platforms`
+
+#### PlatformSeed
+
+public record class `PlatformSeed` · `src/DevLeads.Core/Platforms/DefaultPlatformCatalog.cs:4`
+
+Seed definition for a platform-presence catalog entry.
+
+Depends on: `string Key`, `string Name`, `string Url`, `string SignupUrl`, `string Category`, `string Audience`, `string Rationale`, `string PostingNotes`, `string CostModel`, `bool RequiresResume`.
+
+#### DefaultPlatformCatalog
+
+public class `DefaultPlatformCatalog` · `src/DevLeads.Core/Platforms/DefaultPlatformCatalog.cs:21`
+
+The curated starter catalog of platforms where a solo consultant can win paid work or build reputation. Seeded add-only (by Key); the operator owns entries afterwards, and AI discovery appends beyond this list.
+
+Data: `All`: PlatformSeed[].
+
+### `DevLeads.Core`
 
 #### PreFilterResult
 
@@ -599,11 +773,11 @@ public class `ScoringInput` · `src/DevLeads.Core/Scoring/OpportunityScorer.cs:2
 
 Inputs the scorer needs, decoupled from persistence.
 
-Data: `Ai`: AiTriageResult?, `PreFilter`: PreFilterResult?, `SourceKey`: string, `PostedAt`: DateTimeOffset, `RedFlagged`: bool, `HasContact`: bool, `LanguageCode`: string, `SkillMatches`: IReadOnlyList<SkillMatch>?, `OfferedAmount`: double?, `ClaimedByOthers`: bool, `CompetingResponses`: int, `ForeignStackDemands`: IReadOnlyList<string>.
+Data: `Ai`: AiTriageResult?, `PreFilter`: PreFilterResult?, `SourceKey`: string, `PostedAt`: DateTimeOffset, `RedFlagged`: bool, `HasContact`: bool, `LanguageCode`: string, `SkillMatches`: IReadOnlyList<SkillMatch>?, `OfferedAmount`: double?, `ClaimedByOthers`: bool, `CompetingResponses`: int.
 
 #### OpportunityScorer
 
-public class `OpportunityScorer` · `src/DevLeads.Core/Scoring/OpportunityScorer.cs:59`
+public class `OpportunityScorer` · `src/DevLeads.Core/Scoring/OpportunityScorer.cs:54`
 
 Blends heuristic, AI, source-reputation, recency, stack-fit, business-value, reachability and trust signals into a single weighted opportunity score.
 
@@ -640,7 +814,7 @@ Data: `All`: IReadOnlyList<Skill>.
 
 #### SkillMatch
 
-public record class `SkillMatch` · `src/DevLeads.Core/Skills/SkillMatcher.cs:7`
+public record class `SkillMatch` · `src/DevLeads.Core/Skills/SkillMatcher.cs:6`
 
 A skill that matched a piece of lead text, with its profile weight and category.
 
@@ -648,16 +822,12 @@ Depends on: `string Name`, `int Weight`, `string Category`.
 
 #### SkillMatcher
 
-public class `SkillMatcher` · `src/DevLeads.Core/Skills/SkillMatcher.cs:10`
+public class `SkillMatcher` · `src/DevLeads.Core/Skills/SkillMatcher.cs:9`
 
 Matches lead text against the operator's skill profile and scores the fit.
 
-Data: `StackIdentityCategories`: string[], `ForeignStacks`: (string Name, Regex Pattern)[].
-
 - public `Match(string text, IEnumerable<Skill> skills) → List<SkillMatch>` — All enabled skills whose name or any alias appears in the text (case-insensitive).
-- public `HasStackIdentityMatch(IEnumerable<SkillMatch> matches) → bool` — True when the text matched at least one weight-3 skill from an identity category.
-- public `ForeignStackDemands(string text, IEnumerable<Skill> skills) → List<string>` — Foreign primary-stack demands found in the text, excluding stacks the operator has an enabled skill for (adding a "Python" skill makes Python stop being foreign).
-- public `FitScore(IReadOnlyList<SkillMatch> matches) → double` — 0–100 fit score mirroring the legacy stack tiers: a core-skill match scores like the preferred stack, strong like the secondary stack; breadth adds a small bonus.
+- public `FitScore(IReadOnlyList<SkillMatch> matches) → double` — 0–100 familiarity score. A known core skill is a small ranking advantage; no match still receives a generalist baseline and never disqualifies a lead.
 - public `PromptSummary(IEnumerable<Skill> skills, int maxItems) → string` — Compact profile description for the AI triage prompt, strongest skills first.
 - public `SearchTerms(IEnumerable<Skill> skills, int max) → List<string>` — Search keywords for connectors (bounty/issue queries): short, high-weight names first.
 - private `ContainsTerm(string text, string term) → bool` — Checks term. _(inferred)_
@@ -762,7 +932,7 @@ Data: `ParseOptions`: JsonSerializerOptions, `AnsiPattern`: Regex.
 
 #### ShortlistOutput
 
-public class `ShortlistOutput` · `src/DevLeads.Infrastructure/Ai/AiCliSupport.cs:62`
+public class `ShortlistOutput` · `src/DevLeads.Infrastructure/Ai/AiCliSupport.cs:63`
 
 Represents shortlist output. _(inferred)_
 
@@ -770,7 +940,7 @@ Data: `Selected`: List<ShortlistSelection>.
 
 #### ShortlistSelection
 
-public class `ShortlistSelection` · `src/DevLeads.Infrastructure/Ai/AiCliSupport.cs:67`
+public class `ShortlistSelection` · `src/DevLeads.Infrastructure/Ai/AiCliSupport.cs:68`
 
 Represents shortlist selection. _(inferred)_
 
@@ -1017,15 +1187,13 @@ Data: `_httpFactory`: IHttpClientFactory, `_log`: ILogger<StackExchangeConnector
 
 public class `DatabaseSeeder` · `src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs:14`
 
-Creates the database and seeds query packs, source configs, and settings. Also migrates older databases: removes retired sources (GitHub Issues) and purges leads that cannot lead to paid work.
+Creates the database and seeds query packs, source configs, and settings. Also migrates older databases: removes retired sources (GitHub Issues) and purges leads that cannot become paid work or useful owner/operator…
 
 Data: `LegacyPackNames`: Dictionary<string, string>, `EmergencyCampaignKey`: string, `ModernizationCampaignKey`: string, `AiAutomationCampaignKey`: string, `EngagedStatuses`: OpportunityStatus[].
 
 - public `InitializeAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — Coordinates initialize. _(inferred)_
 - private `RequeueTemplateDraftsAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — One-time (2026-07-11): unapproved template mad-lib drafts ("I saw your post about [title]…") are moved into the AI generation queue so the batched generator rewrites them…
-- private `ApplyStackIdentityCapsAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — Applies the stack-identity score cap (50, below Medium) to leads scored before the gate existed, so off-stack posts stop outranking.NET work without waiting for a re-triage.
 - private `DemoteGenericCapabilitySkillsAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — One-time data fix (2026-07-11): "REST API" was seeded as a weight-3 "Primary stack" skill, which made every Go/Python job post score as a core.NET fit.
-- private `PurgeForeignStackLeadsAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — Removes discovery leads that demand a stack outside the operator's profile without touching the operator's own stack (Go/Python/Java job posts etc.) — they scored high on pay…
 - private `ApplySchemaUpgradesAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — EnsureCreated never alters existing tables, so columns added after first release are applied here with idempotent ALTERs (SQLite raises on duplicates — ignored).
 - private `MigrateAiProviderDefaultsAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — Moves settings still on an old AI default onto the current one (OpenCode CLI). Explicit operator choices (anything not matching an old default) are untouched.
 - private `SeedQueryPacksAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — Creates query packs. _(inferred)_
@@ -1037,6 +1205,7 @@ Data: `LegacyPackNames`: Dictionary<string, string>, `EmergencyCampaignKey`: str
 - private `IsInitialAiTopicGate(SourceConfig source) → bool` — Checks initial ai topic gate. _(inferred)_
 - private `IsAiTopicGateBroadening(SourceConfig source) → bool` — 2026-07-13: the AI campaign's topic gate moved from the hire-shaped AiAutomationProjects phrases (which rejected 98% of fetched items, including paid listings) to the broad…
 - private `IsAiThresholdRecalibration(SourceConfig source) → bool` — 2026-07-13: the AI campaign's MinOpportunityScore dropped from 42–48 (emergency calibration) to 36–40.
+- private `IsTechnologyAgnosticSourceBroadening(SourceConfig source) → bool` — 2026-07-13: bounty and paid-feature sources stopped requiring a.NET-profile text match. This only broadens discovery, so existing leads remain valid.
 - private `IsAiAutomationSource(SourceConfig source) → bool` — Checks ai automation source. _(inferred)_
 - private `ApplySourceDefaults(SourceConfig target, SourceConfig seed) → bool` — Reapplies seeded defaults, returning whether anything actually changed — a boot with unchanged defaults must NOT count as a migration (that would purge + re-triage all discovery…
 - private `IsAdditiveHiringSubredditExpansion(SourceConfig target, SourceConfig seed) → bool` — Checks additive hiring subreddit expansion. _(inferred)_
@@ -1045,11 +1214,13 @@ Data: `LegacyPackNames`: Dictionary<string, string>, `EmergencyCampaignKey`: str
 - private `ModernizationSources() → IEnumerable<SourceConfig>` — Sources for the.NET legacy modernization consulting campaign. Feeds/queries are chosen to be disjoint from the emergency sources where possible; when a post qualifies for both…
 - private `AiAutomationSources() → IEnumerable<SourceConfig>` — Searches every registered connector for paid AI/automation implementation work. The broad AiAutomationTopic pack gates campaign relevance (whole-word matched, so…
 - private `SeedTrendSourcesAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — Content-studio trend sources (add-only; the operator owns them afterwards). Feed URLs verified live 2026-07-11.
+- private `SeedPlatformProfilesAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — Platform-presence catalog (add-only by Key; the operator owns rows afterwards). A catalog entry whose key already has tracked operator posts starts Active — the account…
 - private `RssParams(string daysBack, string[] feeds, string? triageProvider, string? requiredQueryPack) → string` — Handles rss params. _(inferred)_
 - private `RemoveRetiredSourcesAsync(DevLeadsDbContext db, CancellationToken ct) → Task<bool>` — Deletes retired source configs and every item/lead they produced (e.g. GitHub Issues).
 - private `RemoveReplacedSourceConfigsAsync(DevLeadsDbContext db, CancellationToken ct) → Task<bool>` — Removes old broad source config rows after splitting them into tuned variants.
 - private `PurgeStaleDiscoveryLeadsAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — One-time after a source-lineup migration: leads still sitting in triage stages were collected under the old, lower-quality configuration — drop them (manual entries and…
-- private `PurgeNonActionableLeadsAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — Purges leads that will not lead to financial compensation: pre-filter rejects, triage rejects, do-not-contact posts, and non-urgent/irrelevant help requests.
+- private `PurgeExpiredDiscoveryLeadsAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — Removes untouched automated leads older than the standard discovery window while preserving raw dedup evidence, manual entries, and anything the operator engaged.
+- private `PurgeNonActionableLeadsAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — Purges leads that will not lead to paid work or a useful owner/operator relationship: pre-filter rejects, triage rejects, do-not-contact posts, and irrelevant help requests.
 - private `PurgeNonHirableVendorSupportLeadsAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — Removes or transitions non hirable vendor support leads. _(inferred)_
 - private `PurgeSourceLessLeadsAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — Every visible opportunity must point back to its original public source.
 - private `DeleteLeadsKeepDedupAsync(DevLeadsDbContext db, List<Opportunity> leads, CancellationToken ct) → Task` — Removes lead rows while detaching raw items, so dedup never re-ingests the same post.
@@ -1062,14 +1233,14 @@ EF Core context for the SQLite solo database.
 
 Depends on: `DbContextOptions<DevLeadsDbContext> options`.
 
-Data: `Opportunities`: DbSet<Opportunity>, `RawSourceItems`: DbSet<RawSourceItem>, `AiTriageRuns`: DbSet<AiTriageRun>, `OutreachAttempts`: DbSet<OutreachAttempt>, `Quotes`: DbSet<Quote>, `WorkSessions`: DbSet<WorkSession>, `SuppressionEntries`: DbSet<SuppressionEntry>, `AuditEvents`: DbSet<AuditEvent>, `SourceConfigs`: DbSet<SourceConfig>, `QueryPacks`: DbSet<QueryPack>, `OperatorSettings`: DbSet<OperatorSettings>, `Skills`: DbSet<Skill>, `Campaigns`: DbSet<Campaign>, `TrendSources`: DbSet<TrendSource>, `TrendSignals`: DbSet<TrendSignal>, `ContentTopics`: DbSet<ContentTopic>, `ContentDrafts`: DbSet<ContentDraft>, `OperatorPosts`: DbSet<OperatorPost>, `OperatorPostSnapshots`: DbSet<OperatorPostSnapshot>, `OperatorMessages`: DbSet<OperatorMessage>, `OperatorPostRevisions`: DbSet<OperatorPostRevision>.
+Data: `Opportunities`: DbSet<Opportunity>, `RawSourceItems`: DbSet<RawSourceItem>, `AiTriageRuns`: DbSet<AiTriageRun>, `OutreachAttempts`: DbSet<OutreachAttempt>, `Quotes`: DbSet<Quote>, `WorkSessions`: DbSet<WorkSession>, `SuppressionEntries`: DbSet<SuppressionEntry>, `AuditEvents`: DbSet<AuditEvent>, `SourceConfigs`: DbSet<SourceConfig>, `QueryPacks`: DbSet<QueryPack>, `OperatorSettings`: DbSet<OperatorSettings>, `Skills`: DbSet<Skill>, `Campaigns`: DbSet<Campaign>, `TrendSources`: DbSet<TrendSource>, `TrendSignals`: DbSet<TrendSignal>, `ContentTopics`: DbSet<ContentTopic>, `ContentDrafts`: DbSet<ContentDraft>, `OperatorPosts`: DbSet<OperatorPost>, `OperatorPostSnapshots`: DbSet<OperatorPostSnapshot>, `OperatorMessages`: DbSet<OperatorMessage>, `OperatorPostRevisions`: DbSet<OperatorPostRevision>, `Clients`: DbSet<Client>, `Engagements`: DbSet<Engagement>, `ClientInteractions`: DbSet<ClientInteraction>, `FollowUps`: DbSet<FollowUp>, `PlatformProfiles`: DbSet<PlatformProfile>, `AdvisorBriefings`: DbSet<AdvisorBriefing>, `OperatorDocuments`: DbSet<OperatorDocument>, `EngagementDrafts`: DbSet<EngagementDraft>.
 
 - protected `ConfigureConventions(ModelConfigurationBuilder b) → void` — Handles configure conventions. _(inferred)_
 - protected `OnModelCreating(ModelBuilder mb) → void` — Handles on model creating. _(inferred)_
 
 #### DateTimeOffsetToTicksConverter
 
-private class `DateTimeOffsetToTicksConverter` : `ValueConverter<DateTimeOffset, long>` · `src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:37`
+private class `DateTimeOffsetToTicksConverter` : `ValueConverter<DateTimeOffset, long>` · `src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:45`
 
 Represents date time offset to ticks converter. _(inferred)_
 
@@ -1104,6 +1275,39 @@ Data: `_db`: DevLeadsDbContext, `_cache`: List<Core.Entities.QueryPack>?, `Packs
 
 ### `DevLeads.Infrastructure.Services`
 
+#### AgendaItem
+
+public record class `AgendaItem` · `src/DevLeads.Infrastructure/Services/AdvisorService.cs:13`
+
+One actionable line on the Today page, with where to go to act on it.
+
+Depends on: `string Icon`, `string Text`, `string Href`, `bool Urgent`.
+
+#### TodayAgenda
+
+public record class `TodayAgenda` · `src/DevLeads.Infrastructure/Services/AdvisorService.cs:19`
+
+The deterministic snapshot the Today page renders and the daily briefing reasons over: what needs attention, the best open leads, live engagements, and presence health.
+
+Depends on: `List<AgendaItem> Attention`, `List<Opportunity> TopOpportunities`, `List<(Engagement Engagement, string ClientName)> ActiveEngagements`, `List<(FollowUp FollowUp, string ClientName)> DueFollowUps`, `int LeadsLast24h`, `int UnreadMessages`, `int PendingDrafts`, `int QueuedDrafts`, `int OutstandingQuotes`, `int ActiveClients`, `int ActivePlatforms`, `int SuggestedPlatforms`, `int StaleActivePosts`.
+
+#### AdvisorService
+
+public class `AdvisorService` · `src/DevLeads.Infrastructure/Services/AdvisorService.cs:39`
+
+The manager layer: assembles the zero-cost Today agenda from live data, and writes the one-per-day advisor briefing (AI when available; a deterministic fallback otherwise, so the morning briefing always exists).
+
+Depends on: `DevLeadsDbContext db`, `AiTextRouter text`, `AuditService audit`, `ILogger<AdvisorService> log`.
+
+Data: `ReviewStatuses`: OpportunityStatus[], `_db`: DevLeadsDbContext, `_text`: AiTextRouter, `_audit`: AuditService, `_log`: ILogger<AdvisorService>.
+
+- public `BuildAgendaAsync(CancellationToken ct) → Task<TodayAgenda>` — Creates agenda. _(inferred)_
+- public `GetTodayBriefingAsync(CancellationToken ct) → Task<AdvisorBriefing?>` — Loads or resolves today briefing. _(inferred)_
+- public `GenerateDailyBriefingAsync(bool force, CancellationToken ct, bool allowAi) → Task<(AdvisorBriefing? Briefing, string Message)>` — Writes today's briefing if it doesn't exist yet (force rewrites it). AI when the advisor feature has a text provider; the deterministic fallback otherwise or on any AI failure —…
+- private `BuildAgendaContext(TodayAgenda a) → string` — Compact factual snapshot the AI is allowed to reason over.
+- private `BuildFallbackBriefing(TodayAgenda a) → string` — The no-AI briefing: the same priorities the prompt encodes, applied by rule.
+- private `Truncate(string s, int max) → string` — Handles truncate. _(inferred)_
+
 #### AuditService
 
 public class `AuditService` · `src/DevLeads.Infrastructure/Services/AuditService.cs:8`
@@ -1115,6 +1319,19 @@ Depends on: `DevLeadsDbContext db`.
 Data: `_db`: DevLeadsDbContext.
 
 - public `Record(string entityType, long entityId, string eventType, string description, string actor, object? metadata) → void` — Handles record. _(inferred)_
+
+#### ClientService
+
+public class `ClientService` · `src/DevLeads.Infrastructure/Services/ClientService.cs:14`
+
+Client-relationship operations that involve more than one aggregate: promoting a lead into a client + first engagement, and the shared "due follow-ups" queries.
+
+Depends on: `DevLeadsDbContext db`, `AuditService audit`, `ILogger<ClientService> log`.
+
+Data: `_db`: DevLeadsDbContext, `_audit`: AuditService, `_log`: ILogger<ClientService>.
+
+- public `PromoteOpportunityAsync(long opportunityId, CancellationToken ct) → Task<(Client? Client, bool Created, string Message)>` — Turns a lead into a client with a prospective engagement and a default follow-up. Idempotent per lead: promoting twice returns the existing client.
+- private `PlatformFromSource(Opportunity opp) → string` — Handles platform from source. _(inferred)_
 
 #### ContentStudioService
 
@@ -1193,7 +1410,7 @@ Data: `_db`: DevLeadsDbContext, `_preFilter`: HeuristicPreFilter, `_ai`: AiTriag
 - public `CreateManualAsync(string title, string body, string sourceUrl, string? author, string? authorUrl, CancellationToken ct, long? campaignId) → Task<Opportunity>` — Manual lead entry that still runs the pre-filter, AI triage, and scoring.
 - public `RerunAsync(long opportunityId, CancellationToken ct) → Task` — Re-runs triage + scoring for an existing opportunity (used by the "rerun" endpoint).
 - private `RunTriageScoreAndDraftAsync(Opportunity opp, PreFilterResult pre, OperatorSettings settings, SourceConfig? source, CancellationToken ct, AiTriageResponse? precomputed) → Task` — Coordinates triage score and draft. _(inferred)_
-- private `DecideStatusAndDraft(Opportunity opp, AiTriageResult? ai, RedFlagResult redFlag, OperatorSettings settings, SourceConfig? source, string body, IReadOnlyList<SkillMatch>? skillMatches, IReadOnlyList<string> foreignStacks) → void` — Handles decide status and draft. _(inferred)_
+- private `DecideStatusAndDraft(Opportunity opp, AiTriageResult? ai, RedFlagResult redFlag, OperatorSettings settings, SourceConfig? source, string body) → void` — Handles decide status and draft. _(inferred)_
 - private `CreateDraft(Opportunity opp, AiTriageResult ai, OperatorSettings settings) → void` — Creates draft. _(inferred)_
 - private `ApplyPreFilter(Opportunity opp, PreFilterResult pre) → void` — Updates pre filter. _(inferred)_
 - private `ApplyAiResult(Opportunity opp, AiTriageResult ai) → void` — Updates ai result. _(inferred)_
@@ -1213,6 +1430,50 @@ Data: `_db`: DevLeadsDbContext, `_preFilter`: HeuristicPreFilter, `_ai`: AiTriag
 - private `NormalizeSourceUrl(string? sourceUrl) → string?` — Transforms or resolves source url. _(inferred)_
 - private `FindNearDuplicateOpportunityAsync(RawSourceItem item, string sourceUrl, CancellationToken ct) → Task<Opportunity?>` — Loads or resolves near duplicate opportunity. _(inferred)_
 - private `Truncate(string s, int max) → string` — Handles truncate. _(inferred)_
+
+#### LinkedInService
+
+public class `LinkedInService` · `src/DevLeads.Infrastructure/Services/LinkedInService.cs:23`
+
+LinkedIn member OAuth, text-post publishing, scheduled publishing, comment monitoring, and human-reviewed response drafts.
+
+Depends on: `DevLeadsDbContext db`, `IHttpClientFactory httpFactory`, `AiTextRouter text`, `AuditService audit`, `ILogger<LinkedInService> log`.
+
+Data: `AuthorizationEndpoint`: string, `TokenEndpoint`: string, `UserInfoEndpoint`: string, `ApiRoot`: string, `_db`: DevLeadsDbContext, `_httpFactory`: IHttpClientFactory, `_text`: AiTextRouter, `_audit`: AuditService, `_log`: ILogger<LinkedInService>.
+
+- public `GetConnectionStatusAsync(CancellationToken ct) → Task<ConnectionStatus>` — Loads or resolves connection status. _(inferred)_
+- public `CreateAuthorizationUrlAsync(string requestCallbackUrl, CancellationToken ct) → Task<(string? Url, string Message)>` — Creates a state-protected three-legged OAuth authorization URL.
+- public `CompleteOAuthAsync(string code, string state, string requestCallbackUrl, CancellationToken ct) → Task<(bool Succeeded, string Message)>` — Validates OAuth state, exchanges the code, and resolves the member profile.
+- public `DisconnectAsync(CancellationToken ct) → Task` — Handles disconnect. _(inferred)_
+- public `PublishPostAsync(long postId, CancellationToken ct) → Task<(bool Succeeded, string Message)>` — Publishes one approved text draft and updates its tracking identity.
+- public `PublishDueAsync(CancellationToken ct) → Task<(int Published, int Failed, string Message)>` — Publishes every due LinkedIn draft; one failure does not block later rows.
+- public `SyncEngagementAsync(CancellationToken ct) → Task<(int Imported, int CheckedPosts, string Message)>` — Imports top-level comments for tracked posts. LinkedIn grants the required read permission only to approved Community Management apps, so a missing scope is a clear capability…
+- public `GenerateEngagementBatchAsync(string extraInstructions, CancellationToken ct) → Task<(int Generated, string Message)>` — Syncs what is available, then drafts all undrafted pending responses in one AI call.
+- public `CreateManualEngagementAsync(string author, string sourceText, EngagementDraftKind kind, CancellationToken ct) → Task<EngagementDraft>` — Creates manual engagement. _(inferred)_
+- public `PublishEngagementAsync(long draftId, CancellationToken ct) → Task<(bool Succeeded, string Message)>` — Publishes a reviewed public-comment response. Pasted private messages stay copy-only.
+- private `ApiRequest(HttpMethod method, string path, OperatorSettings s) → HttpRequestMessage` — Handles api request. _(inferred)_
+- private `LoadMemberProfileAsync(HttpClient http, string accessToken, CancellationToken ct) → Task<(bool Ok, string Id, string Name, string Picture, string Error)>` — Loads or resolves member profile. _(inferred)_
+- private `GetSettingsAsync(bool tracking, CancellationToken ct) → Task<OperatorSettings>` — Loads or resolves settings. _(inferred)_
+- private `ConnectionError(OperatorSettings s) → string?` — Handles connection error. _(inferred)_
+- private `ResolveRedirectUri(OperatorSettings s, string requestCallbackUrl) → string` — Transforms or resolves redirect uri. _(inferred)_
+- private `NormalizeScopes(string scopes) → string` — Transforms or resolves scopes. _(inferred)_
+- private `HasScope(string scopes, string scope) → bool` — Checks scope. _(inferred)_
+- private `NormalizeApiVersion(string version) → string` — Transforms or resolves api version. _(inferred)_
+- private `PersonUrn(string memberId) → string` — Handles person urn. _(inferred)_
+- private `FixedTimeEquals(string left, string right) → bool` — Handles fixed time equals. _(inferred)_
+- private `ParseReplies(string output) → Dictionary<long, string>` — Transforms or resolves replies. _(inferred)_
+- private `TryJson(string json, out JsonElement root) → bool` — Handles try json. _(inferred)_
+- private `GetString(JsonElement root, string name) → string` — Loads or resolves string. _(inferred)_
+- private `GetInt64(JsonElement root, string name, long fallback) → long` — Loads or resolves int64. _(inferred)_
+- private `ApiError(string body) → string` — Handles api error. _(inferred)_
+
+#### ConnectionStatus
+
+public record class `ConnectionStatus` · `src/DevLeads.Infrastructure/Services/LinkedInService.cs:46`
+
+Represents connection status. _(inferred)_
+
+Depends on: `bool Configured`, `bool Connected`, `bool TokenExpired`, `DateTimeOffset? ExpiresAt`, `string MemberName`, `string MemberId`, `string Scopes`, `bool CanReadEngagement`.
 
 #### MaintenanceService
 
@@ -1289,6 +1550,53 @@ Data: `_db`: DevLeadsDbContext, `_audit`: AuditService, `_text`: AiTextRouter, `
 - private `GetSettings(CancellationToken ct) → Task<OperatorSettings>` — Loads or resolves settings. _(inferred)_
 - private `Get(long id, CancellationToken ct) → Task<OutreachAttempt>` — Loads or resolves get. _(inferred)_
 
+#### PlatformPresenceService
+
+public class `PlatformPresenceService` · `src/DevLeads.Infrastructure/Services/PlatformPresenceService.cs:20`
+
+Grows the operator's public presence: AI discovery of new platforms worth joining, and the starter kit (profile bio + first post) for a platform being activated.
+
+Depends on: `DevLeadsDbContext db`, `AiTextRouter text`, `DiscoveryActivityTracker activity`, `AuditService audit`, `ILogger<PlatformPresenceService> log`.
+
+Data: `_db`: DevLeadsDbContext, `_text`: AiTextRouter, `_activity`: DiscoveryActivityTracker, `_audit`: AuditService, `_log`: ILogger<PlatformPresenceService>.
+
+- public `DiscoverPlatformsAsync(CancellationToken ct) → Task<(int Created, string Message)>` — One AI call proposes new platforms (grounded in the skill profile and campaign objectives), deduplicated against everything already cataloged.
+- public `GenerateSignupPacksAsync(IReadOnlyList<long>? profileIds, long? campaignId, string extraInstructions, CancellationToken ct) → Task<(int Generated, int Calls, string Message)>` — Writes signup packs (headline, bios, skills, rate line, first post) for the given platforms — or, when profileIds is null, for every suggested/planned platform that doesn't have…
+- public `ActivateAsync(long profileId, CancellationToken ct) → Task<(bool Ok, string Message)>` — Marks a platform's account as created and starts tracking it. The pack's first post becomes an OperatorPost draft here (not at generation time), so batch-packing twenty…
+- private `Slug(string value) → string` — Handles slug. _(inferred)_
+
+#### PackListOutput
+
+private class `PackListOutput` · `src/DevLeads.Infrastructure/Services/PlatformPresenceService.cs:264`
+
+Represents pack list output. _(inferred)_
+
+Data: `Packs`: List<PackOutput>.
+
+#### PackOutput
+
+private class `PackOutput` · `src/DevLeads.Infrastructure/Services/PlatformPresenceService.cs:269`
+
+Represents pack output. _(inferred)_
+
+Data: `Key`: string?, `Headline`: string?, `BioShort`: string?, `BioLong`: string?, `Skills`: string?, `RateLine`: string?, `PostTitle`: string?, `PostBody`: string?.
+
+#### DiscoveryOutput
+
+private class `DiscoveryOutput` · `src/DevLeads.Infrastructure/Services/PlatformPresenceService.cs:284`
+
+Represents discovery output. _(inferred)_
+
+Data: `Platforms`: List<SuggestedPlatform>.
+
+#### SuggestedPlatform
+
+private class `SuggestedPlatform` · `src/DevLeads.Infrastructure/Services/PlatformPresenceService.cs:289`
+
+Represents suggested platform. _(inferred)_
+
+Data: `Key`: string?, `Name`: string?, `Url`: string?, `SignupUrl`: string?, `Category`: string?, `Audience`: string?, `Rationale`: string?, `PostingNotes`: string?, `CostModel`: string?, `RequiresResume`: bool?.
+
 #### QuoteService
 
 public class `QuoteService` · `src/DevLeads.Infrastructure/Services/QuoteService.cs:10`
@@ -1323,7 +1631,7 @@ Data: `_db`: DevLeadsDbContext, `_connectors`: IEnumerable<ISourceConnector>, `_
 - private `ResolveShortlistMax(IReadOnlyDictionary<string, string> parameters, int candidateCount) → int` — Transforms or resolves shortlist max. _(inferred)_
 - private `ResolveTriageProvider(IReadOnlyDictionary<string, string> parameters, OperatorSettings settings) → string` — Transforms or resolves triage provider. _(inferred)_
 - private `ResolveTriageSettings(OperatorSettings settings, IReadOnlyDictionary<string, string> parameters) → OperatorSettings` — Transforms or resolves triage settings. _(inferred)_
-- private `BuildRunMessage(int fetched, int created, int skipped, ShortlistGate shortlist, int shortlistRejected, int skippedByRequiredPack, string? requiredPack) → string` — Creates run message. _(inferred)_
+- private `BuildRunMessage(int fetched, int created, int skipped, ShortlistGate shortlist, int shortlistRejected, int skippedByRequiredPack, int expired, int justMissed, string? requiredPack) → string` — Creates run message. _(inferred)_
 - private `MatchesAny(RawSourceItem item, IReadOnlyCollection<string> terms) → bool` — Handles matches any. _(inferred)_
 - private `BuildTerms(SourceConfig source) → IReadOnlyList<string>` — Creates terms. _(inferred)_
 - private `PackNames(SourceConfig source) → string[]` — Handles pack names. _(inferred)_
@@ -1338,7 +1646,7 @@ Data: `_db`: DevLeadsDbContext, `_connectors`: IEnumerable<ISourceConnector>, `_
 
 #### ShortlistGate
 
-private class `ShortlistGate` · `src/DevLeads.Infrastructure/Services/SourceRunner.cs:442`
+private class `ShortlistGate` · `src/DevLeads.Infrastructure/Services/SourceRunner.cs:466`
 
 Represents shortlist gate. _(inferred)_
 
@@ -1391,7 +1699,7 @@ The core background loop. Every minute it runs any sources that are due (respect
 
 Depends on: `IServiceScopeFactory scopeFactory`, `ILogger<DiscoveryWorker> log`.
 
-Data: `_scopeFactory`: IServiceScopeFactory, `_log`: ILogger<DiscoveryWorker>, `_lastMaintenance`: DateTimeOffset, `_lastMyPostsSync`: DateTimeOffset, `_lastInboxSync`: DateTimeOffset.
+Data: `_scopeFactory`: IServiceScopeFactory, `_log`: ILogger<DiscoveryWorker>, `_lastMaintenance`: DateTimeOffset, `_lastMyPostsSync`: DateTimeOffset, `_lastInboxSync`: DateTimeOffset, `_lastBriefingDay`: DateTime, `_lastLinkedInPublish`: DateTimeOffset.
 
 - protected `ExecuteAsync(CancellationToken stoppingToken) → Task` — Coordinates execute. _(inferred)_
 - private `TickAsync(CancellationToken ct) → Task` — Handles tick. _(inferred)_
@@ -1411,7 +1719,7 @@ Internal HTTP API used for automation and integration (the UI calls services dir
 
 #### ManualLeadDto
 
-public record class `ManualLeadDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:243`
+public record class `ManualLeadDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:397`
 
 Transfers manual lead data. _(inferred)_
 
@@ -1419,7 +1727,7 @@ Depends on: `string Title`, `string Body`, `string? SourceUrl`, `string? Author`
 
 #### DraftDto
 
-public record class `DraftDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:244`
+public record class `DraftDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:398`
 
 Transfers draft data. _(inferred)_
 
@@ -1427,7 +1735,7 @@ Depends on: `string TemplateKey`.
 
 #### QuoteDto
 
-public record class `QuoteDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:245`
+public record class `QuoteDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:399`
 
 Transfers quote data. _(inferred)_
 
@@ -1495,6 +1803,37 @@ Campaign objectives and source/lead ownership management.
 - private `Delete(Campaign campaign) → Task` — Removes or transitions delete. _(inferred)_
 - private `MakeKey(string name) → string` — Creates key. _(inferred)_
 
+#### ClientDetail
+
+public component `ClientDetail` : `ComponentBase` · `src/DevLeads.Web/Components/Pages/ClientDetail.razor:1`
+
+Blazor component for client detail.
+
+- protected `OnParametersSetAsync() → Task` — Runs the component on parameters set lifecycle step. _(inferred)_
+- private `Load() → Task` — Loads or resolves load. _(inferred)_
+- private `SaveClient() → Task` — Updates client. _(inferred)_
+- private `SetStatus(ClientStatus status) → Task` — Updates status. _(inferred)_
+- private `AddEngagement() → Task` — Creates engagement. _(inferred)_
+- private `SaveEngagement(Engagement edited) → Task` — Updates engagement. _(inferred)_
+- private `SetEngagementStatus(Engagement edited, EngagementStatus status) → Task` — Updates engagement status. _(inferred)_
+- private `AddInteraction() → Task` — Creates interaction. _(inferred)_
+- private `AddFollowUp() → Task` — Creates follow up. _(inferred)_
+- private `CloseFollowUp(FollowUp edited, FollowUpStatus status) → Task` — Handles close follow up. _(inferred)_
+- private `TouchClientAndSave(DevLeadsDbContext db) → Task` — Handles touch client and save. _(inferred)_
+- private `StatusChip(ClientStatus s) → string` — Handles status chip. _(inferred)_
+- private `EngagementChip(EngagementStatus s) → string` — Handles engagement chip. _(inferred)_
+
+#### Clients
+
+public component `Clients` : `ComponentBase` · `src/DevLeads.Web/Components/Pages/Clients.razor:1`
+
+Blazor component for clients.
+
+- protected `OnInitializedAsync() → Task` — Runs the component on initialized lifecycle step. _(inferred)_
+- private `Load() → Task` — Loads or resolves load. _(inferred)_
+- private `AddClient() → Task` — Creates client. _(inferred)_
+- private `StatusChip(ClientStatus s) → string` — Handles status chip. _(inferred)_
+
 #### Content
 
 public component `Content` : `ComponentBase` · `src/DevLeads.Web/Components/Pages/Content.razor:1`
@@ -1534,10 +1873,11 @@ public component `Home` : `ComponentBase` · `src/DevLeads.Web/Components/Pages/
 
 Campaign-scoped dashboard with lead KPIs, activity, and top opportunities.
 
-- private `Truncate(string s, int max) → string` — Handles truncate. _(inferred)_
-- protected `OnInitializedAsync() → Task` — Runs the component on initialized lifecycle step. _(inferred)_
-- private `IsDashboardLead(Opportunity o, IReadOnlyDictionary<long, string> bodyByOpportunity) → bool` — Checks dashboard lead. _(inferred)_
-- private `DashboardDuplicateKey(Opportunity o, IReadOnlyDictionary<long, string> bodyByOpportunity) → string` — Handles dashboard duplicate key. _(inferred)_
+#### LinkedIn
+
+public component `LinkedIn` : `ComponentBase` · `src/DevLeads.Web/Components/Pages/LinkedIn.razor:1`
+
+Blazor component for linked in.
 
 #### MyPosts
 
@@ -1620,6 +1960,7 @@ Lead detail, triage, scoring, outreach, quotes, work tracking, and audit history
 - private `RunScoped(Func<IServiceProvider, Task> action, string okMsg) → Task` — Coordinates scoped. _(inferred)_
 - private `Rerun() → Task` — Handles rerun. _(inferred)_
 - private `Status(OpportunityStatus status) → Task` — Handles status. _(inferred)_
+- private `PromoteToClient() → Task` — Handles promote to client. _(inferred)_
 - private `GenerateDraft() → Task` — Creates draft. _(inferred)_
 - private `QueueResponse() → Task` — Handles response. _(inferred)_
 - private `SaveDraft(long attemptId, string body) → Task` — Updates draft. _(inferred)_
@@ -1672,6 +2013,12 @@ public component `Sources` : `ComponentBase` · `src/DevLeads.Web/Components/Pag
 
 Source configuration, health checks, and manual discovery runs.
 
+#### Today
+
+public component `Today` : `ComponentBase` · `src/DevLeads.Web/Components/Pages/Today.razor:1`
+
+Blazor component for today.
+
 ### `DevLeads.Web.Components`
 
 #### Routes
@@ -1707,6 +2054,32 @@ Blazor component for campaign switcher.
 - protected `OnInitializedAsync() → Task` — Runs the component on initialized lifecycle step. _(inferred)_
 - private `OnChanged(ChangeEventArgs e) → Task` — Handles on changed. _(inferred)_
 
+#### PlatformPresencePanel
+
+public component `PlatformPresencePanel` : `ComponentBase` · `src/DevLeads.Web/Components/Shared/PlatformPresencePanel.razor:1`
+
+Blazor component for platform presence panel.
+
+- protected `OnInitializedAsync() → Task` — Runs the component on initialized lifecycle step. _(inferred)_
+- private `Load() → Task` — Loads or resolves load. _(inferred)_
+- private `SuggestionCard(PlatformProfile p) → RenderFragment` — Handles suggestion card. _(inferred)_
+- private `DetailRow(PlatformProfile p) → RenderFragment` — Handles detail row. _(inferred)_
+- private `Toggle(long id) → void` — Handles toggle. _(inferred)_
+- private `ToggleDismissed() → void` — Handles dismissed. _(inferred)_
+- private `GenerateKit(long id) → void` — Creates kit. _(inferred)_
+- private `HasPack(PlatformProfile p) → bool` — Checks pack. _(inferred)_
+- private `PackView(PlatformProfile p) → RenderFragment?` — Handles pack view. _(inferred)_
+- private `ResumeRow(PlatformProfile p) → RenderFragment?` — Handles resume row. _(inferred)_
+- private `PackField(string label, string value) → RenderFragment?` — Handles pack field. _(inferred)_
+- private `Copy(string text) → Task` — Handles copy. _(inferred)_
+- private `RunKit(long id) → Task` — Coordinates kit. _(inferred)_
+- private `GenerateAllPacks() → Task` — Creates all packs. _(inferred)_
+- private `Activate(long id) → Task` — Handles activate. _(inferred)_
+- private `Discover() → Task` — Handles discover. _(inferred)_
+- private `SetStatus(long id, PlatformPresenceStatus status) → Task` — Updates status. _(inferred)_
+- private `SaveProfile(PlatformProfile edited) → Task` — Updates profile. _(inferred)_
+- private `AddPlatform() → Task` — Creates platform. _(inferred)_
+
 #### PostPerformanceChart
 
 public component `PostPerformanceChart` : `ComponentBase` · `src/DevLeads.Web/Components/Shared/PostPerformanceChart.razor:1`
@@ -1730,6 +2103,8 @@ Presentation helpers: badge classes, labels, and formatting used across pages.
 - public `Fee(double? min, double? max) → string` — Handles fee. _(inferred)_
 - public `Fee(Opportunity o) → string` — Fee with provenance: an amount the poster stated is fact ("$15 offered"); a category-based suggestion is clearly marked as an estimate ("~$100–$250 est.").
 - public `ParseStringList(string json) → List<string>` — Transforms or resolves string list. _(inferred)_
+- public `LeadBlurb(Opportunity o) → string` — One italic sentence for lead lists: what the lead is, why it scored high enough to be shown, and the next action where one is obvious.
+- private `Humanize(string value) → string` — "payment_processing_down" / "PaymentProcessingDown" → "Payment processing down".
 
 ### `DevLeads.Web.Components`
 

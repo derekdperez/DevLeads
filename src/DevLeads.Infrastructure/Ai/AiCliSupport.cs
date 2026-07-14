@@ -52,6 +52,7 @@ public static class AiCliSupport
         return
             screeningGoal +
             "Pick only candidates worth a full expensive triage call. Favor posts where the author owns the affected business, asks for hands-on help, names a budget/pay intent, or describes customer/revenue impact.\n" +
+            "Explicit paid work ranks first, but retain concrete hands-on requests from business owners as possible networking opportunities even when payment is not discussed yet.\n" +
             "Reject generic advice requests, vendor-only support/account issues, learning/homework posts, news, and low-value discussion.\n" +
             $"Return at most {maxSelections} items.\n" +
             "Respond with JSON only, exactly like: {\"selected\":[{\"id\":\"i0\",\"reason\":\"short reason\"}]}\n" +

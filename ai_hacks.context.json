@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "product": {
     "name": "DevLeads",
-    "purpose": "A solo-operator Blazor application that discovers public paid software-work leads, triages and scores them, manages human-approved outreach and quotes, and turns separate trend signals into content drafts.",
+    "purpose": "A solo-operator Blazor application that discovers public paid software-work leads, triages and scores them, manages human-approved outreach and quotes, turns trend signals into content drafts, and manages an approved LinkedIn publishing and engagement workflow.",
     "stack": [
       ".NET 10",
       "ASP.NET Core Blazor Server",
@@ -11,7 +11,8 @@
       "SQLite",
       "hosted background services",
       "OpenCode CLI",
-      "Anthropic API"
+      "Anthropic API",
+      "LinkedIn OAuth and Community Management APIs"
     ]
   },
   "projects": [
@@ -125,6 +126,26 @@
         "TrendSource and TrendSignal are intentionally separate from SourceConfig, RawSourceItem, and Opportunity.",
         "Content generation injects OpenCode directly rather than using AiTriageRouter.",
         "Automatic topic suggestions run at most once per day and only with enough fresh evidence; draft generation is operator-initiated."
+      ]
+    },
+    {
+      "name": "LinkedIn profile management",
+      "summary": "Connect the operator through state-protected member OAuth, generate/edit text posts, publish immediately or on a worker schedule, and turn approved comment activity or pasted private messages into reviewed response drafts.",
+      "steps": [
+        "DevLeads.Web.Components.Pages.LinkedIn",
+        "DevLeads.Web.Api.ApiEndpoints.MapDevLeadsApi",
+        "DevLeads.Infrastructure.Services.LinkedInService.CreateAuthorizationUrlAsync",
+        "DevLeads.Infrastructure.Services.LinkedInService.CompleteOAuthAsync",
+        "DevLeads.Infrastructure.Services.LinkedInService.PublishPostAsync",
+        "DevLeads.Infrastructure.Services.LinkedInService.SyncEngagementAsync",
+        "DevLeads.Infrastructure.Services.LinkedInService.GenerateEngagementBatchAsync",
+        "DevLeads.Infrastructure.Services.LinkedInService.PublishEngagementAsync",
+        "DevLeads.Infrastructure.Workers.DiscoveryWorker.TickAsync"
+      ],
+      "notes": [
+        "Scheduled LinkedIn publishing runs independently of lead discovery but still honors the global kill switch.",
+        "Comment reads require LinkedIn's restricted member-social read permission; self-serve posting does not grant that permission.",
+        "LinkedIn exposes no general member private-inbox API, so private messages are pasted for drafting and sent manually in LinkedIn."
       ]
     },
     {
@@ -276,6 +297,23 @@
       "warning": "Reddit can omit view_count even for authenticated requests; preserve the difference between an observed zero and an unavailable count. Opening an unread message here must persist Read immediately."
     },
     {
+      "concern": "LinkedIn OAuth, scheduled publishing, comment monitoring, or engagement replies",
+      "startAt": [
+        "DevLeads.Infrastructure.Services.LinkedInService",
+        "src/DevLeads.Web/Components/Pages/LinkedIn.razor"
+      ],
+      "alsoCheck": [
+        "src/DevLeads.Core/Ai/LinkedInPrompts.cs",
+        "src/DevLeads.Core/Entities/EngagementDraft.cs",
+        "src/DevLeads.Core/Entities/OperatorPost.cs",
+        "src/DevLeads.Core/Entities/OperatorSettings.cs",
+        "DevLeads.Infrastructure.Workers.DiscoveryWorker.TickAsync",
+        "DevLeads.Infrastructure.Services.AdvisorService.BuildAgendaAsync",
+        "src/DevLeads.Web/Api/ApiEndpoints.cs"
+      ],
+      "warning": "Never treat a self-serve posting token as permission to read comments or private messages. OAuth callbacks must validate the short-lived state, scheduled publishing and replies must honor the global kill switch, and AI responses remain human-reviewed."
+    },
+    {
       "concern": "Blazor route or page behavior",
       "startAt": [
         "src/DevLeads.Web/Components/Pages",
@@ -330,12 +368,15 @@
   "invariants": [
     "Every visible opportunity must have a canonical original public SourceUrl.",
     "A pay-intent signal must represent first-person ownership, explicit hire/pay language, or a concrete paid source; topic keywords such as payments or budget alone do not qualify a lead.",
+    "Explicit paid work ranks above networking leads, but a business owner or operator with a concrete hands-on request and implied future commercial potential may remain for human review even without current payment language; generic free-advice posts still do not qualify.",
+    "Candidates that pass safety and actionability gates but reach only 50–99% of their source opportunity threshold are retained as JustMissed for dashboard scoring review; they remain excluded from normal active-lead and automatic-outreach paths.",
     "Automated discovery retains raw seen-item evidence for dedup even when no opportunity survives.",
     "One canonical source URL represents at most one opportunity across connectors; near-duplicate checks additionally use source, host, normalized title, and shared clues.",
     "Source query packs scope both discovery vocabulary and high-priority prefilter terms to the owning campaign.",
     "Campaign objectives are passed into AI shortlist, triage, and outreach generation so relevance stays campaign-specific.",
     "Red-flagged, resolved, promotional, reply-feed, autonomous-agent-task, and non-hirable vendor-support posts must not reach actionable outreach.",
-    "Foreign-stack work without an operator stack-identity match is rejected or score-capped; generic capabilities such as API work are not stack identity.",
+    "Technology stack is informational and only a light ranking preference; never reject or score-cap a lead solely because it lacks an operator skill-profile match. Paid-work quality, professional compensation, remote feasibility, competition, and poster reliability dominate.",
+    "Automated discovery ignores public posts older than 30 days before AI triage and removes untouched expired leads while retaining raw dedup evidence; manual and operator-engaged leads are preserved, and the dashboard excludes expired posts.",
     "Non-English leads receive a language-friction score penalty before source thresholds; only survivors store/display an English translation, while the original source text remains available for verification.",
     "Stated compensation overrides category-based fee estimates and is displayed as an offer rather than an estimate.",
     "The selected unavailable AI provider falls back to Heuristic; the lead pipeline remains operable without external AI.",
@@ -343,7 +384,10 @@
     "Trend items become TrendSignals only and never enter the lead/opportunity pipeline.",
     "Operator-engaged and archived opportunities are never automatically purged by source/default cleanup.",
     "SQLite DateTimeOffset values are persisted as sortable UTC ticks and enums as readable strings.",
-    "Unknown platform metrics are never presented as observed zero values, and opening an unread My Posts message persists it as Read."
+    "Unknown platform metrics are never presented as observed zero values, and opening an unread My Posts message persists it as Read.",
+    "LinkedIn OAuth callbacks validate the stored short-lived state before exchanging a code, and access tokens are never returned by status endpoints or rendered into the page.",
+    "LinkedIn scheduled posts and public comment replies honor the global kill switch; AI-generated engagement responses require explicit operator publication.",
+    "LinkedIn comment monitoring requires an approved restricted read scope, while private inbox messages remain manual because the general member API does not expose them."
   ],
   "operations": {
     "run": "dotnet run --project src/DevLeads.Web",

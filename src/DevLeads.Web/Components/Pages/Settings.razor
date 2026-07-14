@@ -295,7 +295,10 @@
         new(AiFeature.ContentDrafts, "Content drafts", "long-form blog/article/paper drafts"),
         new(AiFeature.PostDrafting, "My-post drafting", "drafting your own platform posts"),
         new(AiFeature.ThreadSummary, "Thread summaries", "summarizing replies on your posts"),
-        new(AiFeature.PostOptimization, "Post optimization", "the rewrite experiment (defaults to Codex)")
+        new(AiFeature.PostOptimization, "Post optimization", "the rewrite experiment (defaults to Codex)"),
+        new(AiFeature.AdvisorBriefing, "Daily advisor briefing", "the Today page's one-per-day briefing"),
+        new(AiFeature.PlatformDiscovery, "Platform discovery", "suggesting new platforms to post on (My posts)"),
+        new(AiFeature.LinkedInEngagement, "LinkedIn engagement", "batched replies to comments and pasted messages")
     };
 
     private string GetFeatureProvider(AiFeature f) => f switch
@@ -307,6 +310,9 @@
         AiFeature.PostDrafting => _s!.PostDraftAiProvider,
         AiFeature.ThreadSummary => _s!.ThreadSummaryAiProvider,
         AiFeature.PostOptimization => _s!.PostOptimizationAiProvider,
+        AiFeature.AdvisorBriefing => _s!.AdvisorAiProvider,
+        AiFeature.PlatformDiscovery => _s!.PlatformDiscoveryAiProvider,
+        AiFeature.LinkedInEngagement => _s!.LinkedInEngagementAiProvider,
         _ => ""
     };
 
@@ -323,6 +329,9 @@
             case AiFeature.PostDrafting: _s.PostDraftAiProvider = v; break;
             case AiFeature.ThreadSummary: _s.ThreadSummaryAiProvider = v; break;
             case AiFeature.PostOptimization: _s.PostOptimizationAiProvider = v; break;
+            case AiFeature.AdvisorBriefing: _s.AdvisorAiProvider = v; break;
+            case AiFeature.PlatformDiscovery: _s.PlatformDiscoveryAiProvider = v; break;
+            case AiFeature.LinkedInEngagement: _s.LinkedInEngagementAiProvider = v; break;
         }
         // Switching provider invalidates a model id tied to the old one; clear it so the
         // row falls back to the new provider's default until the operator types one.
@@ -338,6 +347,9 @@
         AiFeature.PostDrafting => _s!.PostDraftAiModel,
         AiFeature.ThreadSummary => _s!.ThreadSummaryAiModel,
         AiFeature.PostOptimization => _s!.PostOptimizationAiModel,
+        AiFeature.AdvisorBriefing => _s!.AdvisorAiModel,
+        AiFeature.PlatformDiscovery => _s!.PlatformDiscoveryAiModel,
+        AiFeature.LinkedInEngagement => _s!.LinkedInEngagementAiModel,
         _ => ""
     };
 
@@ -354,6 +366,9 @@
             case AiFeature.PostDrafting: _s.PostDraftAiModel = v; break;
             case AiFeature.ThreadSummary: _s.ThreadSummaryAiModel = v; break;
             case AiFeature.PostOptimization: _s.PostOptimizationAiModel = v; break;
+            case AiFeature.AdvisorBriefing: _s.AdvisorAiModel = v; break;
+            case AiFeature.PlatformDiscovery: _s.PlatformDiscoveryAiModel = v; break;
+            case AiFeature.LinkedInEngagement: _s.LinkedInEngagementAiModel = v; break;
         }
     }
 }

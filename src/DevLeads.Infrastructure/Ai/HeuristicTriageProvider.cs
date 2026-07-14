@@ -176,6 +176,8 @@ public sealed class HeuristicTriageProvider : IAiTriageProvider
         else if (isEmergency) recommendation = request.HeuristicScore >= 40 ? "Draft Reply" : "Manual Review";
         else if (payIntent) recommendation = "Manual Review"; // paid work, just not an outage
         else if (explicitPayLanguage && isTechnical) recommendation = "Manual Review"; // offering to pay — always worth a look
+        else if (paymentIntent == "Implied" && assistanceRequested && isTechnical)
+            recommendation = "Manual Review"; // owner/operator networking opportunity
         else if (!isTechnical || category == "Non-Urgent Help Request") recommendation = "Ignore";
         else recommendation = paymentIntent == "None" ? "Ignore" : "Watch";
 

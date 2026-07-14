@@ -53,6 +53,8 @@
     }
 </div>
 
+<PlatformPresencePanel OnPlatformsChanged="Load" />
+
 @if (_showDraft)
 {
     <div class="rr-panel">
@@ -380,7 +382,10 @@
 </div>
 
 @code {
-    private static readonly string[] Platforms = { "reddit", "upwork", "craigslist", "monster", "indeed", "linkedin", "gmail", "other" };
+    private static readonly string[] DefaultPlatforms = { "reddit", "upwork", "craigslist", "monster", "indeed", "linkedin", "gmail", "other" };
+
+    /// <summary>Selectable platforms: the built-ins plus every activated platform profile.</summary>
+    private List<string> Platforms = new(DefaultPlatforms);
     private record PlatformStats(string Platform, int ActiveCount, int TotalReplies, string? BestPost);
 
     private List<OperatorPost> _posts = new();
@@ -436,6 +441,11 @@
     private async Task Load()
     {
         await using var db = await DbFactory.CreateDbContextAsync();
+        var activePlatformKeys = await db.PlatformProfiles.AsNoTracking()
+            .Where(p => p.Status == PlatformPresenceStatus.Active)
+            .Select(p => p.Key).ToListAsync();
+        Platforms = DefaultPlatforms.Union(activePlatformKeys, StringComparer.OrdinalIgnoreCase)
+            .OrderBy(p => p == "other").ThenBy(p => p).ToList();
         _posts = await db.OperatorPosts.AsNoTracking()
             .OrderByDescending(p => p.Status == OperatorPostStatus.Active)
             .ThenByDescending(p => p.PostedAt)

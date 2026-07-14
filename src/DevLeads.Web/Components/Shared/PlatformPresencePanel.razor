@@ -1,0 +1,422 @@
+@inject IDbContextFactory<DevLeadsDbContext> DbFactory
+@inject IServiceScopeFactory ScopeFactory
+@inject IJSRuntime JS
+
+<div class="rr-panel">
+    <div class="rr-panel-head">
+        <div>
+            <h2>🌐 Platform presence</h2>
+            <div class="rr-sub">Where you're visible now, and where to show up next. Workflow: pick a suggestion → create the account (Sign up ↗) → generate the starter kit → paste the bio + post → track the post below like any other.</div>
+        </div>
+        <div class="rr-btn-row">
+            <button class="rr-btn primary" @onclick="Discover" disabled="@_busy">@(_busy ? "Searching…" : "🔭 Find new platforms (1 AI call)")</button>
+            @if (_packless > 0)
+            {
+                <button class="rr-btn" @onclick="GenerateAllPacks" disabled="@_busy"
+                        title="One batched call writes signup packs for several platforms at once — headline, bios, skills, rate line, and first post for every suggested platform that doesn't have one yet">
+                    🧰 All signup packs (@_packless platforms, @PackCalls AI call@(PackCalls == 1 ? "" : "s"))
+                </button>
+            }
+            <button class="rr-btn" @onclick="() => _showAdd = !_showAdd">➕ Add platform</button>
+        </div>
+    </div>
+
+    @if (_flash is not null) { <div class="rr-flash @(_flashOk ? "ok" : "err")">@_flash</div> }
+
+    @if (_showAdd)
+    {
+        <div style="border:1px solid var(--line);border-radius:10px;padding:.7rem .8rem;margin-bottom:.7rem">
+            <div class="rr-grid-2">
+                <div class="rr-field"><label>Name *</label><input class="rr-input" @bind="_newName" placeholder="e.g. r/HireADeveloper" /></div>
+                <div class="rr-field"><label>URL</label><input class="rr-input" @bind="_newUrl" placeholder="https://…" /></div>
+                <div class="rr-field">
+                    <label>Category</label>
+                    <select class="rr-select" @bind="_newCategory">
+                        @foreach (var c in Categories) { <option value="@c">@c</option> }
+                    </select>
+                </div>
+                <div class="rr-field"><label>Why it's worth it</label><input class="rr-input" @bind="_newRationale" /></div>
+            </div>
+            <label class="rr-check" style="margin-bottom:.4rem">
+                <input type="checkbox" @bind="_newRequiresResume" /> Signup/vetting asks for a resume upload
+            </label>
+            <button class="rr-btn primary" @onclick="AddPlatform" disabled="@_busy">Add as suggestion</button>
+        </div>
+    }
+
+    @if (_active.Count > 0)
+    {
+        <h3 style="margin:.4rem 0 .4rem">Active — you're on these (@_active.Count)</h3>
+        <div class="rr-table-scroll">
+            <table class="rr-table">
+                <thead><tr><th>Platform</th><th>Posts</th><th>Replies</th><th>Views</th><th>Profile</th><th></th></tr></thead>
+                <tbody>
+                    @foreach (var p in _active)
+                    {
+                        var stats = _postStats.GetValueOrDefault(p.Key);
+                        <tr>
+                            <td>
+                                <a href="@p.Url" target="_blank" rel="noopener noreferrer"><strong>@p.Name</strong> ↗</a>
+                                <div class="rr-sub">@p.Category</div>
+                            </td>
+                            <td>@(stats?.Posts ?? 0)<span class="rr-sub"> (@(stats?.ActivePosts ?? 0) live)</span></td>
+                            <td>@(stats?.Replies ?? 0)</td>
+                            <td>@(stats?.Views ?? 0)</td>
+                            <td class="rr-title-cell">
+                                @if (string.IsNullOrWhiteSpace(p.ProfileUrl)) { <span class="rr-sub">—</span> }
+                                else { <a href="@p.ProfileUrl" target="_blank" rel="noopener noreferrer">@(string.IsNullOrWhiteSpace(p.Handle) ? "profile" : p.Handle) ↗</a> }
+                            </td>
+                            <td><button class="rr-btn sm" @onclick="() => Toggle(p.Id)">@(_openId == p.Id ? "▲" : "▼")</button></td>
+                        </tr>
+                        @if (_openId == p.Id) { @DetailRow(p) }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+    @if (_planned.Count > 0)
+    {
+        <h3 style="margin:.9rem 0 .4rem">In progress — joining these (@_planned.Count)</h3>
+        @foreach (var p in _planned) { @SuggestionCard(p) }
+    }
+
+    <h3 style="margin:.9rem 0 .4rem">Suggested — worth considering (@_suggested.Count)</h3>
+    @if (_suggested.Count == 0)
+    {
+        <div class="rr-empty">Nothing suggested right now — hit “Find new platforms” to have the AI scout more.</div>
+    }
+    else
+    {
+        @foreach (var p in _suggested) { @SuggestionCard(p) }
+    }
+
+    @if (_dismissedCount > 0)
+    {
+        <div class="rr-sub" style="margin-top:.6rem">
+            @_dismissedCount dismissed ·
+            <a style="cursor:pointer" @onclick="ToggleDismissed">@(_showDismissed ? "hide" : "show")</a>
+        </div>
+        @if (_showDismissed)
+        {
+            @foreach (var p in _dismissed) { @SuggestionCard(p) }
+        }
+    }
+</div>
+
+@code {
+    /// <summary>Raised after an activation/deactivation so the host page can refresh platform dropdowns.</summary>
+    [Parameter] public EventCallback OnPlatformsChanged { get; set; }
+
+    private static readonly string[] Categories =
+        { "freelance marketplace", "developer community", "hiring board", "social", "local", "content" };
+
+    private record PlatformPostStats(int Posts, int ActivePosts, int Replies, int Views);
+
+    private List<PlatformProfile> _active = new(), _planned = new(), _suggested = new(), _dismissed = new();
+    private int _dismissedCount;
+    private Dictionary<string, PlatformPostStats> _postStats = new(StringComparer.OrdinalIgnoreCase);
+    private long? _openId;
+    private bool _busy, _showAdd, _showDismissed;
+    private string? _flash; private bool _flashOk = true;
+    private string _newName = "", _newUrl = "", _newCategory = "developer community", _newRationale = "";
+    private bool _newRequiresResume;
+    private string? _resumeName;
+    private List<Campaign> _campaigns = new();
+    private long? _kitCampaignId;
+    private string _kitInstructions = "";
+
+    protected override async Task OnInitializedAsync() => await Load();
+
+    private async Task Load()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var all = await db.PlatformProfiles.AsNoTracking().OrderBy(p => p.Name).ToListAsync();
+        _active = all.Where(p => p.Status == PlatformPresenceStatus.Active).ToList();
+        _planned = all.Where(p => p.Status == PlatformPresenceStatus.Planned).ToList();
+        _suggested = all.Where(p => p.Status == PlatformPresenceStatus.Suggested).ToList();
+        _dismissed = all.Where(p => p.Status == PlatformPresenceStatus.Dismissed).ToList();
+        _dismissedCount = _dismissed.Count;
+        _packless = all.Count(p =>
+            (p.Status == PlatformPresenceStatus.Suggested || p.Status == PlatformPresenceStatus.Planned) &&
+            string.IsNullOrEmpty(p.SignupPackJson));
+        _resumeName = await db.OperatorDocuments.AsNoTracking()
+            .Where(d => d.Kind == OperatorDocument.ResumeKind)
+            .Select(d => d.FileName).FirstOrDefaultAsync();
+        _campaigns = await db.Campaigns.AsNoTracking().OrderBy(c => c.Id).ToListAsync();
+        _postStats = (await db.OperatorPosts.AsNoTracking().ToListAsync())
+            .GroupBy(p => p.Platform, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => new PlatformPostStats(
+                g.Count(),
+                g.Count(p => p.Status == OperatorPostStatus.Active),
+                g.Sum(p => p.ReplyCount),
+                g.Sum(p => p.ViewCount)), StringComparer.OrdinalIgnoreCase);
+    }
+
+    private RenderFragment SuggestionCard(PlatformProfile p) => @<div style="border:1px solid var(--line);border-radius:10px;padding:.7rem .8rem;margin-bottom:.6rem">
+        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+            <a href="@p.Url" target="_blank" rel="noopener noreferrer"><strong>@p.Name</strong> ↗</a>
+            <span class="rr-chip active">@p.Category</span>
+            <span class="rr-chip">@p.CostModel</span>
+            @if (p.RequiresResume) { <span class="rr-chip quote" title="Signup or vetting asks for a resume upload">📄 resume required</span> }
+            @if (p.Source == "ai") { <span class="rr-chip progress" title="Suggested by AI discovery">AI find</span> }
+            @if (p.Status == PlatformPresenceStatus.Planned) { <span class="rr-chip review">joining</span> }
+        </div>
+        @if (!string.IsNullOrWhiteSpace(p.Rationale)) { <div style="margin:.35rem 0 .1rem">@p.Rationale</div> }
+        @if (!string.IsNullOrWhiteSpace(p.Audience)) { <div class="rr-sub">Audience: @p.Audience</div> }
+        @if (!string.IsNullOrWhiteSpace(p.PostingNotes)) { <div class="rr-sub">Playbook: @p.PostingNotes</div> }
+        @PackView(p)
+        @ResumeRow(p)
+        <div class="rr-btn-row" style="margin-top:.5rem">
+            @if (!string.IsNullOrWhiteSpace(p.SignupUrl))
+            {
+                <a class="rr-btn sm" href="@p.SignupUrl" target="_blank" rel="noopener noreferrer">1️⃣ Sign up ↗</a>
+            }
+            <button class="rr-btn sm primary" @onclick="() => GenerateKit(p.Id)" disabled="@_busy"
+                    title="One AI call writes this platform's signup pack: headline, bios, skills, rate line, and first post — all with copy buttons">
+                2️⃣ @(HasPack(p) ? "Regenerate signup pack (1 AI call)" : "Signup pack (1 AI call)")
+            </button>
+            <button class="rr-btn sm good" @onclick="() => Activate(p.Id)" disabled="@_busy"
+                    title="Tell the app YOU created the account (nothing is created for you) — starts tracking, and moves the pack's first post into Tracked posts as a draft">3️⃣ Mark account created</button>
+            @if (p.Status != PlatformPresenceStatus.Dismissed)
+            {
+                <button class="rr-btn sm" @onclick="() => SetStatus(p.Id, PlatformPresenceStatus.Dismissed)" disabled="@_busy">Not for me</button>
+            }
+            else
+            {
+                <button class="rr-btn sm" @onclick="() => SetStatus(p.Id, PlatformPresenceStatus.Suggested)" disabled="@_busy">↩ Reconsider</button>
+            }
+        </div>
+        @if (_openKitId == p.Id)
+        {
+            <div class="rr-grid-2" style="margin-top:.5rem">
+                <div class="rr-field">
+                    <label>Campaign (shapes the starter post)</label>
+                    <select class="rr-select" @bind="_kitCampaignId">
+                        <option value="">— general —</option>
+                        @foreach (var c in _campaigns) { <option value="@c.Id">@c.Emoji @c.Name</option> }
+                    </select>
+                </div>
+                <div class="rr-field">
+                    <label>Extra instructions (optional)</label>
+                    <input class="rr-input" @bind="_kitInstructions" placeholder="e.g. lead with legacy .NET rescue work" />
+                </div>
+            </div>
+            <button class="rr-btn sm primary" @onclick="() => RunKit(p.Id)" disabled="@_busy">@(_busy ? "Writing…" : "Generate now")</button>
+        }
+    </div>;
+
+    private RenderFragment DetailRow(PlatformProfile p) => @<tr><td colspan="6" style="background:transparent">
+        <div class="rr-grid-2">
+            <div class="rr-field"><label>Your handle there</label><input class="rr-input" @bind="p.Handle" /></div>
+            <div class="rr-field"><label>Your profile URL</label><input class="rr-input" @bind="p.ProfileUrl" placeholder="https://…" /></div>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(p.PostingNotes)) { <div class="rr-sub" style="margin:.3rem 0">Playbook: @p.PostingNotes</div> }
+        @PackView(p)
+        @ResumeRow(p)
+        <label class="rr-check" style="margin:.3rem 0">
+            <input type="checkbox" @bind="p.RequiresResume" /> Signup/vetting asks for a resume upload
+        </label>
+        <div class="rr-field"><label>Notes & learnings</label><textarea class="rr-textarea" style="min-height:60px" @bind="p.Notes"></textarea></div>
+        <div class="rr-btn-row" style="margin-top:.4rem">
+            <button class="rr-btn sm" @onclick="() => SaveProfile(p)" disabled="@_busy">💾 Save</button>
+            <button class="rr-btn sm" @onclick="() => GenerateKit(p.Id)" disabled="@_busy">✍️ Regenerate signup pack (1 AI call)</button>
+            <button class="rr-btn sm" @onclick="() => SetStatus(p.Id, PlatformPresenceStatus.Dismissed)" disabled="@_busy">Deactivate</button>
+        </div>
+    </td></tr>;
+
+    private long? _openKitId;
+    private int _packless;
+    private int PackCalls => (int)Math.Ceiling(_packless / (double)PlatformPresencePrompts.SignupPackChunkSize);
+
+    private void Toggle(long id) => _openId = _openId == id ? null : id;
+    private void ToggleDismissed() => _showDismissed = !_showDismissed;
+    private void GenerateKit(long id) => _openKitId = _openKitId == id ? null : id;
+
+    private static bool HasPack(PlatformProfile p) => SignupPack.FromJson(p.SignupPackJson) is not null;
+
+    /// <summary>The full copy-paste pack: one row per signup-form field, each with a copy button.</summary>
+    private RenderFragment? PackView(PlatformProfile p)
+    {
+        var pack = SignupPack.FromJson(p.SignupPackJson);
+        if (pack is null) return null;
+        return @<details style="margin-top:.4rem">
+            <summary style="cursor:pointer;font-weight:600">📋 Signup pack — everything the forms ask for, ready to paste</summary>
+            <div style="margin-top:.4rem">
+                @PackField("Headline / tagline", pack.Headline)
+                @PackField("Short bio", pack.BioShort)
+                @PackField("Long bio / overview", pack.BioLong)
+                @PackField("Skills (ordered for this audience)", pack.Skills)
+                @PackField("Rate line", pack.RateLine)
+                @PackField($"First post — {(string.IsNullOrWhiteSpace(pack.PostTitle) ? "introduction" : pack.PostTitle)}",
+                    (string.IsNullOrWhiteSpace(pack.PostTitle) ? "" : pack.PostTitle + "\n\n") + pack.PostBody)
+            </div>
+        </details>;
+    }
+
+    /// <summary>The signup pack's resume line for platforms that ask for one: a download
+    /// link to the stored resume, or a pointer to upload one first.</summary>
+    private RenderFragment? ResumeRow(PlatformProfile p)
+    {
+        if (!p.RequiresResume) return null;
+        return @<div class="rr-sub" style="margin-top:.35rem">
+            📄 This platform asks for a resume during signup —
+            @if (_resumeName is not null)
+            {
+                <a href="api/documents/resume" target="_blank" rel="noopener noreferrer">download yours (@_resumeName) ⬇</a>
+            }
+            else
+            {
+                <a href="skills">upload one on the Skill profile page first</a>
+            }
+        </div>;
+    }
+
+    private RenderFragment? PackField(string label, string value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return null;
+        return @<div class="rr-field" style="margin-bottom:.5rem">
+            <label style="display:flex;justify-content:space-between;align-items:center;gap:.5rem">
+                @label
+                <button class="rr-btn sm" @onclick="() => Copy(value)">📋 Copy</button>
+            </label>
+            <div class="rr-quote" style="white-space:pre-wrap;max-height:220px;overflow-y:auto">@value</div>
+        </div>;
+    }
+
+    private async Task Copy(string text)
+    {
+        try { await JS.InvokeVoidAsync("navigator.clipboard.writeText", text); _flash = "Copied to clipboard."; _flashOk = true; }
+        catch { _flash = "Copy not available."; _flashOk = false; }
+    }
+
+    private async Task RunKit(long id)
+    {
+        _busy = true; _flash = "⏳ Writing the signup pack — one AI call, this can take a minute…"; _flashOk = true;
+        StateHasChanged();
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var (generated, _, message) = await scope.ServiceProvider.GetRequiredService<PlatformPresenceService>()
+                .GenerateSignupPacksAsync(new[] { id }, _kitCampaignId, _kitInstructions, default);
+            _flash = message; _flashOk = generated > 0;
+            if (generated > 0) _openKitId = null;
+            await Load();
+            await OnPlatformsChanged.InvokeAsync();
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+
+    private async Task GenerateAllPacks()
+    {
+        _busy = true;
+        _flash = $"⏳ Writing signup packs for {_packless} platform(s) — {PackCalls} batched AI call(s), this can take a few minutes…";
+        _flashOk = true;
+        StateHasChanged();
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var (generated, calls, message) = await scope.ServiceProvider.GetRequiredService<PlatformPresenceService>()
+                .GenerateSignupPacksAsync(null, null, "", default);
+            _flash = message; _flashOk = generated > 0;
+            await Load();
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+
+    private async Task Activate(long id)
+    {
+        _busy = true; _flash = null;
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var (ok, message) = await scope.ServiceProvider.GetRequiredService<PlatformPresenceService>()
+                .ActivateAsync(id, default);
+            _flash = message; _flashOk = ok;
+            await Load();
+            await OnPlatformsChanged.InvokeAsync();
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+
+    private async Task Discover()
+    {
+        _busy = true; _flash = "⏳ Scouting for new platforms — one AI call…"; _flashOk = true;
+        StateHasChanged();
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var (created, message) = await scope.ServiceProvider.GetRequiredService<PlatformPresenceService>()
+                .DiscoverPlatformsAsync(default);
+            _flash = message; _flashOk = true;
+            await Load();
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+
+    private async Task SetStatus(long id, PlatformPresenceStatus status)
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var row = await db.PlatformProfiles.FirstOrDefaultAsync(p => p.Id == id);
+        if (row is null) return;
+        row.Status = status;
+        if (status == PlatformPresenceStatus.Active && row.ActivatedAt is null)
+            row.ActivatedAt = DateTimeOffset.UtcNow;
+        row.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+        _flash = status == PlatformPresenceStatus.Active
+            ? $"{row.Name} is active — its posts can now be tracked below."
+            : $"{row.Name} → {status}.";
+        _flashOk = true;
+        await Load();
+        await OnPlatformsChanged.InvokeAsync();
+    }
+
+    private async Task SaveProfile(PlatformProfile edited)
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var row = await db.PlatformProfiles.FirstOrDefaultAsync(p => p.Id == edited.Id);
+        if (row is null) return;
+        row.Handle = edited.Handle.Trim();
+        row.ProfileUrl = edited.ProfileUrl.Trim();
+        row.Notes = edited.Notes;
+        row.RequiresResume = edited.RequiresResume;
+        row.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+        _flash = "Saved."; _flashOk = true;
+        await Load();
+    }
+
+    private async Task AddPlatform()
+    {
+        if (string.IsNullOrWhiteSpace(_newName)) { _flash = "A name is required."; _flashOk = false; return; }
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var key = new string(_newName.ToLowerInvariant().Where(char.IsLetterOrDigit).ToArray());
+        if (key.Length == 0) { _flash = "The name needs at least one letter or digit."; _flashOk = false; return; }
+        if (await db.PlatformProfiles.AnyAsync(p => p.Key == key))
+        { _flash = "That platform is already cataloged."; _flashOk = false; return; }
+        var now = DateTimeOffset.UtcNow;
+        db.PlatformProfiles.Add(new PlatformProfile
+        {
+            Key = key,
+            Name = _newName.Trim(),
+            Url = _newUrl.Trim(),
+            SignupUrl = _newUrl.Trim(),
+            Category = _newCategory,
+            Rationale = _newRationale.Trim(),
+            RequiresResume = _newRequiresResume,
+            Source = "manual",
+            Status = PlatformPresenceStatus.Suggested,
+            CreatedAt = now, UpdatedAt = now
+        });
+        await db.SaveChangesAsync();
+        _newName = _newUrl = _newRationale = "";
+        _showAdd = false;
+        _flash = "Platform added to suggestions."; _flashOk = true;
+        await Load();
+    }
+}

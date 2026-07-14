@@ -19,6 +19,8 @@ public sealed class DiscoveryWorker : BackgroundService
     private DateTimeOffset _lastMaintenance = DateTimeOffset.MinValue;
     private DateTimeOffset _lastMyPostsSync = DateTimeOffset.MinValue;
     private DateTimeOffset _lastInboxSync = DateTimeOffset.MinValue;
+    private DateTime _lastBriefingDay = DateTime.MinValue;
+    private DateTimeOffset _lastLinkedInPublish = DateTimeOffset.MinValue;
 
     public DiscoveryWorker(IServiceScopeFactory scopeFactory, ILogger<DiscoveryWorker> log)
     {
@@ -47,9 +49,22 @@ public sealed class DiscoveryWorker : BackgroundService
         using var scope = _scopeFactory.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<DevLeadsDbContext>();
         var settings = await db.OperatorSettings.FirstOrDefaultAsync(ct);
-        if (settings is null || !settings.DiscoveryEnabled) return;
+        if (settings is null) return;
 
         var now = DateTimeOffset.UtcNow;
+
+        // Scheduled LinkedIn publishing is independent of lead discovery. Keep the
+        // cadence bounded so a token/permission failure cannot hammer LinkedIn.
+        if (now - _lastLinkedInPublish >= TimeSpan.FromMinutes(1))
+        {
+            _lastLinkedInPublish = now;
+            var (published, failed, message) = await scope.ServiceProvider
+                .GetRequiredService<LinkedInService>().PublishDueAsync(ct);
+            if (published + failed > 0)
+                _log.LogInformation("LinkedIn scheduler: {Message}", message);
+        }
+
+        if (!settings.DiscoveryEnabled) return;
         // Filter the date-based "due" condition in memory — SQLite can't translate the
         // nullable DateTimeOffset null-check-OR-comparison, and the source set is tiny.
         var enabled = await db.SourceConfigs.Where(s => s.Enabled).ToListAsync(ct);
@@ -104,6 +119,24 @@ public sealed class DiscoveryWorker : BackgroundService
             var (imported, refreshed, _) = await posts.SyncRedditAsync(jobPostsOnly: true, ct);
             if (imported + refreshed > 0)
                 _log.LogInformation("My posts: {Imported} imported, {Refreshed} refreshed.", imported, refreshed);
+        }
+
+        // Daily advisor briefing: at most one write per calendar day. AI only within
+        // budget; over budget (or on failure) the service writes the offline fallback,
+        // so the Today page always has a briefing. Runs after the inbox/maintenance
+        // state above is fresh enough to be worth reasoning over.
+        if (now.UtcDateTime.Date != _lastBriefingDay)
+        {
+            _lastBriefingDay = now.UtcDateTime.Date;
+            var advisor = scope.ServiceProvider.GetRequiredService<AdvisorService>();
+            if (await advisor.GetTodayBriefingAsync(ct) is null)
+            {
+                var withinBudget = !await scope.ServiceProvider.GetRequiredService<LeadIngestionService>()
+                    .IsOverAiBudgetAsync(settings, ct);
+                var (briefing, message) = await advisor.GenerateDailyBriefingAsync(force: false, ct, allowAi: withinBudget);
+                if (briefing is not null)
+                    _log.LogInformation("Advisor briefing: {Message}", message);
+            }
         }
 
         // Inbox sync: a DM is someone reaching out directly — the hottest signal in the

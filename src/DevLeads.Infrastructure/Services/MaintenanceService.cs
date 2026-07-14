@@ -20,19 +20,28 @@ public sealed class MaintenanceService
     public async Task<int> ArchiveStaleLeadsAsync(CancellationToken ct)
     {
         var settings = await _db.OperatorSettings.FirstOrDefaultAsync(ct) ?? new Core.Entities.OperatorSettings();
-        var cutoff = DateTimeOffset.UtcNow.AddHours(-settings.StaleItemMaxAgeHours);
+        var now = DateTimeOffset.UtcNow;
+        var lowValueCutoff = now.AddHours(-settings.StaleItemMaxAgeHours);
+        var absoluteCutoff = now.AddDays(-LeadQualityRules.MaxAutomatedLeadAgeDays);
 
         var stale = await _db.Opportunities
             .Where(o => (o.Status == OpportunityStatus.New || o.Status == OpportunityStatus.NeedsReview
-                        || o.Status == OpportunityStatus.AiTriaged || o.Status == OpportunityStatus.FollowUpLater)
-                        && o.Score < 40 && o.PostedAt < cutoff)
+                        || o.Status == OpportunityStatus.AiTriaged || o.Status == OpportunityStatus.DraftReady
+                        || o.Status == OpportunityStatus.FollowUpLater || o.Status == OpportunityStatus.JustMissed)
+                        && o.SourceKey != "manual"
+                        && (o.PostedAt < absoluteCutoff ||
+                            (o.Status != OpportunityStatus.JustMissed &&
+                             o.Score < 40 && o.PostedAt < lowValueCutoff)))
             .ToListAsync(ct);
 
         foreach (var o in stale)
         {
             o.Status = OpportunityStatus.Rejected;
-            o.RejectionReason = "Archived: stale low-value lead past age cutoff.";
-            o.UpdatedAt = DateTimeOffset.UtcNow;
+            o.OutreachRecommendation = OutreachRecommendation.Ignore;
+            o.RejectionReason = o.PostedAt < absoluteCutoff
+                ? $"Archived: lead is more than {LeadQualityRules.MaxAutomatedLeadAgeDays} days old."
+                : "Archived: stale low-value lead past age cutoff.";
+            o.UpdatedAt = now;
         }
         if (stale.Count > 0)
         {
@@ -49,7 +58,8 @@ public sealed class MaintenanceService
                         o.Status == OpportunityStatus.NeedsReview ||
                         o.Status == OpportunityStatus.AiTriaged ||
                         o.Status == OpportunityStatus.DraftReady ||
-                        o.Status == OpportunityStatus.FollowUpLater)
+                        o.Status == OpportunityStatus.FollowUpLater ||
+                        o.Status == OpportunityStatus.JustMissed)
             .ToListAsync(ct);
         if (active.Count == 0) return 0;
 

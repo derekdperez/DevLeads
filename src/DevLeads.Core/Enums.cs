@@ -7,6 +7,13 @@ public enum OpportunityStatus
     PreFilteredRejected,
     AiQueued,
     AiTriaged,
+
+    /// <summary>
+    /// Actionable candidate that reached 50–99% of its source's required opportunity
+    /// score. Retained for scoring review, but excluded from normal lead/outreach views.
+    /// </summary>
+    JustMissed,
+
     Rejected,
     NeedsReview,
     DraftReady,
@@ -192,6 +199,77 @@ public enum OperatorMessageStatus
     Archived
 }
 
+/// <summary>The LinkedIn interaction an engagement draft responds to.</summary>
+public enum EngagementDraftKind
+{
+    CommentReply,
+    PrivateMessageReply,
+    MentionReply,
+    Other
+}
+
+/// <summary>Human-in-the-loop lifecycle for a LinkedIn engagement response.</summary>
+public enum EngagementDraftStatus
+{
+    PendingReview,
+    Published,
+    Dismissed,
+    Failed
+}
+
+/// <summary>Relationship stage of a client (a real person/business the operator works with).</summary>
+public enum ClientStatus
+{
+    /// <summary>Promising contact — no agreed work yet.</summary>
+    Prospect,
+    /// <summary>Has active or recently agreed work.</summary>
+    Active,
+    /// <summary>Went quiet; worth a periodic check-in.</summary>
+    Dormant,
+    /// <summary>Finished relationship kept for history/referrals.</summary>
+    Past
+}
+
+/// <summary>Lifecycle of a client engagement (a bounded project, fix, or retainer).</summary>
+public enum EngagementStatus
+{
+    Prospective,
+    Negotiating,
+    Active,
+    OnHold,
+    Delivered,
+    Closed,
+    Lost
+}
+
+/// <summary>Lifecycle of a scheduled follow-up reminder.</summary>
+public enum FollowUpStatus
+{
+    Pending,
+    Done,
+    Dismissed
+}
+
+/// <summary>Direction of a logged client interaction.</summary>
+public enum InteractionDirection
+{
+    Inbound,
+    Outbound
+}
+
+/// <summary>Where a platform sits in the operator's presence-building funnel.</summary>
+public enum PlatformPresenceStatus
+{
+    /// <summary>Catalog/AI suggestion the operator has not acted on.</summary>
+    Suggested,
+    /// <summary>Operator decided to join but has not created the account yet.</summary>
+    Planned,
+    /// <summary>Account exists; posts/messages there are tracked.</summary>
+    Active,
+    /// <summary>Operator decided it is not worth the effort.</summary>
+    Dismissed
+}
+
 /// <summary>How a contact was added to the suppression list.</summary>
 public enum SuppressionContactType
 {
@@ -221,5 +299,13 @@ public enum AiFeature
     /// <summary>Summarizing the reply thread on one of the operator's posts.</summary>
     ThreadSummary,
     /// <summary>Post-optimization experiment rewrites (My posts).</summary>
-    PostOptimization
+    PostOptimization,
+    /// <summary>The daily business-advisor briefing on the Today page.</summary>
+    AdvisorBriefing,
+    /// <summary>Suggesting new platforms to build a presence on (My posts).</summary>
+    PlatformDiscovery,
+    /// <summary>Batched LinkedIn comment/message response drafting.</summary>
+    LinkedInEngagement,
+    /// <summary>Reviewing and rewriting the operator's LinkedIn profile sections.</summary>
+    LinkedInProfile
 }

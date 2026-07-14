@@ -86,6 +86,10 @@ public static class DependencyInjection
         services.AddScoped<TrendScanService>();
         services.AddScoped<ContentStudioService>();
         services.AddScoped<OperatorPostService>();
+        services.AddScoped<ClientService>();
+        services.AddScoped<PlatformPresenceService>();
+        services.AddScoped<AdvisorService>();
+        services.AddScoped<LinkedInService>();
 
         // Background discovery + maintenance loop, plus the slow content-trend loop.
         services.AddHostedService<DiscoveryWorker>();

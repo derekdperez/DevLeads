@@ -1,6 +1,6 @@
 # Architecture and Navigation Guide
 
-A solo-operator Blazor application that discovers public paid software-work leads, triages and scores them, manages human-approved outreach and quotes, and turns separate trend signals into content drafts.
+A solo-operator Blazor application that discovers public paid software-work leads, triages and scores them, manages human-approved outreach and quotes, turns trend signals into content drafts, and manages an approved LinkedIn publishing and engagement workflow.
 
 ## Project dependency direction
 
@@ -26,6 +26,7 @@ DevLeads.Web  ->  DevLeads.Infrastructure  ->  DevLeads.Core
 | Outreach generation, approval, sending, follow-up, or suppression | `DevLeads.Infrastructure.Services.OutreachService`, `src/DevLeads.Core/Ai/OutreachPrompts.cs` | `DevLeads.Infrastructure.Services.LeadIngestionService.CreateDraft`, `src/DevLeads.Web/Components/Pages/Drafts.razor`, `src/DevLeads.Web/Components/Pages/OpportunityDetail.razor`, `src/DevLeads.Web/Api/ApiEndpoints.cs` Warning: Several outreach settings are persisted but not currently enforced; verify usages before assuming a UI setting changes runtime behavior. |
 | Content trend source, topic, or draft behavior | `DevLeads.Infrastructure.Services.TrendScanService`, `DevLeads.Infrastructure.Services.ContentStudioService`, `src/DevLeads.Core/Ai/ContentPrompts.cs` | `DevLeads.Infrastructure.Workers.ContentTrendWorker`, `DevLeads.Infrastructure.Data.DatabaseSeeder.SeedTrendSourcesAsync`, `src/DevLeads.Web/Components/Pages/Content.razor` |
 | My Posts metrics, Reddit sync, inbox messages, or read state | `DevLeads.Infrastructure.Services.OperatorPostService`, `src/DevLeads.Web/Components/Pages/MyPosts.razor` | `src/DevLeads.Core/Entities/OperatorPost.cs`, `src/DevLeads.Core/Entities/OperatorMessage.cs`, `src/DevLeads.Web/Components/Shared/PostPerformanceChart.razor`, `src/DevLeads.Web/Api/ApiEndpoints.cs` Warning: Reddit can omit view_count even for authenticated requests; preserve the difference between an observed zero and an unavailable count. Opening an unread message here must persist Read immediately. |
+| LinkedIn OAuth, scheduled publishing, comment monitoring, or engagement replies | `DevLeads.Infrastructure.Services.LinkedInService`, `src/DevLeads.Web/Components/Pages/LinkedIn.razor` | `src/DevLeads.Core/Ai/LinkedInPrompts.cs`, `src/DevLeads.Core/Entities/EngagementDraft.cs`, `src/DevLeads.Core/Entities/OperatorPost.cs`, `src/DevLeads.Core/Entities/OperatorSettings.cs`, `DevLeads.Infrastructure.Workers.DiscoveryWorker.TickAsync`, `DevLeads.Infrastructure.Services.AdvisorService.BuildAgendaAsync`, `src/DevLeads.Web/Api/ApiEndpoints.cs` Warning: Never treat a self-serve posting token as permission to read comments or private messages. OAuth callbacks must validate the short-lived state, scheduled publishing and replies must honor the global kill switch, and AI responses remain human-reviewed. |
 | Blazor route or page behavior | `src/DevLeads.Web/Components/Pages`, `src/DevLeads.Web/Components/Routes.razor` | `src/DevLeads.Web/Components/Shared`, `src/DevLeads.Web/Components/Layout`, `src/DevLeads.Web/wwwroot/app.css` |
 | Automation API route or JSON contract | `DevLeads.Web.Api.ApiEndpoints.MapDevLeadsApi` | `src/DevLeads.Web/Program.cs`, `src/DevLeads.Core/Entities`, `src/DevLeads.Infrastructure/Services` Warning: The /api group disables antiforgery and currently has no authentication or authorization policy. |
 | Static web asset, reconnect, MIME, or restart behavior | `src/DevLeads.Web/DevLeads.Web.csproj`, `src/DevLeads.Web/Components/App.razor`, `src/DevLeads.Web/Components/Layout/ReconnectModal.razor`, `DevLeads.Web.AppRestartService.Restart` | `src/DevLeads.Web/Program.cs`, `src/DevLeads.Web/Components/Layout/ReconnectModal.razor.js` Warning: The project materializes selected framework, CSS, and component-module assets after build; validate served URLs and MIME types, not only compilation. |
@@ -89,6 +90,16 @@ Poll trend-only sources into ranked signals, periodically suggest topics, and ge
 - Content generation injects OpenCode directly rather than using AiTriageRouter.
 - Automatic topic suggestions run at most once per day and only with enough fresh evidence; draft generation is operator-initiated.
 
+### LinkedIn profile management
+
+Connect the operator through state-protected member OAuth, generate/edit text posts, publish immediately or on a worker schedule, and turn approved comment activity or pasted private messages into reviewed response drafts.
+
+`DevLeads.Web.Components.Pages.LinkedIn` → `DevLeads.Web.Api.ApiEndpoints.MapDevLeadsApi` → `DevLeads.Infrastructure.Services.LinkedInService.CreateAuthorizationUrlAsync` → `DevLeads.Infrastructure.Services.LinkedInService.CompleteOAuthAsync` → `DevLeads.Infrastructure.Services.LinkedInService.PublishPostAsync` → `DevLeads.Infrastructure.Services.LinkedInService.SyncEngagementAsync` → `DevLeads.Infrastructure.Services.LinkedInService.GenerateEngagementBatchAsync` → `DevLeads.Infrastructure.Services.LinkedInService.PublishEngagementAsync` → `DevLeads.Infrastructure.Workers.DiscoveryWorker.TickAsync`
+
+- Scheduled LinkedIn publishing runs independently of lead discovery but still honors the global kill switch.
+- Comment reads require LinkedIn's restricted member-social read permission; self-serve posting does not grant that permission.
+- LinkedIn exposes no general member private-inbox API, so private messages are pasted for drafting and sent manually in LinkedIn.
+
 ### Recurring maintenance
 
 Hourly cleanup rejects stale or non-hirable leads, marks overdue quotes, and opportunistically generates queued outreach within the AI budget.
@@ -100,12 +111,15 @@ Hourly cleanup rejects stale or non-hirable leads, marks overdue quotes, and opp
 
 - Every visible opportunity must have a canonical original public SourceUrl.
 - A pay-intent signal must represent first-person ownership, explicit hire/pay language, or a concrete paid source; topic keywords such as payments or budget alone do not qualify a lead.
+- Explicit paid work ranks above networking leads, but a business owner or operator with a concrete hands-on request and implied future commercial potential may remain for human review even without current payment language; generic free-advice posts still do not qualify.
+- Candidates that pass safety and actionability gates but reach only 50–99% of their source opportunity threshold are retained as JustMissed for dashboard scoring review; they remain excluded from normal active-lead and automatic-outreach paths.
 - Automated discovery retains raw seen-item evidence for dedup even when no opportunity survives.
 - One canonical source URL represents at most one opportunity across connectors; near-duplicate checks additionally use source, host, normalized title, and shared clues.
 - Source query packs scope both discovery vocabulary and high-priority prefilter terms to the owning campaign.
 - Campaign objectives are passed into AI shortlist, triage, and outreach generation so relevance stays campaign-specific.
 - Red-flagged, resolved, promotional, reply-feed, autonomous-agent-task, and non-hirable vendor-support posts must not reach actionable outreach.
-- Foreign-stack work without an operator stack-identity match is rejected or score-capped; generic capabilities such as API work are not stack identity.
+- Technology stack is informational and only a light ranking preference; never reject or score-cap a lead solely because it lacks an operator skill-profile match. Paid-work quality, professional compensation, remote feasibility, competition, and poster reliability dominate.
+- Automated discovery ignores public posts older than 30 days before AI triage and removes untouched expired leads while retaining raw dedup evidence; manual and operator-engaged leads are preserved, and the dashboard excludes expired posts.
 - Non-English leads receive a language-friction score penalty before source thresholds; only survivors store/display an English translation, while the original source text remains available for verification.
 - Stated compensation overrides category-based fee estimates and is displayed as an offer rather than an estimate.
 - The selected unavailable AI provider falls back to Heuristic; the lead pipeline remains operable without external AI.
@@ -114,11 +128,14 @@ Hourly cleanup rejects stale or non-hirable leads, marks overdue quotes, and opp
 - Operator-engaged and archived opportunities are never automatically purged by source/default cleanup.
 - SQLite DateTimeOffset values are persisted as sortable UTC ticks and enums as readable strings.
 - Unknown platform metrics are never presented as observed zero values, and opening an unread My Posts message persists it as Read.
+- LinkedIn OAuth callbacks validate the stored short-lived state before exchanging a code, and access tokens are never returned by status endpoints or rendered into the page.
+- LinkedIn scheduled posts and public comment replies honor the global kill switch; AI-generated engagement responses require explicit operator publication.
+- LinkedIn comment monitoring requires an approved restricted read scope, while private inbox messages remain manual because the general member API does not expose them.
 
 ## Type hierarchy
 
 - `BackgroundService` → `ContentTrendWorker`, `DiscoveryWorker`
-- `ComponentBase` → `ActivityFeed`, `App`, `CampaignSwitcher`, `Campaigns`, `Content`, `Drafts`, `Error`, `Home`, `MyPosts`, `NavMenu`, `NewOpportunity`, `NotFound`, `Opportunities`, `OpportunityDetail`, `PostPerformanceChart`, `Quotes`, `ReconnectModal`, `Routes`, `Settings`, `SkillProfile`, `Sources`, `_Imports`
+- `ComponentBase` → `ActivityFeed`, `App`, `CampaignSwitcher`, `Campaigns`, `ClientDetail`, `Clients`, `Content`, `Drafts`, `Error`, `Home`, `LinkedIn`, `MyPosts`, `NavMenu`, `NewOpportunity`, `NotFound`, `Opportunities`, `OpportunityDetail`, `PlatformPresencePanel`, `PostPerformanceChart`, `Quotes`, `ReconnectModal`, `Routes`, `Settings`, `SkillProfile`, `Sources`, `Today`, `_Imports`
 - `DbContext` → `DevLeadsDbContext`
 - `IAiBatchShortlistProvider` → `CodexCliProvider`, `OpenCodeTriageProvider`
 - `IAiBatchTriageProvider` → `CodexCliProvider`, `OpenCodeTriageProvider`

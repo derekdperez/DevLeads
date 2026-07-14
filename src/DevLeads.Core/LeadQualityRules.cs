@@ -5,6 +5,15 @@ namespace DevLeads.Core;
 /// <summary>Shared lead-quality rules used before a post reaches the review queue.</summary>
 public static class LeadQualityRules
 {
+    /// <summary>
+    /// Default freshness window for automated discovery. Older public posts are normally
+    /// no longer actionable; manual and operator-engaged leads are preserved separately.
+    /// </summary>
+    public const int MaxAutomatedLeadAgeDays = 30;
+
+    public static bool IsWithinAutomatedLeadAge(DateTimeOffset postedAt, DateTimeOffset now) =>
+        postedAt >= now.AddDays(-MaxAutomatedLeadAgeDays);
+
     private static readonly Regex EmailPattern = new(
         @"[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}",
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -223,6 +232,12 @@ public static class LeadQualityRules
 
         if (assistanceRequested == false)
             return false;
+
+        // A business owner/operator with a concrete hands-on request is worth a human
+        // look even before payment is discussed. AI/heuristic triage uses "Implied" only
+        // for first-person ownership, making it the networking tier below paid work.
+        if (paymentIntent == "Implied")
+            return assistanceRequested == true;
 
         // The command center should surface concrete paid situations first. Support
         // forum urgency is too often free troubleshooting, solved, or vendor-controlled.

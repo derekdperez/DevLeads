@@ -215,6 +215,163 @@ public static class ApiEndpoints
             return Results.Ok(msg);
         }).DisableAntiforgery();
 
+        // ---- Clients & engagements ----
+        api.MapGet("/clients", async (DevLeadsDbContext db) =>
+            Results.Ok(await db.Clients.AsNoTracking()
+                .Include(c => c.Engagements).Include(c => c.FollowUps)
+                .OrderByDescending(c => c.UpdatedAt).Take(200).ToListAsync()));
+        api.MapGet("/clients/{id:long}", async (long id, DevLeadsDbContext db) =>
+        {
+            var client = await db.Clients.AsNoTracking()
+                .Include(c => c.Engagements).Include(c => c.Interactions).Include(c => c.FollowUps)
+                .FirstOrDefaultAsync(c => c.Id == id);
+            return client is null ? Results.NotFound() : Results.Ok(client);
+        });
+        api.MapPost("/opportunities/{id:long}/promote-to-client", async (long id, ClientService svc) =>
+        {
+            var (client, created, message) = await svc.PromoteOpportunityAsync(id, default);
+            return client is null ? Results.BadRequest(new { message }) : Results.Ok(new { client.Id, created, message });
+        });
+
+        // ---- Advisor (Today) ----
+        api.MapGet("/advisor/briefing", async (AdvisorService advisor) =>
+        {
+            var briefing = await advisor.GetTodayBriefingAsync(default);
+            return briefing is null ? Results.NotFound(new { message = "No briefing for today yet." }) : Results.Ok(briefing);
+        });
+        api.MapPost("/advisor/briefing/generate", async (bool? force, AdvisorService advisor) =>
+        {
+            var (briefing, message) = await advisor.GenerateDailyBriefingAsync(force == true, default);
+            return briefing is null ? Results.BadRequest(new { message }) : Results.Ok(new { briefing, message });
+        });
+
+        // ---- Platform presence ----
+        api.MapGet("/platforms", async (DevLeadsDbContext db, string? status) =>
+        {
+            var q = db.PlatformProfiles.AsNoTracking().AsQueryable();
+            if (Enum.TryParse<PlatformPresenceStatus>(status, true, out var s)) q = q.Where(p => p.Status == s);
+            return Results.Ok(await q.OrderBy(p => p.Name).ToListAsync());
+        });
+        api.MapPost("/platforms/discover", async (PlatformPresenceService svc) =>
+        {
+            var (created, message) = await svc.DiscoverPlatformsAsync(default);
+            return Results.Ok(new { created, message });
+        });
+        // Signup packs: pass ids for specific platforms; omit ids to sweep every
+        // suggested/planned platform without a pack. Batched ~5 platforms per AI call.
+        api.MapPost("/platforms/signup-packs/generate", async (string? ids, long? campaignId, string? instructions, PlatformPresenceService svc) =>
+        {
+            var profileIds = ids?.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                .Select(s => long.TryParse(s, out var id) ? id : 0).Where(id => id > 0).ToList();
+            var (generated, calls, message) = await svc.GenerateSignupPacksAsync(
+                profileIds is { Count: > 0 } ? profileIds : null, campaignId, instructions ?? "", default);
+            return generated > 0 ? Results.Ok(new { generated, calls, message }) : Results.BadRequest(new { message });
+        });
+        api.MapPost("/platforms/{id:long}/status", async (long id, string status, DevLeadsDbContext db, PlatformPresenceService svc) =>
+        {
+            if (!Enum.TryParse<PlatformPresenceStatus>(status, true, out var s))
+                return Results.BadRequest(new { message = "status must be one of: " + string.Join(", ", Enum.GetNames<PlatformPresenceStatus>()) });
+            // Activation goes through the service so the pack's first post becomes a tracked draft.
+            if (s == PlatformPresenceStatus.Active)
+            {
+                var (ok, message) = await svc.ActivateAsync(id, default);
+                return ok ? Results.Ok(new { message }) : Results.NotFound(new { message });
+            }
+            var row = await db.PlatformProfiles.FirstOrDefaultAsync(p => p.Id == id);
+            if (row is null) return Results.NotFound();
+            row.Status = s;
+            row.UpdatedAt = DateTimeOffset.UtcNow;
+            await db.SaveChangesAsync();
+            return Results.Ok(row);
+        });
+
+        // ---- Documents (resume today; future kinds slot in beside it) ----
+        api.MapGet("/documents/{kind}", async (string kind, DevLeadsDbContext db) =>
+        {
+            var doc = await db.OperatorDocuments.AsNoTracking().FirstOrDefaultAsync(d => d.Kind == kind);
+            return doc is null
+                ? Results.NotFound(new { message = $"No {kind} uploaded — add one on the Skill profile page." })
+                : Results.File(doc.Data, doc.ContentType, doc.FileName);
+        });
+        api.MapPost("/documents/{kind}", async (string kind, IFormFile file, DevLeadsDbContext db) =>
+        {
+            if (file.Length is 0 or > 15 * 1024 * 1024)
+                return Results.BadRequest(new { message = "File must be between 1 byte and 15 MB." });
+            var doc = await db.OperatorDocuments.FirstOrDefaultAsync(d => d.Kind == kind);
+            if (doc is null) { doc = new Core.Entities.OperatorDocument { Kind = kind }; db.OperatorDocuments.Add(doc); }
+            using var buffer = new MemoryStream();
+            await file.CopyToAsync(buffer);
+            doc.FileName = file.FileName;
+            doc.ContentType = string.IsNullOrWhiteSpace(file.ContentType) ? "application/octet-stream" : file.ContentType;
+            doc.SizeBytes = file.Length;
+            doc.Data = buffer.ToArray();
+            doc.UploadedAt = DateTimeOffset.UtcNow;
+            await db.SaveChangesAsync();
+            return Results.Ok(new { doc.Kind, doc.FileName, doc.SizeBytes, doc.UploadedAt });
+        }).DisableAntiforgery();
+        api.MapDelete("/documents/{kind}", async (string kind, DevLeadsDbContext db) =>
+        {
+            var doc = await db.OperatorDocuments.FirstOrDefaultAsync(d => d.Kind == kind);
+            if (doc is null) return Results.NotFound();
+            db.OperatorDocuments.Remove(doc);
+            await db.SaveChangesAsync();
+            return Results.Ok();
+        });
+
+        // ---- LinkedIn profile, publishing, and reviewed engagement ----
+        api.MapGet("/linkedin/status", async (LinkedInService linkedIn) =>
+            Results.Ok(await linkedIn.GetConnectionStatusAsync(default)));
+        api.MapGet("/linkedin/authorize", async (HttpRequest request, LinkedInService linkedIn) =>
+        {
+            var callback = $"{request.Scheme}://{request.Host}{request.PathBase}/api/linkedin/callback";
+            var (url, message) = await linkedIn.CreateAuthorizationUrlAsync(callback, default);
+            // Connect is a plain link, so surface config errors as a page flash, not raw JSON.
+            return url is null
+                ? Results.Redirect("/linkedin?oauthError=" + Uri.EscapeDataString(message))
+                : Results.Redirect(url);
+        });
+        api.MapGet("/linkedin/callback", async (
+            HttpRequest request, string? code, string? state, string? error,
+            string? error_description, LinkedInService linkedIn) =>
+        {
+            if (!string.IsNullOrWhiteSpace(error))
+                return Results.Redirect("/linkedin?oauthError=" + Uri.EscapeDataString(error_description ?? error));
+            var callback = $"{request.Scheme}://{request.Host}{request.PathBase}/api/linkedin/callback";
+            var (ok, message) = await linkedIn.CompleteOAuthAsync(code ?? "", state ?? "", callback, default);
+            var key = ok ? "oauth" : "oauthError";
+            return Results.Redirect($"/linkedin?{key}={Uri.EscapeDataString(message)}");
+        });
+        api.MapPost("/linkedin/disconnect", async (LinkedInService linkedIn) =>
+        {
+            await linkedIn.DisconnectAsync(default);
+            return Results.Ok(new { message = "LinkedIn disconnected." });
+        });
+        api.MapPost("/linkedin/publish/{id:long}", async (long id, LinkedInService linkedIn) =>
+        {
+            var (ok, message) = await linkedIn.PublishPostAsync(id, default);
+            return ok ? Results.Ok(new { message }) : Results.BadRequest(new { message });
+        });
+        api.MapPost("/linkedin/publish-due", async (LinkedInService linkedIn) =>
+        {
+            var (published, failed, message) = await linkedIn.PublishDueAsync(default);
+            return Results.Ok(new { published, failed, message });
+        });
+        api.MapPost("/linkedin/engagement/sync", async (LinkedInService linkedIn) =>
+        {
+            var (imported, checkedPosts, message) = await linkedIn.SyncEngagementAsync(default);
+            return Results.Ok(new { imported, checkedPosts, message });
+        });
+        api.MapPost("/linkedin/engagement/generate", async (string? instructions, LinkedInService linkedIn) =>
+        {
+            var (generated, message) = await linkedIn.GenerateEngagementBatchAsync(instructions ?? "", default);
+            return generated > 0 ? Results.Ok(new { generated, message }) : Results.BadRequest(new { message });
+        });
+        api.MapPost("/linkedin/engagement/{id:long}/publish", async (long id, LinkedInService linkedIn) =>
+        {
+            var (ok, message) = await linkedIn.PublishEngagementAsync(id, default);
+            return ok ? Results.Ok(new { message }) : Results.BadRequest(new { message });
+        });
+
         // ---- System ----
         api.MapPost("/system/restart", async (AppRestartService restart, DevLeadsDbContext db, AuditService audit) =>
         {

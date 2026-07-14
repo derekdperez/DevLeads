@@ -25,7 +25,7 @@ public static class UiHelpers
         OpportunityStatus.Paid or OpportunityStatus.Won => "rr-chip won",
         OpportunityStatus.Rejected or OpportunityStatus.PreFilteredRejected or OpportunityStatus.Lost
             or OpportunityStatus.DoNotContact or OpportunityStatus.Archived => "rr-chip dead",
-        OpportunityStatus.NeedsReview => "rr-chip review",
+        OpportunityStatus.NeedsReview or OpportunityStatus.JustMissed => "rr-chip review",
         _ => "rr-chip"
     };
 
@@ -101,5 +101,69 @@ public static class UiHelpers
     {
         try { return JsonSerializer.Deserialize<List<string>>(json) ?? new(); }
         catch { return new(); }
+    }
+
+    /// <summary>
+    /// One italic sentence for lead lists: what the lead is, why it scored high enough to
+    /// be shown, and the next action where one is obvious. Composed entirely from fields
+    /// the existing triage/scoring pass already stored — costs no AI call.
+    /// </summary>
+    public static string LeadBlurb(Opportunity o)
+    {
+        // What it is.
+        var stack = ParseStringList(o.DetectedStackJson).Take(2).ToList();
+        var what = string.IsNullOrWhiteSpace(o.ProblemType)
+            ? "Not yet AI-triaged"
+            : Humanize(o.ProblemType) + (stack.Count > 0 ? $" involving {string.Join(" + ", stack)}" : "");
+
+        // Why it's shown: strongest selection signals first, capped at two so it stays one sentence.
+        var why = new List<string>();
+        if (!o.FeeIsEstimate && (o.EstimatedFeeMax ?? o.EstimatedFeeMin) is { } stated)
+            why.Add($"a stated ${stated:0}");
+        else if (o.PaymentIntent == "Explicit")
+            why.Add("explicit pay intent");
+        else if (o.PaymentIntent == "Implied")
+            why.Add("implied pay (real business impact)");
+        if (o.UrgencyScore >= 70) why.Add("urgency");
+        if (o.BusinessValueScore >= 70) why.Add("high business value");
+        if (why.Count < 2 && o.CompetitionScore >= 75) why.Add("little visible competition");
+        if (why.Count < 2 && o.ReachabilityScore >= 75) why.Add("an easy-to-reach poster");
+        if (why.Count < 2 && o.StackFitScore >= 80) why.Add("core-stack fit");
+        var terms = ParseStringList(o.MatchedTermsJson)
+            .Select(t => t[(t.IndexOf(':') + 1)..]).Distinct().Take(2).ToList();
+        var whyText = why.Count > 0
+            ? $"scored {o.Score:0} on {string.Join(" and ", why.Take(2))}"
+            : terms.Count > 0
+                ? $"passed the pre-filter on “{string.Join("”, “", terms)}”"
+                : $"scored {o.Score:0}";
+
+        var action = o.OutreachRecommendation == OutreachRecommendation.DoNotContact
+            ? "flagged — do not contact"
+            : o.Status switch
+            {
+                OpportunityStatus.NeedsReview => "read it and queue a reply if it fits",
+                OpportunityStatus.DraftReady => "a drafted reply is waiting in the approval queue",
+                OpportunityStatus.Approved => "reply approved — send it and record the send",
+                OpportunityStatus.Contacted => "reply sent, waiting on the poster",
+                OpportunityStatus.Responded => "the poster replied — answer and qualify",
+                OpportunityStatus.Qualified => "qualified — scope it and send a quote",
+                OpportunityStatus.QuoteDrafted or OpportunityStatus.QuoteSent => "quote out — chase acceptance",
+                OpportunityStatus.Accepted or OpportunityStatus.InProgress => "work in progress",
+                OpportunityStatus.JustMissed => "kept for scoring review — it landed just under its source threshold",
+                OpportunityStatus.FollowUpLater => "on watch — follow up later",
+                OpportunityStatus.New or OpportunityStatus.AiQueued => "awaiting AI triage",
+                _ => ""
+            };
+
+        return $"{what} — {whyText}{(action.Length > 0 ? $"; {action}" : "")}.";
+    }
+
+    /// <summary>"payment_processing_down" / "PaymentProcessingDown" → "Payment processing down".</summary>
+    private static string Humanize(string value)
+    {
+        var s = System.Text.RegularExpressions.Regex
+            .Replace(value.Replace('_', ' ').Replace('-', ' '), "(?<=[a-z])(?=[A-Z])", " ")
+            .Trim().ToLowerInvariant();
+        return s.Length == 0 ? s : char.ToUpperInvariant(s[0]) + s[1..];
     }
 }

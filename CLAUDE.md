@@ -40,9 +40,15 @@ structural changes with `python3 ai_hacks.py` from the repo root.
 - `DatabaseSeeder` re-applies seeded source defaults on boot; changing seeded
   `ParametersJson` counts as a migration and purges + re-ingests discovery leads
   (purely additive new sources do NOT purge).
-- Lead quality bar: pay-intent signals must be first-person ownership or hire language,
-  never topic keywords ("payments", "budget" as ad spend, product pricing copy).
-- Stack gate: the operator is a pure .NET consultant. Leads must match a weight-3
-  "Primary stack" identity skill (C#/.NET/SQL Server/Azure…) or they cap at 50; posts
-  demanding a foreign stack (Go/Python/Java…) without one are rejected. Never seed
-  capability phrases ("REST API") into the "Primary stack" category.
+- Lead quality bar: explicit paid work ranks first; first-person business owners with a
+  concrete hands-on need may also qualify as lower-ranked networking leads. Topic keywords
+  ("payments", "budget" as ad spend, product pricing copy) and generic advice requests do not.
+- Technology fit: the operator is strongest in .NET but is a senior generalist who can
+  deliver across web, backend, cloud, mobile, and other stacks. Stack familiarity is only
+  a light ranking preference; paid-work quality, professional compensation, remote
+  feasibility, competition, and poster reliability drive lead selection.
+- Freshness: automated discovery ignores posts older than 30 days before AI triage.
+  Preserve manual and operator-engaged rows, but never show expired posts as dashboard leads.
+- Near misses: candidates that pass the hard quality gates but reach only 50–99% of a
+  source's required score are retained as `JustMissed` for dashboard scoring review; they
+  stay out of normal active-lead and automatic-outreach paths.

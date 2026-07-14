@@ -1,119 +1,141 @@
 # Project Map
 
-Source digest: `dff5eae8a0a2d5f0f6a6ba953372c5c0141165058295b55674a2a4335f92b348`
+Source digest: `6996e2cc148feac47d6c10b8a533995c1d23368672fc44b531f86cc9a17b9b19`
 
-- Files: 112
-- Types/components: 150
-- Callable members: 486
-- XML/manual/inherited descriptions: 282
+- Files: 134
+- Types/components: 188
+- Callable members: 569
+- XML/manual/inherited descriptions: 330
 
 ## Files
 
 - `DevLeads.slnx` — 8 lines
-- `src/DevLeads.Core/Ai/AiTriagePrompts.cs` — 169 lines
+- `src/DevLeads.Core/Ai/AdvisorPrompts.cs` — 33 lines
+- `src/DevLeads.Core/Ai/AiTriagePrompts.cs` — 170 lines
 - `src/DevLeads.Core/Ai/ContentPrompts.cs` — 138 lines
 - `src/DevLeads.Core/Ai/IAiTriageProvider.cs` — 126 lines
+- `src/DevLeads.Core/Ai/LinkedInPrompts.cs` — 49 lines
 - `src/DevLeads.Core/Ai/OutreachPrompts.cs` — 66 lines
 - `src/DevLeads.Core/Ai/PlatformPostPrompts.cs` — 147 lines
+- `src/DevLeads.Core/Ai/PlatformPresencePrompts.cs` — 97 lines
 - `src/DevLeads.Core/AiTriageResult.cs` — 90 lines
 - `src/DevLeads.Core/Connectors/ISourceConnector.cs` — 42 lines
 - `src/DevLeads.Core/DevLeads.Core.csproj` — 10 lines
+- `src/DevLeads.Core/Entities/AdvisorBriefing.cs` — 22 lines
 - `src/DevLeads.Core/Entities/AiTriageRun.cs` — 23 lines
 - `src/DevLeads.Core/Entities/AuditEvent.cs` — 15 lines
 - `src/DevLeads.Core/Entities/Campaign.cs` — 29 lines
+- `src/DevLeads.Core/Entities/Client.cs` — 40 lines
+- `src/DevLeads.Core/Entities/ClientInteraction.cs` — 29 lines
 - `src/DevLeads.Core/Entities/ContentDraft.cs` — 27 lines
 - `src/DevLeads.Core/Entities/ContentTopic.cs` — 38 lines
+- `src/DevLeads.Core/Entities/Engagement.cs` — 38 lines
+- `src/DevLeads.Core/Entities/EngagementDraft.cs` — 41 lines
+- `src/DevLeads.Core/Entities/FollowUp.cs` — 27 lines
+- `src/DevLeads.Core/Entities/OperatorDocument.cs` — 26 lines
 - `src/DevLeads.Core/Entities/OperatorMessage.cs` — 47 lines
-- `src/DevLeads.Core/Entities/OperatorPost.cs` — 63 lines
+- `src/DevLeads.Core/Entities/OperatorPost.cs` — 69 lines
 - `src/DevLeads.Core/Entities/OperatorPostRevision.cs` — 53 lines
 - `src/DevLeads.Core/Entities/OperatorPostSnapshot.cs` — 15 lines
-- `src/DevLeads.Core/Entities/OperatorSettings.cs` — 147 lines
+- `src/DevLeads.Core/Entities/OperatorSettings.cs` — 175 lines
 - `src/DevLeads.Core/Entities/Opportunity.cs` — 90 lines
 - `src/DevLeads.Core/Entities/OutreachAttempt.cs` — 27 lines
+- `src/DevLeads.Core/Entities/PlatformProfile.cs` — 62 lines
 - `src/DevLeads.Core/Entities/QueryPack.cs` — 17 lines
 - `src/DevLeads.Core/Entities/Quote.cs` — 26 lines
 - `src/DevLeads.Core/Entities/RawSourceItem.cs` — 30 lines
+- `src/DevLeads.Core/Entities/SignupPack.cs` — 52 lines
 - `src/DevLeads.Core/Entities/Skill.cs` — 30 lines
 - `src/DevLeads.Core/Entities/SourceConfig.cs` — 37 lines
 - `src/DevLeads.Core/Entities/SuppressionEntry.cs` — 13 lines
 - `src/DevLeads.Core/Entities/TrendSignal.cs` — 34 lines
 - `src/DevLeads.Core/Entities/TrendSource.cs` — 39 lines
 - `src/DevLeads.Core/Entities/WorkSession.cs` — 21 lines
-- `src/DevLeads.Core/Enums.cs` — 226 lines
+- `src/DevLeads.Core/Enums.cs` — 310 lines
 - `src/DevLeads.Core/HeuristicPreFilter.cs` — 264 lines
 - `src/DevLeads.Core/LanguageDetection.cs` — 34 lines
-- `src/DevLeads.Core/LeadQualityRules.cs` — 273 lines
+- `src/DevLeads.Core/LeadQualityRules.cs` — 288 lines
 - `src/DevLeads.Core/OfferedCompensation.cs` — 84 lines
+- `src/DevLeads.Core/Platforms/DefaultPlatformCatalog.cs` — 168 lines
 - `src/DevLeads.Core/PreFilterResult.cs` — 16 lines
 - `src/DevLeads.Core/QueryPacks/DefaultQueryPacks.cs` — 231 lines
 - `src/DevLeads.Core/QueryPacks/IQueryPackProvider.cs` — 21 lines
 - `src/DevLeads.Core/RedFlagDetector.cs` — 66 lines
-- `src/DevLeads.Core/Scoring/OpportunityScorer.cs` — 406 lines
-- `src/DevLeads.Core/Skills/DefaultSkills.cs` — 82 lines
-- `src/DevLeads.Core/Skills/SkillMatcher.cs` — 121 lines
+- `src/DevLeads.Core/Scoring/OpportunityScorer.cs` — 389 lines
+- `src/DevLeads.Core/Skills/DefaultSkills.cs` — 80 lines
+- `src/DevLeads.Core/Skills/SkillMatcher.cs` — 68 lines
 - `src/DevLeads.Core/SourceUrlCanonicalizer.cs` — 27 lines
 - `src/DevLeads.Core/Templates/EmergencyChecklists.cs` — 38 lines
 - `src/DevLeads.Core/Templates/PricingTiers.cs` — 31 lines
 - `src/DevLeads.Core/Templates/ResponseTemplates.cs` — 57 lines
 - `src/DevLeads.Core/TermMatch.cs` — 36 lines
-- `src/DevLeads.Infrastructure/Ai/AiCliSupport.cs` — 147 lines
+- `src/DevLeads.Infrastructure/Ai/AiCliSupport.cs` — 148 lines
 - `src/DevLeads.Infrastructure/Ai/AiTextRouter.cs` — 67 lines
 - `src/DevLeads.Infrastructure/Ai/AiTriageRouter.cs` — 164 lines
 - `src/DevLeads.Infrastructure/Ai/AnthropicTriageProvider.cs` — 133 lines
 - `src/DevLeads.Infrastructure/Ai/CodexCliProvider.cs` — 503 lines
-- `src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs` — 282 lines
+- `src/DevLeads.Infrastructure/Ai/HeuristicTriageProvider.cs` — 284 lines
 - `src/DevLeads.Infrastructure/Ai/OpenCodeTriageProvider.cs` — 559 lines
 - `src/DevLeads.Infrastructure/Connectors/ConnectorSupport.cs` — 37 lines
 - `src/DevLeads.Infrastructure/Connectors/GitHubSearchConnector.cs` — 167 lines
 - `src/DevLeads.Infrastructure/Connectors/HackerNewsConnector.cs` — 91 lines
-- `src/DevLeads.Infrastructure/Connectors/OpireConnector.cs` — 131 lines
+- `src/DevLeads.Infrastructure/Connectors/OpireConnector.cs` — 130 lines
 - `src/DevLeads.Infrastructure/Connectors/RedditConnector.cs` — 162 lines
 - `src/DevLeads.Infrastructure/Connectors/RemotiveConnector.cs` — 115 lines
 - `src/DevLeads.Infrastructure/Connectors/RssConnector.cs` — 174 lines
 - `src/DevLeads.Infrastructure/Connectors/StackExchangeConnector.cs` — 112 lines
-- `src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs` — 1315 lines
-- `src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs` — 123 lines
-- `src/DevLeads.Infrastructure/DependencyInjection.cs` — 105 lines
+- `src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs` — 1499 lines
+- `src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs` — 169 lines
+- `src/DevLeads.Infrastructure/DependencyInjection.cs` — 109 lines
 - `src/DevLeads.Infrastructure/DevLeads.Infrastructure.csproj` — 21 lines
 - `src/DevLeads.Infrastructure/QueryPacks/DbQueryPackProvider.cs` — 39 lines
+- `src/DevLeads.Infrastructure/Services/AdvisorService.cs` — 288 lines
 - `src/DevLeads.Infrastructure/Services/AuditService.cs` — 28 lines
+- `src/DevLeads.Infrastructure/Services/ClientService.cs` — 97 lines
 - `src/DevLeads.Infrastructure/Services/ContentStudioService.cs` — 215 lines
 - `src/DevLeads.Infrastructure/Services/DiscoveryActivityTracker.cs` — 54 lines
-- `src/DevLeads.Infrastructure/Services/LeadIngestionService.cs` — 754 lines
-- `src/DevLeads.Infrastructure/Services/MaintenanceService.cs` — 111 lines
+- `src/DevLeads.Infrastructure/Services/LeadIngestionService.cs` — 773 lines
+- `src/DevLeads.Infrastructure/Services/LinkedInService.cs` — 566 lines
+- `src/DevLeads.Infrastructure/Services/MaintenanceService.cs` — 121 lines
 - `src/DevLeads.Infrastructure/Services/OperatorPostService.cs` — 1087 lines
 - `src/DevLeads.Infrastructure/Services/OutreachService.cs` — 321 lines
+- `src/DevLeads.Infrastructure/Services/PlatformPresenceService.cs` — 303 lines
 - `src/DevLeads.Infrastructure/Services/QuoteService.cs` — 82 lines
-- `src/DevLeads.Infrastructure/Services/SourceRunner.cs` — 474 lines
+- `src/DevLeads.Infrastructure/Services/SourceRunner.cs` — 498 lines
 - `src/DevLeads.Infrastructure/Services/TrendScanService.cs` — 208 lines
 - `src/DevLeads.Infrastructure/Workers/ContentTrendWorker.cs` — 76 lines
-- `src/DevLeads.Infrastructure/Workers/DiscoveryWorker.cs` — 121 lines
-- `src/DevLeads.Web/Api/ApiEndpoints.cs` — 247 lines
+- `src/DevLeads.Infrastructure/Workers/DiscoveryWorker.cs` — 154 lines
+- `src/DevLeads.Web/Api/ApiEndpoints.cs` — 401 lines
 - `src/DevLeads.Web/AppRestartService.cs` — 100 lines
 - `src/DevLeads.Web/Components/App.razor` — 23 lines
 - `src/DevLeads.Web/Components/Layout/MainLayout.razor` — 17 lines
-- `src/DevLeads.Web/Components/Layout/NavMenu.razor` — 30 lines
+- `src/DevLeads.Web/Components/Layout/NavMenu.razor` — 33 lines
 - `src/DevLeads.Web/Components/Layout/ReconnectModal.razor` — 32 lines
 - `src/DevLeads.Web/Components/Layout/ReconnectModal.razor.js` — 64 lines
 - `src/DevLeads.Web/Components/Pages/Campaigns.razor` — 186 lines
+- `src/DevLeads.Web/Components/Pages/ClientDetail.razor` — 375 lines
+- `src/DevLeads.Web/Components/Pages/Clients.razor` — 128 lines
 - `src/DevLeads.Web/Components/Pages/Content.razor` — 285 lines
 - `src/DevLeads.Web/Components/Pages/Drafts.razor` — 146 lines
 - `src/DevLeads.Web/Components/Pages/Error.razor` — 37 lines
-- `src/DevLeads.Web/Components/Pages/Home.razor` — 227 lines
-- `src/DevLeads.Web/Components/Pages/MyPosts.razor` — 791 lines
+- `src/DevLeads.Web/Components/Pages/Home.razor` — 320 lines
+- `src/DevLeads.Web/Components/Pages/LinkedIn.razor` — 439 lines
+- `src/DevLeads.Web/Components/Pages/MyPosts.razor` — 801 lines
 - `src/DevLeads.Web/Components/Pages/NewOpportunity.razor` — 92 lines
 - `src/DevLeads.Web/Components/Pages/NotFound.razor` — 5 lines
-- `src/DevLeads.Web/Components/Pages/Opportunities.razor` — 293 lines
-- `src/DevLeads.Web/Components/Pages/OpportunityDetail.razor` — 431 lines
+- `src/DevLeads.Web/Components/Pages/Opportunities.razor` — 296 lines
+- `src/DevLeads.Web/Components/Pages/OpportunityDetail.razor` — 448 lines
 - `src/DevLeads.Web/Components/Pages/Quotes.razor` — 101 lines
-- `src/DevLeads.Web/Components/Pages/Settings.razor` — 360 lines
-- `src/DevLeads.Web/Components/Pages/SkillProfile.razor` — 162 lines
+- `src/DevLeads.Web/Components/Pages/Settings.razor` — 375 lines
+- `src/DevLeads.Web/Components/Pages/SkillProfile.razor` — 255 lines
 - `src/DevLeads.Web/Components/Pages/Sources.razor` — 183 lines
+- `src/DevLeads.Web/Components/Pages/Today.razor` — 228 lines
 - `src/DevLeads.Web/Components/Routes.razor` — 7 lines
 - `src/DevLeads.Web/Components/Shared/ActivityFeed.razor` — 142 lines
 - `src/DevLeads.Web/Components/Shared/CampaignSwitcher.razor` — 39 lines
+- `src/DevLeads.Web/Components/Shared/PlatformPresencePanel.razor` — 423 lines
 - `src/DevLeads.Web/Components/Shared/PostPerformanceChart.razor` — 185 lines
-- `src/DevLeads.Web/Components/Shared/UiHelpers.cs` — 106 lines
+- `src/DevLeads.Web/Components/Shared/UiHelpers.cs` — 170 lines
 - `src/DevLeads.Web/Components/_Imports.razor` — 24 lines
 - `src/DevLeads.Web/DevLeads.Web.csproj` — 40 lines
 - `src/DevLeads.Web/Program.cs` — 49 lines

@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using DevLeads.Core.Entities;
 
 namespace DevLeads.Core.Skills;
@@ -26,64 +25,12 @@ public static class SkillMatcher
     }
 
     /// <summary>
-    /// The category whose weight-3 skills are stack *identity* (C#, .NET, Blazor, SQL
-    /// Server, Azure, .NET modernization…) rather than transferable capabilities.
-    /// Capability phrases like "REST API" or "outage troubleshooting" appear in almost
-    /// every technical post and must never make an off-stack post look like core work.
-    /// </summary>
-    private static readonly string[] StackIdentityCategories = { "Primary stack" };
-
-    /// <summary>True when the text matched at least one weight-3 skill from an identity category.</summary>
-    public static bool HasStackIdentityMatch(IEnumerable<SkillMatch> matches) =>
-        matches.Any(m => m.Weight >= 3 &&
-                         StackIdentityCategories.Contains(m.Category, StringComparer.OrdinalIgnoreCase));
-
-    /// <summary>
-    /// Primary-stack demands the operator does NOT serve. Word-boundary patterns keep
-    /// noise out ("java" must not hit "javascript"; bare "go" is only counted in
-    /// developer/engineer phrasing). A stack drops off this list automatically when the
-    /// operator adds a matching enabled skill.
-    /// </summary>
-    private static readonly (string Name, Regex Pattern)[] ForeignStacks =
-    {
-        ("Go", new Regex(@"\bgolang\b|\bgo\s+(developer|engineer|dev\b|backend|experience|services)", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-        ("Python", new Regex(@"\bpython\b|\bdjango\b|\bflask\b|\bfastapi\b", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-        ("Java", new Regex(@"\bjava\b(?!\s*script)|\bspring boot\b|\bkotlin\b", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-        ("Ruby", new Regex(@"\bruby\b|\bruby on rails\b", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-        ("PHP", new Regex(@"\bphp\b|\blaravel\b|\bsymfony\b", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-        ("Rust", new Regex(@"\brust\s+(developer|engineer|dev\b|backend|experience)|written in rust", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-        ("Node.js", new Regex(@"\bnode\.?js\b|\bnestjs\b|\bexpress\.js\b", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-        ("React", new Regex(@"\breact\b", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-        ("Vue", new Regex(@"\bvue\.?js?\b", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-        ("Elixir", new Regex(@"\belixir\b", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-        ("Scala", new Regex(@"\bscala\b", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-        ("C++", new Regex(@"c\+\+", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-        ("Mobile", new Regex(@"\bswift\b|\bios developer\b|\bandroid developer\b|\bflutter\b|\breact native\b", RegexOptions.IgnoreCase | RegexOptions.Compiled)),
-    };
-
-    /// <summary>
-    /// Foreign primary-stack demands found in the text, excluding stacks the operator has
-    /// an enabled skill for (adding a "Python" skill makes Python stop being foreign).
-    /// </summary>
-    public static List<string> ForeignStackDemands(string text, IEnumerable<Skill> skills)
-    {
-        var owned = skills.Where(s => s.Enabled)
-            .SelectMany(s => SplitAliases(s.Aliases).Prepend(s.Name))
-            .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        return ForeignStacks
-            .Where(f => !owned.Contains(f.Name) && f.Pattern.IsMatch(text))
-            .Select(f => f.Name)
-            .ToList();
-    }
-
-    /// <summary>
-    /// 0–100 fit score mirroring the legacy stack tiers: a core-skill match scores like the
-    /// preferred stack, strong like the secondary stack; breadth adds a small bonus.
+    /// 0–100 familiarity score. A known core skill is a small ranking advantage; no match
+    /// still receives a generalist baseline and never disqualifies a lead.
     /// </summary>
     public static double FitScore(IReadOnlyList<SkillMatch> matches)
     {
-        if (matches.Count == 0) return 35; // unknown fit, same as the legacy fallback
+        if (matches.Count == 0) return 70;
         var best = matches.Max(m => m.Weight);
         double score = best switch { 3 => 90, 2 => 72, _ => 55 };
         score += Math.Min(matches.Count - 1, 5) * 2; // breadth bonus, capped

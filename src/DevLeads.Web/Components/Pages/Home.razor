@@ -12,7 +12,7 @@
             }
             else
             {
-                <span>🌐 All campaigns combined. Discover paid engagements, triage cheaply, respond specifically.</span>
+                <span>🌐 All campaigns combined. Discover paid engagements and owner-networking opportunities, triage cheaply, respond specifically.</span>
             }
         </div>
     </div>
@@ -100,6 +100,7 @@ else
                             <td><span class="@UiHelpers.PriorityClass(o.Priority)">@o.Priority</span></td>
                             <td class="rr-title-cell">
                                 <a href="opportunities/@o.Id">@o.Title</a>
+                                <div class="src" style="font-style:italic;font-weight:400">@UiHelpers.LeadBlurb(o)</div>
                                 <div class="src">
                                     @if (_campaign is null && o.CampaignId is { } cid && _campaignNames.TryGetValue(cid, out var cname))
                                     {
@@ -121,6 +122,77 @@ else
             </table>
         }
     </div>
+
+    <div class="rr-panel">
+        <div class="rr-panel-head">
+            <div>
+                <h2>Just missed</h2>
+                <div class="rr-sub">Candidates that reached 50–99% of their source's required score. Kept for tuning, never auto-queued for outreach.</div>
+            </div>
+            <a class="rr-btn sm" href="opportunities">Review all →</a>
+        </div>
+        @if (_justMissed.Count == 0)
+        {
+            <div class="rr-empty">No near-threshold candidates in the current campaign yet.</div>
+        }
+        else
+        {
+            <div class="rr-table-scroll">
+                <table class="rr-table">
+                    <thead>
+                        <tr>
+                            <th>Score</th><th>Threshold fit</th><th>Opportunity</th><th>Intent</th>
+                            <th>Score breakdown</th><th>Age</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var o in _justMissed)
+                        {
+                            var required = RequiredScore(o);
+                            var percentage = required > 0 ? o.Score / required : 0;
+                            var intent = o.PaymentIntent switch
+                            {
+                                "Explicit" => (Css: "rr-chip won", Label: "Paid"),
+                                "Implied" => (Css: "rr-chip review", Label: "Networking"),
+                                _ => (Css: "rr-chip", Label: "Unclear")
+                            };
+                            <tr>
+                                <td>
+                                    <span class="rr-score">@o.Score.ToString("0.#")</span>
+                                    <div class="src">needs @required.ToString("0.#")</div>
+                                </td>
+                                <td><span class="rr-badge watch">@percentage.ToString("P0")</span></td>
+                                <td class="rr-title-cell">
+                                    <a href="opportunities/@o.Id">@o.Title</a>
+                                    <div class="src" style="font-style:italic;font-weight:400">@UiHelpers.LeadBlurb(o)</div>
+                                    <div class="src">
+                                        @o.SourceKey · @o.ProblemType
+                                        · <a href="@o.SourceUrl" target="_blank" rel="noopener noreferrer">Original source ↗</a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="@intent.Css">@intent.Label</span>
+                                    @if (o.AssistanceRequested == true)
+                                    {
+                                        <div class="src">Hands-on help requested</div>
+                                    }
+                                </td>
+                                <td>
+                                    <span title="Urgency">U @o.UrgencyScore.ToString("0")</span> ·
+                                    <span title="Business value">V @o.BusinessValueScore.ToString("0")</span> ·
+                                    <span title="Reachability">R @o.ReachabilityScore.ToString("0")</span> ·
+                                    <span title="Competition">C @o.CompetitionScore.ToString("0")</span> ·
+                                    <span title="Trust">T @o.TrustScore.ToString("0")</span> ·
+                                    <span title="Known-stack familiarity">K @o.StackFitScore.ToString("0")</span>
+                                </td>
+                                <td><span class="@UiHelpers.AgeClass(o.PostedAt)">@UiHelpers.Age(o.PostedAt)</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
 }
 
 @code {
@@ -128,9 +200,11 @@ else
     private int _criticalCount, _highCount, _draftsPending, _aiReview, _contacted, _replies,
                 _quotesSent, _paymentPending, _inProgress, _completedUnpaid, _followUps;
     private List<Opportunity> _top = new();
+    private List<Opportunity> _justMissed = new();
     private long? _campaignId;
     private Campaign? _campaign;
     private Dictionary<long, string> _campaignNames = new();
+    private Dictionary<string, double> _sourceThresholds = new(StringComparer.OrdinalIgnoreCase);
 
     private static string Truncate(string s, int max) =>
         string.IsNullOrEmpty(s) ? "" : s.Length <= max ? s : s[..max] + "…";
@@ -138,7 +212,7 @@ else
     private static readonly OpportunityStatus[] Dead =
         { OpportunityStatus.Rejected, OpportunityStatus.PreFilteredRejected, OpportunityStatus.Lost,
           OpportunityStatus.DoNotContact, OpportunityStatus.Won, OpportunityStatus.Paid,
-          OpportunityStatus.Archived };
+          OpportunityStatus.Archived, OpportunityStatus.JustMissed };
 
     protected override async Task OnInitializedAsync()
     {
@@ -153,19 +227,23 @@ else
         if (_campaignId is not null && _campaign is null) _campaignId = null; // stale selection
         _campaignNames = await db.Campaigns.AsNoTracking()
             .ToDictionaryAsync(c => c.Id, c => $"{c.Emoji} {c.Name}");
+        _sourceThresholds = await db.SourceConfigs.AsNoTracking()
+            .ToDictionaryAsync(s => s.SourceKey, s => s.MinOpportunityScore, StringComparer.OrdinalIgnoreCase);
 
         // Campaign scope: every stat on this page honors the sidebar selection.
         var opps = _campaignId is { } cid ? db.Opportunities.Where(o => o.CampaignId == cid) : db.Opportunities;
+        var freshCutoff = now.AddDays(-LeadQualityRules.MaxAutomatedLeadAgeDays);
+        var freshOpps = opps.Where(o => o.SourceKey == "manual" || o.PostedAt >= freshCutoff);
 
-        _criticalCount = await opps.CountAsync(o => o.Priority == Priority.Critical && !Dead.Contains(o.Status));
-        _highCount = await opps.CountAsync(o => o.Score >= 70 &&
+        _criticalCount = await freshOpps.CountAsync(o => o.Priority == Priority.Critical && !Dead.Contains(o.Status));
+        _highCount = await freshOpps.CountAsync(o => o.Score >= 70 &&
             (o.Status == OpportunityStatus.New || o.Status == OpportunityStatus.AiTriaged
              || o.Status == OpportunityStatus.NeedsReview || o.Status == OpportunityStatus.DraftReady));
         _draftsPending = _campaignId is { } dc
             ? await db.OutreachAttempts.CountAsync(a => a.Status == OutreachStatus.PendingApproval &&
                 db.Opportunities.Any(o => o.Id == a.OpportunityId && o.CampaignId == dc))
             : await db.OutreachAttempts.CountAsync(a => a.Status == OutreachStatus.PendingApproval);
-        _aiReview = await opps.CountAsync(o => o.AiJobStatus == AiJobStatus.NeedsManualReview);
+        _aiReview = await freshOpps.CountAsync(o => o.AiJobStatus == AiJobStatus.NeedsManualReview);
         _contacted = await opps.CountAsync(o => o.Status == OpportunityStatus.Contacted);
         _replies = await opps.CountAsync(o => o.Status == OpportunityStatus.Responded || o.Status == OpportunityStatus.Qualified);
         _quotesSent = _campaignId is { } qc
@@ -183,7 +261,7 @@ else
             .Select(o => o.NextFollowUpAt).ToListAsync();
         _followUps = followUpDates.Count(f => f <= now);
 
-        var topCandidates = await opps.AsNoTracking()
+        var topCandidates = await freshOpps.AsNoTracking()
             .Where(o => !Dead.Contains(o.Status))
             .OrderByDescending(o => o.Score).Take(50).ToListAsync();
         var topIds = topCandidates.Select(o => o.Id).ToHashSet();
@@ -201,8 +279,23 @@ else
             .Take(10)
             .ToList();
 
+        var justMissedCandidates = await freshOpps.AsNoTracking()
+            .Where(o => o.Status == OpportunityStatus.JustMissed)
+            .OrderByDescending(o => o.Score)
+            .Take(100)
+            .ToListAsync();
+        _justMissed = justMissedCandidates
+            .Where(o => RequiredScore(o) > 0)
+            .Where(o => o.Score / RequiredScore(o) is >= 0.5 and < 1)
+            .OrderByDescending(o => o.Score / RequiredScore(o))
+            .Take(10)
+            .ToList();
+
         _loading = false;
     }
+
+    private double RequiredScore(Opportunity opportunity) =>
+        _sourceThresholds.GetValueOrDefault(opportunity.SourceKey);
 
     private static bool IsDashboardLead(Opportunity o, IReadOnlyDictionary<long, string> bodyByOpportunity)
     {

@@ -1,0 +1,227 @@
+@page "/today"
+@rendermode InteractiveServer
+@inject IServiceScopeFactory ScopeFactory
+<PageTitle>Today · DevLeads</PageTitle>
+
+<div class="rr-page-head">
+    <div>
+        <h1>Today</h1>
+        <div class="rr-sub">@DateTimeOffset.Now.LocalDateTime.ToString("dddd, MMMM d") — your manager's view: what to do, in order. Refreshed live; the briefing writes itself once a day.</div>
+    </div>
+    <div class="rr-btn-row">
+        <button class="rr-btn primary" @onclick="RegenerateBriefing" disabled="@_busy">
+            @(_busy ? "Writing…" : "🧠 Regenerate briefing (1 AI call)")
+        </button>
+        <button class="rr-btn" @onclick="Load" disabled="@_busy">🔄 Refresh</button>
+    </div>
+</div>
+
+@if (_flash is not null) { <div class="rr-flash @(_flashOk ? "ok" : "err")">@_flash</div> }
+
+@if (_agenda is null)
+{
+    <div class="rr-empty">Loading…</div>
+}
+else
+{
+    <div class="rr-cards">
+        <div class="rr-card @(_agenda.UnreadMessages > 0 ? "crit" : "")">
+            <div class="k">Unread messages</div>
+            <div class="v">@_agenda.UnreadMessages</div>
+            <div class="foot"><a href="myposts">Inbox →</a></div>
+        </div>
+        <div class="rr-card @(_agenda.PendingDrafts > 0 ? "accent" : "")">
+            <div class="k">Drafts to approve</div>
+            <div class="v">@_agenda.PendingDrafts</div>
+            <div class="foot"><a href="drafts">Approval queue →</a>@(_agenda.QueuedDrafts > 0 ? $" · {_agenda.QueuedDrafts} queued" : "")</div>
+        </div>
+        <div class="rr-card">
+            <div class="k">Quotes outstanding</div>
+            <div class="v">@_agenda.OutstandingQuotes</div>
+            <div class="foot"><a href="quotes">Quotes →</a></div>
+        </div>
+        <div class="rr-card">
+            <div class="k">New leads (24h)</div>
+            <div class="v">@_agenda.LeadsLast24h</div>
+            <div class="foot"><a href="opportunities">Review queue →</a></div>
+        </div>
+        <div class="rr-card">
+            <div class="k">Clients</div>
+            <div class="v">@_agenda.ActiveClients</div>
+            <div class="foot"><a href="clients">Active & prospects →</a></div>
+        </div>
+        <div class="rr-card">
+            <div class="k">Platforms</div>
+            <div class="v">@_agenda.ActivePlatforms</div>
+            <div class="foot"><a href="myposts">@_agenda.SuggestedPlatforms suggested →</a></div>
+        </div>
+    </div>
+
+    <div class="rr-panel">
+        <div class="rr-panel-head">
+            <h2>🧠 Daily briefing</h2>
+            @if (_briefing is not null)
+            {
+                <div class="rr-sub">@_briefing.CreatedAt.LocalDateTime.ToString("HH:mm") · <span class="rr-chip @(_briefing.Provider == "Heuristic" ? "review" : "won")">@_briefing.Provider@(_briefing.Model.Length > 0 ? $" · {_briefing.Model}" : "")</span></div>
+            }
+        </div>
+        @if (_briefing is null)
+        {
+            <div class="rr-empty">No briefing yet today — the worker writes one automatically, or hit “Regenerate briefing”.</div>
+        }
+        else
+        {
+            <div style="font-size:.92rem;line-height:1.55">@RenderMarkdown(_briefing.BodyMarkdown)</div>
+        }
+    </div>
+
+    <div class="rr-panel">
+        <div class="rr-panel-head">
+            <h2>🚨 Needs your attention</h2>
+            <div class="rr-sub">Most human-urgent first — people waiting, then money, then queues.</div>
+        </div>
+        @if (_agenda.Attention.Count == 0)
+        {
+            <div class="rr-empty">Nothing urgent. Review the top leads below, or invest in presence.</div>
+        }
+        else
+        {
+            @foreach (var item in _agenda.Attention)
+            {
+                <div style="display:flex;gap:.6rem;align-items:center;padding:.45rem .2rem;border-bottom:1px solid var(--line)">
+                    <span>@item.Icon</span>
+                    <a href="@item.Href" style="@(item.Urgent ? "font-weight:600" : "")">@item.Text</a>
+                </div>
+            }
+        }
+    </div>
+
+    <div class="rr-panel">
+        <div class="rr-panel-head">
+            <h2>🎯 Best open leads</h2>
+            <a class="rr-btn sm" href="opportunities">All →</a>
+        </div>
+        @if (_agenda.TopOpportunities.Count == 0)
+        {
+            <div class="rr-empty">No open leads in the review stages right now.</div>
+        }
+        else
+        {
+            <table class="rr-table">
+                <thead><tr><th>Score</th><th>Lead</th><th>Status</th><th>Pay intent</th><th>Posted</th></tr></thead>
+                <tbody>
+                    @foreach (var o in _agenda.TopOpportunities)
+                    {
+                        <tr>
+                            <td><span class="rr-score">@o.Score.ToString("0")</span></td>
+                            <td class="rr-title-cell">
+                                <a href="opportunities/@o.Id">@o.Title</a>
+                                <div class="rr-sub" style="font-style:italic">@UiHelpers.LeadBlurb(o)</div>
+                            </td>
+                            <td><span class="@UiHelpers.StatusClass(o.Status)">@UiHelpers.Spaced(o.Status)</span></td>
+                            <td>@(o.PaymentIntent.Length == 0 ? "—" : o.PaymentIntent)@(o.PaymentIntent == "Explicit" ? " 💰" : "")</td>
+                            <td>@UiHelpers.Age(o.PostedAt)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+
+    <div class="rr-grid-2">
+        <div class="rr-panel">
+            <div class="rr-panel-head"><h2>📦 Engagements in flight</h2><a class="rr-btn sm" href="clients">Clients →</a></div>
+            @if (_agenda.ActiveEngagements.Count == 0)
+            {
+                <div class="rr-empty">No open engagements — promote a responding lead into a client to start one.</div>
+            }
+            else
+            {
+                @foreach (var (e, name) in _agenda.ActiveEngagements.Take(8))
+                {
+                    <div style="padding:.45rem .2rem;border-bottom:1px solid var(--line)">
+                        <a href="clients/@e.ClientId"><strong>@name</strong> — @e.Title</a>
+                        <div class="rr-sub">
+                            <span class="rr-chip @(e.Status == EngagementStatus.Active ? "won" : "review")">@UiHelpers.Spaced(e.Status)</span>
+                            @(e.DueAt is { } d ? $" due {d.LocalDateTime:MMM d}" : "")
+                            @(string.IsNullOrWhiteSpace(e.NextDeliverable) ? "" : $" · next: {e.NextDeliverable}")
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+        <div class="rr-panel">
+            <div class="rr-panel-head"><h2>⏰ Follow-ups due</h2></div>
+            @if (_agenda.DueFollowUps.Count == 0)
+            {
+                <div class="rr-empty">Nothing due in the next day.</div>
+            }
+            else
+            {
+                @foreach (var (f, name) in _agenda.DueFollowUps.Take(10))
+                {
+                    <div style="padding:.45rem .2rem;border-bottom:1px solid var(--line)">
+                        <a href="clients/@f.ClientId"><strong>@name</strong> — @f.Note</a>
+                        <div class="rr-sub" style="@(f.DueAt <= DateTimeOffset.UtcNow ? "color:#fca5a5" : "")">due @f.DueAt.LocalDateTime.ToString("MMM d, HH:mm")</div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private TodayAgenda? _agenda;
+    private AdvisorBriefing? _briefing;
+    private bool _busy;
+    private string? _flash; private bool _flashOk = true;
+
+    protected override async Task OnInitializedAsync() => await Load();
+
+    private async Task Load()
+    {
+        using var scope = ScopeFactory.CreateScope();
+        var advisor = scope.ServiceProvider.GetRequiredService<AdvisorService>();
+        _agenda = await advisor.BuildAgendaAsync(default);
+        _briefing = await advisor.GetTodayBriefingAsync(default);
+    }
+
+    private async Task RegenerateBriefing()
+    {
+        _busy = true; _flash = "⏳ Writing today's briefing — one AI call…"; _flashOk = true;
+        StateHasChanged();
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var (briefing, message) = await scope.ServiceProvider.GetRequiredService<AdvisorService>()
+                .GenerateDailyBriefingAsync(force: true, default);
+            _flash = message; _flashOk = briefing is not null;
+            await Load();
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+
+    /// <summary>
+    /// Minimal markdown for the briefing (headings, bold, list items). Input is
+    /// HTML-encoded first, so model output can't inject markup.
+    /// </summary>
+    private static MarkupString RenderMarkdown(string md)
+    {
+        var sb = new System.Text.StringBuilder();
+        foreach (var raw in md.Replace("\r\n", "\n").Split('\n'))
+        {
+            var line = System.Net.WebUtility.HtmlEncode(raw.TrimEnd());
+            line = System.Text.RegularExpressions.Regex.Replace(line, @"\*\*(.+?)\*\*", "<strong>$1</strong>");
+            if (line.StartsWith("## "))
+                sb.Append($"<h3 style=\"margin:.8rem 0 .3rem\">{line[3..]}</h3>");
+            else if (line.StartsWith("# "))
+                sb.Append($"<h3 style=\"margin:.8rem 0 .3rem\">{line[2..]}</h3>");
+            else if (System.Text.RegularExpressions.Regex.IsMatch(line, @"^(\d+\.|-|\*)\s"))
+                sb.Append($"<div style=\"margin:.2rem 0 .2rem 1rem\">• {System.Text.RegularExpressions.Regex.Replace(line, @"^(\d+\.|-|\*)\s", "")}</div>");
+            else if (line.Length > 0)
+                sb.Append($"<div style=\"margin:.25rem 0\">{line}</div>");
+        }
+        return new MarkupString(sb.ToString());
+    }
+}

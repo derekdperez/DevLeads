@@ -1,0 +1,374 @@
+@page "/clients/{Id:long}"
+@rendermode InteractiveServer
+@inject IDbContextFactory<DevLeadsDbContext> DbFactory
+<PageTitle>Client · DevLeads</PageTitle>
+
+@if (_client is null)
+{
+    <div class="rr-empty">@(_loading ? "Loading…" : "Client not found.")</div>
+}
+else
+{
+    <div class="rr-page-head">
+        <div>
+            <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+                <span class="@StatusChip(_client.Status)">@_client.Status</span>
+                @if (!string.IsNullOrWhiteSpace(_client.Platform)) { <span class="rr-chip active">@_client.Platform</span> }
+            </div>
+            <h1 style="margin-top:.5rem">@_client.Name</h1>
+            <div class="rr-sub">
+                @if (!string.IsNullOrWhiteSpace(_client.Company)) { <span>@_client.Company · </span> }
+                @if (_client.SourceOpportunityId is { } oid) { <a href="opportunities/@oid">source lead →</a> }
+            </div>
+        </div>
+        <a class="rr-btn" href="clients">← Back</a>
+    </div>
+
+    @if (_flash is not null) { <div class="rr-flash @(_flashOk ? "ok" : "err")">@_flash</div> }
+
+    <div class="rr-btn-row" style="margin-bottom:1.2rem">
+        @foreach (var st in Enum.GetValues<ClientStatus>())
+        {
+            if (st != _client.Status)
+            {
+                <button class="rr-btn" @onclick="() => SetStatus(st)" disabled="@_busy">@st</button>
+            }
+        }
+    </div>
+
+    <div class="rr-detail-grid">
+        <div>
+            <div class="rr-panel">
+                <div class="rr-panel-head">
+                    <h2>📦 Engagements</h2>
+                    <button class="rr-btn sm" @onclick="() => _showAddEngagement = !_showAddEngagement">➕ New engagement</button>
+                </div>
+                @if (_showAddEngagement)
+                {
+                    <div style="border:1px solid var(--line);border-radius:10px;padding:.7rem .8rem;margin-bottom:.7rem">
+                        <div class="rr-field"><label>Title *</label><input class="rr-input" @bind="_newEngTitle" placeholder="e.g. Fix production deployment + hand-off notes" /></div>
+                        <div class="rr-grid-2">
+                            <div class="rr-field"><label>Agreed fee ($, optional)</label><input class="rr-input" type="number" @bind="_newEngFee" /></div>
+                            <div class="rr-field"><label>Due date (optional)</label><input class="rr-input" type="date" @bind="_newEngDue" /></div>
+                        </div>
+                        <div class="rr-field"><label>Description</label><textarea class="rr-textarea" style="min-height:60px" @bind="_newEngDescription"></textarea></div>
+                        <button class="rr-btn primary" @onclick="AddEngagement" disabled="@_busy">Add engagement</button>
+                    </div>
+                }
+                @if (_engagements.Count == 0)
+                {
+                    <div class="rr-empty">No engagements yet.</div>
+                }
+                else
+                {
+                    @foreach (var e in _engagements)
+                    {
+                        <div style="border:1px solid var(--line);border-radius:10px;padding:.7rem .8rem;margin-bottom:.6rem">
+                            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.4rem">
+                                <strong>@e.Title</strong>
+                                <span class="@EngagementChip(e.Status)">@UiHelpers.Spaced(e.Status)</span>
+                            </div>
+                            <div class="rr-sub" style="margin:.25rem 0">
+                                @(e.AgreedFee is { } fee ? $"${fee:0} · " : "")
+                                @(e.DueAt is { } due ? $"due {due.LocalDateTime:MMM d} · " : "")
+                                @(e.OpportunityId is { } eo ? "" : "direct work")
+                                @if (e.OpportunityId is { } oid2) { <a href="opportunities/@oid2">lead →</a> }
+                            </div>
+                            @if (_openEngagementId == e.Id)
+                            {
+                                <div class="rr-grid-2" style="margin-top:.4rem">
+                                    <div class="rr-field"><label>Agreed fee ($)</label><input class="rr-input" type="number" @bind="e.AgreedFee" /></div>
+                                    <div class="rr-field"><label>Next deliverable</label><input class="rr-input" @bind="e.NextDeliverable" placeholder="the one next thing you owe them" /></div>
+                                </div>
+                                <div class="rr-field"><label>Notes</label><textarea class="rr-textarea" style="min-height:60px" @bind="e.Notes"></textarea></div>
+                                <div class="rr-btn-row" style="margin-top:.4rem">
+                                    <button class="rr-btn sm" @onclick="() => SaveEngagement(e)" disabled="@_busy">💾 Save</button>
+                                    @foreach (var st in Enum.GetValues<EngagementStatus>())
+                                    {
+                                        if (st != e.Status)
+                                        {
+                                            <button class="rr-btn sm" @onclick="() => SetEngagementStatus(e, st)" disabled="@_busy">@UiHelpers.Spaced(st)</button>
+                                        }
+                                    }
+                                </div>
+                            }
+                            <button class="rr-btn sm" style="margin-top:.3rem" @onclick="() => _openEngagementId = _openEngagementId == e.Id ? null : e.Id">
+                                @(_openEngagementId == e.Id ? "▲ Close" : "▼ Edit")
+                            </button>
+                        </div>
+                    }
+                }
+            </div>
+
+            <div class="rr-panel">
+                <div class="rr-panel-head">
+                    <h2>💬 Interaction log</h2>
+                    <button class="rr-btn sm" @onclick="() => _showAddInteraction = !_showAddInteraction">➕ Log a touch</button>
+                </div>
+                @if (_showAddInteraction)
+                {
+                    <div class="rr-grid-2">
+                        <div class="rr-field">
+                            <label>Direction</label>
+                            <select class="rr-select" @bind="_newIntDirection">
+                                <option value="Outbound">Outbound — I contacted them</option>
+                                <option value="Inbound">Inbound — they contacted me</option>
+                            </select>
+                        </div>
+                        <div class="rr-field"><label>Channel</label><input class="rr-input" @bind="_newIntChannel" placeholder="reddit dm / email / call…" /></div>
+                    </div>
+                    <div class="rr-field"><label>What was said / decided *</label><textarea class="rr-textarea" style="min-height:60px" @bind="_newIntSummary"></textarea></div>
+                    <div class="rr-field"><label>Link (optional)</label><input class="rr-input" @bind="_newIntUrl" placeholder="https://…" /></div>
+                    <button class="rr-btn primary" style="margin-bottom:.6rem" @onclick="AddInteraction" disabled="@_busy">Log it</button>
+                }
+                @if (_interactions.Count == 0)
+                {
+                    <div class="rr-empty">No touches logged yet.</div>
+                }
+                else
+                {
+                    @foreach (var i in _interactions)
+                    {
+                        <div style="display:flex;gap:.6rem;padding:.45rem .2rem;border-bottom:1px solid var(--line)">
+                            <span title="@i.Direction">@(i.Direction == InteractionDirection.Inbound ? "📥" : "📤")</span>
+                            <div>
+                                <div>@i.Summary @if (!string.IsNullOrWhiteSpace(i.Url)) { <a href="@i.Url" target="_blank" rel="noopener noreferrer">↗</a> }</div>
+                                <div class="rr-sub">@i.OccurredAt.LocalDateTime.ToString("MMM d, HH:mm")@(string.IsNullOrWhiteSpace(i.Channel) ? "" : $" · {i.Channel}")</div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <div>
+            <div class="rr-panel">
+                <h2>Contact</h2>
+                <div class="rr-field"><label>Name</label><input class="rr-input" @bind="_client.Name" /></div>
+                <div class="rr-field"><label>Company</label><input class="rr-input" @bind="_client.Company" /></div>
+                <div class="rr-grid-2">
+                    <div class="rr-field"><label>Platform</label><input class="rr-input" @bind="_client.Platform" /></div>
+                    <div class="rr-field"><label>Handle</label><input class="rr-input" @bind="_client.Handle" /></div>
+                </div>
+                <div class="rr-field"><label>Email</label><input class="rr-input" @bind="_client.Email" /></div>
+                <div class="rr-field"><label>Profile URL</label><input class="rr-input" @bind="_client.ProfileUrl" /></div>
+                <div class="rr-field"><label>Notes (who they are, preferences, history)</label><textarea class="rr-textarea" style="min-height:110px" @bind="_client.Notes"></textarea></div>
+                <button class="rr-btn primary" style="width:100%;justify-content:center" @onclick="SaveClient" disabled="@_busy">💾 Save</button>
+            </div>
+
+            <div class="rr-panel">
+                <div class="rr-panel-head"><h2>⏰ Follow-ups</h2></div>
+                <div class="rr-field"><label>Remind me to…</label><input class="rr-input" @bind="_newFollowUpNote" placeholder="check if the quote landed" /></div>
+                <div class="rr-grid-2">
+                    <div class="rr-field"><label>Due</label><input class="rr-input" type="date" @bind="_newFollowUpDue" /></div>
+                    <button class="rr-btn" style="align-self:end" @onclick="AddFollowUp" disabled="@_busy">➕ Schedule</button>
+                </div>
+                @foreach (var f in _followUps)
+                {
+                    <div style="display:flex;justify-content:space-between;gap:.5rem;align-items:center;padding:.4rem .2rem;border-top:1px solid var(--line)">
+                        <div>
+                            <div style="@(f.Status == FollowUpStatus.Pending && f.DueAt <= DateTimeOffset.UtcNow ? "color:#fca5a5;font-weight:600" : "")">@f.Note</div>
+                            <div class="rr-sub">@f.DueAt.LocalDateTime.ToString("MMM d") · @f.Status</div>
+                        </div>
+                        @if (f.Status == FollowUpStatus.Pending)
+                        {
+                            <div class="rr-btn-row">
+                                <button class="rr-btn sm good" title="Done" @onclick="() => CloseFollowUp(f, FollowUpStatus.Done)" disabled="@_busy">✔</button>
+                                <button class="rr-btn sm" title="Dismiss" @onclick="() => CloseFollowUp(f, FollowUpStatus.Dismissed)" disabled="@_busy">✖</button>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public long Id { get; set; }
+
+    private bool _loading = true, _busy;
+    private Client? _client;
+    private List<Engagement> _engagements = new();
+    private List<ClientInteraction> _interactions = new();
+    private List<FollowUp> _followUps = new();
+    private long? _openEngagementId;
+    private bool _showAddEngagement, _showAddInteraction;
+    private string? _flash; private bool _flashOk = true;
+
+    private string _newEngTitle = "", _newEngDescription = "";
+    private double? _newEngFee;
+    private DateTime? _newEngDue;
+    private string _newIntChannel = "", _newIntSummary = "", _newIntUrl = "", _newIntDirection = "Outbound";
+    private string _newFollowUpNote = "";
+    private DateTime? _newFollowUpDue = DateTime.Today.AddDays(2);
+
+    protected override async Task OnParametersSetAsync() => await Load();
+
+    private async Task Load()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        _client = await db.Clients.AsNoTracking().FirstOrDefaultAsync(c => c.Id == Id);
+        if (_client is not null)
+        {
+            _engagements = await db.Engagements.AsNoTracking().Where(e => e.ClientId == Id)
+                .OrderBy(e => e.Status == EngagementStatus.Closed || e.Status == EngagementStatus.Lost)
+                .ThenByDescending(e => e.UpdatedAt).ToListAsync();
+            _interactions = await db.ClientInteractions.AsNoTracking().Where(i => i.ClientId == Id)
+                .OrderByDescending(i => i.OccurredAt).Take(100).ToListAsync();
+            _followUps = await db.FollowUps.AsNoTracking().Where(f => f.ClientId == Id)
+                .OrderBy(f => f.Status != FollowUpStatus.Pending).ThenBy(f => f.DueAt).Take(50).ToListAsync();
+        }
+        _loading = false;
+    }
+
+    private async Task SaveClient()
+    {
+        if (_client is null) return;
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var row = await db.Clients.FirstOrDefaultAsync(c => c.Id == Id);
+        if (row is null) return;
+        row.Name = _client.Name.Trim();
+        row.Company = _client.Company.Trim();
+        row.Platform = _client.Platform.Trim().ToLowerInvariant();
+        row.Handle = _client.Handle.Trim();
+        row.Email = _client.Email.Trim();
+        row.ProfileUrl = _client.ProfileUrl.Trim();
+        row.Notes = _client.Notes;
+        row.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+        _flash = "Saved."; _flashOk = true;
+        await Load();
+    }
+
+    private async Task SetStatus(ClientStatus status)
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var row = await db.Clients.FirstOrDefaultAsync(c => c.Id == Id);
+        if (row is null) return;
+        row.Status = status;
+        row.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+        await Load();
+    }
+
+    private async Task AddEngagement()
+    {
+        if (string.IsNullOrWhiteSpace(_newEngTitle)) { _flash = "A title is required."; _flashOk = false; return; }
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var now = DateTimeOffset.UtcNow;
+        db.Engagements.Add(new Engagement
+        {
+            ClientId = Id,
+            Title = _newEngTitle.Trim(),
+            Description = _newEngDescription.Trim(),
+            AgreedFee = _newEngFee,
+            DueAt = _newEngDue is { } d ? new DateTimeOffset(d, TimeSpan.Zero) : null,
+            CreatedAt = now, UpdatedAt = now
+        });
+        await TouchClientAndSave(db);
+        _newEngTitle = _newEngDescription = ""; _newEngFee = null; _newEngDue = null;
+        _showAddEngagement = false;
+        _flash = "Engagement added."; _flashOk = true;
+        await Load();
+    }
+
+    private async Task SaveEngagement(Engagement edited)
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var row = await db.Engagements.FirstOrDefaultAsync(e => e.Id == edited.Id);
+        if (row is null) return;
+        row.AgreedFee = edited.AgreedFee;
+        row.NextDeliverable = edited.NextDeliverable;
+        row.Notes = edited.Notes;
+        row.UpdatedAt = DateTimeOffset.UtcNow;
+        await TouchClientAndSave(db);
+        _flash = "Engagement saved."; _flashOk = true;
+        await Load();
+    }
+
+    private async Task SetEngagementStatus(Engagement edited, EngagementStatus status)
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var row = await db.Engagements.FirstOrDefaultAsync(e => e.Id == edited.Id);
+        if (row is null) return;
+        var now = DateTimeOffset.UtcNow;
+        row.Status = status;
+        if (status == EngagementStatus.Active && row.StartedAt is null) row.StartedAt = now;
+        if (status is EngagementStatus.Delivered or EngagementStatus.Closed or EngagementStatus.Lost) row.ClosedAt = now;
+        row.UpdatedAt = now;
+        await TouchClientAndSave(db);
+        await Load();
+    }
+
+    private async Task AddInteraction()
+    {
+        if (string.IsNullOrWhiteSpace(_newIntSummary)) { _flash = "A summary is required."; _flashOk = false; return; }
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var now = DateTimeOffset.UtcNow;
+        db.ClientInteractions.Add(new ClientInteraction
+        {
+            ClientId = Id,
+            OccurredAt = now,
+            Channel = _newIntChannel.Trim(),
+            Direction = _newIntDirection == "Inbound" ? InteractionDirection.Inbound : InteractionDirection.Outbound,
+            Summary = _newIntSummary.Trim(),
+            Url = _newIntUrl.Trim(),
+            CreatedAt = now
+        });
+        await TouchClientAndSave(db);
+        _newIntChannel = _newIntSummary = _newIntUrl = "";
+        _showAddInteraction = false;
+        _flash = "Logged."; _flashOk = true;
+        await Load();
+    }
+
+    private async Task AddFollowUp()
+    {
+        if (string.IsNullOrWhiteSpace(_newFollowUpNote)) { _flash = "A reminder note is required."; _flashOk = false; return; }
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var now = DateTimeOffset.UtcNow;
+        var due = _newFollowUpDue is { } d ? new DateTimeOffset(d.AddHours(9), TimeSpan.Zero) : now.AddDays(2);
+        db.FollowUps.Add(new FollowUp { ClientId = Id, Note = _newFollowUpNote.Trim(), DueAt = due, CreatedAt = now });
+        await TouchClientAndSave(db);
+        _newFollowUpNote = "";
+        _flash = "Follow-up scheduled."; _flashOk = true;
+        await Load();
+    }
+
+    private async Task CloseFollowUp(FollowUp edited, FollowUpStatus status)
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var row = await db.FollowUps.FirstOrDefaultAsync(f => f.Id == edited.Id);
+        if (row is null) return;
+        row.Status = status;
+        row.CompletedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+        await Load();
+    }
+
+    /// <summary>Any child change bumps the client's UpdatedAt so the list sorts by real activity.</summary>
+    private async Task TouchClientAndSave(DevLeadsDbContext db)
+    {
+        var row = await db.Clients.FirstOrDefaultAsync(c => c.Id == Id);
+        if (row is not null) row.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+    }
+
+    private static string StatusChip(ClientStatus s) => s switch
+    {
+        ClientStatus.Active => "rr-chip won",
+        ClientStatus.Prospect => "rr-chip review",
+        ClientStatus.Dormant => "rr-chip progress",
+        _ => "rr-chip"
+    };
+
+    private static string EngagementChip(EngagementStatus s) => s switch
+    {
+        EngagementStatus.Active => "rr-chip won",
+        EngagementStatus.Negotiating or EngagementStatus.Prospective => "rr-chip review",
+        EngagementStatus.OnHold => "rr-chip progress",
+        EngagementStatus.Lost => "rr-chip dead",
+        _ => "rr-chip"
+    };
+}

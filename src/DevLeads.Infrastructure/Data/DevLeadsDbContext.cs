@@ -31,6 +31,15 @@ public class DevLeadsDbContext : DbContext
     public DbSet<OperatorPostSnapshot> OperatorPostSnapshots => Set<OperatorPostSnapshot>();
     public DbSet<OperatorMessage> OperatorMessages => Set<OperatorMessage>();
     public DbSet<OperatorPostRevision> OperatorPostRevisions => Set<OperatorPostRevision>();
+    public DbSet<Client> Clients => Set<Client>();
+    public DbSet<Engagement> Engagements => Set<Engagement>();
+    public DbSet<ClientInteraction> ClientInteractions => Set<ClientInteraction>();
+    public DbSet<FollowUp> FollowUps => Set<FollowUp>();
+    public DbSet<PlatformProfile> PlatformProfiles => Set<PlatformProfile>();
+    public DbSet<AdvisorBriefing> AdvisorBriefings => Set<AdvisorBriefing>();
+    public DbSet<OperatorDocument> OperatorDocuments => Set<OperatorDocument>();
+    public DbSet<EngagementDraft> EngagementDrafts => Set<EngagementDraft>();
+    public DbSet<LinkedInProfileField> LinkedInProfileFields => Set<LinkedInProfileField>();
 
     // SQLite stores DateTimeOffset as TEXT and cannot order/compare it. Convert every
     // DateTimeOffset to sortable UTC ticks (long) so ORDER BY and range filters translate.
@@ -62,6 +71,13 @@ public class DevLeadsDbContext : DbContext
         b.Properties<OperatorMessageKind>().HaveConversion<string>();
         b.Properties<OperatorMessageStatus>().HaveConversion<string>();
         b.Properties<OperatorPostRevisionStatus>().HaveConversion<string>();
+        b.Properties<ClientStatus>().HaveConversion<string>();
+        b.Properties<EngagementStatus>().HaveConversion<string>();
+        b.Properties<FollowUpStatus>().HaveConversion<string>();
+        b.Properties<InteractionDirection>().HaveConversion<string>();
+        b.Properties<PlatformPresenceStatus>().HaveConversion<string>();
+        b.Properties<EngagementDraftKind>().HaveConversion<string>();
+        b.Properties<EngagementDraftStatus>().HaveConversion<string>();
     }
 
     protected override void OnModelCreating(ModelBuilder mb)
@@ -115,6 +131,38 @@ public class DevLeadsDbContext : DbContext
             e.HasOne(m => m.Post).WithMany()
                 .HasForeignKey(m => m.OperatorPostId).OnDelete(DeleteBehavior.SetNull);
         });
+        mb.Entity<Client>(e =>
+        {
+            e.HasIndex(c => c.Status);
+            e.HasIndex(c => c.SourceOpportunityId);
+            e.HasMany(c => c.Engagements).WithOne(x => x.Client!)
+                .HasForeignKey(x => x.ClientId).OnDelete(DeleteBehavior.Cascade);
+            e.HasMany(c => c.Interactions).WithOne(x => x.Client!)
+                .HasForeignKey(x => x.ClientId).OnDelete(DeleteBehavior.Cascade);
+            e.HasMany(c => c.FollowUps).WithOne(x => x.Client!)
+                .HasForeignKey(x => x.ClientId).OnDelete(DeleteBehavior.Cascade);
+        });
+        mb.Entity<Engagement>().HasIndex(x => x.Status);
+        mb.Entity<FollowUp>(e =>
+        {
+            e.HasIndex(f => f.Status);
+            e.HasIndex(f => f.DueAt);
+        });
+        mb.Entity<PlatformProfile>(e =>
+        {
+            e.HasIndex(p => p.Key).IsUnique();
+            e.HasIndex(p => p.Status);
+        });
+        mb.Entity<AdvisorBriefing>().HasIndex(b2 => b2.ForDate);
+        mb.Entity<OperatorDocument>().HasIndex(d => d.Kind).IsUnique();
+        mb.Entity<EngagementDraft>(e =>
+        {
+            e.HasIndex(d => new { d.Platform, d.ExternalId }).IsUnique();
+            e.HasIndex(d => d.Status);
+            e.HasOne(d => d.Post).WithMany()
+                .HasForeignKey(d => d.OperatorPostId).OnDelete(DeleteBehavior.SetNull);
+        });
+        mb.Entity<LinkedInProfileField>().HasIndex(f => f.FieldKey).IsUnique();
         mb.Entity<QueryPack>().HasIndex(q => q.Name).IsUnique();
         mb.Entity<SuppressionEntry>().HasIndex(s => s.ContactValue);
         mb.Entity<AuditEvent>().HasIndex(a => new { a.EntityType, a.EntityId });

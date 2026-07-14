@@ -69,7 +69,8 @@ public sealed class SourceRunner
             SkillTerms = Core.Skills.SkillMatcher.SearchTerms(skills)
         };
 
-        int created = 0, skipped = 0, shortlistRejected = 0, skippedByRequiredPack = 0;
+        int created = 0, justMissed = 0, skipped = 0, shortlistRejected = 0,
+            skippedByRequiredPack = 0, expired = 0;
         ShortlistGate shortlist = ShortlistGate.Disabled;
         _activity.RunStarted(source.SourceKey, source.DisplayName);
         try
@@ -81,6 +82,10 @@ public sealed class SourceRunner
             // (and triaged) — screening them again would burn calls for nothing.
             var seenIds = await GetSeenExternalIdsAsync(source.SourceKey, items, ct);
             var newItems = items.Where(i => !seenIds.Contains(i.ExternalId)).ToList();
+            var expiredItems = newItems
+                .Where(i => !LeadQualityRules.IsWithinAutomatedLeadAge(i.PostedAt, now))
+                .ToHashSet();
+            var freshItems = newItems.Where(i => !expiredItems.Contains(i)).ToList();
             var packNames = PackNames(source);
             var requiredPack = parameters.GetValueOrDefault("requiredQueryPack");
             var requiredTerms = string.IsNullOrWhiteSpace(requiredPack)
@@ -88,8 +93,8 @@ public sealed class SourceRunner
                 : _queryPacks.GetTerms(requiredPack).ToArray();
             var topicRejected = requiredTerms.Length == 0
                 ? new HashSet<RawSourceItem>()
-                : newItems.Where(item => !MatchesAny(item, requiredTerms)).ToHashSet();
-            var candidates = newItems.Where(item => !topicRejected.Contains(item)).ToList();
+                : freshItems.Where(item => !MatchesAny(item, requiredTerms)).ToHashSet();
+            var candidates = freshItems.Where(item => !topicRejected.Contains(item)).ToList();
             var preFilterByItem = candidates.ToDictionary(i => i, i => _preFilter.Analyze(i, packNames));
             var campaignObjective = await GetCampaignObjectiveAsync(source, ct);
 
@@ -100,6 +105,12 @@ public sealed class SourceRunner
                 ct.ThrowIfCancellationRequested();
                 try
                 {
+                    if (expiredItems.Contains(item))
+                    {
+                        if (await _ingestion.RecordRawOnlyAsync(item, ct))
+                            expired++;
+                        continue;
+                    }
                     if (topicRejected.Contains(item))
                     {
                         if (await _ingestion.RecordRawOnlyAsync(item, ct))
@@ -113,12 +124,19 @@ public sealed class SourceRunner
                         continue;
                     }
 
-                    // IngestAsync returns null for duplicates and for posts triaged as non-payable.
+                    // IngestAsync returns null for duplicates and non-actionable posts.
                     var opp = await _ingestion.IngestAsync(item, source, ct, batchTriage.GetValueOrDefault(item));
                     if (opp is not null)
                     {
-                        created++;
-                        _activity.LeadCreated(source.SourceKey, opp.Title, opp.Score);
+                        if (opp.Status == OpportunityStatus.JustMissed)
+                        {
+                            justMissed++;
+                        }
+                        else
+                        {
+                            created++;
+                            _activity.LeadCreated(source.SourceKey, opp.Title, opp.Score);
+                        }
                     }
                 }
                 catch (InvalidOperationException ex) when (ex.Message.Contains("valid source URL", StringComparison.OrdinalIgnoreCase))
@@ -130,7 +148,7 @@ public sealed class SourceRunner
             source.LastRunHealthy = true;
             source.LastRunItemCount = items.Count;
             source.LastRunMessage = BuildRunMessage(items.Count, created, skipped, shortlist,
-                shortlistRejected, skippedByRequiredPack, requiredPack);
+                shortlistRejected, skippedByRequiredPack, expired, justMissed, requiredPack);
         }
         catch (OperationCanceledException)
         {
@@ -348,6 +366,8 @@ public sealed class SourceRunner
         ShortlistGate shortlist,
         int shortlistRejected,
         int skippedByRequiredPack,
+        int expired,
+        int justMissed,
         string? requiredPack)
     {
         var parts = new List<string> { $"Fetched {fetched} item(s)", $"{created} new lead(s)" };
@@ -357,6 +377,10 @@ public sealed class SourceRunner
             parts.Add($"recorded {shortlistRejected} shortlist reject(s)");
         if (skippedByRequiredPack > 0)
             parts.Add($"excluded {skippedByRequiredPack} item(s) outside {requiredPack}");
+        if (expired > 0)
+            parts.Add($"ignored {expired} item(s) older than {LeadQualityRules.MaxAutomatedLeadAgeDays} days");
+        if (justMissed > 0)
+            parts.Add($"retained {justMissed} just-missed candidate(s)");
         if (skipped > 0)
             parts.Add($"skipped {skipped} without source URLs");
         return string.Join("; ", parts) + ".";

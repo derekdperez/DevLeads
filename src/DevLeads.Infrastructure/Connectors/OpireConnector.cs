@@ -7,8 +7,8 @@ namespace DevLeads.Infrastructure.Connectors;
 
 /// <summary>
 /// Open bounties from Opire (https://opire.dev): money attached to public GitHub issues,
-/// paid out on merge. Public JSON API, no auth. Items are filtered against the operator's
-/// skill profile so only plausibly-fitting bounties are ingested.
+/// paid out on merge. Public JSON API, no auth. Technology stack is informational; the
+/// downstream engagement-quality rules decide whether a bounty is worth pursuing.
 /// </summary>
 public sealed class OpireConnector : ISourceConnector
 {
@@ -30,9 +30,8 @@ public sealed class OpireConnector : ISourceConnector
         var items = new Dictionary<string, RawSourceItem>();
         var maxPages = GetInt(config, "maxPages", 4); // 30 rewards per page
         var minUsd = GetInt(config, "minAmountUsd", 20);
-        // Bounties stay open for months; recency matters less than fit + amount.
-        var requireSkillMatch = !config.Parameters.TryGetValue("requireSkillMatch", out var rsm)
-                                || !rsm.Equals("false", StringComparison.OrdinalIgnoreCase);
+        var requireSkillMatch = config.Parameters.TryGetValue("requireSkillMatch", out var rsm) &&
+                                rsm.Equals("true", StringComparison.OrdinalIgnoreCase);
 
         for (var page = 1; page <= maxPages && items.Count < config.MaxItems; page++)
         {
@@ -93,8 +92,8 @@ public sealed class OpireConnector : ISourceConnector
             orgUrl = orgEl.TryGetProperty("url", out var ou) ? ou.GetString() : null;
         }
 
-        // Fit gate: the title/languages must touch the operator's skill profile (when one
-        // exists). The URL is deliberately excluded — it would match tool-name skills.
+        // Optional legacy/custom-source filter. Built-in lead sources leave this disabled
+        // because the operator works across stacks.
         var matchText = $"{title} {string.Join(' ', languages)}";
         if (requireSkillMatch && config.SkillTerms.Count > 0 &&
             !config.SkillTerms.Any(s => matchText.Contains(s, StringComparison.OrdinalIgnoreCase)))

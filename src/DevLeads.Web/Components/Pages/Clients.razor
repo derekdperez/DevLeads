@@ -1,0 +1,127 @@
+@page "/clients"
+@rendermode InteractiveServer
+@inject IDbContextFactory<DevLeadsDbContext> DbFactory
+<PageTitle>Clients · DevLeads</PageTitle>
+
+<div class="rr-page-head">
+    <div>
+        <h1>Clients</h1>
+        <div class="rr-sub">Every relationship that can turn into paid work — promoted from leads or added by hand, with engagements, touches, and follow-ups.</div>
+    </div>
+    <button class="rr-btn primary" @onclick="() => _showAdd = !_showAdd">➕ Add client</button>
+</div>
+
+@if (_flash is not null) { <div class="rr-flash @(_flashOk ? "ok" : "err")">@_flash</div> }
+
+@if (_showAdd)
+{
+    <div class="rr-panel">
+        <div class="rr-panel-head"><h2>➕ New client</h2></div>
+        <div class="rr-grid-2">
+            <div class="rr-field"><label>Name *</label><input class="rr-input" @bind="_newName" placeholder="person or handle" /></div>
+            <div class="rr-field"><label>Company</label><input class="rr-input" @bind="_newCompany" /></div>
+            <div class="rr-field"><label>Platform / channel</label><input class="rr-input" @bind="_newPlatform" placeholder="reddit / email / linkedin…" /></div>
+            <div class="rr-field"><label>Email or handle</label><input class="rr-input" @bind="_newContact" /></div>
+        </div>
+        <div class="rr-field"><label>Notes</label><textarea class="rr-textarea" style="min-height:70px" @bind="_newNotes"></textarea></div>
+        <button class="rr-btn primary" @onclick="AddClient" disabled="@_busy">Add</button>
+    </div>
+}
+
+<div class="rr-panel">
+    <div class="rr-panel-head">
+        <h2>🤝 Relationships</h2>
+        <div class="rr-sub">@_clients.Count(c => c.Status is ClientStatus.Active or ClientStatus.Prospect) active/prospect · @_clients.Count total</div>
+    </div>
+    @if (_clients.Count == 0)
+    {
+        <div class="rr-empty">No clients yet. When a lead responds, open it and hit “Promote to client” — or add one manually above.</div>
+    }
+    else
+    {
+        <div class="rr-table-scroll">
+            <table class="rr-table">
+                <thead><tr><th>Client</th><th>Channel</th><th>Status</th><th>Engagements</th><th>Next follow-up</th><th>Updated</th></tr></thead>
+                <tbody>
+                    @foreach (var c in _clients)
+                    {
+                        var nextFollowUp = _nextFollowUps.GetValueOrDefault(c.Id);
+                        <tr>
+                            <td class="rr-title-cell">
+                                <a href="clients/@c.Id"><strong>@c.Name</strong></a>
+                                @if (!string.IsNullOrWhiteSpace(c.Company)) { <div class="rr-sub">@c.Company</div> }
+                            </td>
+                            <td><span class="rr-chip active">@(string.IsNullOrWhiteSpace(c.Platform) ? "—" : c.Platform)</span></td>
+                            <td><span class="@StatusChip(c.Status)">@c.Status</span></td>
+                            <td>@_openEngagements.GetValueOrDefault(c.Id) open<span class="rr-sub"> / @_totalEngagements.GetValueOrDefault(c.Id)</span></td>
+                            <td style="@(nextFollowUp is { } n && n <= DateTimeOffset.UtcNow ? "color:#fca5a5;font-weight:600" : "")">
+                                @(nextFollowUp is { } f ? f.LocalDateTime.ToString("MMM d, HH:mm") : "—")
+                            </td>
+                            <td>@UiHelpers.Age(c.UpdatedAt)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@code {
+    private List<Client> _clients = new();
+    private Dictionary<long, int> _openEngagements = new(), _totalEngagements = new();
+    private Dictionary<long, DateTimeOffset?> _nextFollowUps = new();
+    private bool _busy, _showAdd;
+    private string? _flash; private bool _flashOk = true;
+    private string _newName = "", _newCompany = "", _newPlatform = "", _newContact = "", _newNotes = "";
+
+    protected override async Task OnInitializedAsync() => await Load();
+
+    private async Task Load()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        _clients = await db.Clients.AsNoTracking()
+            .OrderBy(c => c.Status == ClientStatus.Past)
+            .ThenByDescending(c => c.UpdatedAt).ToListAsync();
+        var engagements = await db.Engagements.AsNoTracking().ToListAsync();
+        _totalEngagements = engagements.GroupBy(e => e.ClientId).ToDictionary(g => g.Key, g => g.Count());
+        _openEngagements = engagements
+            .Where(e => e.Status is EngagementStatus.Prospective or EngagementStatus.Negotiating
+                or EngagementStatus.Active or EngagementStatus.OnHold)
+            .GroupBy(e => e.ClientId).ToDictionary(g => g.Key, g => g.Count());
+        _nextFollowUps = (await db.FollowUps.AsNoTracking()
+                .Where(f => f.Status == FollowUpStatus.Pending).ToListAsync())
+            .GroupBy(f => f.ClientId)
+            .ToDictionary(g => g.Key, g => (DateTimeOffset?)g.Min(f => f.DueAt));
+    }
+
+    private async Task AddClient()
+    {
+        if (string.IsNullOrWhiteSpace(_newName)) { _flash = "A name is required."; _flashOk = false; return; }
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var now = DateTimeOffset.UtcNow;
+        var contact = _newContact.Trim();
+        db.Clients.Add(new Client
+        {
+            Name = _newName.Trim(),
+            Company = _newCompany.Trim(),
+            Platform = _newPlatform.Trim().ToLowerInvariant(),
+            Email = contact.Contains('@') ? contact : "",
+            Handle = contact.Contains('@') ? "" : contact,
+            Notes = _newNotes.Trim(),
+            CreatedAt = now, UpdatedAt = now
+        });
+        await db.SaveChangesAsync();
+        _newName = _newCompany = _newPlatform = _newContact = _newNotes = "";
+        _showAdd = false;
+        _flash = "Client added."; _flashOk = true;
+        await Load();
+    }
+
+    private static string StatusChip(ClientStatus s) => s switch
+    {
+        ClientStatus.Active => "rr-chip won",
+        ClientStatus.Prospect => "rr-chip review",
+        ClientStatus.Dormant => "rr-chip progress",
+        _ => "rr-chip"
+    };
+}

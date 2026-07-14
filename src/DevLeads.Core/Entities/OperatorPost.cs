@@ -54,6 +54,12 @@ public class OperatorPost
     /// <summary>Operator notes: outcomes, learnings, what to change next time.</summary>
     public string Notes { get; set; } = "";
 
+    /// <summary>
+    /// Requested publish time for an approved LinkedIn draft. The worker publishes only
+    /// Draft rows whose schedule is due; null means no automatic publishing.
+    /// </summary>
+    public DateTimeOffset? ScheduledAt { get; set; }
+
     public DateTimeOffset PostedAt { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }

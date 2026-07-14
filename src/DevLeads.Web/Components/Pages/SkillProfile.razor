@@ -20,6 +20,33 @@
 @if (_flash is not null) { <div class="rr-flash @(_flashOk ? "ok" : "err")">@_flash</div> }
 
 <div class="rr-panel">
+    <div class="rr-panel-head">
+        <h2>📄 Resume</h2>
+        <div class="rr-sub">Stored once, available everywhere the app needs it — signup packs link to it for platforms that ask for a resume, and future features can attach or distribute it.</div>
+    </div>
+    @if (_resumeName is not null)
+    {
+        <div style="display:flex;gap:.8rem;align-items:center;flex-wrap:wrap;margin-bottom:.6rem">
+            <span class="rr-chip won">📄 @_resumeName</span>
+            <span class="rr-sub">@FormatSize(_resumeSize) · uploaded @(_resumeUploadedAt is { } up ? UiHelpers.Age(up) : "")</span>
+            <a class="rr-btn sm" href="api/documents/resume" target="_blank" rel="noopener noreferrer">⬇ Download</a>
+            <button class="rr-btn sm danger" @onclick="RemoveResume" disabled="@_busy">🗑 Remove</button>
+        </div>
+        <div class="rr-field">
+            <label>Replace it (PDF, Word, or text · up to 15 MB)</label>
+            <InputFile OnChange="UploadResume" accept=".pdf,.doc,.docx,.txt,.md,.rtf" disabled="@_busy" />
+        </div>
+    }
+    else
+    {
+        <div class="rr-field">
+            <label>Upload your resume (PDF, Word, or text · up to 15 MB)</label>
+            <InputFile OnChange="UploadResume" accept=".pdf,.doc,.docx,.txt,.md,.rtf" disabled="@_busy" />
+        </div>
+    }
+</div>
+
+<div class="rr-panel">
     <h2>Add a skill</h2>
     <div class="rr-grid-2">
         <div class="rr-field">
@@ -90,13 +117,79 @@
 
     private IEnumerable<string> Categories => _skills.Select(s => s.Category).Distinct().OrderBy(c => c);
 
+    private const long MaxResumeBytes = 15 * 1024 * 1024;
+    private string? _resumeName;
+    private long _resumeSize;
+    private DateTimeOffset? _resumeUploadedAt;
+
     protected override async Task OnInitializedAsync() => await Load();
 
     private async Task Load()
     {
         await using var db = await DbFactory.CreateDbContextAsync();
         _skills = await db.Skills.AsNoTracking().ToListAsync();
+        // Metadata only — never pull the blob just to render the page.
+        var resume = await db.OperatorDocuments.AsNoTracking()
+            .Where(d => d.Kind == OperatorDocument.ResumeKind)
+            .Select(d => new { d.FileName, d.SizeBytes, d.UploadedAt })
+            .FirstOrDefaultAsync();
+        _resumeName = resume?.FileName;
+        _resumeSize = resume?.SizeBytes ?? 0;
+        _resumeUploadedAt = resume?.UploadedAt;
     }
+
+    private async Task UploadResume(InputFileChangeEventArgs e)
+    {
+        _busy = true; _flash = null;
+        try
+        {
+            var file = e.File;
+            if (file.Size == 0) { _flash = "That file is empty."; _flashOk = false; return; }
+            if (file.Size > MaxResumeBytes) { _flash = "Resume is over 15 MB — export a smaller PDF."; _flashOk = false; return; }
+
+            await using var stream = file.OpenReadStream(MaxResumeBytes);
+            using var buffer = new MemoryStream();
+            await stream.CopyToAsync(buffer);
+
+            await using var db = await DbFactory.CreateDbContextAsync();
+            var doc = await db.OperatorDocuments
+                .FirstOrDefaultAsync(d => d.Kind == OperatorDocument.ResumeKind);
+            if (doc is null)
+            {
+                doc = new OperatorDocument { Kind = OperatorDocument.ResumeKind };
+                db.OperatorDocuments.Add(doc);
+            }
+            doc.FileName = file.Name;
+            doc.ContentType = string.IsNullOrWhiteSpace(file.ContentType) ? "application/octet-stream" : file.ContentType;
+            doc.SizeBytes = file.Size;
+            doc.Data = buffer.ToArray();
+            doc.UploadedAt = DateTimeOffset.UtcNow;
+            await db.SaveChangesAsync();
+            _flash = $"Resume saved: {file.Name}. Signup packs for resume-requiring platforms now link to it."; _flashOk = true;
+            await Load();
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+
+    private async Task RemoveResume()
+    {
+        _busy = true; _flash = null;
+        try
+        {
+            await using var db = await DbFactory.CreateDbContextAsync();
+            var doc = await db.OperatorDocuments
+                .FirstOrDefaultAsync(d => d.Kind == OperatorDocument.ResumeKind);
+            if (doc is not null) { db.OperatorDocuments.Remove(doc); await db.SaveChangesAsync(); }
+            _flash = "Resume removed."; _flashOk = true;
+            await Load();
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+
+    private static string FormatSize(long bytes) =>
+        bytes >= 1024 * 1024 ? $"{bytes / (1024.0 * 1024):0.#} MB" : $"{bytes / 1024.0:0.#} KB";
 
     private async Task Add()
     {

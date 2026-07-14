@@ -12,7 +12,7 @@ public class OperatorSettings
     public string ContactEmail { get; set; } = "derekdperez@gmail.com";
     public string RemoteAvailability { get; set; } = "Worldwide";
     public string CoreSkills { get; set; } = "ASP.NET Core, Blazor, IIS, SQL Server, Azure, APIs, production debugging";
-    public string SecondarySkills { get; set; } = "IIS, Windows Server, DNS, TLS, hosting, SQL performance tuning";
+    public string SecondarySkills { get; set; } = "Python, Node.js, React, Angular, PHP, Java, Go, mobile, WordPress, Shopify, Linux, cloud";
     public double MinimumFee { get; set; } = 100;
     public string PreferredPaymentTerms { get; set; } = "Due upon completion for bounded fixes";
     public bool EmergencyAvailability { get; set; } = true;
@@ -55,6 +55,16 @@ public class OperatorSettings
     // variants comparable across runs.
     public string PostOptimizationAiProvider { get; set; } = "Codex";
     public string PostOptimizationAiModel { get; set; } = DefaultCodexModel;
+    public string AdvisorAiProvider { get; set; } = "";
+    public string AdvisorAiModel { get; set; } = "";
+    public string PlatformDiscoveryAiProvider { get; set; } = "";
+    public string PlatformDiscoveryAiModel { get; set; } = "";
+    public string LinkedInEngagementAiProvider { get; set; } = "";
+    public string LinkedInEngagementAiModel { get; set; } = "";
+    // Profile review/rewrites default to the ChatGPT-backed codex CLI by request:
+    // profile copy wants the strongest writer, and the volume is tiny (operator-initiated).
+    public string LinkedInProfileAiProvider { get; set; } = "Codex";
+    public string LinkedInProfileAiModel { get; set; } = DefaultCodexModel;
 
     /// <summary>The provider/model pair a feature actually uses, after override resolution.</summary>
     public (string Provider, string Model) AiFor(AiFeature feature)
@@ -68,6 +78,10 @@ public class OperatorSettings
             AiFeature.PostDrafting => (PostDraftAiProvider, PostDraftAiModel),
             AiFeature.ThreadSummary => (ThreadSummaryAiProvider, ThreadSummaryAiModel),
             AiFeature.PostOptimization => (PostOptimizationAiProvider, PostOptimizationAiModel),
+            AiFeature.AdvisorBriefing => (AdvisorAiProvider, AdvisorAiModel),
+            AiFeature.PlatformDiscovery => (PlatformDiscoveryAiProvider, PlatformDiscoveryAiModel),
+            AiFeature.LinkedInEngagement => (LinkedInEngagementAiProvider, LinkedInEngagementAiModel),
+            AiFeature.LinkedInProfile => (LinkedInProfileAiProvider, LinkedInProfileAiModel),
             _ => ("", "")
         };
         var provider = string.IsNullOrWhiteSpace(p) ? AiProvider : p.Trim();
@@ -141,6 +155,29 @@ public class OperatorSettings
     /// read the account's inbox (DMs + replies) anonymously as JSON, without OAuth.
     /// </summary>
     public string RedditInboxFeedToken { get; set; } = "7ff9c88db61f73b0ddc5162ab49eb0acf3f79f42";
+
+    // LinkedIn OAuth + Community Management. The default scopes work with the
+    // self-serve Sign In and Share products. Add r_member_social only after LinkedIn
+    // grants that restricted permission; without it, posting works but comment sync does not.
+    public string LinkedInClientId { get; set; } = "";
+    public string LinkedInClientSecret { get; set; } = "";
+    public string LinkedInRedirectUri { get; set; } = "";
+    public string LinkedInScopes { get; set; } = "openid profile email w_member_social";
+    public string LinkedInApiVersion { get; set; } = "202606";
+    public string LinkedInAccessToken { get; set; } = "";
+    public DateTimeOffset? LinkedInAccessTokenExpiresAt { get; set; }
+    public string LinkedInRefreshToken { get; set; } = "";
+    public DateTimeOffset? LinkedInRefreshTokenExpiresAt { get; set; }
+    public string LinkedInMemberId { get; set; } = "";
+    public string LinkedInMemberName { get; set; } = "";
+    public string LinkedInMemberPictureUrl { get; set; } = "";
+    public string LinkedInOAuthState { get; set; } = "";
+    public DateTimeOffset? LinkedInOAuthStateExpiresAt { get; set; }
+
+    /// <summary>The AI's latest overall LinkedIn-profile assessment: strengths, gaps, and next improvements.</summary>
+    public string LinkedInProfileReview { get; set; } = "";
+    public DateTimeOffset? LinkedInProfileReviewAt { get; set; }
+
     public int StaleItemMaxAgeHours { get; set; } = 72;
     public int FollowUpDefaultHours { get; set; } = 24;
 }

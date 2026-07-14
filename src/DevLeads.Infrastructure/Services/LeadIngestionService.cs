@@ -95,8 +95,16 @@ public sealed class LeadIngestionService
 
         _db.RawSourceItems.Add(item);
 
-        var settings = await GetSettingsAsync(ct);
         var now = DateTimeOffset.UtcNow;
+        if (!LeadQualityRules.IsWithinAutomatedLeadAge(item.PostedAt, now))
+        {
+            // Keep dedup evidence, but do not spend an AI call or create a review row for
+            // a public post outside the default actionable window.
+            await _db.SaveChangesAsync(ct);
+            return null;
+        }
+
+        var settings = await GetSettingsAsync(ct);
 
         var opportunity = new Opportunity
         {
@@ -136,9 +144,9 @@ public sealed class LeadIngestionService
         // Step 2: single-pass AI triage + scoring + optional draft.
         await RunTriageScoreAndDraftAsync(opportunity, pre, settings, source, ct, precomputedTriage);
 
-        // Automated discovery keeps only payable leads. If triage decided this post is
-        // irrelevant, unpaid, or unsafe to contact, drop the lead row entirely — the raw
-        // item remains (detached) so dedup never re-ingests it.
+        // Automated discovery keeps only actionable paid or owner-networking leads. If
+        // triage decided this post is irrelevant, generic free advice, or unsafe to
+        // contact, drop the lead row — raw dedup evidence remains.
         if (opportunity.Status is OpportunityStatus.Rejected
             or OpportunityStatus.PreFilteredRejected
             or OpportunityStatus.DoNotContact)
@@ -361,9 +369,6 @@ public sealed class LeadIngestionService
         var matchText = $"{opp.Title}\n{body}\n{string.Join(' ', aiResult?.DetectedStack ?? new List<string>())}";
         var competitionText = $"{opp.Title}\n{body}";
         var skillMatches = skills.Count == 0 ? null : SkillMatcher.Match(matchText, skills);
-        var foreignStacks = skills.Count == 0
-            ? new List<string>()
-            : SkillMatcher.ForeignStackDemands(matchText, skills);
         var score = OpportunityScorer.Score(new ScoringInput
         {
             Ai = aiResult,
@@ -376,19 +381,17 @@ public sealed class LeadIngestionService
             SkillMatches = skillMatches,
             OfferedAmount = offered?.Max,
             ClaimedByOthers = LeadQualityRules.IsAlreadyClaimed(competitionText),
-            CompetingResponses = LeadQualityRules.CompetingResponseCount(competitionText),
-            ForeignStackDemands = foreignStacks
+            CompetingResponses = LeadQualityRules.CompetingResponseCount(competitionText)
         }, DateTimeOffset.UtcNow);
         ApplyScore(opp, score);
 
-        DecideStatusAndDraft(opp, aiResult, redFlag, settings, source, body, skillMatches, foreignStacks);
+        DecideStatusAndDraft(opp, aiResult, redFlag, settings, source, body);
         ApplyEnglishTranslationIfRetained(opp, aiResult);
         opp.UpdatedAt = DateTimeOffset.UtcNow;
     }
 
     private void DecideStatusAndDraft(Opportunity opp, AiTriageResult? ai, RedFlagResult redFlag,
-        OperatorSettings settings, SourceConfig? source, string body,
-        IReadOnlyList<SkillMatch>? skillMatches, IReadOnlyList<string> foreignStacks)
+        OperatorSettings settings, SourceConfig? source, string body)
     {
         if (redFlag.IsRedFlagged)
         {
@@ -399,18 +402,20 @@ public sealed class LeadIngestionService
             return;
         }
 
-        // Wrong stack: the post demands work in a stack outside the operator's profile
-        // and never touches the operator's own stack — unactionable regardless of pay.
-        // Manual entries are exempt (the operator chose to add them).
-        if (opp.SourceKey != "manual" && foreignStacks.Count > 0 &&
-            !(skillMatches is { } sm && SkillMatcher.HasStackIdentityMatch(sm)))
+        if (opp.SourceKey != "manual" &&
+            !LeadQualityRules.IsWithinAutomatedLeadAge(opp.PostedAt, DateTimeOffset.UtcNow))
         {
             opp.Status = OpportunityStatus.Rejected;
             opp.OutreachRecommendation = OutreachRecommendation.Ignore;
-            opp.RejectionReason = $"Requires {string.Join("/", foreignStacks.Take(4))} — outside the operator's stack.";
-            _audit.Record("Opportunity", opp.Id, "ForeignStackRejected", opp.RejectionReason);
+            opp.RejectionReason =
+                $"Posted more than {LeadQualityRules.MaxAutomatedLeadAgeDays} days ago.";
+            _audit.Record("Opportunity", opp.Id, "ExpiredLeadRejected", opp.RejectionReason);
             return;
         }
+
+        // Technology stack is deliberately not judged here (operator decision,
+        // 2026-07-13): the operator delivers across stacks, so fit is about pay,
+        // remoteness, and reliability — not the languages a post mentions.
 
         if (ai is null)
             return; // status already NeedsReview from the failure path
@@ -468,10 +473,24 @@ public sealed class LeadIngestionService
             rec is not OutreachRecommendation.DoNotContact and not OutreachRecommendation.Ignore &&
             opp.Score < source.MinOpportunityScore)
         {
-            opp.Status = OpportunityStatus.Rejected;
             opp.OutreachRecommendation = OutreachRecommendation.Ignore;
-            opp.RejectionReason = $"Below source opportunity threshold ({opp.Score:0.#} < {source.MinOpportunityScore:0.#}).";
-            _audit.Record("Opportunity", opp.Id, "SourceQualityRejected", opp.RejectionReason);
+            var ratio = source.MinOpportunityScore > 0
+                ? opp.Score / source.MinOpportunityScore
+                : 0;
+            if (ratio is >= 0.5 and < 1)
+            {
+                opp.Status = OpportunityStatus.JustMissed;
+                opp.RejectionReason =
+                    $"Reached {ratio:P0} of the source requirement ({opp.Score:0.#} / {source.MinOpportunityScore:0.#}).";
+                _audit.Record("Opportunity", opp.Id, "SourceQualityNearMiss", opp.RejectionReason);
+            }
+            else
+            {
+                opp.Status = OpportunityStatus.Rejected;
+                opp.RejectionReason =
+                    $"Below source opportunity threshold ({opp.Score:0.#} < {source.MinOpportunityScore:0.#}).";
+                _audit.Record("Opportunity", opp.Id, "SourceQualityRejected", opp.RejectionReason);
+            }
             return;
         }
 

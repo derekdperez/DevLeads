@@ -3,6 +3,7 @@
 @inject IDbContextFactory<DevLeadsDbContext> DbFactory
 @inject IServiceScopeFactory ScopeFactory
 @inject IJSRuntime JS
+@inject NavigationManager Nav
 <PageTitle>Lead · DevLeads</PageTitle>
 
 @if (_opp is null)
@@ -36,6 +37,7 @@ else
         <button class="rr-btn" @onclick="() => Status(OpportunityStatus.Contacted)">✅ Mark contacted</button>
         <button class="rr-btn" @onclick="() => Status(OpportunityStatus.Responded)">💬 Mark responded</button>
         <button class="rr-btn good" @onclick="() => Status(OpportunityStatus.Won)">🏆 Won</button>
+        <button class="rr-btn" title="Create a client + engagement from this lead (relationship tracking on the Clients page)" @onclick="PromoteToClient" disabled="@_busy">🤝 Promote to client</button>
         <button class="rr-btn danger" @onclick="() => Status(OpportunityStatus.Lost)">✖ Lost</button>
         @if (_opp.Status == OpportunityStatus.Archived)
         {
@@ -100,12 +102,12 @@ else
             <div class="rr-panel">
                 <h2>Score breakdown</h2>
                 <div class="rr-bars">
-                    @Bar("Urgency (25%)", _opp.UrgencyScore)
-                    @Bar("Stack fit (20%)", _opp.StackFitScore)
-                    @Bar("Business value (20%)", _opp.BusinessValueScore)
+                    @Bar("Urgency (20%)", _opp.UrgencyScore)
+                    @Bar("Known-stack familiarity (5%)", _opp.StackFitScore)
+                    @Bar("Business value (30%)", _opp.BusinessValueScore)
                     @Bar("Reachability (15%)", _opp.ReachabilityScore)
-                    @Bar("Competition (10%)", _opp.CompetitionScore)
-                    @Bar("Trust (10%)", _opp.TrustScore)
+                    @Bar("Competition (15%)", _opp.CompetitionScore)
+                    @Bar("Trust (15%)", _opp.TrustScore)
                     @if (_opp.LanguagePenalty > 0)
                     {
                         <div class="rr-sub">Language adjustment: −@_opp.LanguagePenalty.ToString("0.#") points</div>
@@ -341,6 +343,21 @@ else
         audit.Record("Opportunity", Id, "StatusChange", $"Status → {status}", "operator");
         await db.SaveChangesAsync();
     }, "Status updated.");
+
+    private async Task PromoteToClient()
+    {
+        _busy = true; _flash = null;
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var (client, _, message) = await scope.ServiceProvider.GetRequiredService<ClientService>()
+                .PromoteOpportunityAsync(Id, default);
+            if (client is not null) { Nav.NavigateTo($"/clients/{client.Id}"); return; }
+            _flash = message; _flashOk = false;
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
 
     private Task GenerateDraft() => RunScoped(sp =>
         sp.GetRequiredService<OutreachService>().GenerateDraftAsync(Id, _templateKey, default), "Draft generated.");

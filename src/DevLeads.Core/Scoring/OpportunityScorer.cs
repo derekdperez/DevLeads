@@ -45,11 +45,6 @@ public sealed class ScoringInput
     /// <summary>Others already engaging with the post (issue comments, thread participants).</summary>
     public int CompetingResponses { get; set; }
 
-    /// <summary>
-    /// Primary-stack demands outside the operator's profile (Go, Python, Java…) found in
-    /// the post — see <see cref="SkillMatcher.ForeignStackDemands"/>.
-    /// </summary>
-    public IReadOnlyList<string> ForeignStackDemands { get; set; } = Array.Empty<string>();
 }
 
 /// <summary>
@@ -58,8 +53,11 @@ public sealed class ScoringInput
 /// </summary>
 public static class OpportunityScorer
 {
-    // Weights from the design document.
-    private const double WUrgency = 0.25, WStack = 0.20, WBusiness = 0.20, WReach = 0.15, WCompetition = 0.10, WTrust = 0.10;
+    // Technology familiarity is deliberately a light preference. Engagement quality —
+    // urgency, commercial value, reachability, competition, and trust — drives 95% of
+    // the score because the operator can deliver across stacks.
+    private const double WUrgency = 0.20, WStack = 0.05, WBusiness = 0.30,
+        WReach = 0.15, WCompetition = 0.15, WTrust = 0.15;
     public const double NonEnglishPenalty = 8;
 
     private static readonly string[] PreferredStack =
@@ -122,20 +120,11 @@ public static class OpportunityScorer
         if (!HasPaySignal(input))
             b.Total = Math.Min(b.Total, 52);
 
-        // The operator is a pure-stack consultant: a lead that never matches a single
-        // stack-identity skill (C#/.NET/SQL Server/Azure…) may be payable work, but it is
-        // someone else's work — keep it visible for manual review, capped below Medium.
-        if (input.SkillMatches is not null && !SkillMatcher.HasStackIdentityMatch(input.SkillMatches))
-            b.Total = Math.Min(b.Total, 50);
-
-        // Wrong stack is a hard gate: a post demanding a stack outside the profile
-        // (Go/Python/Java job posts…) that never touches the operator's own stack is not
-        // actionable no matter how strong its pay intent — the operator can't do the work.
-        // "Touches the own stack" means a real identity match (C#, .NET, SQL Server…),
-        // not a transferable capability phrase like "REST API" that every job post contains.
-        if (input.ForeignStackDemands.Count > 0 &&
-            !(input.SkillMatches is { } fm && SkillMatcher.HasStackIdentityMatch(fm)))
-            b.Total = Math.Min(b.Total, 35);
+        // Technology stack is deliberately NOT a disqualifier (operator decision,
+        // 2026-07-13): the operator is a senior generalist who delivers across stacks
+        // (Python/Node/React/PHP…), so stack preference lives only in the StackFit
+        // ranking component. The disqualifiers are the engagement's substance: no pay
+        // signal, claimed/completed work, heavy competition, red flags.
 
         // Someone else already owns the work (assigned issue, PR being merged): the
         // opportunity is effectively missed — keep it around as a Watch-tier record at
@@ -229,25 +218,19 @@ public static class OpportunityScorer
 
     private static double StackFit(ScoringInput i)
     {
-        // The operator's configurable skill profile wins over the built-in stack lists.
+        // Stack fit is a small ranking preference, never a gate: core-stack work scores
+        // highest, but the operator delivers across stacks, so an off-profile stack
+        // still earns a strong generalist baseline instead of a penalty.
         if (i.SkillMatches is not null)
-        {
-            var fit = SkillMatcher.FitScore(i.SkillMatches);
-            // Every distinct foreign-stack demand dilutes the fit; without a stack-identity
-            // match the post is fundamentally someone else's work.
-            fit -= Math.Min(i.ForeignStackDemands.Count, 3) * 15;
-            if (i.ForeignStackDemands.Count > 0 && !SkillMatcher.HasStackIdentityMatch(i.SkillMatches))
-                fit = Math.Min(fit, 25);
-            return Math.Clamp(fit, 0, 100);
-        }
+            return Math.Clamp(Math.Max(SkillMatcher.FitScore(i.SkillMatches), 70), 0, 100);
 
         var stack = i.Ai?.DetectedStack ?? new List<string>();
         var joined = string.Join(' ', stack).ToLowerInvariant();
         if (PreferredStack.Any(joined.Contains)) return 95;
-        if (StrongStack.Any(joined.Contains)) return 78;
-        if (MediumHighStack.Any(joined.Contains)) return 65;
-        if (MediumStack.Any(joined.Contains)) return 50;
-        return stack.Count > 0 ? 45 : 35; // unknown stack -> depends on clarity
+        if (StrongStack.Any(joined.Contains)) return 85;
+        if (MediumHighStack.Any(joined.Contains)) return 78;
+        if (MediumStack.Any(joined.Contains)) return 75;
+        return stack.Count > 0 ? 70 : 65; // any stack is workable; clarity helps
     }
 
     /// <summary>Sources where every item is a business explicitly offering to pay (job posts, hiring subs).</summary>
