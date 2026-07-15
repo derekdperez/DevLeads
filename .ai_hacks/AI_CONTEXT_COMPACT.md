@@ -1,6 +1,6 @@
 # DevLeads AI Project Context
 
-> Generated; do not hand-edit. Schema 2, source digest `603941f9ad6afe4c6c94b51d5974f4d0a185f7aac036cf2134df6660510f7780`.
+> Generated; do not hand-edit. Schema 2, source digest `ee104b54792f0db9691bbb5caf4d6ade04e4af31cb7f0a09bad170c1cb2313a6`.
 > Regenerate with `python3 ai_hacks.py`; verify freshness with `python3 ai_hacks.py --check`.
 
 ## How to use this map
@@ -152,7 +152,7 @@ Hourly cleanup rejects stale or non-hirable leads, marks overdue quotes, and opp
 ## Type hierarchy
 
 - `BackgroundService` → `ContentTrendWorker`, `DiscoveryWorker`
-- `ComponentBase` → `ActivityFeed`, `App`, `CampaignSwitcher`, `Campaigns`, `ClientDetail`, `Clients`, `Content`, `Drafts`, `Error`, `Home`, `LinkedIn`, `MyPosts`, `NavMenu`, `NewOpportunity`, `NotFound`, `Opportunities`, `OpportunityDetail`, `PlatformPresencePanel`, `PostPerformanceChart`, `Quotes`, `ReconnectModal`, `Routes`, `Settings`, `SiteRescue`, `SkillProfile`, `Sources`, `Today`, `_Imports`
+- `ComponentBase` → `ActivityFeed`, `App`, `CampaignSwitcher`, `Campaigns`, `ClientDetail`, `Clients`, `Content`, `Discord`, `Drafts`, `Error`, `Home`, `LinkedIn`, `MyPosts`, `NavMenu`, `NewOpportunity`, `NotFound`, `Opportunities`, `OpportunityDetail`, `PlatformPresencePanel`, `PostPerformanceChart`, `Quotes`, `ReconnectModal`, `Routes`, `Settings`, `SiteRescue`, `SkillProfile`, `Sources`, `Today`, `_Imports`
 - `DbContext` → `DevLeadsDbContext`
 - `IAiBatchShortlistProvider` → `CodexCliProvider`, `OpenCodeTriageProvider`
 - `IAiBatchTriageProvider` → `CodexCliProvider`, `OpenCodeTriageProvider`
@@ -172,6 +172,7 @@ Hourly cleanup rejects stale or non-hirable leads, marks overdue quotes, and opp
 - `/clients` → `Clients` — Blazor component for clients.
 - `/clients/{Id:long}` → `ClientDetail` — Blazor component for client detail.
 - `/content` → `Content` — Trend signals, suggested topics, and publishable draft management.
+- `/discord` → `Discord` — Blazor component for discord.
 - `/drafts` → `Drafts` — Outreach generation and human approval queues.
 - `/Error` → `Error` — Unhandled-error page.
 - `/linkedin` → `LinkedIn` — Blazor component for linked in.
@@ -189,9 +190,9 @@ Hourly cleanup rejects stale or non-hirable leads, marks overdue quotes, and opp
 
 ## HTTP, DI, and data
 
-- HTTP endpoint groups: `/api/advisor` (2), `/api/campaigns` (1), `/api/clients` (2), `/api/content` (6), `/api/documents` (3), `/api/linkedin` (14), `/api/myposts` (12), `/api/opportunities` (17), `/api/outreach` (4), `/api/platforms` (4), `/api/quotes` (3), `/api/sources` (4), `/api/system` (1), `/api/webscan` (7), `/favicon.ico` (1).
+- HTTP endpoint groups: `/api/advisor` (2), `/api/campaigns` (1), `/api/clients` (2), `/api/content` (6), `/api/discord` (10), `/api/documents` (3), `/api/linkedin` (14), `/api/myposts` (12), `/api/opportunities` (17), `/api/outreach` (4), `/api/platforms` (4), `/api/quotes` (3), `/api/sources` (4), `/api/system` (1), `/api/webscan` (7), `/favicon.ico` (1).
 - Hosted workers: `DiscoveryWorker`, `ContentTrendWorker`.
-- EF DbSets: `AdvisorBriefings`, `AiTriageRuns`, `AuditEvents`, `Campaigns`, `ClientInteractions`, `Clients`, `ContentDrafts`, `ContentTopics`, `EngagementDrafts`, `Engagements`, `FollowUps`, `LinkedInActions`, `LinkedInProfileFields`, `OperatorDocuments`, `OperatorMessages`, `OperatorPostRevisions`, `OperatorPostSnapshots`, `OperatorPosts`, `OperatorSettings`, `Opportunities`, `OutreachAttempts`, `PlatformProfiles`, `QueryPacks`, `Quotes`, `RawSourceItems`, `Skills`, `SourceConfigs`, `SuppressionEntries`, `TrendSignals`, `TrendSources`, `WebAssetFindings`, `WebScanProbes`, `WorkSessions`.
+- EF DbSets: `AdvisorBriefings`, `AiTriageRuns`, `AuditEvents`, `Campaigns`, `ClientInteractions`, `Clients`, `ContentDrafts`, `ContentTopics`, `DiscordChannels`, `EngagementDrafts`, `Engagements`, `FollowUps`, `LinkedInActions`, `LinkedInProfileFields`, `OperatorDocuments`, `OperatorMessages`, `OperatorPostRevisions`, `OperatorPostSnapshots`, `OperatorPosts`, `OperatorSettings`, `Opportunities`, `OutreachAttempts`, `PlatformProfiles`, `QueryPacks`, `Quotes`, `RawSourceItems`, `Skills`, `SourceConfigs`, `SuppressionEntries`, `TrendSignals`, `TrendSources`, `WebAssetFindings`, `WebScanProbes`, `WorkSessions`.
 - Complete endpoint, registration, and relationship tables: `ROUTES_AND_DI.md`.
 
 
@@ -214,6 +215,10 @@ Every source-authored type and callable name is present. Full signatures and dat
   - private `FormatSpec` — Transforms or resolves spec. _(inferred)_
   - public `ParseEvidence` — Transforms or resolves evidence. _(inferred)_
   - private `Compact` — Transforms or resolves compact. _(inferred)_
+- **`DiscordPrompts`** — Grounded batched reply generation for Discord: replies to the operator's tracked posts, mentions in monitored channels, and pasted DMs. (`src/DevLeads.Core/Ai/DiscordPrompts.cs:12`)
+  - public `BuildEngagementBatchPrompt` — Creates engagement batch prompt. _(inferred)_
+  - private `Compact` — Transforms or resolves compact. _(inferred)_
+- **`EngagementItem`** — Represents engagement item. _(inferred)_ (`src/DevLeads.Core/Ai/DiscordPrompts.cs:14`)
 - **`AiTriageRequest`** — Input to the single-pass triage call. (`src/DevLeads.Core/Ai/IAiTriageProvider.cs:6`)
 - **`AiTriageResponse`** — Outcome of a triage call, including provider metadata for the audit trail. (`src/DevLeads.Core/Ai/IAiTriageProvider.cs:23`)
 - **`AiShortlistItem`** — Compact candidate shown to an AI provider before spending a full triage call. (`src/DevLeads.Core/Ai/IAiTriageProvider.cs:36`)
@@ -265,6 +270,7 @@ Every source-authored type and callable name is present. Full signatures and dat
 - **`ClientInteraction`** — One logged touch with a client — a DM, email, call, or public reply, in either direction. (`src/DevLeads.Core/Entities/ClientInteraction.cs:7`)
 - **`ContentDraft`** — A generated piece of publishable content (blog post, article, white paper, research paper, or LinkedIn post) for the operator to edit and post on… (`src/DevLeads.Core/Entities/ContentDraft.cs:7`)
 - **`ContentTopic`** — An AI-suggested publishing topic distilled from trend signals: what to write about, the specific angle, and why an audience would care right now. (`src/DevLeads.Core/Entities/ContentTopic.cs:7`)
+- **`DiscordChannel`** — One Discord text channel the operator's bot can see. Channels are discovered from the servers the bot was invited to (never from the operator's… (`src/DevLeads.Core/Entities/DiscordChannel.cs:9`)
 - **`Engagement`** — One bounded piece of work for a client: a fix, a project, or a retainer. Tracks the commercial state (status, fee) and delivery expectations (due… (`src/DevLeads.Core/Entities/Engagement.cs:8`)
 - **`EngagementDraft`** — A human-reviewed response draft for activity on one of the operator's LinkedIn posts. (`src/DevLeads.Core/Entities/EngagementDraft.cs:9`)
 - **`FollowUp`** — A dated reminder to touch a client or push an engagement forward. Due/overdue follow-ups are the backbone of the Today page's "needs your attention"… (`src/DevLeads.Core/Entities/FollowUp.cs:7`)
@@ -560,7 +566,7 @@ Every source-authored type and callable name is present. Full signatures and dat
 - **`DevLeadsDbContext : DbContext`** — EF Core context for the SQLite solo database. (`src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:9`)
   - protected `ConfigureConventions` — Handles configure conventions. _(inferred)_
   - protected `OnModelCreating` — Handles on model creating. _(inferred)_
-- **`DateTimeOffsetToTicksConverter : ValueConverter<DateTimeOffset, long>`** — Represents date time offset to ticks converter. _(inferred)_ (`src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:49`)
+- **`DateTimeOffsetToTicksConverter : ValueConverter<DateTimeOffset, long>`** — Represents date time offset to ticks converter. _(inferred)_ (`src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:50`)
 - **`DependencyInjection`** — Represents dependency injection. _(inferred)_ (`src/DevLeads.Infrastructure/DependencyInjection.cs:17`)
   - public `AddDevLeads` — Registers the database, connectors, AI providers, domain services, and worker.
   - public `InitializeDevLeadsAsync` — Creates the database schema and seeds default settings, query packs, and sources.
@@ -592,6 +598,26 @@ Every source-authored type and callable name is present. Full signatures and dat
   - private `GetSettingsAsync` — Loads or resolves settings. _(inferred)_
 - **`TopicOutput`** — Represents topic output. _(inferred)_ (`src/DevLeads.Infrastructure/Services/ContentStudioService.cs:199`)
 - **`TopicSuggestion`** — Represents topic suggestion. _(inferred)_ (`src/DevLeads.Infrastructure/Services/ContentStudioService.cs:204`)
+- **`DiscordService`** — Discord bot integration: posting the operator's ads/offers to channels the bot was invited to, monitoring those channels for replies and mentions… (`src/DevLeads.Infrastructure/Services/DiscordService.cs:24`)
+  - public `GetStatusAsync` — Verifies the bot token against /users/@me and caches the bot identity.
+  - public `SyncChannelsAsync` — Refreshes the channel catalog from every server the bot is a member of.
+  - public `PublishPostAsync` — Publishes one Draft operator post to its selected Discord channel.
+  - public `PublishDueAsync` — Publishes every due Discord draft; one failure does not block later rows.
+  - public `TrackMessageAsync` — Starts tracking a message the operator posted with their own account (in a server the bot…
+  - public `SyncEngagementAsync` — Polls monitored channels for new messages: replies to tracked posts and mentions of the…
+  - private `RefreshReactionsAsync` — Refreshes reaction counts (tracked as upvotes) on the stalest active posts.
+  - public `GenerateEngagementBatchAsync` — Syncs what is available, then drafts all undrafted pending responses in one AI call.
+  - public `CreateManualEngagementAsync` — Adds a pasted DM (received on the operator's own account) for drafting.
+  - public `PublishEngagementAsync` — Publishes a reviewed reply into the channel, quoting the original message.
+  - private `SendMessageAsync` — Handles message. _(inferred)_
+  - private `BotRequest` — Handles bot request. _(inferred)_
+  - private `GetSettingsAsync` — Loads or resolves settings. _(inferred)_
+  - private `ParseReplies` — Transforms or resolves replies. _(inferred)_
+  - private `TryJson` — Handles try json. _(inferred)_
+  - private `GetString` — Loads or resolves string. _(inferred)_
+  - private `GetInt64` — Loads or resolves int64. _(inferred)_
+  - private `ApiError` — Handles api error. _(inferred)_
+- **`BotStatus`** — Represents bot status. _(inferred)_ (`src/DevLeads.Infrastructure/Services/DiscordService.cs:54`)
 - **`DiscoveryActivityTracker`** — In-memory, app-wide record of what discovery is doing right now: which sources are mid-fetch and a rolling feed of recent events (runs, new leads… (`src/DevLeads.Infrastructure/Services/DiscoveryActivityTracker.cs:8`)
   - public `RunStarted` — Coordinates started. _(inferred)_
   - public `RunCompleted` — Coordinates completed. _(inferred)_
@@ -789,10 +815,10 @@ Every source-authored type and callable name is present. Full signatures and dat
   - public `MapDevLeadsApi` — Transforms or resolves dev leads api. _(inferred)_
   - private `MapLinkedInActionStatus` — Transforms or resolves linked in action status. _(inferred)_
   - private `MapStatusAction` — Transforms or resolves status action. _(inferred)_
-- **`ManualLeadDto`** — Transfers manual lead data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:479`)
-- **`DraftDto`** — Transfers draft data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:480`)
-- **`QuoteDto`** — Transfers quote data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:481`)
-- **`WebScanRunDto`** — Transfers web scan run data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:482`)
+- **`ManualLeadDto`** — Transfers manual lead data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:530`)
+- **`DraftDto`** — Transfers draft data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:531`)
+- **`QuoteDto`** — Transfers quote data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:532`)
+- **`WebScanRunDto`** — Transfers web scan run data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:533`)
 - **`AppRestartService`** — Full-process restart so the app picks up the latest code. Spawns a detached supervisor script that waits for this process to exit, rebuilds the… (`src/DevLeads.Web/AppRestartService.cs:12`)
   - public `Restart` — Schedules the restart. Returns an error message, or null when underway.
 - **`App : ComponentBase`** — Blazor component for app. (`src/DevLeads.Web/Components/App.razor:1`)
@@ -844,6 +870,19 @@ Every source-authored type and callable name is present. Full signatures and dat
   - private `DraftChip` — Handles draft chip. _(inferred)_
   - private `FormatLabel` — Transforms or resolves label. _(inferred)_
   - private `Shorten` — Handles shorten. _(inferred)_
+- **`Discord : ComponentBase`** — Blazor component for discord. (`src/DevLeads.Web/Components/Pages/Discord.razor:1`)
+  - private `SyncEngagement` — Handles sync engagement. _(inferred)_
+  - private `GenerateEngagement` — Creates engagement. _(inferred)_
+  - private `AddManualEngagement` — Creates manual engagement. _(inferred)_
+  - private `Run` — Coordinates run. _(inferred)_
+  - private `SaveEngagement` — Updates engagement. _(inferred)_
+  - private `SaveEngagementDirect` — Updates engagement direct. _(inferred)_
+  - private `PublishEngagement` — Handles publish engagement. _(inferred)_
+  - private `DismissEngagement` — Removes or transitions engagement. _(inferred)_
+  - private `Copy` — Handles copy. _(inferred)_
+  - private `KindLabel` — Handles kind label. _(inferred)_
+  - private `ScheduleValue` — Handles schedule value. _(inferred)_
+  - private `SetSchedule` — Updates schedule. _(inferred)_
 - **`Drafts : ComponentBase`** — Outreach generation and human approval queues. (`src/DevLeads.Web/Components/Pages/Drafts.razor:1`)
 - **`Error : ComponentBase`** — Unhandled-error page. (`src/DevLeads.Web/Components/Pages/Error.razor:1`)
 - **`Home : ComponentBase`** — Campaign-scoped dashboard with lead KPIs, activity, and top opportunities. (`src/DevLeads.Web/Components/Pages/Home.razor:1`)
@@ -1011,7 +1050,7 @@ Every source-authored type and callable name is present. Full signatures and dat
 
 ## Completeness
 
-- 205 source-authored C# types and Razor components.
-- 626 source-authored callable members.
-- 19 Blazor page routes; 81 HTTP endpoints; 33 EF DbSets.
-- Full indexed source: 1,112,368 characters (~278,092 tokens).
+- 211 source-authored C# types and Razor components.
+- 659 source-authored callable members.
+- 20 Blazor page routes; 91 HTTP endpoints; 34 EF DbSets.
+- Full indexed source: 1,187,614 characters (~296,904 tokens).

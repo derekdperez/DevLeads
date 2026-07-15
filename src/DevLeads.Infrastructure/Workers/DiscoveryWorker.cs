@@ -21,6 +21,7 @@ public sealed class DiscoveryWorker : BackgroundService
     private DateTimeOffset _lastInboxSync = DateTimeOffset.MinValue;
     private DateTime _lastBriefingDay = DateTime.MinValue;
     private DateTimeOffset _lastLinkedInPublish = DateTimeOffset.MinValue;
+    private DateTimeOffset _lastDiscordSync = DateTimeOffset.MinValue;
 
     public DiscoveryWorker(IServiceScopeFactory scopeFactory, ILogger<DiscoveryWorker> log)
     {
@@ -62,6 +63,25 @@ public sealed class DiscoveryWorker : BackgroundService
                 .GetRequiredService<LinkedInService>().PublishDueAsync(ct);
             if (published + failed > 0)
                 _log.LogInformation("LinkedIn scheduler: {Message}", message);
+        }
+
+        // Discord: scheduled bot posts publish on the same per-minute cadence, and
+        // monitored channels are polled for replies/mentions every 30 minutes (a
+        // handful of paced bot requests — chat moves fast but not that fast).
+        if (!string.IsNullOrWhiteSpace(settings.DiscordBotToken))
+        {
+            var discord = scope.ServiceProvider.GetRequiredService<DiscordService>();
+            var (discordPublished, discordFailed, discordMessage) = await discord.PublishDueAsync(ct);
+            if (discordPublished + discordFailed > 0)
+                _log.LogInformation("Discord scheduler: {Message}", discordMessage);
+
+            if (now - _lastDiscordSync > TimeSpan.FromMinutes(30))
+            {
+                _lastDiscordSync = now;
+                var (imported, checkedChannels, syncMessage) = await discord.SyncEngagementAsync(ct);
+                if (imported > 0 || checkedChannels > 0)
+                    _log.LogInformation("Discord sync: {Message}", syncMessage);
+            }
         }
 
         if (!settings.DiscoveryEnabled) return;

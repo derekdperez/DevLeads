@@ -1,9 +1,9 @@
 {
   "coverage": {
-    "authored_descriptions": 355,
-    "callables": 626,
-    "source_characters": 1112368,
-    "types": 205
+    "authored_descriptions": 369,
+    "callables": 659,
+    "source_characters": 1187614,
+    "types": 211
   },
   "dbsets": [
     {
@@ -61,6 +61,13 @@
       "file": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
       "line": 28,
       "property_name": "ContentTopics"
+    },
+    {
+      "context": "DevLeadsDbContext",
+      "entity": "DiscordChannel",
+      "file": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
+      "line": 46,
+      "property_name": "DiscordChannels"
     },
     {
       "context": "DevLeadsDbContext",
@@ -493,23 +500,30 @@
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
-      "implementation": "WebRescueService",
+      "implementation": "DiscordService",
       "lifetime": "Scoped",
       "line": 93,
+      "service": "DiscordService"
+    },
+    {
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "implementation": "WebRescueService",
+      "lifetime": "Scoped",
+      "line": 94,
       "service": "WebRescueService"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "DiscoveryWorker",
       "lifetime": "HostedService",
-      "line": 96,
+      "line": 97,
       "service": "IHostedService"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "ContentTrendWorker",
       "lifetime": "HostedService",
-      "line": 97,
+      "line": 98,
       "service": "IHostedService"
     },
     {
@@ -607,6 +621,86 @@
       "line": 141,
       "owner": "MapDevLeadsApi",
       "route": "/api/content/topics/{id:long}/drafts",
+      "verb": "POST"
+    },
+    {
+      "description": "Reads channels.",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 400,
+      "owner": "MapDevLeadsApi",
+      "route": "/api/discord/channels",
+      "verb": "GET"
+    },
+    {
+      "description": "Runs the sync action.",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 403,
+      "owner": "MapDevLeadsApi",
+      "route": "/api/discord/channels/sync",
+      "verb": "POST"
+    },
+    {
+      "description": "Runs the monitor action.",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 408,
+      "owner": "MapDevLeadsApi",
+      "route": "/api/discord/channels/{id:long}/monitor",
+      "verb": "POST"
+    },
+    {
+      "description": "Runs the generate action.",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 437,
+      "owner": "MapDevLeadsApi",
+      "route": "/api/discord/engagement/generate",
+      "verb": "POST"
+    },
+    {
+      "description": "Runs the sync action.",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 432,
+      "owner": "MapDevLeadsApi",
+      "route": "/api/discord/engagement/sync",
+      "verb": "POST"
+    },
+    {
+      "description": "Runs the publish action.",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 442,
+      "owner": "MapDevLeadsApi",
+      "route": "/api/discord/engagement/{id:long}/publish",
+      "verb": "POST"
+    },
+    {
+      "description": "Runs the publish due action.",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 422,
+      "owner": "MapDevLeadsApi",
+      "route": "/api/discord/publish-due",
+      "verb": "POST"
+    },
+    {
+      "description": "Runs the id action.",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 417,
+      "owner": "MapDevLeadsApi",
+      "route": "/api/discord/publish/{id:long}",
+      "verb": "POST"
+    },
+    {
+      "description": "Reads status.",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 398,
+      "owner": "MapDevLeadsApi",
+      "route": "/api/discord/status",
+      "verb": "GET"
+    },
+    {
+      "description": "Runs the track action.",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 427,
+      "owner": "MapDevLeadsApi",
+      "route": "/api/discord/track",
       "verb": "POST"
     },
     {
@@ -1100,7 +1194,7 @@
     {
       "description": "Runs the restart action.",
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "line": 441,
+      "line": 492,
       "owner": "MapDevLeadsApi",
       "route": "/api/system/restart",
       "verb": "POST"
@@ -1108,7 +1202,7 @@
     {
       "description": "Reads findings.",
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "line": 400,
+      "line": 451,
       "owner": "MapDevLeadsApi",
       "route": "/api/webscan/findings",
       "verb": "GET"
@@ -1116,7 +1210,7 @@
     {
       "description": "Runs the recheck action.",
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "line": 418,
+      "line": 469,
       "owner": "MapDevLeadsApi",
       "route": "/api/webscan/findings/{id:long}/recheck",
       "verb": "POST"
@@ -1124,7 +1218,7 @@
     {
       "description": "Runs the refresh contact action.",
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "line": 423,
+      "line": 474,
       "owner": "MapDevLeadsApi",
       "route": "/api/webscan/findings/{id:long}/refresh-contact",
       "verb": "POST"
@@ -1132,7 +1226,7 @@
     {
       "description": "Runs the status action.",
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "line": 428,
+      "line": 479,
       "owner": "MapDevLeadsApi",
       "route": "/api/webscan/findings/{id:long}/status/{status}",
       "verb": "POST"
@@ -1140,7 +1234,7 @@
     {
       "description": "Runs the generate action.",
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "line": 413,
+      "line": 464,
       "owner": "MapDevLeadsApi",
       "route": "/api/webscan/generate",
       "verb": "POST"
@@ -1148,7 +1242,7 @@
     {
       "description": "Reads probes.",
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "line": 398,
+      "line": 449,
       "owner": "MapDevLeadsApi",
       "route": "/api/webscan/probes",
       "verb": "GET"
@@ -1156,7 +1250,7 @@
     {
       "description": "Runs the scan action.",
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "line": 407,
+      "line": 458,
       "owner": "MapDevLeadsApi",
       "route": "/api/webscan/scan",
       "verb": "POST"
@@ -1194,6 +1288,12 @@
       "lines": 138,
       "path": "src/DevLeads.Core/Ai/ContentPrompts.cs",
       "sha256": "bcf15f59a69318917a087f10e13e74fe94778fcb7dfc9ff79de7990290dea6a3"
+    },
+    {
+      "bytes": 3255,
+      "lines": 54,
+      "path": "src/DevLeads.Core/Ai/DiscordPrompts.cs",
+      "sha256": "01bf5854c6c440588a12b0136d0ab6fb0f017f775420daacde38f0bf98b29253"
     },
     {
       "bytes": 4817,
@@ -1298,6 +1398,12 @@
       "sha256": "5a27e8656543794e109d1f8d8071713da69cb444e4964e763a9c6ddef4c11bf5"
     },
     {
+      "bytes": 1708,
+      "lines": 40,
+      "path": "src/DevLeads.Core/Entities/DiscordChannel.cs",
+      "sha256": "d9ca3a9520874255a077c6339291ba2fa6a443d20d3ce9083237410a39297305"
+    },
+    {
       "bytes": 1331,
       "lines": 38,
       "path": "src/DevLeads.Core/Entities/Engagement.cs",
@@ -1340,10 +1446,10 @@
       "sha256": "6581c782070fe27a3dfefabf75d3af1448533e3f3bb249f7934ec4bdab7371cb"
     },
     {
-      "bytes": 2860,
-      "lines": 69,
+      "bytes": 3022,
+      "lines": 72,
       "path": "src/DevLeads.Core/Entities/OperatorPost.cs",
-      "sha256": "0291872338b2de7e70cf79ae62384a4911299f63b269777455e9fc8254dd73af"
+      "sha256": "325ca559a35e678b7f70b506cc08afddc42466ed0b7337545ad6fef8c3302b1c"
     },
     {
       "bytes": 2268,
@@ -1358,10 +1464,10 @@
       "sha256": "b5d3ee860628138acba339d26c905f94835ba5af9b1ed76cf580ab47805d2741"
     },
     {
-      "bytes": 11525,
-      "lines": 204,
+      "bytes": 12787,
+      "lines": 226,
       "path": "src/DevLeads.Core/Entities/OperatorSettings.cs",
-      "sha256": "f4a0b412317146ac25d0df73ccff0282871fb9a6a28d84b0d2d30380b4e86244"
+      "sha256": "11f0d7ccca9f3bcf9d47b5e0b1d68241cc1e072c7eebf504da489fbe32317c42"
     },
     {
       "bytes": 3895,
@@ -1454,10 +1560,10 @@
       "sha256": "cafd601fcbedfe590e0b335c768fceda21c620451185a672c2963314ffa75b00"
     },
     {
-      "bytes": 9759,
-      "lines": 372,
+      "bytes": 9879,
+      "lines": 374,
       "path": "src/DevLeads.Core/Enums.cs",
-      "sha256": "1fa7e5a8ed554e9eec12e601ccc25b2621d47b1fe4a928af7eb074769f186c3a"
+      "sha256": "d3d35e7baa70d1cee414faae01a36930598b3589038a0867030e2d2f84840a60"
     },
     {
       "bytes": 13736,
@@ -1658,22 +1764,22 @@
       "sha256": "5ff5c65f2e37e4ba4f200d5b500990f4b2fc4048bcd266db3acb88672913ead9"
     },
     {
-      "bytes": 97464,
-      "lines": 1685,
+      "bytes": 99246,
+      "lines": 1712,
       "path": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
-      "sha256": "a9987313c6c539592782b544fce049f7d779f1dd3477a6adf6d236da6e6d4a4b"
+      "sha256": "3104517ceada84c9326ca85bb55ed3851a48928a623b864fc617f2d1b1d27ef6"
     },
     {
-      "bytes": 9941,
-      "lines": 191,
+      "bytes": 10091,
+      "lines": 193,
       "path": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
-      "sha256": "271d05abd1fc51d62a637aabede80a3522a453b96ca4375aa58e8948c8dc497a"
+      "sha256": "3a6c3022f40e99c61e626ff7532e87921f7788dea98af44ef1ecd49adf36ded7"
     },
     {
-      "bytes": 5644,
-      "lines": 110,
+      "bytes": 5690,
+      "lines": 111,
       "path": "src/DevLeads.Infrastructure/DependencyInjection.cs",
-      "sha256": "572d19dbb8b3efcab6d78e429c4ddcffc04b17e88a7e31c580f1c47e6c259bf7"
+      "sha256": "004c4d648c42b514a988dbf46d09b032e6d4b710f8157aa7d29ffb3facf6c1bf"
     },
     {
       "bytes": 667,
@@ -1710,6 +1816,12 @@
       "lines": 215,
       "path": "src/DevLeads.Infrastructure/Services/ContentStudioService.cs",
       "sha256": "979acfe259fcdf96a8f0db2007ab6179b778e5da2c9556c06d90c5aab0be3b49"
+    },
+    {
+      "bytes": 33371,
+      "lines": 646,
+      "path": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+      "sha256": "1924e8d01d9073fc18ff22e7d32df9b25a823ad963a53774f17cc0e0453383cb"
     },
     {
       "bytes": 2029,
@@ -1784,16 +1896,16 @@
       "sha256": "41301e6723fa4879d2ac4e1a36ad3b4a29b00ff3a8f409daded5862ace4528f4"
     },
     {
-      "bytes": 7658,
-      "lines": 154,
+      "bytes": 8767,
+      "lines": 174,
       "path": "src/DevLeads.Infrastructure/Workers/DiscoveryWorker.cs",
-      "sha256": "0afb0e2a60495453db0cad03e99b3df919fd51eb8f32aae85e63ee8448ae2335"
+      "sha256": "e3b2dfd72186a8d137e62bc8180fdaaf553e0fbc0caa710bcfd78954afff5c76"
     },
     {
-      "bytes": 28223,
-      "lines": 484,
+      "bytes": 31118,
+      "lines": 535,
       "path": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "sha256": "828ec9ce7bb830f2690e9e3a16057ac0038eb7580fa9f3cfec44c3f94540586f"
+      "sha256": "3f08e485760b801178163314e53912bc9054270eda28ed0b8182aae4a20ba449"
     },
     {
       "bytes": 4129,
@@ -1814,10 +1926,10 @@
       "sha256": "4166643119d6d25c4c568f56da872f3bf537ed8a35b0bac2a269026fa294c272"
     },
     {
-      "bytes": 1841,
-      "lines": 34,
+      "bytes": 1929,
+      "lines": 35,
       "path": "src/DevLeads.Web/Components/Layout/NavMenu.razor",
-      "sha256": "97597a67927cfbb1fc2d125e9c7bf5a9fdff01b94597f5db1602a860331d1b63"
+      "sha256": "18cf7b5cc1d95a835a0bfdd70c799e65dc0dc8cec91d96e87cd613296c5981ac"
     },
     {
       "bytes": 1341,
@@ -1854,6 +1966,12 @@
       "lines": 285,
       "path": "src/DevLeads.Web/Components/Pages/Content.razor",
       "sha256": "ad9eb78021fa8a30fa2240a3ae8fd899f6de7cabe85381fafe60440df9ee6bb1"
+    },
+    {
+      "bytes": 28854,
+      "lines": 537,
+      "path": "src/DevLeads.Web/Components/Pages/Discord.razor",
+      "sha256": "145845deef08d97ef5c654debd415e5c35234c368fac04fcf36dd2def3e45c5d"
     },
     {
       "bytes": 6766,
@@ -1916,10 +2034,10 @@
       "sha256": "f561bbd49eabc411e0b8e12b12418fc19afb34a537726127d8db717a7aa08af5"
     },
     {
-      "bytes": 20221,
-      "lines": 380,
+      "bytes": 20665,
+      "lines": 385,
       "path": "src/DevLeads.Web/Components/Pages/Settings.razor",
-      "sha256": "8c80c799ba297419e284e9d7b0d68d4e2d6043d2ee5ffc02811020c597d30e37"
+      "sha256": "f1c78310e9295526d33d0600bd63a340ddec144be6a5ef4b2d47aab4c8bfbb83"
     },
     {
       "bytes": 20442,
@@ -2501,6 +2619,22 @@
       "route": "/content"
     },
     {
+      "component": "Discord",
+      "description": "Blazor component for discord.",
+      "file": "src/DevLeads.Web/Components/Pages/Discord.razor",
+      "implements": [],
+      "inherits": "ComponentBase",
+      "injects": [
+        "IDbContextFactory<DevLeadsDbContext>",
+        "IServiceScopeFactory",
+        "IJSRuntime"
+      ],
+      "javascript": [],
+      "line": 1,
+      "parameters": [],
+      "route": "/discord"
+    },
+    {
       "component": "Drafts",
       "description": "Outreach generation and human approval queues.",
       "file": "src/DevLeads.Web/Components/Pages/Drafts.razor",
@@ -2921,7 +3055,7 @@
   "solutions": [
     "DevLeads.slnx"
   ],
-  "source_digest": "603941f9ad6afe4c6c94b51d5974f4d0a185f7aac036cf2134df6660510f7780",
+  "source_digest": "ee104b54792f0db9691bbb5caf4d6ade04e4af31cb7f0a09bad170c1cb2313a6",
   "types": [
     {
       "access": "public",
@@ -3175,6 +3309,99 @@
       "namespace": "DevLeads.Core.Ai",
       "primaryConstructorParameters": [],
       "summary": "Prompts for the content studio: topic suggestion and long-form draft generation.",
+      "typeParameters": []
+    },
+    {
+      "access": "public",
+      "baseTypes": [],
+      "bases": [],
+      "constructors": [],
+      "description": "Grounded batched reply generation for Discord: replies to the operator's tracked posts, mentions in monitored channels, and pasted DMs.",
+      "descriptionSource": "xml-summary",
+      "file": "src/DevLeads.Core/Ai/DiscordPrompts.cs",
+      "fullName": "DevLeads.Core.Ai.DiscordPrompts",
+      "kind": "class",
+      "line": 12,
+      "members": [
+        {
+          "access": "public",
+          "description": "Creates engagement batch prompt.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Ai/DiscordPrompts.cs",
+          "kind": "method",
+          "line": 18,
+          "modifiers": [
+            "public",
+            "static"
+          ],
+          "name": "BuildEngagementBatchPrompt",
+          "parameters": [
+            "OperatorSettings op",
+            "string operatorSkills",
+            "IReadOnlyList<EngagementItem> items",
+            "string extraInstructions"
+          ],
+          "returnType": "string",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Transforms or resolves compact.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Ai/DiscordPrompts.cs",
+          "kind": "method",
+          "line": 48,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "Compact",
+          "parameters": [
+            "string value",
+            "int max"
+          ],
+          "returnType": "string",
+          "typeParameters": []
+        }
+      ],
+      "modifiers": [
+        "public",
+        "static"
+      ],
+      "name": "DiscordPrompts",
+      "namespace": "DevLeads.Core.Ai",
+      "primaryConstructorParameters": [],
+      "summary": "Grounded batched reply generation for Discord: replies to the operator's tracked posts, mentions in monitored channels, and pasted DMs. Discord is a community first \u2014 the replies must build the operator's reputation (helpful senior engineer), never hard-sell, so a good answer today becomes a client tomorrow.",
+      "typeParameters": []
+    },
+    {
+      "access": "public",
+      "baseTypes": [],
+      "bases": [],
+      "constructors": [],
+      "containingType": "DiscordPrompts",
+      "description": "Represents engagement item.",
+      "descriptionSource": "heuristic",
+      "file": "src/DevLeads.Core/Ai/DiscordPrompts.cs",
+      "fullName": "DevLeads.Core.Ai.DiscordPrompts.EngagementItem",
+      "kind": "record class",
+      "line": 14,
+      "members": [],
+      "modifiers": [
+        "public",
+        "sealed"
+      ],
+      "name": "EngagementItem",
+      "namespace": "DevLeads.Core.Ai",
+      "primaryConstructorParameters": [
+        "long Id",
+        "EngagementDraftKind Kind",
+        "string Author",
+        "string SourceText",
+        "string PostTitle",
+        "string PostBody",
+        "string Community"
+      ],
       "typeParameters": []
     },
     {
@@ -7254,6 +7481,238 @@
       "baseTypes": [],
       "bases": [],
       "constructors": [],
+      "description": "One Discord text channel the operator's bot can see. Channels are discovered from the servers the bot was invited to (never from the operator's personal account \u2014 Discord bans user-account automation).",
+      "descriptionSource": "xml-summary",
+      "file": "src/DevLeads.Core/Entities/DiscordChannel.cs",
+      "fullName": "DevLeads.Core.Entities.DiscordChannel",
+      "kind": "class",
+      "line": 9,
+      "members": [
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles id.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/DiscordChannel.cs",
+          "kind": "property",
+          "line": 11,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Id",
+          "type": "long"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Discord snowflake id of the server (guild).",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/DiscordChannel.cs",
+          "kind": "property",
+          "line": 14,
+          "modifiers": [
+            "public"
+          ],
+          "name": "GuildId",
+          "summary": "Discord snowflake id of the server (guild).",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles guild name.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/DiscordChannel.cs",
+          "kind": "property",
+          "line": 15,
+          "modifiers": [
+            "public"
+          ],
+          "name": "GuildName",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Discord snowflake id of the channel \u2014 the API identity everything keys on.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/DiscordChannel.cs",
+          "kind": "property",
+          "line": 18,
+          "modifiers": [
+            "public"
+          ],
+          "name": "ChannelId",
+          "summary": "Discord snowflake id of the channel \u2014 the API identity everything keys on.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles channel name.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/DiscordChannel.cs",
+          "kind": "property",
+          "line": 19,
+          "modifiers": [
+            "public"
+          ],
+          "name": "ChannelName",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "When true, engagement sync polls this channel for replies and mentions.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/DiscordChannel.cs",
+          "kind": "property",
+          "line": 22,
+          "modifiers": [
+            "public"
+          ],
+          "name": "MonitorEnabled",
+          "summary": "When true, engagement sync polls this channel for replies and mentions.",
+          "type": "bool"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Newest message snowflake already processed, so each sync fetches only what came after it. Empty until the first sync (which seeds the cursor from recent history).",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/DiscordChannel.cs",
+          "kind": "property",
+          "line": 28,
+          "modifiers": [
+            "public"
+          ],
+          "name": "LastSyncedMessageId",
+          "summary": "Newest message snowflake already processed, so each sync fetches only what came after it. Empty until the first sync (which seeds the cursor from recent history).",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles last synced at.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/DiscordChannel.cs",
+          "kind": "property",
+          "line": 29,
+          "modifiers": [
+            "public"
+          ],
+          "name": "LastSyncedAt",
+          "type": "DateTimeOffset?"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Operator notes: channel rules, whether promos are allowed, cadence\u2026",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/DiscordChannel.cs",
+          "kind": "property",
+          "line": 32,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Notes",
+          "summary": "Operator notes: channel rules, whether promos are allowed, cadence\u2026",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Channel rows the latest server sync no longer saw (bot kicked, channel gone).",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/DiscordChannel.cs",
+          "kind": "property",
+          "line": 35,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Stale",
+          "summary": "Channel rows the latest server sync no longer saw (bot kicked, channel gone).",
+          "type": "bool"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Creates d at.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/DiscordChannel.cs",
+          "kind": "property",
+          "line": 37,
+          "modifiers": [
+            "public"
+          ],
+          "name": "CreatedAt",
+          "type": "DateTimeOffset"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Updates d at.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/DiscordChannel.cs",
+          "kind": "property",
+          "line": 38,
+          "modifiers": [
+            "public"
+          ],
+          "name": "UpdatedAt",
+          "type": "DateTimeOffset"
+        }
+      ],
+      "modifiers": [
+        "public"
+      ],
+      "name": "DiscordChannel",
+      "namespace": "DevLeads.Core.Entities",
+      "primaryConstructorParameters": [],
+      "summary": "One Discord text channel the operator's bot can see. Channels are discovered from the servers the bot was invited to (never from the operator's personal account \u2014 Discord bans user-account automation). Monitored channels are polled for replies to the operator's tracked posts and for mentions; posting targets one of these channels.",
+      "typeParameters": []
+    },
+    {
+      "access": "public",
+      "baseTypes": [],
+      "bases": [],
+      "constructors": [],
       "description": "One bounded piece of work for a client: a fix, a project, or a retainer. Tracks the commercial state (status, fee) and delivery expectations (due date, next deliverable) so the Today page can surface deadlines before\u2026",
       "descriptionSource": "xml-summary",
       "file": "src/DevLeads.Core/Entities/Engagement.cs",
@@ -9307,7 +9766,7 @@
             "get",
             "set"
           ],
-          "description": "Requested publish time for an approved LinkedIn draft. The worker publishes only Draft rows whose schedule is due; null means no automatic publishing.",
+          "description": "Requested publish time for an approved LinkedIn/Discord draft. The worker publishes only Draft rows whose schedule is due; null means no automatic publishing.",
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Entities/OperatorPost.cs",
           "kind": "property",
@@ -9316,8 +9775,26 @@
             "public"
           ],
           "name": "ScheduledAt",
-          "summary": "Requested publish time for an approved LinkedIn draft. The worker publishes only Draft rows whose schedule is due; null means no automatic publishing.",
+          "summary": "Requested publish time for an approved LinkedIn/Discord draft. The worker publishes only Draft rows whose schedule is due; null means no automatic publishing.",
           "type": "DateTimeOffset?"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Discord channel snowflake this draft posts to (discord platform only).",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/OperatorPost.cs",
+          "kind": "property",
+          "line": 64,
+          "modifiers": [
+            "public"
+          ],
+          "name": "DiscordChannelId",
+          "summary": "Discord channel snowflake this draft posts to (discord platform only).",
+          "type": "string"
         },
         {
           "access": "public",
@@ -9329,7 +9806,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorPost.cs",
           "kind": "property",
-          "line": 63,
+          "line": 66,
           "modifiers": [
             "public"
           ],
@@ -9346,7 +9823,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorPost.cs",
           "kind": "property",
-          "line": 64,
+          "line": 67,
           "modifiers": [
             "public"
           ],
@@ -9363,7 +9840,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorPost.cs",
           "kind": "property",
-          "line": 65,
+          "line": 68,
           "modifiers": [
             "public"
           ],
@@ -9380,7 +9857,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorPost.cs",
           "kind": "property",
-          "line": 67,
+          "line": 70,
           "modifiers": [
             "public"
           ],
@@ -10645,11 +11122,45 @@
         },
         {
           "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles discord engagement ai provider.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+          "kind": "property",
+          "line": 70,
+          "modifiers": [
+            "public"
+          ],
+          "name": "DiscordEngagementAiProvider",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles discord engagement ai model.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+          "kind": "property",
+          "line": 71,
+          "modifiers": [
+            "public"
+          ],
+          "name": "DiscordEngagementAiModel",
+          "type": "string"
+        },
+        {
+          "access": "public",
           "description": "The provider/model pair a feature actually uses, after override resolution.",
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "method",
-          "line": 72,
+          "line": 74,
           "modifiers": [
             "public"
           ],
@@ -10667,7 +11178,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "method",
-          "line": 100,
+          "line": 103,
           "modifiers": [
             "public"
           ],
@@ -10685,7 +11196,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "method",
-          "line": 109,
+          "line": 112,
           "modifiers": [
             "public",
             "static"
@@ -10707,7 +11218,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 113,
+          "line": 116,
           "modifiers": [
             "public"
           ],
@@ -10724,7 +11235,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 114,
+          "line": 117,
           "modifiers": [
             "public"
           ],
@@ -10741,7 +11252,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 115,
+          "line": 118,
           "modifiers": [
             "public"
           ],
@@ -10758,7 +11269,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 116,
+          "line": 119,
           "modifiers": [
             "public"
           ],
@@ -10775,7 +11286,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 117,
+          "line": 120,
           "modifiers": [
             "public"
           ],
@@ -10792,7 +11303,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 118,
+          "line": 121,
           "modifiers": [
             "public"
           ],
@@ -10809,7 +11320,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 119,
+          "line": 122,
           "modifiers": [
             "public"
           ],
@@ -10826,7 +11337,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 120,
+          "line": 123,
           "modifiers": [
             "public"
           ],
@@ -10843,7 +11354,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 123,
+          "line": 126,
           "modifiers": [
             "public"
           ],
@@ -10860,7 +11371,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 124,
+          "line": 127,
           "modifiers": [
             "public"
           ],
@@ -10877,7 +11388,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 125,
+          "line": 128,
           "modifiers": [
             "public"
           ],
@@ -10894,7 +11405,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 126,
+          "line": 129,
           "modifiers": [
             "public"
           ],
@@ -10911,7 +11422,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 127,
+          "line": 130,
           "modifiers": [
             "public"
           ],
@@ -10928,7 +11439,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 128,
+          "line": 131,
           "modifiers": [
             "public"
           ],
@@ -10945,7 +11456,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 129,
+          "line": 132,
           "modifiers": [
             "public"
           ],
@@ -10962,7 +11473,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 130,
+          "line": 133,
           "modifiers": [
             "public"
           ],
@@ -10979,7 +11490,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 131,
+          "line": 134,
           "modifiers": [
             "public"
           ],
@@ -10996,7 +11507,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 134,
+          "line": 137,
           "modifiers": [
             "public"
           ],
@@ -11013,7 +11524,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 135,
+          "line": 138,
           "modifiers": [
             "public"
           ],
@@ -11030,7 +11541,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 138,
+          "line": 141,
           "modifiers": [
             "public"
           ],
@@ -11048,7 +11559,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 141,
+          "line": 144,
           "modifiers": [
             "public"
           ],
@@ -11065,7 +11576,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 144,
+          "line": 147,
           "modifiers": [
             "public"
           ],
@@ -11083,7 +11594,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 147,
+          "line": 150,
           "modifiers": [
             "public"
           ],
@@ -11101,7 +11612,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 152,
+          "line": 155,
           "modifiers": [
             "public"
           ],
@@ -11118,7 +11629,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 153,
+          "line": 156,
           "modifiers": [
             "public"
           ],
@@ -11135,7 +11646,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 154,
+          "line": 157,
           "modifiers": [
             "public"
           ],
@@ -11152,7 +11663,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 160,
+          "line": 163,
           "modifiers": [
             "public"
           ],
@@ -11170,7 +11681,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 165,
+          "line": 168,
           "modifiers": [
             "public"
           ],
@@ -11187,7 +11698,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 166,
+          "line": 169,
           "modifiers": [
             "public"
           ],
@@ -11204,7 +11715,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 167,
+          "line": 170,
           "modifiers": [
             "public"
           ],
@@ -11221,7 +11732,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 168,
+          "line": 171,
           "modifiers": [
             "public"
           ],
@@ -11238,7 +11749,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 169,
+          "line": 172,
           "modifiers": [
             "public"
           ],
@@ -11255,7 +11766,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 170,
+          "line": 173,
           "modifiers": [
             "public"
           ],
@@ -11272,7 +11783,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 171,
+          "line": 174,
           "modifiers": [
             "public"
           ],
@@ -11289,7 +11800,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 172,
+          "line": 175,
           "modifiers": [
             "public"
           ],
@@ -11306,7 +11817,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 173,
+          "line": 176,
           "modifiers": [
             "public"
           ],
@@ -11323,7 +11834,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 174,
+          "line": 177,
           "modifiers": [
             "public"
           ],
@@ -11340,7 +11851,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 175,
+          "line": 178,
           "modifiers": [
             "public"
           ],
@@ -11357,7 +11868,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 176,
+          "line": 179,
           "modifiers": [
             "public"
           ],
@@ -11374,7 +11885,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 177,
+          "line": 180,
           "modifiers": [
             "public"
           ],
@@ -11391,7 +11902,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 178,
+          "line": 181,
           "modifiers": [
             "public"
           ],
@@ -11408,7 +11919,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 181,
+          "line": 184,
           "modifiers": [
             "public"
           ],
@@ -11426,7 +11937,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 182,
+          "line": 185,
           "modifiers": [
             "public"
           ],
@@ -11443,7 +11954,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 189,
+          "line": 192,
           "modifiers": [
             "public"
           ],
@@ -11457,11 +11968,100 @@
             "get",
             "set"
           ],
+          "description": "Bot token from the Discord Developer Portal (Bot \u2192 Token).",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+          "kind": "property",
+          "line": 198,
+          "modifiers": [
+            "public"
+          ],
+          "name": "DiscordBotToken",
+          "summary": "Bot token from the Discord Developer Portal (Bot \u2192 Token).",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Application id from the Developer Portal \u2014 used to build the server invite URL.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+          "kind": "property",
+          "line": 201,
+          "modifiers": [
+            "public"
+          ],
+          "name": "DiscordApplicationId",
+          "summary": "Application id from the Developer Portal \u2014 used to build the server invite URL.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Bot user id/name, cached after the token is verified.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+          "kind": "property",
+          "line": 204,
+          "modifiers": [
+            "public"
+          ],
+          "name": "DiscordBotUserId",
+          "summary": "Bot user id/name, cached after the token is verified.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles discord bot name.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+          "kind": "property",
+          "line": 205,
+          "modifiers": [
+            "public"
+          ],
+          "name": "DiscordBotName",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "The operator's OWN Discord user id (optional). When set, mentions of the operator in monitored channels are captured, and messages they post themselves are skipped.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+          "kind": "property",
+          "line": 211,
+          "modifiers": [
+            "public"
+          ],
+          "name": "DiscordUserId",
+          "summary": "The operator's OWN Discord user id (optional). When set, mentions of the operator in monitored channels are captured, and messages they post themselves are skipped.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
           "description": "Search endpoint used by Site rescue discovery mode to find unknown broken sites from a probe's queries.",
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 196,
+          "line": 218,
           "modifiers": [
             "public"
           ],
@@ -11479,7 +12079,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 199,
+          "line": 221,
           "modifiers": [
             "public"
           ],
@@ -11497,7 +12097,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 201,
+          "line": 223,
           "modifiers": [
             "public"
           ],
@@ -11514,7 +12114,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 202,
+          "line": 224,
           "modifiers": [
             "public"
           ],
@@ -18318,6 +18918,17 @@
           "modifiers": [],
           "name": "WebAssetOutreach",
           "summary": "Batched repair-offer email drafting for discovered broken web assets (Site rescue)."
+        },
+        {
+          "access": "public",
+          "description": "Batched Discord reply drafting for replies, mentions, and pasted DMs.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Enums.cs",
+          "kind": "enumValue",
+          "line": 372,
+          "modifiers": [],
+          "name": "DiscordEngagement",
+          "summary": "Batched Discord reply drafting for replies, mentions, and pasted DMs."
         }
       ],
       "modifiers": [
@@ -25110,7 +25721,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 629,
+          "line": 656,
           "modifiers": [
             "private",
             "static",
@@ -25131,7 +25742,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 678,
+          "line": 705,
           "modifiers": [
             "private",
             "static",
@@ -25152,7 +25763,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 694,
+          "line": 721,
           "modifiers": [
             "private",
             "static",
@@ -25173,7 +25784,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "field",
-          "line": 711,
+          "line": 738,
           "modifiers": [
             "private",
             "static",
@@ -25189,7 +25800,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 723,
+          "line": 750,
           "modifiers": [
             "private",
             "static",
@@ -25209,7 +25820,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 757,
+          "line": 784,
           "modifiers": [
             "private",
             "static",
@@ -25230,7 +25841,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "constant",
-          "line": 767,
+          "line": 794,
           "modifiers": [
             "public",
             "const"
@@ -25244,7 +25855,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "constant",
-          "line": 768,
+          "line": 795,
           "modifiers": [
             "public",
             "const"
@@ -25258,7 +25869,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "constant",
-          "line": 769,
+          "line": 796,
           "modifiers": [
             "public",
             "const"
@@ -25272,7 +25883,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "constant",
-          "line": 770,
+          "line": 797,
           "modifiers": [
             "public",
             "const"
@@ -25286,7 +25897,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 776,
+          "line": 803,
           "modifiers": [
             "private",
             "static",
@@ -25307,7 +25918,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 853,
+          "line": 880,
           "modifiers": [
             "private",
             "static",
@@ -25328,7 +25939,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 899,
+          "line": 926,
           "modifiers": [
             "private",
             "static",
@@ -25350,7 +25961,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 913,
+          "line": 940,
           "modifiers": [
             "private",
             "static"
@@ -25369,7 +25980,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 928,
+          "line": 955,
           "modifiers": [
             "private",
             "static"
@@ -25387,7 +25998,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 938,
+          "line": 965,
           "modifiers": [
             "private",
             "static"
@@ -25406,7 +26017,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 949,
+          "line": 976,
           "modifiers": [
             "private",
             "static"
@@ -25425,7 +26036,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 956,
+          "line": 983,
           "modifiers": [
             "private",
             "static"
@@ -25444,7 +26055,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 972,
+          "line": 999,
           "modifiers": [
             "private",
             "static"
@@ -25462,7 +26073,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 981,
+          "line": 1008,
           "modifiers": [
             "private",
             "static"
@@ -25482,7 +26093,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1011,
+          "line": 1038,
           "modifiers": [
             "private",
             "static"
@@ -25501,7 +26112,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1056,
+          "line": 1083,
           "modifiers": [
             "private",
             "static"
@@ -25521,7 +26132,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1080,
+          "line": 1107,
           "modifiers": [
             "private",
             "static"
@@ -25538,7 +26149,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1290,
+          "line": 1317,
           "modifiers": [
             "private",
             "static"
@@ -25555,7 +26166,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1337,
+          "line": 1364,
           "modifiers": [
             "private",
             "static"
@@ -25572,7 +26183,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1405,
+          "line": 1432,
           "modifiers": [
             "private",
             "static",
@@ -25593,7 +26204,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1455,
+          "line": 1482,
           "modifiers": [
             "private",
             "static",
@@ -25614,7 +26225,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1502,
+          "line": 1529,
           "modifiers": [
             "private",
             "static"
@@ -25635,7 +26246,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1512,
+          "line": 1539,
           "modifiers": [
             "private",
             "static",
@@ -25656,7 +26267,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1531,
+          "line": 1558,
           "modifiers": [
             "private",
             "static",
@@ -25677,7 +26288,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "field",
-          "line": 1546,
+          "line": 1573,
           "modifiers": [
             "private",
             "static",
@@ -25693,7 +26304,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1560,
+          "line": 1587,
           "modifiers": [
             "private",
             "static",
@@ -25714,7 +26325,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1586,
+          "line": 1613,
           "modifiers": [
             "private",
             "static",
@@ -25735,7 +26346,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1604,
+          "line": 1631,
           "modifiers": [
             "private",
             "static",
@@ -25756,7 +26367,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1631,
+          "line": 1658,
           "modifiers": [
             "private",
             "static",
@@ -25776,7 +26387,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1662,
+          "line": 1689,
           "modifiers": [
             "private",
             "static",
@@ -25797,7 +26408,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1673,
+          "line": 1700,
           "modifiers": [
             "private",
             "static",
@@ -26385,12 +26996,28 @@
           "type": "DbSet<WebAssetFinding>"
         },
         {
+          "access": "public",
+          "accessors": [
+            "get"
+          ],
+          "description": "Handles discord channels.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
+          "kind": "property",
+          "line": 46,
+          "modifiers": [
+            "public"
+          ],
+          "name": "DiscordChannels",
+          "type": "DbSet<DiscordChannel>"
+        },
+        {
           "access": "protected",
           "description": "Handles configure conventions.",
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
           "kind": "method",
-          "line": 55,
+          "line": 56,
           "modifiers": [
             "protected",
             "override"
@@ -26408,7 +27035,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
           "kind": "method",
-          "line": 91,
+          "line": 92,
           "modifiers": [
             "protected",
             "override"
@@ -26445,7 +27072,7 @@
       "file": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
       "fullName": "DevLeads.Infrastructure.Data.DevLeadsDbContext.DateTimeOffsetToTicksConverter",
       "kind": "class",
-      "line": 49,
+      "line": 50,
       "members": [
         {
           "access": "public",
@@ -26453,7 +27080,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
           "kind": "constructor",
-          "line": 51,
+          "line": 52,
           "modifiers": [
             "public"
           ],
@@ -26509,7 +27136,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
           "kind": "method",
-          "line": 103,
+          "line": 104,
           "modifiers": [
             "public",
             "static",
@@ -27577,6 +28204,564 @@
       "name": "TopicSuggestion",
       "namespace": "DevLeads.Infrastructure.Services",
       "primaryConstructorParameters": [],
+      "typeParameters": []
+    },
+    {
+      "access": "public",
+      "baseTypes": [],
+      "bases": [],
+      "constructors": [],
+      "description": "Discord bot integration: posting the operator's ads/offers to channels the bot was invited to, monitoring those channels for replies and mentions, tracking engagement over time (snapshots feed the My-posts charts), and\u2026",
+      "descriptionSource": "xml-summary",
+      "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+      "fullName": "DevLeads.Infrastructure.Services.DiscordService",
+      "kind": "class",
+      "line": 24,
+      "members": [
+        {
+          "access": "private",
+          "description": "Handles api root.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "constant",
+          "line": 26,
+          "modifiers": [
+            "private",
+            "const"
+          ],
+          "name": "ApiRoot",
+          "type": "string"
+        },
+        {
+          "access": "private",
+          "description": "View Channels + Send Messages + Read Message History.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "constant",
+          "line": 29,
+          "modifiers": [
+            "private",
+            "const"
+          ],
+          "name": "InvitePermissions",
+          "summary": "View Channels + Send Messages + Read Message History.",
+          "type": "long"
+        },
+        {
+          "access": "public",
+          "description": "Discord rejects message content over 2000 characters.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "constant",
+          "line": 32,
+          "modifiers": [
+            "public",
+            "const"
+          ],
+          "name": "MaxMessageLength",
+          "summary": "Discord rejects message content over 2000 characters.",
+          "type": "int"
+        },
+        {
+          "access": "private",
+          "description": "Handles request pacing.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "field",
+          "line": 36,
+          "modifiers": [
+            "private",
+            "static",
+            "readonly"
+          ],
+          "name": "RequestPacing",
+          "type": "TimeSpan"
+        },
+        {
+          "access": "private",
+          "description": "Handles db.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "field",
+          "line": 38,
+          "modifiers": [
+            "private",
+            "readonly"
+          ],
+          "name": "_db",
+          "type": "DevLeadsDbContext"
+        },
+        {
+          "access": "private",
+          "description": "Handles http factory.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "field",
+          "line": 39,
+          "modifiers": [
+            "private",
+            "readonly"
+          ],
+          "name": "_httpFactory",
+          "type": "IHttpClientFactory"
+        },
+        {
+          "access": "private",
+          "description": "Handles text.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "field",
+          "line": 40,
+          "modifiers": [
+            "private",
+            "readonly"
+          ],
+          "name": "_text",
+          "type": "AiTextRouter"
+        },
+        {
+          "access": "private",
+          "description": "Handles audit.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "field",
+          "line": 41,
+          "modifiers": [
+            "private",
+            "readonly"
+          ],
+          "name": "_audit",
+          "type": "AuditService"
+        },
+        {
+          "access": "private",
+          "description": "Handles log.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "field",
+          "line": 42,
+          "modifiers": [
+            "private",
+            "readonly"
+          ],
+          "name": "_log",
+          "type": "ILogger<DiscordService>"
+        },
+        {
+          "access": "public",
+          "description": "Creates DiscordService with its required dependencies.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "constructor",
+          "line": 44,
+          "modifiers": [
+            "public"
+          ],
+          "name": "DiscordService",
+          "parameters": [
+            "DevLeadsDbContext db",
+            "IHttpClientFactory httpFactory",
+            "AiTextRouter text",
+            "AuditService audit",
+            "ILogger<DiscordService> log"
+          ],
+          "typeParameters": []
+        },
+        {
+          "access": "public",
+          "description": "Verifies the bot token against /users/@me and caches the bot identity.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "method",
+          "line": 59,
+          "modifiers": [
+            "public",
+            "async"
+          ],
+          "name": "GetStatusAsync",
+          "parameters": [
+            "CancellationToken ct"
+          ],
+          "returnType": "Task<BotStatus>",
+          "summary": "Verifies the bot token against /users/@me and caches the bot identity.",
+          "typeParameters": []
+        },
+        {
+          "access": "public",
+          "description": "Refreshes the channel catalog from every server the bot is a member of.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "method",
+          "line": 91,
+          "modifiers": [
+            "public",
+            "async"
+          ],
+          "name": "SyncChannelsAsync",
+          "parameters": [
+            "CancellationToken ct"
+          ],
+          "returnType": "Task<(int Guilds, int Channels, string Message)>",
+          "summary": "Refreshes the channel catalog from every server the bot is a member of.",
+          "typeParameters": []
+        },
+        {
+          "access": "public",
+          "description": "Publishes one Draft operator post to its selected Discord channel.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "method",
+          "line": 161,
+          "modifiers": [
+            "public",
+            "async"
+          ],
+          "name": "PublishPostAsync",
+          "parameters": [
+            "long postId",
+            "CancellationToken ct"
+          ],
+          "returnType": "Task<(bool Succeeded, string Message)>",
+          "summary": "Publishes one Draft operator post to its selected Discord channel.",
+          "typeParameters": []
+        },
+        {
+          "access": "public",
+          "description": "Publishes every due Discord draft; one failure does not block later rows.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "method",
+          "line": 202,
+          "modifiers": [
+            "public",
+            "async"
+          ],
+          "name": "PublishDueAsync",
+          "parameters": [
+            "CancellationToken ct"
+          ],
+          "returnType": "Task<(int Published, int Failed, string Message)>",
+          "summary": "Publishes every due Discord draft; one failure does not block later rows.",
+          "typeParameters": []
+        },
+        {
+          "access": "public",
+          "description": "Starts tracking a message the operator posted with their own account (in a server the bot can read) from its pasted message link.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "method",
+          "line": 228,
+          "modifiers": [
+            "public",
+            "async"
+          ],
+          "name": "TrackMessageAsync",
+          "parameters": [
+            "string messageLink",
+            "CancellationToken ct"
+          ],
+          "returnType": "Task<(bool Succeeded, string Message)>",
+          "summary": "Starts tracking a message the operator posted with their own account (in a server the bot can read) from its pasted message link.",
+          "typeParameters": []
+        },
+        {
+          "access": "public",
+          "description": "Polls monitored channels for new messages: replies to tracked posts and mentions of the bot/operator become PendingReview engagement drafts, tracked posts' reply and reaction\u2026",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "method",
+          "line": 280,
+          "modifiers": [
+            "public",
+            "async"
+          ],
+          "name": "SyncEngagementAsync",
+          "parameters": [
+            "CancellationToken ct"
+          ],
+          "returnType": "Task<(int Imported, int CheckedChannels, string Message)>",
+          "summary": "Polls monitored channels for new messages: replies to tracked posts and mentions of the bot/operator become PendingReview engagement drafts, tracked posts' reply and reaction counts are refreshed, and changed counts are snapshotted for the charts. Bot DMs are not polled (REST bots can't enumerate DM channels); DMs received on the operator's personal account are pasted manually, as everywhere else in the app.",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Refreshes reaction counts (tracked as upvotes) on the stalest active posts.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "method",
+          "line": 408,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "RefreshReactionsAsync",
+          "parameters": [
+            "OperatorSettings s",
+            "HttpClient http",
+            "List<OperatorPost> tracked",
+            "CancellationToken ct"
+          ],
+          "returnType": "Task<int>",
+          "summary": "Refreshes reaction counts (tracked as upvotes) on the stalest active posts.",
+          "typeParameters": []
+        },
+        {
+          "access": "public",
+          "description": "Syncs what is available, then drafts all undrafted pending responses in one AI call.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "method",
+          "line": 459,
+          "modifiers": [
+            "public",
+            "async"
+          ],
+          "name": "GenerateEngagementBatchAsync",
+          "parameters": [
+            "string extraInstructions",
+            "CancellationToken ct"
+          ],
+          "returnType": "Task<(int Generated, string Message)>",
+          "summary": "Syncs what is available, then drafts all undrafted pending responses in one AI call.",
+          "typeParameters": []
+        },
+        {
+          "access": "public",
+          "description": "Adds a pasted DM (received on the operator's own account) for drafting.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "method",
+          "line": 507,
+          "modifiers": [
+            "public",
+            "async"
+          ],
+          "name": "CreateManualEngagementAsync",
+          "parameters": [
+            "string author",
+            "string sourceText",
+            "EngagementDraftKind kind",
+            "CancellationToken ct"
+          ],
+          "returnType": "Task<EngagementDraft>",
+          "summary": "Adds a pasted DM (received on the operator's own account) for drafting.",
+          "typeParameters": []
+        },
+        {
+          "access": "public",
+          "description": "Publishes a reviewed reply into the channel, quoting the original message.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "method",
+          "line": 523,
+          "modifiers": [
+            "public",
+            "async"
+          ],
+          "name": "PublishEngagementAsync",
+          "parameters": [
+            "long draftId",
+            "CancellationToken ct"
+          ],
+          "returnType": "Task<(bool Succeeded, string Message)>",
+          "summary": "Publishes a reviewed reply into the channel, quoting the original message.",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Handles message.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "method",
+          "line": 560,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "SendMessageAsync",
+          "parameters": [
+            "OperatorSettings s",
+            "string channelId",
+            "string content",
+            "string? replyToMessageId",
+            "CancellationToken ct"
+          ],
+          "returnType": "Task<(bool Ok, string MessageId, string Error)>",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Handles bot request.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "method",
+          "line": 585,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "BotRequest",
+          "parameters": [
+            "HttpMethod method",
+            "string path",
+            "OperatorSettings s"
+          ],
+          "returnType": "HttpRequestMessage",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Loads or resolves settings.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "method",
+          "line": 592,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "GetSettingsAsync",
+          "parameters": [
+            "bool tracking",
+            "CancellationToken ct"
+          ],
+          "returnType": "Task<OperatorSettings>",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Transforms or resolves replies.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "method",
+          "line": 598,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "ParseReplies",
+          "parameters": [
+            "string output"
+          ],
+          "returnType": "Dictionary<long, string>",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Handles try json.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "method",
+          "line": 616,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "TryJson",
+          "parameters": [
+            "string json",
+            "out JsonElement root"
+          ],
+          "returnType": "bool",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Loads or resolves string.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "method",
+          "line": 627,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "GetString",
+          "parameters": [
+            "JsonElement root",
+            "string name"
+          ],
+          "returnType": "string",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Loads or resolves int64.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "method",
+          "line": 631,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "GetInt64",
+          "parameters": [
+            "JsonElement root",
+            "string name",
+            "long fallback"
+          ],
+          "returnType": "long",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Handles api error.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+          "kind": "method",
+          "line": 635,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "ApiError",
+          "parameters": [
+            "string body"
+          ],
+          "returnType": "string",
+          "typeParameters": []
+        }
+      ],
+      "modifiers": [
+        "public",
+        "sealed"
+      ],
+      "name": "DiscordService",
+      "namespace": "DevLeads.Infrastructure.Services",
+      "primaryConstructorParameters": [],
+      "summary": "Discord bot integration: posting the operator's ads/offers to channels the bot was invited to, monitoring those channels for replies and mentions, tracking engagement over time (snapshots feed the My-posts charts), and human-reviewed reply drafts. Everything uses the official Bot API \u2014 the operator's personal account is never automated (self-bots violate Discord ToS), so posting into servers that won't admit the bot stays manual (draft here, paste there, track the link).",
+      "typeParameters": []
+    },
+    {
+      "access": "public",
+      "baseTypes": [],
+      "bases": [],
+      "constructors": [],
+      "containingType": "DiscordService",
+      "description": "Represents bot status.",
+      "descriptionSource": "heuristic",
+      "file": "src/DevLeads.Infrastructure/Services/DiscordService.cs",
+      "fullName": "DevLeads.Infrastructure.Services.DiscordService.BotStatus",
+      "kind": "record class",
+      "line": 54,
+      "members": [],
+      "modifiers": [
+        "public",
+        "sealed"
+      ],
+      "name": "BotStatus",
+      "namespace": "DevLeads.Infrastructure.Services",
+      "primaryConstructorParameters": [
+        "bool Configured",
+        "bool Connected",
+        "string BotName",
+        "string BotUserId",
+        "string InviteUrl",
+        "int ChannelCount",
+        "int MonitoredCount",
+        "string Error"
+      ],
       "typeParameters": []
     },
     {
@@ -33112,12 +34297,25 @@
           "type": "DateTimeOffset"
         },
         {
+          "access": "private",
+          "description": "Handles last discord sync.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Workers/DiscoveryWorker.cs",
+          "kind": "field",
+          "line": 24,
+          "modifiers": [
+            "private"
+          ],
+          "name": "_lastDiscordSync",
+          "type": "DateTimeOffset"
+        },
+        {
           "access": "public",
           "description": "Creates DiscoveryWorker with its required dependencies.",
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Workers/DiscoveryWorker.cs",
           "kind": "constructor",
-          "line": 25,
+          "line": 26,
           "modifiers": [
             "public"
           ],
@@ -33134,7 +34332,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Workers/DiscoveryWorker.cs",
           "kind": "method",
-          "line": 31,
+          "line": 32,
           "modifiers": [
             "protected",
             "override",
@@ -33153,7 +34351,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Workers/DiscoveryWorker.cs",
           "kind": "method",
-          "line": 47,
+          "line": 48,
           "modifiers": [
             "private",
             "async"
@@ -33212,7 +34410,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
           "kind": "method",
-          "line": 451,
+          "line": 502,
           "modifiers": [
             "private",
             "static"
@@ -33232,7 +34430,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
           "kind": "method",
-          "line": 465,
+          "line": 516,
           "modifiers": [
             "private",
             "static"
@@ -33268,7 +34466,7 @@
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
       "fullName": "DevLeads.Web.Api.ApiEndpoints.ManualLeadDto",
       "kind": "record class",
-      "line": 479,
+      "line": 530,
       "members": [],
       "modifiers": [
         "public"
@@ -33296,7 +34494,7 @@
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
       "fullName": "DevLeads.Web.Api.ApiEndpoints.DraftDto",
       "kind": "record class",
-      "line": 480,
+      "line": 531,
       "members": [],
       "modifiers": [
         "public"
@@ -33319,7 +34517,7 @@
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
       "fullName": "DevLeads.Web.Api.ApiEndpoints.QuoteDto",
       "kind": "record class",
-      "line": 481,
+      "line": 532,
       "members": [],
       "modifiers": [
         "public"
@@ -33343,7 +34541,7 @@
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
       "fullName": "DevLeads.Web.Api.ApiEndpoints.WebScanRunDto",
       "kind": "record class",
-      "line": 482,
+      "line": 533,
       "members": [],
       "modifiers": [
         "public"
@@ -34354,6 +35552,236 @@
         "/content"
       ],
       "summary": "Trend signals, suggested topics, and publishable draft management."
+    },
+    {
+      "access": "public",
+      "baseTypes": [
+        "ComponentBase"
+      ],
+      "bases": [
+        "ComponentBase"
+      ],
+      "containingType": null,
+      "description": "Blazor component for discord.",
+      "descriptionSource": "curated",
+      "file": "src/DevLeads.Web/Components/Pages/Discord.razor",
+      "fullName": "DevLeads.Web.Components.Pages.Discord",
+      "injects": [
+        "IDbContextFactory<DevLeadsDbContext>",
+        "IServiceScopeFactory",
+        "IJSRuntime"
+      ],
+      "javascript": [],
+      "kind": "component",
+      "line": 1,
+      "members": [
+        {
+          "access": "private",
+          "description": "Handles sync engagement.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/Discord.razor",
+          "kind": "method",
+          "line": 435,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "SyncEngagement",
+          "parameters": [],
+          "returnType": "Task"
+        },
+        {
+          "access": "private",
+          "description": "Creates engagement.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/Discord.razor",
+          "kind": "method",
+          "line": 442,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "GenerateEngagement",
+          "parameters": [],
+          "returnType": "Task"
+        },
+        {
+          "access": "private",
+          "description": "Creates manual engagement.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/Discord.razor",
+          "kind": "method",
+          "line": 450,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "AddManualEngagement",
+          "parameters": [],
+          "returnType": "Task"
+        },
+        {
+          "access": "private",
+          "description": "Coordinates run.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/Discord.razor",
+          "kind": "method",
+          "line": 454,
+          "modifiers": [],
+          "name": "Run",
+          "parameters": [
+            "async ("
+          ],
+          "returnType": "await"
+        },
+        {
+          "access": "private",
+          "description": "Updates engagement.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/Discord.razor",
+          "kind": "method",
+          "line": 463,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "SaveEngagement",
+          "parameters": [
+            "EngagementDraft draft"
+          ],
+          "returnType": "Task"
+        },
+        {
+          "access": "private",
+          "description": "Updates engagement direct.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/Discord.razor",
+          "kind": "method",
+          "line": 469,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "SaveEngagementDirect",
+          "parameters": [
+            "EngagementDraft draft"
+          ],
+          "returnType": "Task"
+        },
+        {
+          "access": "private",
+          "description": "Handles publish engagement.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/Discord.razor",
+          "kind": "method",
+          "line": 480,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "PublishEngagement",
+          "parameters": [
+            "long id"
+          ],
+          "returnType": "Task"
+        },
+        {
+          "access": "private",
+          "description": "Removes or transitions engagement.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/Discord.razor",
+          "kind": "method",
+          "line": 488,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "DismissEngagement",
+          "parameters": [
+            "EngagementDraft draft"
+          ],
+          "returnType": "Task"
+        },
+        {
+          "access": "private",
+          "description": "Handles copy.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/Discord.razor",
+          "kind": "method",
+          "line": 498,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "Copy",
+          "parameters": [
+            "string text"
+          ],
+          "returnType": "Task"
+        },
+        {
+          "access": "private",
+          "description": "Handles kind label.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/Discord.razor",
+          "kind": "method",
+          "line": 504,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "KindLabel",
+          "parameters": [
+            "EngagementDraftKind kind"
+          ],
+          "returnType": "string"
+        },
+        {
+          "access": "private",
+          "description": "Handles schedule value.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/Discord.razor",
+          "kind": "method",
+          "line": 512,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "ScheduleValue",
+          "parameters": [
+            "OperatorPost post"
+          ],
+          "returnType": "string"
+        },
+        {
+          "access": "private",
+          "description": "Updates schedule.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/Discord.razor",
+          "kind": "method",
+          "line": 515,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "SetSchedule",
+          "parameters": [
+            "OperatorPost post",
+            "string? value"
+          ],
+          "returnType": "void"
+        }
+      ],
+      "modifiers": [
+        "partial"
+      ],
+      "name": "Discord",
+      "namespace": "DevLeads.Web.Components.Pages",
+      "parameters": [],
+      "routes": [
+        "/discord"
+      ],
+      "summary": "Blazor component for discord."
     },
     {
       "access": "public",
@@ -35841,7 +37269,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/Settings.razor",
           "kind": "method",
-          "line": 304,
+          "line": 305,
           "modifiers": [
             "private"
           ],
@@ -35857,7 +37285,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/Settings.razor",
           "kind": "method",
-          "line": 320,
+          "line": 322,
           "modifiers": [
             "private"
           ],
@@ -35874,7 +37302,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/Settings.razor",
           "kind": "method",
-          "line": 343,
+          "line": 346,
           "modifiers": [
             "private"
           ],
@@ -35890,7 +37318,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/Settings.razor",
           "kind": "method",
-          "line": 359,
+          "line": 363,
           "modifiers": [
             "private"
           ],

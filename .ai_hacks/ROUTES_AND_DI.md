@@ -9,6 +9,7 @@
 | /clients | Clients | Blazor component for clients. | IDbContextFactory<DevLeadsDbContext> |
 | /clients/{Id:long} | ClientDetail | Blazor component for client detail. | IDbContextFactory<DevLeadsDbContext> |
 | /content | Content | Trend signals, suggested topics, and publishable draft management. | IDbContextFactory<DevLeadsDbContext>, IServiceScopeFactory, IJSRuntime |
+| /discord | Discord | Blazor component for discord. | IDbContextFactory<DevLeadsDbContext>, IServiceScopeFactory, IJSRuntime |
 | /drafts | Drafts | Outreach generation and human approval queues. | IDbContextFactory<DevLeadsDbContext>, IServiceScopeFactory |
 | /Error | Error | Unhandled-error page. |  |
 | /linkedin | LinkedIn | Blazor component for linked in. | IDbContextFactory<DevLeadsDbContext>, IServiceScopeFactory, NavigationManager, IJSRuntime |
@@ -39,6 +40,16 @@
 | GET | /api/content/topics | MapDevLeadsApi | Reads topics. | src/DevLeads.Web/Api/ApiEndpoints.cs:139 |
 | POST | /api/content/topics/generate | MapDevLeadsApi | Runs the generate action. | src/DevLeads.Web/Api/ApiEndpoints.cs:134 |
 | POST | /api/content/topics/{id:long}/drafts | MapDevLeadsApi | Runs the drafts action. | src/DevLeads.Web/Api/ApiEndpoints.cs:141 |
+| GET | /api/discord/channels | MapDevLeadsApi | Reads channels. | src/DevLeads.Web/Api/ApiEndpoints.cs:400 |
+| POST | /api/discord/channels/sync | MapDevLeadsApi | Runs the sync action. | src/DevLeads.Web/Api/ApiEndpoints.cs:403 |
+| POST | /api/discord/channels/{id:long}/monitor | MapDevLeadsApi | Runs the monitor action. | src/DevLeads.Web/Api/ApiEndpoints.cs:408 |
+| POST | /api/discord/engagement/generate | MapDevLeadsApi | Runs the generate action. | src/DevLeads.Web/Api/ApiEndpoints.cs:437 |
+| POST | /api/discord/engagement/sync | MapDevLeadsApi | Runs the sync action. | src/DevLeads.Web/Api/ApiEndpoints.cs:432 |
+| POST | /api/discord/engagement/{id:long}/publish | MapDevLeadsApi | Runs the publish action. | src/DevLeads.Web/Api/ApiEndpoints.cs:442 |
+| POST | /api/discord/publish-due | MapDevLeadsApi | Runs the publish due action. | src/DevLeads.Web/Api/ApiEndpoints.cs:422 |
+| POST | /api/discord/publish/{id:long} | MapDevLeadsApi | Runs the id action. | src/DevLeads.Web/Api/ApiEndpoints.cs:417 |
+| GET | /api/discord/status | MapDevLeadsApi | Reads status. | src/DevLeads.Web/Api/ApiEndpoints.cs:398 |
+| POST | /api/discord/track | MapDevLeadsApi | Runs the track action. | src/DevLeads.Web/Api/ApiEndpoints.cs:427 |
 | DELETE | /api/documents/{kind} | MapDevLeadsApi | Deletes kind. | src/DevLeads.Web/Api/ApiEndpoints.cs:312 |
 | GET | /api/documents/{kind} | MapDevLeadsApi | Reads kind. | src/DevLeads.Web/Api/ApiEndpoints.cs:289 |
 | POST | /api/documents/{kind} | MapDevLeadsApi | Runs the kind action. | src/DevLeads.Web/Api/ApiEndpoints.cs:296 |
@@ -100,14 +111,14 @@
 | POST | /api/sources/run-all | MapDevLeadsApi | Runs the run all action. | src/DevLeads.Web/Api/ApiEndpoints.cs:100 |
 | POST | /api/sources/{key}/run-now | MapDevLeadsApi | Runs the run now action. | src/DevLeads.Web/Api/ApiEndpoints.cs:120 |
 | POST | /api/sources/{key}/test | MapDevLeadsApi | Runs the test action. | src/DevLeads.Web/Api/ApiEndpoints.cs:118 |
-| POST | /api/system/restart | MapDevLeadsApi | Runs the restart action. | src/DevLeads.Web/Api/ApiEndpoints.cs:441 |
-| GET | /api/webscan/findings | MapDevLeadsApi | Reads findings. | src/DevLeads.Web/Api/ApiEndpoints.cs:400 |
-| POST | /api/webscan/findings/{id:long}/recheck | MapDevLeadsApi | Runs the recheck action. | src/DevLeads.Web/Api/ApiEndpoints.cs:418 |
-| POST | /api/webscan/findings/{id:long}/refresh-contact | MapDevLeadsApi | Runs the refresh contact action. | src/DevLeads.Web/Api/ApiEndpoints.cs:423 |
-| POST | /api/webscan/findings/{id:long}/status/{status} | MapDevLeadsApi | Runs the status action. | src/DevLeads.Web/Api/ApiEndpoints.cs:428 |
-| POST | /api/webscan/generate | MapDevLeadsApi | Runs the generate action. | src/DevLeads.Web/Api/ApiEndpoints.cs:413 |
-| GET | /api/webscan/probes | MapDevLeadsApi | Reads probes. | src/DevLeads.Web/Api/ApiEndpoints.cs:398 |
-| POST | /api/webscan/scan | MapDevLeadsApi | Runs the scan action. | src/DevLeads.Web/Api/ApiEndpoints.cs:407 |
+| POST | /api/system/restart | MapDevLeadsApi | Runs the restart action. | src/DevLeads.Web/Api/ApiEndpoints.cs:492 |
+| GET | /api/webscan/findings | MapDevLeadsApi | Reads findings. | src/DevLeads.Web/Api/ApiEndpoints.cs:451 |
+| POST | /api/webscan/findings/{id:long}/recheck | MapDevLeadsApi | Runs the recheck action. | src/DevLeads.Web/Api/ApiEndpoints.cs:469 |
+| POST | /api/webscan/findings/{id:long}/refresh-contact | MapDevLeadsApi | Runs the refresh contact action. | src/DevLeads.Web/Api/ApiEndpoints.cs:474 |
+| POST | /api/webscan/findings/{id:long}/status/{status} | MapDevLeadsApi | Runs the status action. | src/DevLeads.Web/Api/ApiEndpoints.cs:479 |
+| POST | /api/webscan/generate | MapDevLeadsApi | Runs the generate action. | src/DevLeads.Web/Api/ApiEndpoints.cs:464 |
+| GET | /api/webscan/probes | MapDevLeadsApi | Reads probes. | src/DevLeads.Web/Api/ApiEndpoints.cs:449 |
+| POST | /api/webscan/scan | MapDevLeadsApi | Runs the scan action. | src/DevLeads.Web/Api/ApiEndpoints.cs:458 |
 | GET | /favicon.ico | startup | Reads favicon.ico. | src/DevLeads.Web/Program.cs:43 |
 
 ## Dependency injection
@@ -150,9 +161,10 @@
 | Scoped | PlatformPresenceService | PlatformPresenceService | src/DevLeads.Infrastructure/DependencyInjection.cs:90 |
 | Scoped | AdvisorService | AdvisorService | src/DevLeads.Infrastructure/DependencyInjection.cs:91 |
 | Scoped | LinkedInService | LinkedInService | src/DevLeads.Infrastructure/DependencyInjection.cs:92 |
-| Scoped | WebRescueService | WebRescueService | src/DevLeads.Infrastructure/DependencyInjection.cs:93 |
-| HostedService | IHostedService | DiscoveryWorker | src/DevLeads.Infrastructure/DependencyInjection.cs:96 |
-| HostedService | IHostedService | ContentTrendWorker | src/DevLeads.Infrastructure/DependencyInjection.cs:97 |
+| Scoped | DiscordService | DiscordService | src/DevLeads.Infrastructure/DependencyInjection.cs:93 |
+| Scoped | WebRescueService | WebRescueService | src/DevLeads.Infrastructure/DependencyInjection.cs:94 |
+| HostedService | IHostedService | DiscoveryWorker | src/DevLeads.Infrastructure/DependencyInjection.cs:97 |
+| HostedService | IHostedService | ContentTrendWorker | src/DevLeads.Infrastructure/DependencyInjection.cs:98 |
 | Singleton | DevLeads.Web.AppRestartService | DevLeads.Web.AppRestartService | src/DevLeads.Web/Program.cs:25 |
 
 ## EF Core DbSets
@@ -167,6 +179,7 @@
 | DevLeadsDbContext | Client | Clients | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:34 |
 | DevLeadsDbContext | ContentDraft | ContentDrafts | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:29 |
 | DevLeadsDbContext | ContentTopic | ContentTopics | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:28 |
+| DevLeadsDbContext | DiscordChannel | DiscordChannels | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:46 |
 | DevLeadsDbContext | EngagementDraft | EngagementDrafts | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:41 |
 | DevLeadsDbContext | Engagement | Engagements | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:35 |
 | DevLeadsDbContext | FollowUp | FollowUps | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:37 |

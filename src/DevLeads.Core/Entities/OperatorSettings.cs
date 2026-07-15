@@ -67,6 +67,8 @@ public class OperatorSettings
     public string LinkedInProfileAiModel { get; set; } = DefaultCodexModel;
     public string WebAssetOutreachAiProvider { get; set; } = "";
     public string WebAssetOutreachAiModel { get; set; } = "";
+    public string DiscordEngagementAiProvider { get; set; } = "";
+    public string DiscordEngagementAiModel { get; set; } = "";
 
     /// <summary>The provider/model pair a feature actually uses, after override resolution.</summary>
     public (string Provider, string Model) AiFor(AiFeature feature)
@@ -85,6 +87,7 @@ public class OperatorSettings
             AiFeature.LinkedInEngagement => (LinkedInEngagementAiProvider, LinkedInEngagementAiModel),
             AiFeature.LinkedInProfile => (LinkedInProfileAiProvider, LinkedInProfileAiModel),
             AiFeature.WebAssetOutreach => (WebAssetOutreachAiProvider, WebAssetOutreachAiModel),
+            AiFeature.DiscordEngagement => (DiscordEngagementAiProvider, DiscordEngagementAiModel),
             _ => ("", "")
         };
         var provider = string.IsNullOrWhiteSpace(p) ? AiProvider : p.Trim();
@@ -187,6 +190,25 @@ public class OperatorSettings
     /// the action-plan review actually "views".
     /// </summary>
     public string LinkedInProfileSnapshot { get; set; } = "";
+
+    // Discord bot integration. Everything runs through an official bot the operator
+    // creates in the Developer Portal and invites to servers they're allowed to use —
+    // never through the operator's personal account (self-bots violate Discord ToS).
+    /// <summary>Bot token from the Discord Developer Portal (Bot → Token).</summary>
+    public string DiscordBotToken { get; set; } = "";
+
+    /// <summary>Application id from the Developer Portal — used to build the server invite URL.</summary>
+    public string DiscordApplicationId { get; set; } = "";
+
+    /// <summary>Bot user id/name, cached after the token is verified.</summary>
+    public string DiscordBotUserId { get; set; } = "";
+    public string DiscordBotName { get; set; } = "";
+
+    /// <summary>
+    /// The operator's OWN Discord user id (optional). When set, mentions of the operator
+    /// in monitored channels are captured, and messages they post themselves are skipped.
+    /// </summary>
+    public string DiscordUserId { get; set; } = "";
 
     /// <summary>
     /// Search endpoint used by Site rescue discovery mode to find unknown broken sites from a

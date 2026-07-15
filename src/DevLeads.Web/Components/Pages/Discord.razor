@@ -1,0 +1,536 @@
+@page "/discord"
+@rendermode InteractiveServer
+@inject IDbContextFactory<DevLeadsDbContext> DbFactory
+@inject IServiceScopeFactory ScopeFactory
+@inject IJSRuntime JS
+<PageTitle>Discord · DevLeads</PageTitle>
+
+<div class="rr-page-head">
+    <div>
+        <h1>Discord</h1>
+        <div class="rr-sub">Post offers through your own bot, monitor channels for replies and mentions, track how each post performs, and review every reply before it goes out. The bot only works in servers it's invited to — servers that don't allow bots stay draft-and-paste.</div>
+    </div>
+    <div class="rr-btn-row">
+        @if (_status?.Connected == true)
+        {
+            <span class="rr-chip won">● @_status.BotName</span>
+        }
+        else
+        {
+            <span class="rr-chip review">Not connected</span>
+        }
+        <button class="rr-btn" @onclick="Load" disabled="@_busy">🔄 Refresh</button>
+    </div>
+</div>
+
+@if (_flash is not null) { <div class="rr-flash @(_flashOk ? "ok" : "err")">@_flash</div> }
+
+@if (_settings is null)
+{
+    <div class="rr-empty">Loading…</div>
+}
+else
+{
+    <div class="rr-panel">
+        <div class="rr-panel-head">
+            <h2>🤖 Bot connection</h2>
+            <div style="display:flex;gap:.7rem;align-items:center;flex-wrap:wrap">
+                @if (_status?.Connected == true)
+                {
+                    <div class="rr-sub"><strong>@_status.BotName</strong> · in @_status.ChannelCount channel(s), @_status.MonitoredCount monitored</div>
+                }
+                <button class="rr-btn" @onclick="() => _showConnection = !ShowConnection">
+                    @(ShowConnection ? "▲ Hide settings" : "▼ Show settings")
+                </button>
+            </div>
+        </div>
+        @if (ShowConnection)
+        {
+            <div>
+                @if (_status is { Configured: true, Connected: false } && _status.Error.Length > 0)
+                {
+                    <div class="rr-flash err">@_status.Error</div>
+                }
+                <div class="rr-sub" style="margin-bottom:.7rem">
+                    Create an application at <a href="https://discord.com/developers/applications" target="_blank" rel="noopener noreferrer">discord.com/developers ↗</a>,
+                    add a <strong>Bot</strong>, copy its token, and enable the <strong>Message Content Intent</strong> (Bot → Privileged Gateway Intents) so reply text is readable.
+                    Then invite the bot to your server(s) with the link below. Only invite it where the rules allow it — everything here is your own bot acting with server-owner consent, never your personal account.
+                </div>
+                <div class="rr-grid-2">
+                    <div class="rr-field"><label>Bot token</label><input class="rr-input" type="password" @bind="_settings.DiscordBotToken" /></div>
+                    <div class="rr-field"><label>Application id</label><input class="rr-input" @bind="_settings.DiscordApplicationId" /></div>
+                    <div class="rr-field">
+                        <label>Your own Discord user id (optional)</label>
+                        <input class="rr-input" @bind="_settings.DiscordUserId" placeholder="right-click your name → Copy User ID (developer mode)" />
+                        <div class="rr-sub">Lets monitoring catch mentions of <em>you</em> (not just the bot) and skip your own messages.</div>
+                    </div>
+                </div>
+                <div class="rr-btn-row">
+                    <button class="rr-btn" @onclick="SaveSettings" disabled="@_busy">💾 Save Discord settings</button>
+                    @if (_status?.InviteUrl is { Length: > 0 } invite)
+                    {
+                        <a class="rr-btn primary" href="@invite" target="_blank" rel="noopener noreferrer">➕ Invite bot to a server ↗</a>
+                    }
+                </div>
+                <div class="rr-sub" style="margin-top:.7rem">
+                    DMs sent to <em>your</em> account aren't visible to the bot — paste those below for drafting, then send the reply yourself.
+                    For big public servers that won't admit your bot (e.g. the C# server), draft here, paste manually, and use “Track a message link” if the bot shares a smaller server with you.
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="rr-panel">
+        <div class="rr-panel-head">
+            <h2>📺 Channels</h2>
+            <div class="rr-sub">Channels from every server the bot is in. Enable monitoring on the ones you post in; the worker polls them every 30 minutes.</div>
+        </div>
+        <div class="rr-btn-row" style="margin-bottom:.7rem">
+            <button class="rr-btn" @onclick="SyncChannels" disabled="@(_busy || _status?.Connected != true)">🔄 Sync servers &amp; channels</button>
+        </div>
+        @if (_channels.Count == 0)
+        {
+            <div class="rr-empty">No channels yet. Save the bot token, invite the bot to a server, then sync.</div>
+        }
+        else
+        {
+            <div class="rr-table-scroll"><table class="rr-table">
+                <thead><tr><th>Server</th><th>Channel</th><th>Monitor</th><th>Last sync</th><th>Notes</th></tr></thead>
+                <tbody>
+                @foreach (var c in _channels)
+                {
+                    <tr style="opacity:@(c.Stale ? ".55" : "1")">
+                        <td>@c.GuildName</td>
+                        <td>#@c.ChannelName @if (c.Stale) { <span class="rr-chip dead">gone</span> }</td>
+                        <td>
+                            <label class="rr-check" style="margin:0">
+                                <input type="checkbox" checked="@c.MonitorEnabled"
+                                       @onchange="e => ToggleMonitor(c, e.Value is true)" disabled="@_busy" />
+                            </label>
+                        </td>
+                        <td>@(c.LastSyncedAt is { } syncedAt ? UiHelpers.Age(syncedAt) : "—")</td>
+                        <td><input class="rr-input" style="min-width:12rem" value="@c.Notes"
+                                   @onchange='e => SaveChannelNotes(c, e.Value?.ToString() ?? "")' placeholder="rules, promo cadence…" /></td>
+                    </tr>
+                }
+                </tbody>
+            </table></div>
+        }
+    </div>
+
+    <div class="rr-panel">
+        <div class="rr-panel-head">
+            <h2>✍️ Create a post</h2>
+            <div class="rr-sub">AI writes a chat-native offer (≤1,000 characters, DM call to action); nothing is posted until you pick a channel and click Post now or set a schedule. Check the target channel's pinned rules first — self-promo usually belongs in specific channels.</div>
+        </div>
+        <div class="rr-grid-2">
+            <div class="rr-field">
+                <label>Campaign / offering</label>
+                <select class="rr-select" @bind="_campaignId">
+                    <option value="">General consulting presence</option>
+                    @foreach (var c in _campaigns) { <option value="@c.Id">@c.Emoji @c.Name</option> }
+                </select>
+            </div>
+            <div class="rr-field"><label>Extra instructions</label><input class="rr-input" @bind="_postInstructions" placeholder="angle, audience, server vibe…" /></div>
+        </div>
+        <div class="rr-btn-row">
+            <button class="rr-btn primary" @onclick="GeneratePost" disabled="@_busy">@(_busy ? "Working…" : "🧠 Draft Discord post (1 AI call)")</button>
+            <button class="rr-btn" @onclick="AddBlankPost" disabled="@_busy">➕ Blank draft</button>
+            <button class="rr-btn" @onclick="() => _showTrack = !_showTrack" disabled="@_busy">🔗 Track a message link</button>
+        </div>
+        @if (_showTrack)
+        {
+            <div style="border:1px solid var(--line);border-radius:10px;padding:.7rem;margin-top:.7rem">
+                <div class="rr-sub" style="margin-bottom:.4rem">Posted something yourself in a server the bot can read? Paste the message link (right-click → Copy Message Link) to track its replies and reactions here.</div>
+                <div class="rr-field"><input class="rr-input" @bind="_trackLink" placeholder="https://discord.com/channels/…/…/…" /></div>
+                <button class="rr-btn primary" @onclick="TrackLink" disabled="@_busy">Track this post</button>
+            </div>
+        }
+    </div>
+
+    <div class="rr-panel">
+        <div class="rr-panel-head">
+            <h2>🗓️ Drafts &amp; scheduled posts</h2>
+            <div class="rr-sub">@_posts.Count(p => p.Status == OperatorPostStatus.Draft) draft(s) · the worker checks due schedules once a minute</div>
+        </div>
+        @if (!_posts.Any(p => p.Status == OperatorPostStatus.Draft))
+        {
+            <div class="rr-empty">No Discord drafts. Generate one above or add a blank draft.</div>
+        }
+        @foreach (var p in _posts.Where(p => p.Status == OperatorPostStatus.Draft))
+        {
+            <div style="border:1px solid var(--line);border-radius:10px;padding:.8rem;margin-bottom:.7rem">
+                <div class="rr-field"><label>Internal label</label><input class="rr-input" @bind="p.Title" /></div>
+                <div class="rr-field">
+                    <label>Message text <span class="rr-sub">(@(p.Body?.Length ?? 0)/2000 — chat messages, keep it short)</span></label>
+                    <textarea class="rr-textarea" style="min-height:160px" @bind="p.Body"></textarea>
+                </div>
+                <div class="rr-grid-2">
+                    <div class="rr-field">
+                        <label>Target channel</label>
+                        <select class="rr-select" @bind="p.DiscordChannelId">
+                            <option value="">— pick a channel —</option>
+                            @foreach (var c in _channels.Where(c => !c.Stale))
+                            {
+                                <option value="@c.ChannelId">@c.GuildName · #@c.ChannelName</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="rr-field">
+                        <label>Publish at (your local time; blank = unscheduled)</label>
+                        <input class="rr-input" type="datetime-local" value="@ScheduleValue(p)" @onchange="e => SetSchedule(p, e.Value?.ToString())" />
+                    </div>
+                </div>
+                <div class="rr-field"><label>Notes</label><input class="rr-input" @bind="p.Notes" /></div>
+                <div class="rr-btn-row">
+                    <button class="rr-btn" @onclick="() => SavePost(p)" disabled="@_busy">💾 Save</button>
+                    <button class="rr-btn primary" @onclick="() => PublishPost(p)" disabled="@(_busy || _status?.Connected != true)">Post now</button>
+                    <button class="rr-btn" @onclick="() => Copy(p.Body)" disabled="@(string.IsNullOrEmpty(p.Body))">Copy for manual paste</button>
+                    @if (p.ScheduledAt is not null)
+                    {
+                        <span class="rr-chip progress">Scheduled @p.ScheduledAt.Value.LocalDateTime.ToString("MMM d, HH:mm")</span>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="rr-panel">
+        <div class="rr-panel-head">
+            <h2>📊 Published posts</h2>
+            <div class="rr-sub">Replies and reactions refresh with every monitoring pass; snapshots feed the performance charts on My posts.</div>
+        </div>
+        @if (!_posts.Any(p => p.Status != OperatorPostStatus.Draft))
+        {
+            <div class="rr-empty">No published Discord posts are tracked yet.</div>
+        }
+        else
+        {
+            <div class="rr-table-scroll"><table class="rr-table">
+                <thead><tr><th>Post</th><th>Where</th><th>Posted</th><th>Replies</th><th>Reactions</th><th>Last checked</th><th>Status</th></tr></thead>
+                <tbody>
+                @foreach (var p in _posts.Where(p => p.Status != OperatorPostStatus.Draft))
+                {
+                    <tr>
+                        <td class="rr-title-cell">@if (p.Url.Length > 0) { <a href="@p.Url" target="_blank" rel="noopener noreferrer">@p.Title ↗</a> } else { @p.Title }</td>
+                        <td>@p.Community</td>
+                        <td>@p.PostedAt.LocalDateTime.ToString("MMM d, HH:mm")</td>
+                        <td>@p.ReplyCount</td>
+                        <td>@p.UpvoteCount</td>
+                        <td>@(p.LastCheckedAt is { } checkedAt ? UiHelpers.Age(checkedAt) : "—")</td>
+                        <td><span class="rr-chip @(p.Status == OperatorPostStatus.Removed ? "dead" : "active")">@p.Status</span></td>
+                    </tr>
+                }
+                </tbody>
+            </table></div>
+        }
+    </div>
+
+    <div class="rr-panel">
+        <div class="rr-panel-head">
+            <h2>💬 Engagement inbox</h2>
+            <div class="rr-sub">Replies and mentions from monitored channels publish after review; pasted DMs are copy-only (the reply goes out from your account, not the bot).</div>
+        </div>
+        <div class="rr-btn-row" style="margin-bottom:.7rem">
+            <button class="rr-btn" @onclick="SyncEngagement" disabled="@(_busy || _status?.Connected != true)">🔄 Sync channels now</button>
+            <button class="rr-btn primary" @onclick="GenerateEngagement" disabled="@_busy">🧠 Draft pending responses (1 batch call)</button>
+            <button class="rr-btn" @onclick="() => _showPaste = !_showPaste" disabled="@_busy">Paste a DM</button>
+        </div>
+        <div class="rr-field"><label>Reply-writing instructions (optional)</label><input class="rr-input" @bind="_engagementInstructions" placeholder="tone, next step, questions to ask…" /></div>
+
+        @if (_showPaste)
+        {
+            <div style="border:1px solid var(--line);border-radius:10px;padding:.7rem;margin:.7rem 0">
+                <div class="rr-grid-2">
+                    <div class="rr-field"><label>From</label><input class="rr-input" @bind="_manualAuthor" placeholder="username" /></div>
+                    <div class="rr-field">
+                        <label>Kind</label>
+                        <select class="rr-select" @bind="_manualKind">
+                            <option value="@EngagementDraftKind.PrivateMessageReply">Direct message</option>
+                            <option value="@EngagementDraftKind.Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="rr-field"><label>Message</label><textarea class="rr-textarea" @bind="_manualText"></textarea></div>
+                <button class="rr-btn primary" @onclick="AddManualEngagement" disabled="@_busy">Add for drafting</button>
+            </div>
+        }
+
+        @if (_engagements.Count == 0)
+        {
+            <div class="rr-empty">No Discord engagements yet. Enable monitoring on your channels or paste a DM.</div>
+        }
+        @foreach (var d in _engagements)
+        {
+            <div style="border:1px solid var(--line);border-radius:10px;padding:.8rem;margin-bottom:.7rem;opacity:@(d.Status == EngagementDraftStatus.Dismissed ? ".65" : "1")">
+                <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+                    <span class="rr-chip @(d.Kind == EngagementDraftKind.PrivateMessageReply ? "review" : "active")">@KindLabel(d.Kind)</span>
+                    <strong>@(d.AuthorName.Length > 0 ? d.AuthorName : "Unknown sender")</strong>
+                    @if (d.Post is not null) { <span class="rr-sub">on “@d.Post.Title”</span> }
+                    <span class="rr-sub">@d.ReceivedAt.LocalDateTime.ToString("MMM d, HH:mm")</span>
+                    <span class="rr-chip @(d.Status == EngagementDraftStatus.Published ? "won" : d.Status == EngagementDraftStatus.Failed ? "dead" : "progress")">@UiHelpers.Spaced(d.Status)</span>
+                    @if (d.SourceUrl.Length > 0) { <a class="rr-sub" href="@d.SourceUrl" target="_blank" rel="noopener noreferrer">open ↗</a> }
+                </div>
+                <div class="rr-quote" style="white-space:pre-wrap;margin:.5rem 0">@d.SourceText</div>
+                <div class="rr-field"><label>Reviewed response</label><textarea class="rr-textarea" style="min-height:90px" @bind="d.DraftText"></textarea></div>
+                @if (d.LastError.Length > 0) { <div class="rr-sub" style="color:#fca5a5">@d.LastError</div> }
+                <div class="rr-btn-row">
+                    <button class="rr-btn" @onclick="() => SaveEngagement(d)" disabled="@_busy">💾 Save</button>
+                    @if (d.ThreadUrn.Length > 0)
+                    {
+                        <button class="rr-btn primary" @onclick="() => PublishEngagement(d.Id)" disabled="@(_busy || d.Status == EngagementDraftStatus.Published || _status?.Connected != true)">Post reply in channel</button>
+                    }
+                    else
+                    {
+                        <button class="rr-btn primary" @onclick="() => Copy(d.DraftText)" disabled="@(d.DraftText.Length == 0)">Copy for Discord DM</button>
+                    }
+                    @if (d.Status != EngagementDraftStatus.Dismissed && d.Status != EngagementDraftStatus.Published)
+                    {
+                        <button class="rr-btn" @onclick="() => DismissEngagement(d)" disabled="@_busy">Dismiss</button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private OperatorSettings? _settings;
+    private DiscordService.BotStatus? _status;
+    private List<DiscordChannel> _channels = new();
+    private List<OperatorPost> _posts = new();
+    private List<EngagementDraft> _engagements = new();
+    private List<Campaign> _campaigns = new();
+
+    private bool _busy, _showPaste, _showTrack;
+    private string? _flash;
+    private bool _flashOk = true;
+    private long? _campaignId;
+    private string _postInstructions = "", _engagementInstructions = "", _trackLink = "";
+    private string _manualAuthor = "", _manualText = "";
+    private EngagementDraftKind _manualKind = EngagementDraftKind.PrivateMessageReply;
+    // Null until the operator toggles it; the default hides the wiring once connected.
+    private bool? _showConnection;
+    private bool ShowConnection => _showConnection ?? _status?.Connected != true;
+
+    protected override async Task OnInitializedAsync() => await Load();
+
+    private async Task Load()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        _settings = await db.OperatorSettings.AsNoTracking().FirstOrDefaultAsync() ?? new OperatorSettings { Id = 1 };
+        _channels = await db.DiscordChannels.AsNoTracking()
+            .OrderBy(c => c.Stale).ThenBy(c => c.GuildName).ThenBy(c => c.ChannelName).ToListAsync();
+        _posts = await db.OperatorPosts.AsNoTracking().Where(p => p.Platform == "discord")
+            .OrderBy(p => p.Status != OperatorPostStatus.Draft).ThenByDescending(p => p.CreatedAt).ToListAsync();
+        _engagements = await db.EngagementDrafts.AsNoTracking().Include(d => d.Post)
+            .Where(d => d.Platform == "discord")
+            .OrderBy(d => d.Status == EngagementDraftStatus.Dismissed)
+            .ThenBy(d => d.Status == EngagementDraftStatus.Published)
+            .ThenByDescending(d => d.ReceivedAt).Take(100).ToListAsync();
+        _campaigns = await db.Campaigns.AsNoTracking().Where(c => c.Enabled).OrderBy(c => c.Name).ToListAsync();
+        using var scope = ScopeFactory.CreateScope();
+        _status = await scope.ServiceProvider.GetRequiredService<DiscordService>().GetStatusAsync(default);
+    }
+
+    private async Task SaveSettings()
+    {
+        if (_settings is null) return;
+        await Run(async () =>
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<DevLeadsDbContext>();
+            var row = await db.OperatorSettings.FirstOrDefaultAsync();
+            if (row is null) db.OperatorSettings.Add(_settings);
+            else db.Entry(row).CurrentValues.SetValues(_settings);
+            await db.SaveChangesAsync();
+            return (true, "Discord settings saved.");
+        });
+    }
+
+    private async Task SyncChannels() => await Run(async () =>
+    {
+        using var scope = ScopeFactory.CreateScope();
+        var (_, _, message) = await scope.ServiceProvider.GetRequiredService<DiscordService>().SyncChannelsAsync(default);
+        return (true, message);
+    });
+
+    private async Task ToggleMonitor(DiscordChannel channel, bool enabled) => await Run(async () =>
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var row = await db.DiscordChannels.FirstOrDefaultAsync(c => c.Id == channel.Id);
+        if (row is null) return (false, "Channel no longer exists — sync again.");
+        row.MonitorEnabled = enabled;
+        row.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+        return (true, $"{(enabled ? "Monitoring" : "Stopped monitoring")} #{row.ChannelName}.");
+    });
+
+    private async Task SaveChannelNotes(DiscordChannel channel, string notes)
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var row = await db.DiscordChannels.FirstOrDefaultAsync(c => c.Id == channel.Id);
+        if (row is null) return;
+        row.Notes = notes.Trim();
+        row.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+    }
+
+    private async Task GeneratePost() => await Run(async () =>
+    {
+        using var scope = ScopeFactory.CreateScope();
+        var (post, message) = await scope.ServiceProvider.GetRequiredService<OperatorPostService>()
+            .GeneratePostAsync("discord", _campaignId, _postInstructions, default);
+        return (post is not null, message);
+    });
+
+    private async Task AddBlankPost() => await Run(async () =>
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var now = DateTimeOffset.UtcNow;
+        db.OperatorPosts.Add(new OperatorPost
+        {
+            Platform = "discord", ExternalId = Guid.NewGuid().ToString("N"),
+            Title = "Discord draft", Status = OperatorPostStatus.Draft,
+            CampaignId = _campaignId, PostedAt = now, CreatedAt = now, UpdatedAt = now
+        });
+        await db.SaveChangesAsync();
+        return (true, "Blank Discord draft added.");
+    });
+
+    private async Task TrackLink() => await Run(async () =>
+    {
+        using var scope = ScopeFactory.CreateScope();
+        var result = await scope.ServiceProvider.GetRequiredService<DiscordService>().TrackMessageAsync(_trackLink, default);
+        if (result.Succeeded) { _trackLink = ""; _showTrack = false; }
+        return result;
+    });
+
+    private async Task SavePost(OperatorPost post) => await Run(async () =>
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var row = await db.OperatorPosts.FirstOrDefaultAsync(p => p.Id == post.Id);
+        if (row is null) return (false, "Post no longer exists.");
+        row.Title = post.Title.Trim(); row.Body = post.Body.Trim(); row.Notes = post.Notes.Trim();
+        row.DiscordChannelId = post.DiscordChannelId;
+        row.ScheduledAt = post.ScheduledAt; row.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+        return (true, row.ScheduledAt is null ? "Draft saved." : $"Draft scheduled for {row.ScheduledAt.Value.LocalDateTime:f}.");
+    });
+
+    private async Task PublishPost(OperatorPost post) => await Run(async () =>
+    {
+        // Persist on-screen edits (body, target channel) so what publishes is what's visible.
+        await using (var db = await DbFactory.CreateDbContextAsync())
+        {
+            var row = await db.OperatorPosts.FirstOrDefaultAsync(p => p.Id == post.Id);
+            if (row is null) return (false, "Post no longer exists.");
+            row.Title = post.Title.Trim(); row.Body = post.Body.Trim(); row.Notes = post.Notes.Trim();
+            row.DiscordChannelId = post.DiscordChannelId; row.UpdatedAt = DateTimeOffset.UtcNow;
+            await db.SaveChangesAsync();
+        }
+        using var scope = ScopeFactory.CreateScope();
+        return await scope.ServiceProvider.GetRequiredService<DiscordService>().PublishPostAsync(post.Id, default);
+    });
+
+    private async Task SyncEngagement() => await Run(async () =>
+    {
+        using var scope = ScopeFactory.CreateScope();
+        var (_, _, message) = await scope.ServiceProvider.GetRequiredService<DiscordService>().SyncEngagementAsync(default);
+        return (true, message);
+    });
+
+    private async Task GenerateEngagement() => await Run(async () =>
+    {
+        using var scope = ScopeFactory.CreateScope();
+        var (generated, message) = await scope.ServiceProvider.GetRequiredService<DiscordService>()
+            .GenerateEngagementBatchAsync(_engagementInstructions, default);
+        return (generated > 0, message);
+    });
+
+    private async Task AddManualEngagement()
+    {
+        if (string.IsNullOrWhiteSpace(_manualText)) { _flash = "Paste the message text first."; _flashOk = false; return; }
+        await Run(async () =>
+        {
+            using var scope = ScopeFactory.CreateScope();
+            await scope.ServiceProvider.GetRequiredService<DiscordService>()
+                .CreateManualEngagementAsync(_manualAuthor, _manualText, _manualKind, default);
+            _manualAuthor = _manualText = ""; _showPaste = false;
+            return (true, "Message added. Use Draft pending responses to generate a reply.");
+        });
+    }
+
+    private async Task SaveEngagement(EngagementDraft draft) => await Run(async () =>
+    {
+        await SaveEngagementDirect(draft);
+        return (true, "Response draft saved.");
+    });
+
+    private async Task SaveEngagementDirect(EngagementDraft draft)
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var row = await db.EngagementDrafts.FirstOrDefaultAsync(d => d.Id == draft.Id);
+        if (row is null) return;
+        row.DraftText = draft.DraftText.Trim(); row.UpdatedAt = DateTimeOffset.UtcNow;
+        if (row.Status == EngagementDraftStatus.Failed) row.Status = EngagementDraftStatus.PendingReview;
+        row.LastError = "";
+        await db.SaveChangesAsync();
+    }
+
+    private async Task PublishEngagement(long id) => await Run(async () =>
+    {
+        var current = _engagements.FirstOrDefault(d => d.Id == id);
+        if (current is not null) await SaveEngagementDirect(current);
+        using var scope = ScopeFactory.CreateScope();
+        return await scope.ServiceProvider.GetRequiredService<DiscordService>().PublishEngagementAsync(id, default);
+    });
+
+    private async Task DismissEngagement(EngagementDraft draft) => await Run(async () =>
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var row = await db.EngagementDrafts.FirstOrDefaultAsync(d => d.Id == draft.Id);
+        if (row is null) return (false, "Engagement no longer exists.");
+        row.Status = EngagementDraftStatus.Dismissed; row.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+        return (true, "Engagement dismissed.");
+    });
+
+    private async Task Copy(string text)
+    {
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", text);
+        _flash = "Copied to clipboard."; _flashOk = true;
+    }
+
+    private static string KindLabel(EngagementDraftKind kind) => kind switch
+    {
+        EngagementDraftKind.CommentReply => "Reply to your post",
+        EngagementDraftKind.MentionReply => "Mention",
+        EngagementDraftKind.PrivateMessageReply => "Pasted DM",
+        _ => "Other"
+    };
+
+    private static string ScheduleValue(OperatorPost post) =>
+        post.ScheduledAt?.LocalDateTime.ToString("yyyy-MM-ddTHH:mm") ?? "";
+
+    private static void SetSchedule(OperatorPost post, string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) { post.ScheduledAt = null; return; }
+        if (DateTime.TryParse(value, out var local))
+            post.ScheduledAt = new DateTimeOffset(DateTime.SpecifyKind(local, DateTimeKind.Local)).ToUniversalTime();
+    }
+
+    private async Task Run(Func<Task<(bool Ok, string Message)>> action)
+    {
+        _busy = true; _flash = null;
+        StateHasChanged();
+        try
+        {
+            var result = await action();
+            _flash = result.Message; _flashOk = result.Ok;
+            await Load();
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+}

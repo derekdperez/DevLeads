@@ -367,5 +367,7 @@ public enum AiFeature
     /// <summary>Reviewing the operator's LinkedIn presence and planning the next actions.</summary>
     LinkedInProfile,
     /// <summary>Batched repair-offer email drafting for discovered broken web assets (Site rescue).</summary>
-    WebAssetOutreach
+    WebAssetOutreach,
+    /// <summary>Batched Discord reply drafting for replies, mentions, and pasted DMs.</summary>
+    DiscordEngagement
 }

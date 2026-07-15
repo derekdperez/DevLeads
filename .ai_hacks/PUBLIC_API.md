@@ -37,6 +37,23 @@ Prompts for the content studio: topic suggestion and long-form draft generation.
 - public `ParseEvidence(string json) → List<(string Title, string Url)>` — Transforms or resolves evidence. _(inferred)_
 - private `Compact(string value, int max) → string` — Transforms or resolves compact. _(inferred)_
 
+#### DiscordPrompts
+
+public class `DiscordPrompts` · `src/DevLeads.Core/Ai/DiscordPrompts.cs:12`
+
+Grounded batched reply generation for Discord: replies to the operator's tracked posts, mentions in monitored channels, and pasted DMs.
+
+- public `BuildEngagementBatchPrompt(OperatorSettings op, string operatorSkills, IReadOnlyList<EngagementItem> items, string extraInstructions) → string` — Creates engagement batch prompt. _(inferred)_
+- private `Compact(string value, int max) → string` — Transforms or resolves compact. _(inferred)_
+
+#### EngagementItem
+
+public record class `EngagementItem` · `src/DevLeads.Core/Ai/DiscordPrompts.cs:14`
+
+Represents engagement item. _(inferred)_
+
+Depends on: `long Id`, `EngagementDraftKind Kind`, `string Author`, `string SourceText`, `string PostTitle`, `string PostBody`, `string Community`.
+
 #### AiTriageRequest
 
 public class `AiTriageRequest` · `src/DevLeads.Core/Ai/IAiTriageProvider.cs:6`
@@ -303,6 +320,14 @@ An AI-suggested publishing topic distilled from trend signals: what to write abo
 
 Data: `Id`: long, `Title`: string, `Angle`: string, `Rationale`: string, `InterestScore`: double, `SkillsJson`: string, `EvidenceJson`: string, `SuggestedFormatsCsv`: string, `Status`: ContentTopicStatus, `CreatedAt`: DateTimeOffset, `UpdatedAt`: DateTimeOffset, `Drafts`: List<ContentDraft>.
 
+#### DiscordChannel
+
+public class `DiscordChannel` · `src/DevLeads.Core/Entities/DiscordChannel.cs:9`
+
+One Discord text channel the operator's bot can see. Channels are discovered from the servers the bot was invited to (never from the operator's personal account — Discord bans user-account automation).
+
+Data: `Id`: long, `GuildId`: string, `GuildName`: string, `ChannelId`: string, `ChannelName`: string, `MonitorEnabled`: bool, `LastSyncedMessageId`: string, `LastSyncedAt`: DateTimeOffset?, `Notes`: string, `Stale`: bool, `CreatedAt`: DateTimeOffset, `UpdatedAt`: DateTimeOffset.
+
 #### Engagement
 
 public class `Engagement` · `src/DevLeads.Core/Entities/Engagement.cs:8`
@@ -365,7 +390,7 @@ public class `OperatorPost` · `src/DevLeads.Core/Entities/OperatorPost.cs:9`
 
 One of the operator's OWN posts on an external platform (a [For Hire] reddit post, an Upwork profile/proposal, a Craigslist ad…).
 
-Data: `Id`: long, `Platform`: string, `ExternalId`: string, `Url`: string, `Title`: string, `Body`: string, `Community`: string, `Status`: OperatorPostStatus, `CampaignId`: long?, `ReplyCount`: int, `UpvoteCount`: int, `ViewCount`: int, `ViewCountKnown`: bool, `ThreadSummary`: string, `SummarizedAt`: DateTimeOffset?, `LastCheckedAt`: DateTimeOffset?, `Notes`: string, `ScheduledAt`: DateTimeOffset?, `PostedAt`: DateTimeOffset, `CreatedAt`: DateTimeOffset, `UpdatedAt`: DateTimeOffset, `Snapshots`: List<OperatorPostSnapshot>.
+Data: `Id`: long, `Platform`: string, `ExternalId`: string, `Url`: string, `Title`: string, `Body`: string, `Community`: string, `Status`: OperatorPostStatus, `CampaignId`: long?, `ReplyCount`: int, `UpvoteCount`: int, `ViewCount`: int, `ViewCountKnown`: bool, `ThreadSummary`: string, `SummarizedAt`: DateTimeOffset?, `LastCheckedAt`: DateTimeOffset?, `Notes`: string, `ScheduledAt`: DateTimeOffset?, `DiscordChannelId`: string, `PostedAt`: DateTimeOffset, `CreatedAt`: DateTimeOffset, `UpdatedAt`: DateTimeOffset, `Snapshots`: List<OperatorPostSnapshot>.
 
 #### OperatorPostRevision
 
@@ -389,7 +414,7 @@ public class `OperatorSettings` · `src/DevLeads.Core/Entities/OperatorSettings.
 
 Single-row settings for the solo operator: profile, AI, outreach, and safety controls.
 
-Data: `Id`: long, `OperatorName`: string, `BusinessName`: string, `Location`: string, `ContactEmail`: string, `RemoteAvailability`: string, `CoreSkills`: string, `SecondarySkills`: string, `MinimumFee`: double, `PreferredPaymentTerms`: string, `EmergencyAvailability`: bool, `AiProvider`: string, `AiModel`: string, `OpenCodeCliPath`: string, `CodexCliPath`: string, `DefaultOpenCodeModel`: string, `DefaultAnthropicModel`: string, `DefaultCodexModel`: string, `TriageAiProvider`: string, `TriageAiModel`: string, `OutreachAiProvider`: string, `OutreachAiModel`: string, `ContentTopicsAiProvider`: string, `ContentTopicsAiModel`: string, `ContentDraftsAiProvider`: string, `ContentDraftsAiModel`: string, `PostDraftAiProvider`: string, `PostDraftAiModel`: string, `ThreadSummaryAiProvider`: string, `ThreadSummaryAiModel`: string, `PostOptimizationAiProvider`: string, `PostOptimizationAiModel`: string, `AdvisorAiProvider`: string, `AdvisorAiModel`: string, `PlatformDiscoveryAiProvider`: string, `PlatformDiscoveryAiModel`: string, `LinkedInEngagementAiProvider`: string, `LinkedInEngagementAiModel`: string, `LinkedInProfileAiProvider`: string, `LinkedInProfileAiModel`: string, `WebAssetOutreachAiProvider`: string, `WebAssetOutreachAiModel`: string, `PromptVersion`: string, `MaxAiCallsPerHour`: int, `MaxAiSpendPerDay`: double, `MinPreFilterScoreForAi`: double, `MinAiConfidenceForDraft`: double, `ManualReviewConfidenceThreshold`: double, `AiRetryCount`: int, `AiTimeoutSeconds`: int, `DefaultOutreachMode`: OutreachMode, `GlobalAutoModeEnabled`: bool, `GlobalKillSwitch`: bool, `MaxSendsPerHour`: int, `MaxSendsPerDay`: int, `RequireApprovalAboveRisk`: double, `RequireApprovalBelowConfidence`: double, `SuppressionListEnabled`: bool, `AuditLoggingEnabled`: bool, `DraftScoreThreshold`: double, `AlertScoreThreshold`: double, `SelectedCampaignId`: long?, `DiscoveryEnabled`: bool, `ContentDiscoveryEnabled`: bool, `RedditUsername`: string, `RedditClientId`: string, `RedditClientSecret`: string, `RedditAppPassword`: string, `RedditInboxFeedToken`: string, `LinkedInClientId`: string, `LinkedInClientSecret`: string, `LinkedInRedirectUri`: string, `LinkedInScopes`: string, `LinkedInApiVersion`: string, `LinkedInAccessToken`: string, `LinkedInAccessTokenExpiresAt`: DateTimeOffset?, `LinkedInRefreshToken`: string, `LinkedInRefreshTokenExpiresAt`: DateTimeOffset?, `LinkedInMemberId`: string, `LinkedInMemberName`: string, `LinkedInMemberPictureUrl`: string, `LinkedInOAuthState`: string, `LinkedInOAuthStateExpiresAt`: DateTimeOffset?, `LinkedInProfileReview`: string, `LinkedInProfileReviewAt`: DateTimeOffset?, `LinkedInProfileSnapshot`: string, `WebScanSearchEndpoint`: string, `WebScanMaxTargetsPerRun`: int, `StaleItemMaxAgeHours`: int, `FollowUpDefaultHours`: int.
+Data: `Id`: long, `OperatorName`: string, `BusinessName`: string, `Location`: string, `ContactEmail`: string, `RemoteAvailability`: string, `CoreSkills`: string, `SecondarySkills`: string, `MinimumFee`: double, `PreferredPaymentTerms`: string, `EmergencyAvailability`: bool, `AiProvider`: string, `AiModel`: string, `OpenCodeCliPath`: string, `CodexCliPath`: string, `DefaultOpenCodeModel`: string, `DefaultAnthropicModel`: string, `DefaultCodexModel`: string, `TriageAiProvider`: string, `TriageAiModel`: string, `OutreachAiProvider`: string, `OutreachAiModel`: string, `ContentTopicsAiProvider`: string, `ContentTopicsAiModel`: string, `ContentDraftsAiProvider`: string, `ContentDraftsAiModel`: string, `PostDraftAiProvider`: string, `PostDraftAiModel`: string, `ThreadSummaryAiProvider`: string, `ThreadSummaryAiModel`: string, `PostOptimizationAiProvider`: string, `PostOptimizationAiModel`: string, `AdvisorAiProvider`: string, `AdvisorAiModel`: string, `PlatformDiscoveryAiProvider`: string, `PlatformDiscoveryAiModel`: string, `LinkedInEngagementAiProvider`: string, `LinkedInEngagementAiModel`: string, `LinkedInProfileAiProvider`: string, `LinkedInProfileAiModel`: string, `WebAssetOutreachAiProvider`: string, `WebAssetOutreachAiModel`: string, `DiscordEngagementAiProvider`: string, `DiscordEngagementAiModel`: string, `PromptVersion`: string, `MaxAiCallsPerHour`: int, `MaxAiSpendPerDay`: double, `MinPreFilterScoreForAi`: double, `MinAiConfidenceForDraft`: double, `ManualReviewConfidenceThreshold`: double, `AiRetryCount`: int, `AiTimeoutSeconds`: int, `DefaultOutreachMode`: OutreachMode, `GlobalAutoModeEnabled`: bool, `GlobalKillSwitch`: bool, `MaxSendsPerHour`: int, `MaxSendsPerDay`: int, `RequireApprovalAboveRisk`: double, `RequireApprovalBelowConfidence`: double, `SuppressionListEnabled`: bool, `AuditLoggingEnabled`: bool, `DraftScoreThreshold`: double, `AlertScoreThreshold`: double, `SelectedCampaignId`: long?, `DiscoveryEnabled`: bool, `ContentDiscoveryEnabled`: bool, `RedditUsername`: string, `RedditClientId`: string, `RedditClientSecret`: string, `RedditAppPassword`: string, `RedditInboxFeedToken`: string, `LinkedInClientId`: string, `LinkedInClientSecret`: string, `LinkedInRedirectUri`: string, `LinkedInScopes`: string, `LinkedInApiVersion`: string, `LinkedInAccessToken`: string, `LinkedInAccessTokenExpiresAt`: DateTimeOffset?, `LinkedInRefreshToken`: string, `LinkedInRefreshTokenExpiresAt`: DateTimeOffset?, `LinkedInMemberId`: string, `LinkedInMemberName`: string, `LinkedInMemberPictureUrl`: string, `LinkedInOAuthState`: string, `LinkedInOAuthStateExpiresAt`: DateTimeOffset?, `LinkedInProfileReview`: string, `LinkedInProfileReviewAt`: DateTimeOffset?, `LinkedInProfileSnapshot`: string, `DiscordBotToken`: string, `DiscordApplicationId`: string, `DiscordBotUserId`: string, `DiscordBotName`: string, `DiscordUserId`: string, `WebScanSearchEndpoint`: string, `WebScanMaxTargetsPerRun`: int, `StaleItemMaxAgeHours`: int, `FollowUpDefaultHours`: int.
 
 - public `AiFor(AiFeature feature) → (string Provider, string Model)` — The provider/model pair a feature actually uses, after override resolution.
 - public `WithAiFor(AiFeature feature) → OperatorSettings` — Copy of these settings with AiProvider/AiModel resolved for a feature.
@@ -1331,14 +1356,14 @@ EF Core context for the SQLite solo database.
 
 Depends on: `DbContextOptions<DevLeadsDbContext> options`.
 
-Data: `Opportunities`: DbSet<Opportunity>, `RawSourceItems`: DbSet<RawSourceItem>, `AiTriageRuns`: DbSet<AiTriageRun>, `OutreachAttempts`: DbSet<OutreachAttempt>, `Quotes`: DbSet<Quote>, `WorkSessions`: DbSet<WorkSession>, `SuppressionEntries`: DbSet<SuppressionEntry>, `AuditEvents`: DbSet<AuditEvent>, `SourceConfigs`: DbSet<SourceConfig>, `QueryPacks`: DbSet<QueryPack>, `OperatorSettings`: DbSet<OperatorSettings>, `Skills`: DbSet<Skill>, `Campaigns`: DbSet<Campaign>, `TrendSources`: DbSet<TrendSource>, `TrendSignals`: DbSet<TrendSignal>, `ContentTopics`: DbSet<ContentTopic>, `ContentDrafts`: DbSet<ContentDraft>, `OperatorPosts`: DbSet<OperatorPost>, `OperatorPostSnapshots`: DbSet<OperatorPostSnapshot>, `OperatorMessages`: DbSet<OperatorMessage>, `OperatorPostRevisions`: DbSet<OperatorPostRevision>, `Clients`: DbSet<Client>, `Engagements`: DbSet<Engagement>, `ClientInteractions`: DbSet<ClientInteraction>, `FollowUps`: DbSet<FollowUp>, `PlatformProfiles`: DbSet<PlatformProfile>, `AdvisorBriefings`: DbSet<AdvisorBriefing>, `OperatorDocuments`: DbSet<OperatorDocument>, `EngagementDrafts`: DbSet<EngagementDraft>, `LinkedInProfileFields`: DbSet<LinkedInProfileField>, `LinkedInActions`: DbSet<LinkedInAction>, `WebScanProbes`: DbSet<WebScanProbe>, `WebAssetFindings`: DbSet<WebAssetFinding>.
+Data: `Opportunities`: DbSet<Opportunity>, `RawSourceItems`: DbSet<RawSourceItem>, `AiTriageRuns`: DbSet<AiTriageRun>, `OutreachAttempts`: DbSet<OutreachAttempt>, `Quotes`: DbSet<Quote>, `WorkSessions`: DbSet<WorkSession>, `SuppressionEntries`: DbSet<SuppressionEntry>, `AuditEvents`: DbSet<AuditEvent>, `SourceConfigs`: DbSet<SourceConfig>, `QueryPacks`: DbSet<QueryPack>, `OperatorSettings`: DbSet<OperatorSettings>, `Skills`: DbSet<Skill>, `Campaigns`: DbSet<Campaign>, `TrendSources`: DbSet<TrendSource>, `TrendSignals`: DbSet<TrendSignal>, `ContentTopics`: DbSet<ContentTopic>, `ContentDrafts`: DbSet<ContentDraft>, `OperatorPosts`: DbSet<OperatorPost>, `OperatorPostSnapshots`: DbSet<OperatorPostSnapshot>, `OperatorMessages`: DbSet<OperatorMessage>, `OperatorPostRevisions`: DbSet<OperatorPostRevision>, `Clients`: DbSet<Client>, `Engagements`: DbSet<Engagement>, `ClientInteractions`: DbSet<ClientInteraction>, `FollowUps`: DbSet<FollowUp>, `PlatformProfiles`: DbSet<PlatformProfile>, `AdvisorBriefings`: DbSet<AdvisorBriefing>, `OperatorDocuments`: DbSet<OperatorDocument>, `EngagementDrafts`: DbSet<EngagementDraft>, `LinkedInProfileFields`: DbSet<LinkedInProfileField>, `LinkedInActions`: DbSet<LinkedInAction>, `WebScanProbes`: DbSet<WebScanProbe>, `WebAssetFindings`: DbSet<WebAssetFinding>, `DiscordChannels`: DbSet<DiscordChannel>.
 
 - protected `ConfigureConventions(ModelConfigurationBuilder b) → void` — Handles configure conventions. _(inferred)_
 - protected `OnModelCreating(ModelBuilder mb) → void` — Handles on model creating. _(inferred)_
 
 #### DateTimeOffsetToTicksConverter
 
-private class `DateTimeOffsetToTicksConverter` : `ValueConverter<DateTimeOffset, long>` · `src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:49`
+private class `DateTimeOffsetToTicksConverter` : `ValueConverter<DateTimeOffset, long>` · `src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:50`
 
 Represents date time offset to ticks converter. _(inferred)_
 
@@ -1462,6 +1487,43 @@ private class `TopicSuggestion` · `src/DevLeads.Infrastructure/Services/Content
 Represents topic suggestion. _(inferred)_
 
 Data: `Title`: string, `Angle`: string?, `Rationale`: string?, `InterestScore`: double, `Skills`: List<string>?, `Formats`: List<string>?, `Evidence`: List<int>?.
+
+#### DiscordService
+
+public class `DiscordService` · `src/DevLeads.Infrastructure/Services/DiscordService.cs:24`
+
+Discord bot integration: posting the operator's ads/offers to channels the bot was invited to, monitoring those channels for replies and mentions, tracking engagement over time (snapshots feed the My-posts charts), and…
+
+Depends on: `DevLeadsDbContext db`, `IHttpClientFactory httpFactory`, `AiTextRouter text`, `AuditService audit`, `ILogger<DiscordService> log`.
+
+Data: `ApiRoot`: string, `InvitePermissions`: long, `MaxMessageLength`: int, `RequestPacing`: TimeSpan, `_db`: DevLeadsDbContext, `_httpFactory`: IHttpClientFactory, `_text`: AiTextRouter, `_audit`: AuditService, `_log`: ILogger<DiscordService>.
+
+- public `GetStatusAsync(CancellationToken ct) → Task<BotStatus>` — Verifies the bot token against /users/@me and caches the bot identity.
+- public `SyncChannelsAsync(CancellationToken ct) → Task<(int Guilds, int Channels, string Message)>` — Refreshes the channel catalog from every server the bot is a member of.
+- public `PublishPostAsync(long postId, CancellationToken ct) → Task<(bool Succeeded, string Message)>` — Publishes one Draft operator post to its selected Discord channel.
+- public `PublishDueAsync(CancellationToken ct) → Task<(int Published, int Failed, string Message)>` — Publishes every due Discord draft; one failure does not block later rows.
+- public `TrackMessageAsync(string messageLink, CancellationToken ct) → Task<(bool Succeeded, string Message)>` — Starts tracking a message the operator posted with their own account (in a server the bot can read) from its pasted message link.
+- public `SyncEngagementAsync(CancellationToken ct) → Task<(int Imported, int CheckedChannels, string Message)>` — Polls monitored channels for new messages: replies to tracked posts and mentions of the bot/operator become PendingReview engagement drafts, tracked posts' reply and reaction…
+- private `RefreshReactionsAsync(OperatorSettings s, HttpClient http, List<OperatorPost> tracked, CancellationToken ct) → Task<int>` — Refreshes reaction counts (tracked as upvotes) on the stalest active posts.
+- public `GenerateEngagementBatchAsync(string extraInstructions, CancellationToken ct) → Task<(int Generated, string Message)>` — Syncs what is available, then drafts all undrafted pending responses in one AI call.
+- public `CreateManualEngagementAsync(string author, string sourceText, EngagementDraftKind kind, CancellationToken ct) → Task<EngagementDraft>` — Adds a pasted DM (received on the operator's own account) for drafting.
+- public `PublishEngagementAsync(long draftId, CancellationToken ct) → Task<(bool Succeeded, string Message)>` — Publishes a reviewed reply into the channel, quoting the original message.
+- private `SendMessageAsync(OperatorSettings s, string channelId, string content, string? replyToMessageId, CancellationToken ct) → Task<(bool Ok, string MessageId, string Error)>` — Handles message. _(inferred)_
+- private `BotRequest(HttpMethod method, string path, OperatorSettings s) → HttpRequestMessage` — Handles bot request. _(inferred)_
+- private `GetSettingsAsync(bool tracking, CancellationToken ct) → Task<OperatorSettings>` — Loads or resolves settings. _(inferred)_
+- private `ParseReplies(string output) → Dictionary<long, string>` — Transforms or resolves replies. _(inferred)_
+- private `TryJson(string json, out JsonElement root) → bool` — Handles try json. _(inferred)_
+- private `GetString(JsonElement root, string name) → string` — Loads or resolves string. _(inferred)_
+- private `GetInt64(JsonElement root, string name, long fallback) → long` — Loads or resolves int64. _(inferred)_
+- private `ApiError(string body) → string` — Handles api error. _(inferred)_
+
+#### BotStatus
+
+public record class `BotStatus` · `src/DevLeads.Infrastructure/Services/DiscordService.cs:54`
+
+Represents bot status. _(inferred)_
+
+Depends on: `bool Configured`, `bool Connected`, `string BotName`, `string BotUserId`, `string InviteUrl`, `int ChannelCount`, `int MonitoredCount`, `string Error`.
 
 #### DiscoveryActivityTracker
 
@@ -1845,7 +1907,7 @@ The core background loop. Every minute it runs any sources that are due (respect
 
 Depends on: `IServiceScopeFactory scopeFactory`, `ILogger<DiscoveryWorker> log`.
 
-Data: `_scopeFactory`: IServiceScopeFactory, `_log`: ILogger<DiscoveryWorker>, `_lastMaintenance`: DateTimeOffset, `_lastMyPostsSync`: DateTimeOffset, `_lastInboxSync`: DateTimeOffset, `_lastBriefingDay`: DateTime, `_lastLinkedInPublish`: DateTimeOffset.
+Data: `_scopeFactory`: IServiceScopeFactory, `_log`: ILogger<DiscoveryWorker>, `_lastMaintenance`: DateTimeOffset, `_lastMyPostsSync`: DateTimeOffset, `_lastInboxSync`: DateTimeOffset, `_lastBriefingDay`: DateTime, `_lastLinkedInPublish`: DateTimeOffset, `_lastDiscordSync`: DateTimeOffset.
 
 - protected `ExecuteAsync(CancellationToken stoppingToken) → Task` — Coordinates execute. _(inferred)_
 - private `TickAsync(CancellationToken ct) → Task` — Handles tick. _(inferred)_
@@ -1866,7 +1928,7 @@ Internal HTTP API used for automation and integration (the UI calls services dir
 
 #### ManualLeadDto
 
-public record class `ManualLeadDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:479`
+public record class `ManualLeadDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:530`
 
 Transfers manual lead data. _(inferred)_
 
@@ -1874,7 +1936,7 @@ Depends on: `string Title`, `string Body`, `string? SourceUrl`, `string? Author`
 
 #### DraftDto
 
-public record class `DraftDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:480`
+public record class `DraftDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:531`
 
 Transfers draft data. _(inferred)_
 
@@ -1882,7 +1944,7 @@ Depends on: `string TemplateKey`.
 
 #### QuoteDto
 
-public record class `QuoteDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:481`
+public record class `QuoteDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:532`
 
 Transfers quote data. _(inferred)_
 
@@ -1890,7 +1952,7 @@ Depends on: `double? Amount`, `bool DueOnCompletion`.
 
 #### WebScanRunDto
 
-public record class `WebScanRunDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:482`
+public record class `WebScanRunDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:533`
 
 Transfers web scan run data. _(inferred)_
 
@@ -2009,6 +2071,25 @@ Trend signals, suggested topics, and publishable draft management.
 - private `DraftChip(ContentDraftStatus s) → string` — Handles draft chip. _(inferred)_
 - private `FormatLabel(ContentFormat f) → string` — Transforms or resolves label. _(inferred)_
 - private `Shorten(string s) → string` — Handles shorten. _(inferred)_
+
+#### Discord
+
+public component `Discord` : `ComponentBase` · `src/DevLeads.Web/Components/Pages/Discord.razor:1`
+
+Blazor component for discord.
+
+- private `SyncEngagement() → Task` — Handles sync engagement. _(inferred)_
+- private `GenerateEngagement() → Task` — Creates engagement. _(inferred)_
+- private `AddManualEngagement() → Task` — Creates manual engagement. _(inferred)_
+- private `Run(async () → await` — Coordinates run. _(inferred)_
+- private `SaveEngagement(EngagementDraft draft) → Task` — Updates engagement. _(inferred)_
+- private `SaveEngagementDirect(EngagementDraft draft) → Task` — Updates engagement direct. _(inferred)_
+- private `PublishEngagement(long id) → Task` — Handles publish engagement. _(inferred)_
+- private `DismissEngagement(EngagementDraft draft) → Task` — Removes or transitions engagement. _(inferred)_
+- private `Copy(string text) → Task` — Handles copy. _(inferred)_
+- private `KindLabel(EngagementDraftKind kind) → string` — Handles kind label. _(inferred)_
+- private `ScheduleValue(OperatorPost post) → string` — Handles schedule value. _(inferred)_
+- private `SetSchedule(OperatorPost post, string? value) → void` — Updates schedule. _(inferred)_
 
 #### Drafts
 

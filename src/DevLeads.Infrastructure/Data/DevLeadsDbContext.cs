@@ -43,6 +43,7 @@ public class DevLeadsDbContext : DbContext
     public DbSet<LinkedInAction> LinkedInActions => Set<LinkedInAction>();
     public DbSet<WebScanProbe> WebScanProbes => Set<WebScanProbe>();
     public DbSet<WebAssetFinding> WebAssetFindings => Set<WebAssetFinding>();
+    public DbSet<DiscordChannel> DiscordChannels => Set<DiscordChannel>();
 
     // SQLite stores DateTimeOffset as TEXT and cannot order/compare it. Convert every
     // DateTimeOffset to sortable UTC ticks (long) so ORDER BY and range filters translate.
@@ -176,6 +177,7 @@ public class DevLeadsDbContext : DbContext
             e.HasIndex(a => a.Status);
             e.HasIndex(a => a.Category);
         });
+        mb.Entity<DiscordChannel>().HasIndex(c => c.ChannelId).IsUnique();
         mb.Entity<WebScanProbe>().HasIndex(p => p.Name).IsUnique();
         mb.Entity<WebAssetFinding>(e =>
         {

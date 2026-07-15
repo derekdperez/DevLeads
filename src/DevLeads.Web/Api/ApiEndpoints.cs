@@ -394,6 +394,57 @@ public static class ApiEndpoints
         MapLinkedInActionStatus(api, "dismiss", Core.LinkedInActionStatus.Dismissed);
         MapLinkedInActionStatus(api, "reopen", Core.LinkedInActionStatus.Pending);
 
+        // ---- Discord (bot posting, channel monitoring, and reviewed replies) ----
+        api.MapGet("/discord/status", async (DiscordService discord) =>
+            Results.Ok(await discord.GetStatusAsync(default)));
+        api.MapGet("/discord/channels", async (DevLeadsDbContext db) =>
+            Results.Ok(await db.DiscordChannels.AsNoTracking()
+                .OrderBy(c => c.GuildName).ThenBy(c => c.ChannelName).ToListAsync()));
+        api.MapPost("/discord/channels/sync", async (DiscordService discord) =>
+        {
+            var (guilds, channels, message) = await discord.SyncChannelsAsync(default);
+            return Results.Ok(new { guilds, channels, message });
+        });
+        api.MapPost("/discord/channels/{id:long}/monitor", async (long id, bool enabled, DevLeadsDbContext db) =>
+        {
+            var row = await db.DiscordChannels.FirstOrDefaultAsync(c => c.Id == id);
+            if (row is null) return Results.NotFound();
+            row.MonitorEnabled = enabled;
+            row.UpdatedAt = DateTimeOffset.UtcNow;
+            await db.SaveChangesAsync();
+            return Results.Ok(row);
+        });
+        api.MapPost("/discord/publish/{id:long}", async (long id, DiscordService discord) =>
+        {
+            var (ok, message) = await discord.PublishPostAsync(id, default);
+            return ok ? Results.Ok(new { message }) : Results.BadRequest(new { message });
+        });
+        api.MapPost("/discord/publish-due", async (DiscordService discord) =>
+        {
+            var (published, failed, message) = await discord.PublishDueAsync(default);
+            return Results.Ok(new { published, failed, message });
+        });
+        api.MapPost("/discord/track", async (string link, DiscordService discord) =>
+        {
+            var (ok, message) = await discord.TrackMessageAsync(link, default);
+            return ok ? Results.Ok(new { message }) : Results.BadRequest(new { message });
+        });
+        api.MapPost("/discord/engagement/sync", async (DiscordService discord) =>
+        {
+            var (imported, checkedChannels, message) = await discord.SyncEngagementAsync(default);
+            return Results.Ok(new { imported, checkedChannels, message });
+        });
+        api.MapPost("/discord/engagement/generate", async (string? instructions, DiscordService discord) =>
+        {
+            var (generated, message) = await discord.GenerateEngagementBatchAsync(instructions ?? "", default);
+            return generated > 0 ? Results.Ok(new { generated, message }) : Results.BadRequest(new { message });
+        });
+        api.MapPost("/discord/engagement/{id:long}/publish", async (long id, DiscordService discord) =>
+        {
+            var (ok, message) = await discord.PublishEngagementAsync(id, default);
+            return ok ? Results.Ok(new { message }) : Results.BadRequest(new { message });
+        });
+
         // ---- Site rescue (broken business web assets → repair leads) ----
         api.MapGet("/webscan/probes", async (DevLeadsDbContext db) =>
             Results.Ok(await db.WebScanProbes.AsNoTracking().OrderByDescending(p => p.UpdatedAt).ToListAsync()));

@@ -55,10 +55,13 @@ public class OperatorPost
     public string Notes { get; set; } = "";
 
     /// <summary>
-    /// Requested publish time for an approved LinkedIn draft. The worker publishes only
-    /// Draft rows whose schedule is due; null means no automatic publishing.
+    /// Requested publish time for an approved LinkedIn/Discord draft. The worker publishes
+    /// only Draft rows whose schedule is due; null means no automatic publishing.
     /// </summary>
     public DateTimeOffset? ScheduledAt { get; set; }
+
+    /// <summary>Discord channel snowflake this draft posts to (discord platform only).</summary>
+    public string DiscordChannelId { get; set; } = "";
 
     public DateTimeOffset PostedAt { get; set; }
     public DateTimeOffset CreatedAt { get; set; }

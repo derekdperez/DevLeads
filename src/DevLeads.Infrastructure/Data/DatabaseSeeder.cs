@@ -613,7 +613,34 @@ public static class DatabaseSeeder
             """,
             "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_WebAssetFindings_Url\" ON \"WebAssetFindings\" (\"Url\")",
             "CREATE INDEX IF NOT EXISTS \"IX_WebAssetFindings_Status\" ON \"WebAssetFindings\" (\"Status\")",
-            "CREATE INDEX IF NOT EXISTS \"IX_WebAssetFindings_Host\" ON \"WebAssetFindings\" (\"Host\")"
+            "CREATE INDEX IF NOT EXISTS \"IX_WebAssetFindings_Host\" ON \"WebAssetFindings\" (\"Host\")",
+            // Discord bot integration (2026-07-14): post ads via the operator's own bot,
+            // monitor invited channels for replies/mentions, reviewed reply drafts.
+            "ALTER TABLE OperatorSettings ADD COLUMN DiscordBotToken TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN DiscordApplicationId TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN DiscordBotUserId TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN DiscordBotName TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN DiscordUserId TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN DiscordEngagementAiProvider TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN DiscordEngagementAiModel TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorPosts ADD COLUMN DiscordChannelId TEXT NOT NULL DEFAULT ''",
+            """
+            CREATE TABLE IF NOT EXISTS "DiscordChannels" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_DiscordChannels" PRIMARY KEY AUTOINCREMENT,
+                "GuildId" TEXT NOT NULL,
+                "GuildName" TEXT NOT NULL,
+                "ChannelId" TEXT NOT NULL,
+                "ChannelName" TEXT NOT NULL,
+                "MonitorEnabled" INTEGER NOT NULL,
+                "LastSyncedMessageId" TEXT NOT NULL,
+                "LastSyncedAt" INTEGER NULL,
+                "Notes" TEXT NOT NULL,
+                "Stale" INTEGER NOT NULL,
+                "CreatedAt" INTEGER NOT NULL,
+                "UpdatedAt" INTEGER NOT NULL
+            )
+            """,
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_DiscordChannels_ChannelId\" ON \"DiscordChannels\" (\"ChannelId\")"
         };
         foreach (var sql in upgrades)
         {
