@@ -128,6 +128,7 @@ public class `LinkedInPrompts` · `src/DevLeads.Core/Ai/LinkedInPrompts.cs:7`
 Grounded batched reply generation for LinkedIn comments and pasted messages.
 
 - public `BuildEngagementBatchPrompt(OperatorSettings op, string operatorSkills, IReadOnlyList<EngagementItem> items, string extraInstructions) → string` — Creates engagement batch prompt. _(inferred)_
+- public `BuildActionPlanPrompt(OperatorSettings op, string operatorSkills, IReadOnlyList<string> campaignObjectives, string profileText, IReadOnlyList<string> activityFacts, IReadOnlyList<string> doneActions, IReadOnlyList<string> dismissedActions, string extraInstructions) → string` — One call reviews everything the app knows about the operator's LinkedIn presence (the pasted whole-profile snapshot, tracked activity, completed/dismissed actions) and plans the…
 - private `Compact(string value, int max) → string` — Transforms or resolves compact. _(inferred)_
 
 #### EngagementItem
@@ -159,7 +160,7 @@ Prompt for batched outreach-response generation: every queued lead in one model 
 
 public class `PlatformPostPrompts` · `src/DevLeads.Core/Ai/PlatformPostPrompts.cs:11`
 
-Prompt for drafting the operator's OWN posts/ads/profiles for a specific platform (reddit, craigslist, LinkedIn, Upwork, gmail outreach template) in the operator's real identity and voice, informed by which past posts…
+Prompt for drafting the operator's OWN posts/ads/profiles for a specific platform (reddit, craigslist, LinkedIn, Upwork, gmail outreach template, Discord server offer) in the operator's real identity and voice…
 
 Data: `SupportedPlatforms`: string[].
 
@@ -179,6 +180,23 @@ Data: `SignupPackChunkSize`: int.
 
 - public `BuildDiscoveryPrompt(OperatorSettings op, string operatorSkills, IReadOnlyList<string> campaignObjectives, IReadOnlyList<string> knownPlatforms) → string` — Creates discovery prompt. _(inferred)_
 - public `BuildSignupPackPrompt(IReadOnlyList<PlatformProfile> platforms, OperatorSettings op, string operatorSkills, string campaignObjective, string extraInstructions) → string` — One batched call writes the complete signup pack for several platforms at once — every field a signup/profile form asks for plus the first post, each shaped by that platform's…
+
+#### WebOutreachItem
+
+public class `WebOutreachItem` · `src/DevLeads.Core/Ai/WebRescuePrompts.cs:7`
+
+One broken web asset inside a batched repair-offer generation call.
+
+Data: `Id`: string, `BusinessName`: string, `Host`: string, `Url`: string, `Severity`: string, `Signal`: string, `Evidence`: string, `DetectedSoftware`: string.
+
+#### WebRescuePrompts
+
+public class `WebRescuePrompts` · `src/DevLeads.Core/Ai/WebRescuePrompts.cs:24`
+
+Prompt for batched repair-offer email generation: every selected broken-asset finding in one model call, each email grounded strictly in that asset's observed, public symptom.
+
+- public `BuildOutreachBatchPrompt(IReadOnlyList<WebOutreachItem> items, OperatorSettings op, string operatorSkills, string extraInstructions) → string` — Creates outreach batch prompt. _(inferred)_
+- private `Compact(string value, int max) → string` — Transforms or resolves compact. _(inferred)_
 
 ### `DevLeads.Core`
 
@@ -309,6 +327,22 @@ A dated reminder to touch a client or push an engagement forward. Due/overdue fo
 
 Data: `Id`: long, `ClientId`: long, `Client`: Client?, `EngagementId`: long?, `Note`: string, `DueAt`: DateTimeOffset, `Status`: FollowUpStatus, `CompletedAt`: DateTimeOffset?, `CreatedAt`: DateTimeOffset.
 
+#### LinkedInAction
+
+public class `LinkedInAction` · `src/DevLeads.Core/Entities/LinkedInAction.cs:9`
+
+One concrete step in the AI-planned LinkedIn action plan (improve the profile, invite connections, publish content, …). LinkedIn's self-serve API cannot automate any of this, so every action is hand-executed by the…
+
+Data: `Id`: long, `Category`: LinkedInActionCategory, `Title`: string, `Why`: string, `Steps`: string, `Status`: LinkedInActionStatus, `SortOrder`: int, `Provider`: string, `Model`: string, `GeneratedAt`: DateTimeOffset, `CompletedAt`: DateTimeOffset?, `UpdatedAt`: DateTimeOffset.
+
+#### LinkedInProfileField
+
+public class `LinkedInProfileField` · `src/DevLeads.Core/Entities/LinkedInProfileField.cs:9`
+
+One editable section of the operator's LinkedIn profile (headline, about, …), kept locally because LinkedIn's self-serve API cannot read profile sections.
+
+Data: `Id`: long, `FieldKey`: string, `DisplayName`: string, `Guidance`: string, `SortOrder`: int, `CurrentText`: string, `SuggestedText`: string, `SuggestedAt`: DateTimeOffset?, `Provider`: string, `Model`: string, `UpdatedAt`: DateTimeOffset.
+
 #### OperatorDocument
 
 public class `OperatorDocument` · `src/DevLeads.Core/Entities/OperatorDocument.cs:9`
@@ -355,7 +389,7 @@ public class `OperatorSettings` · `src/DevLeads.Core/Entities/OperatorSettings.
 
 Single-row settings for the solo operator: profile, AI, outreach, and safety controls.
 
-Data: `Id`: long, `OperatorName`: string, `BusinessName`: string, `Location`: string, `ContactEmail`: string, `RemoteAvailability`: string, `CoreSkills`: string, `SecondarySkills`: string, `MinimumFee`: double, `PreferredPaymentTerms`: string, `EmergencyAvailability`: bool, `AiProvider`: string, `AiModel`: string, `OpenCodeCliPath`: string, `CodexCliPath`: string, `DefaultOpenCodeModel`: string, `DefaultAnthropicModel`: string, `DefaultCodexModel`: string, `TriageAiProvider`: string, `TriageAiModel`: string, `OutreachAiProvider`: string, `OutreachAiModel`: string, `ContentTopicsAiProvider`: string, `ContentTopicsAiModel`: string, `ContentDraftsAiProvider`: string, `ContentDraftsAiModel`: string, `PostDraftAiProvider`: string, `PostDraftAiModel`: string, `ThreadSummaryAiProvider`: string, `ThreadSummaryAiModel`: string, `PostOptimizationAiProvider`: string, `PostOptimizationAiModel`: string, `AdvisorAiProvider`: string, `AdvisorAiModel`: string, `PlatformDiscoveryAiProvider`: string, `PlatformDiscoveryAiModel`: string, `LinkedInEngagementAiProvider`: string, `LinkedInEngagementAiModel`: string, `PromptVersion`: string, `MaxAiCallsPerHour`: int, `MaxAiSpendPerDay`: double, `MinPreFilterScoreForAi`: double, `MinAiConfidenceForDraft`: double, `ManualReviewConfidenceThreshold`: double, `AiRetryCount`: int, `AiTimeoutSeconds`: int, `DefaultOutreachMode`: OutreachMode, `GlobalAutoModeEnabled`: bool, `GlobalKillSwitch`: bool, `MaxSendsPerHour`: int, `MaxSendsPerDay`: int, `RequireApprovalAboveRisk`: double, `RequireApprovalBelowConfidence`: double, `SuppressionListEnabled`: bool, `AuditLoggingEnabled`: bool, `DraftScoreThreshold`: double, `AlertScoreThreshold`: double, `SelectedCampaignId`: long?, `DiscoveryEnabled`: bool, `ContentDiscoveryEnabled`: bool, `RedditUsername`: string, `RedditClientId`: string, `RedditClientSecret`: string, `RedditAppPassword`: string, `RedditInboxFeedToken`: string, `LinkedInClientId`: string, `LinkedInClientSecret`: string, `LinkedInRedirectUri`: string, `LinkedInScopes`: string, `LinkedInApiVersion`: string, `LinkedInAccessToken`: string, `LinkedInAccessTokenExpiresAt`: DateTimeOffset?, `LinkedInRefreshToken`: string, `LinkedInRefreshTokenExpiresAt`: DateTimeOffset?, `LinkedInMemberId`: string, `LinkedInMemberName`: string, `LinkedInMemberPictureUrl`: string, `LinkedInOAuthState`: string, `LinkedInOAuthStateExpiresAt`: DateTimeOffset?, `StaleItemMaxAgeHours`: int, `FollowUpDefaultHours`: int.
+Data: `Id`: long, `OperatorName`: string, `BusinessName`: string, `Location`: string, `ContactEmail`: string, `RemoteAvailability`: string, `CoreSkills`: string, `SecondarySkills`: string, `MinimumFee`: double, `PreferredPaymentTerms`: string, `EmergencyAvailability`: bool, `AiProvider`: string, `AiModel`: string, `OpenCodeCliPath`: string, `CodexCliPath`: string, `DefaultOpenCodeModel`: string, `DefaultAnthropicModel`: string, `DefaultCodexModel`: string, `TriageAiProvider`: string, `TriageAiModel`: string, `OutreachAiProvider`: string, `OutreachAiModel`: string, `ContentTopicsAiProvider`: string, `ContentTopicsAiModel`: string, `ContentDraftsAiProvider`: string, `ContentDraftsAiModel`: string, `PostDraftAiProvider`: string, `PostDraftAiModel`: string, `ThreadSummaryAiProvider`: string, `ThreadSummaryAiModel`: string, `PostOptimizationAiProvider`: string, `PostOptimizationAiModel`: string, `AdvisorAiProvider`: string, `AdvisorAiModel`: string, `PlatformDiscoveryAiProvider`: string, `PlatformDiscoveryAiModel`: string, `LinkedInEngagementAiProvider`: string, `LinkedInEngagementAiModel`: string, `LinkedInProfileAiProvider`: string, `LinkedInProfileAiModel`: string, `WebAssetOutreachAiProvider`: string, `WebAssetOutreachAiModel`: string, `PromptVersion`: string, `MaxAiCallsPerHour`: int, `MaxAiSpendPerDay`: double, `MinPreFilterScoreForAi`: double, `MinAiConfidenceForDraft`: double, `ManualReviewConfidenceThreshold`: double, `AiRetryCount`: int, `AiTimeoutSeconds`: int, `DefaultOutreachMode`: OutreachMode, `GlobalAutoModeEnabled`: bool, `GlobalKillSwitch`: bool, `MaxSendsPerHour`: int, `MaxSendsPerDay`: int, `RequireApprovalAboveRisk`: double, `RequireApprovalBelowConfidence`: double, `SuppressionListEnabled`: bool, `AuditLoggingEnabled`: bool, `DraftScoreThreshold`: double, `AlertScoreThreshold`: double, `SelectedCampaignId`: long?, `DiscoveryEnabled`: bool, `ContentDiscoveryEnabled`: bool, `RedditUsername`: string, `RedditClientId`: string, `RedditClientSecret`: string, `RedditAppPassword`: string, `RedditInboxFeedToken`: string, `LinkedInClientId`: string, `LinkedInClientSecret`: string, `LinkedInRedirectUri`: string, `LinkedInScopes`: string, `LinkedInApiVersion`: string, `LinkedInAccessToken`: string, `LinkedInAccessTokenExpiresAt`: DateTimeOffset?, `LinkedInRefreshToken`: string, `LinkedInRefreshTokenExpiresAt`: DateTimeOffset?, `LinkedInMemberId`: string, `LinkedInMemberName`: string, `LinkedInMemberPictureUrl`: string, `LinkedInOAuthState`: string, `LinkedInOAuthStateExpiresAt`: DateTimeOffset?, `LinkedInProfileReview`: string, `LinkedInProfileReviewAt`: DateTimeOffset?, `LinkedInProfileSnapshot`: string, `WebScanSearchEndpoint`: string, `WebScanMaxTargetsPerRun`: int, `StaleItemMaxAgeHours`: int, `FollowUpDefaultHours`: int.
 
 - public `AiFor(AiFeature feature) → (string Provider, string Model)` — The provider/model pair a feature actually uses, after override resolution.
 - public `WithAiFor(AiFeature feature) → OperatorSettings` — Copy of these settings with AiProvider/AiModel resolved for a feature.
@@ -459,6 +493,22 @@ public class `TrendSource` · `src/DevLeads.Core/Entities/TrendSource.cs:8`
 A feed/community polled for *content* signals (trending topics, releases, updates) rather than leads. Kept separate from SourceConfig on purpose: trend sources have no triage thresholds, and their items become…
 
 Data: `Id`: long, `SeedKey`: string, `Kind`: string, `DisplayName`: string, `ParametersJson`: string, `Enabled`: bool, `PollIntervalMinutes`: int, `MaxItemsPerRun`: int, `RequireSkillMatch`: bool, `LastRunHealthy`: bool, `LastRunMessage`: string?, `LastRunItemCount`: int, `LastRunAt`: DateTimeOffset?, `NextRunAt`: DateTimeOffset?.
+
+#### WebAssetFinding
+
+public class `WebAssetFinding` · `src/DevLeads.Core/Entities/WebAssetFinding.cs:10`
+
+A broken or degraded business web asset discovered by the Site rescue scanner: the concrete failing URL, what failed, who appears to own it, and the operator's drafted repair-offer outreach.
+
+Data: `Id`: long, `ProbeId`: long?, `ProbeName`: string, `Url`: string, `Host`: string, `BusinessName`: string, `Severity`: WebAssetSeverity, `Detection`: WebAssetDetection, `Status`: WebAssetStatus, `HttpStatus`: int, `Signal`: string, `Evidence`: string, `DetectedSoftware`: string, `ContactEmail`: string, `ContactSource`: string, `OutreachSubject`: string, `OutreachBody`: string, `OutreachProvider`: string, `OutreachModel`: string, `OutreachGeneratedAt`: DateTimeOffset?, `Notes`: string, `FirstSeenAt`: DateTimeOffset, `LastCheckedAt`: DateTimeOffset, `CreatedAt`: DateTimeOffset, `UpdatedAt`: DateTimeOffset.
+
+#### WebScanProbe
+
+public class `WebScanProbe` · `src/DevLeads.Core/Entities/WebScanProbe.cs:10`
+
+A reusable definition of what "broken" looks like for the Site rescue scanner: a software package to fingerprint, the error text/behaviour that signals a failure, the extra public paths worth checking, and the search…
+
+Data: `Id`: long, `Name`: string, `Description`: string, `SoftwarePackage`: string, `ErrorSignatures`: string, `PathsToCheck`: string, `DiscoveryQueries`: string, `FlagServerErrors`: bool, `Enabled`: bool, `CreatedAt`: DateTimeOffset, `UpdatedAt`: DateTimeOffset, `LastRunAt`: DateTimeOffset?, `LastRunChecked`: int, `LastRunFound`: int.
 
 #### WorkSession
 
@@ -578,45 +628,75 @@ public enum `EngagementDraftStatus` · `src/DevLeads.Core/Enums.cs:212`
 
 Human-in-the-loop lifecycle for a LinkedIn engagement response.
 
+#### LinkedInActionCategory
+
+public enum `LinkedInActionCategory` · `src/DevLeads.Core/Enums.cs:221`
+
+Which part of LinkedIn presence-building a planned action improves.
+
+#### LinkedInActionStatus
+
+public enum `LinkedInActionStatus` · `src/DevLeads.Core/Enums.cs:240`
+
+Operator-side lifecycle of one planned LinkedIn action.
+
 #### ClientStatus
 
-public enum `ClientStatus` · `src/DevLeads.Core/Enums.cs:221`
+public enum `ClientStatus` · `src/DevLeads.Core/Enums.cs:248`
 
 Relationship stage of a client (a real person/business the operator works with).
 
 #### EngagementStatus
 
-public enum `EngagementStatus` · `src/DevLeads.Core/Enums.cs:234`
+public enum `EngagementStatus` · `src/DevLeads.Core/Enums.cs:261`
 
 Lifecycle of a client engagement (a bounded project, fix, or retainer).
 
 #### FollowUpStatus
 
-public enum `FollowUpStatus` · `src/DevLeads.Core/Enums.cs:246`
+public enum `FollowUpStatus` · `src/DevLeads.Core/Enums.cs:273`
 
 Lifecycle of a scheduled follow-up reminder.
 
 #### InteractionDirection
 
-public enum `InteractionDirection` · `src/DevLeads.Core/Enums.cs:254`
+public enum `InteractionDirection` · `src/DevLeads.Core/Enums.cs:281`
 
 Direction of a logged client interaction.
 
 #### PlatformPresenceStatus
 
-public enum `PlatformPresenceStatus` · `src/DevLeads.Core/Enums.cs:261`
+public enum `PlatformPresenceStatus` · `src/DevLeads.Core/Enums.cs:288`
 
 Where a platform sits in the operator's presence-building funnel.
 
 #### SuppressionContactType
 
-public enum `SuppressionContactType` · `src/DevLeads.Core/Enums.cs:274`
+public enum `SuppressionContactType` · `src/DevLeads.Core/Enums.cs:301`
 
 How a contact was added to the suppression list.
 
+#### WebAssetSeverity
+
+public enum `WebAssetSeverity` · `src/DevLeads.Core/Enums.cs:310`
+
+How badly a scanned business web asset is broken.
+
+#### WebAssetStatus
+
+public enum `WebAssetStatus` · `src/DevLeads.Core/Enums.cs:321`
+
+Operator-side lifecycle of a discovered broken web asset (a potential repair lead).
+
+#### WebAssetDetection
+
+public enum `WebAssetDetection` · `src/DevLeads.Core/Enums.cs:332`
+
+How a broken web asset was found.
+
 #### AiFeature
 
-public enum `AiFeature` · `src/DevLeads.Core/Enums.cs:287`
+public enum `AiFeature` · `src/DevLeads.Core/Enums.cs:345`
 
 The distinct AI call sites in the app. Each can carry its own provider/model override in Entities.OperatorSettings; an unset override inherits the global AiProvider/AiModel pair.
 
@@ -909,6 +989,22 @@ Whole-word term matching for query-pack terms and pre-filter signals. Plain subs
 
 - public `ContainsWholeTerm(string text, string term) → bool` — Checks whole term. _(inferred)_
 
+#### WebBreakageSignature
+
+public record struct `WebBreakageSignature` · `src/DevLeads.Core/WebBreakageSignatures.cs:4`
+
+One built-in error signature: the text to look for and how bad it is.
+
+Depends on: `string Text`, `WebAssetSeverity Severity`, `string Label`.
+
+#### WebBreakageSignatures
+
+public class `WebBreakageSignatures` · `src/DevLeads.Core/WebBreakageSignatures.cs:13`
+
+A curated catalog of common "this site is broken" fingerprints, so a probe works out of the box before the operator adds custom error text.
+
+Data: `Defaults`: IReadOnlyList<WebBreakageSignature>, `SoftwareFingerprints`: IReadOnlyDictionary<string, string[]>.
+
 ## DevLeads.Infrastructure
 
 ### `DevLeads.Infrastructure.Ai`
@@ -1189,12 +1285,14 @@ public class `DatabaseSeeder` · `src/DevLeads.Infrastructure/Data/DatabaseSeede
 
 Creates the database and seeds query packs, source configs, and settings. Also migrates older databases: removes retired sources (GitHub Issues) and purges leads that cannot become paid work or useful owner/operator…
 
-Data: `LegacyPackNames`: Dictionary<string, string>, `EmergencyCampaignKey`: string, `ModernizationCampaignKey`: string, `AiAutomationCampaignKey`: string, `EngagedStatuses`: OpportunityStatus[].
+Data: `LegacyPackNames`: Dictionary<string, string>, `EmergencyCampaignKey`: string, `ModernizationCampaignKey`: string, `AiAutomationCampaignKey`: string, `MentoringCampaignKey`: string, `EngagedStatuses`: OpportunityStatus[].
 
 - public `InitializeAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — Coordinates initialize. _(inferred)_
 - private `RequeueTemplateDraftsAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — One-time (2026-07-11): unapproved template mad-lib drafts ("I saw your post about [title]…") are moved into the AI generation queue so the batched generator rewrites them…
 - private `DemoteGenericCapabilitySkillsAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — One-time data fix (2026-07-11): "REST API" was seeded as a weight-3 "Primary stack" skill, which made every Go/Python job post score as a core.NET fit.
 - private `ApplySchemaUpgradesAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — EnsureCreated never alters existing tables, so columns added after first release are applied here with idempotent ALTERs (SQLite raises on duplicates — ignored).
+- private `SeedWebScanProbesAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — Seeds a couple of ready-to-run Site rescue probes so the scanner works out of the box. Only seeds when the table is empty — the operator owns probes after that.
+- private `BackfillLinkedInProfileSnapshotAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — One-time move from the retired per-section profile studio to the single pasted snapshot the action plan reviews: whatever the operator pasted per section becomes the initial…
 - private `MigrateAiProviderDefaultsAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — Moves settings still on an old AI default onto the current one (OpenCode CLI). Explicit operator choices (anything not matching an old default) are untouched.
 - private `SeedQueryPacksAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — Creates query packs. _(inferred)_
 - private `SeedSkillsAsync(DevLeadsDbContext db, CancellationToken ct) → Task` — Seeds the operator skill profile once; the Skills page owns it afterwards.
@@ -1233,14 +1331,14 @@ EF Core context for the SQLite solo database.
 
 Depends on: `DbContextOptions<DevLeadsDbContext> options`.
 
-Data: `Opportunities`: DbSet<Opportunity>, `RawSourceItems`: DbSet<RawSourceItem>, `AiTriageRuns`: DbSet<AiTriageRun>, `OutreachAttempts`: DbSet<OutreachAttempt>, `Quotes`: DbSet<Quote>, `WorkSessions`: DbSet<WorkSession>, `SuppressionEntries`: DbSet<SuppressionEntry>, `AuditEvents`: DbSet<AuditEvent>, `SourceConfigs`: DbSet<SourceConfig>, `QueryPacks`: DbSet<QueryPack>, `OperatorSettings`: DbSet<OperatorSettings>, `Skills`: DbSet<Skill>, `Campaigns`: DbSet<Campaign>, `TrendSources`: DbSet<TrendSource>, `TrendSignals`: DbSet<TrendSignal>, `ContentTopics`: DbSet<ContentTopic>, `ContentDrafts`: DbSet<ContentDraft>, `OperatorPosts`: DbSet<OperatorPost>, `OperatorPostSnapshots`: DbSet<OperatorPostSnapshot>, `OperatorMessages`: DbSet<OperatorMessage>, `OperatorPostRevisions`: DbSet<OperatorPostRevision>, `Clients`: DbSet<Client>, `Engagements`: DbSet<Engagement>, `ClientInteractions`: DbSet<ClientInteraction>, `FollowUps`: DbSet<FollowUp>, `PlatformProfiles`: DbSet<PlatformProfile>, `AdvisorBriefings`: DbSet<AdvisorBriefing>, `OperatorDocuments`: DbSet<OperatorDocument>, `EngagementDrafts`: DbSet<EngagementDraft>.
+Data: `Opportunities`: DbSet<Opportunity>, `RawSourceItems`: DbSet<RawSourceItem>, `AiTriageRuns`: DbSet<AiTriageRun>, `OutreachAttempts`: DbSet<OutreachAttempt>, `Quotes`: DbSet<Quote>, `WorkSessions`: DbSet<WorkSession>, `SuppressionEntries`: DbSet<SuppressionEntry>, `AuditEvents`: DbSet<AuditEvent>, `SourceConfigs`: DbSet<SourceConfig>, `QueryPacks`: DbSet<QueryPack>, `OperatorSettings`: DbSet<OperatorSettings>, `Skills`: DbSet<Skill>, `Campaigns`: DbSet<Campaign>, `TrendSources`: DbSet<TrendSource>, `TrendSignals`: DbSet<TrendSignal>, `ContentTopics`: DbSet<ContentTopic>, `ContentDrafts`: DbSet<ContentDraft>, `OperatorPosts`: DbSet<OperatorPost>, `OperatorPostSnapshots`: DbSet<OperatorPostSnapshot>, `OperatorMessages`: DbSet<OperatorMessage>, `OperatorPostRevisions`: DbSet<OperatorPostRevision>, `Clients`: DbSet<Client>, `Engagements`: DbSet<Engagement>, `ClientInteractions`: DbSet<ClientInteraction>, `FollowUps`: DbSet<FollowUp>, `PlatformProfiles`: DbSet<PlatformProfile>, `AdvisorBriefings`: DbSet<AdvisorBriefing>, `OperatorDocuments`: DbSet<OperatorDocument>, `EngagementDrafts`: DbSet<EngagementDraft>, `LinkedInProfileFields`: DbSet<LinkedInProfileField>, `LinkedInActions`: DbSet<LinkedInAction>, `WebScanProbes`: DbSet<WebScanProbe>, `WebAssetFindings`: DbSet<WebAssetFinding>.
 
 - protected `ConfigureConventions(ModelConfigurationBuilder b) → void` — Handles configure conventions. _(inferred)_
 - protected `OnModelCreating(ModelBuilder mb) → void` — Handles on model creating. _(inferred)_
 
 #### DateTimeOffsetToTicksConverter
 
-private class `DateTimeOffsetToTicksConverter` : `ValueConverter<DateTimeOffset, long>` · `src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:45`
+private class `DateTimeOffsetToTicksConverter` : `ValueConverter<DateTimeOffset, long>` · `src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:49`
 
 Represents date time offset to ticks converter. _(inferred)_
 
@@ -1449,6 +1547,10 @@ Data: `AuthorizationEndpoint`: string, `TokenEndpoint`: string, `UserInfoEndpoin
 - public `PublishDueAsync(CancellationToken ct) → Task<(int Published, int Failed, string Message)>` — Publishes every due LinkedIn draft; one failure does not block later rows.
 - public `SyncEngagementAsync(CancellationToken ct) → Task<(int Imported, int CheckedPosts, string Message)>` — Imports top-level comments for tracked posts. LinkedIn grants the required read permission only to approved Community Management apps, so a missing scope is a clear capability…
 - public `GenerateEngagementBatchAsync(string extraInstructions, CancellationToken ct) → Task<(int Generated, string Message)>` — Syncs what is available, then drafts all undrafted pending responses in one AI call.
+- public `GenerateActionPlanAsync(string extraInstructions, CancellationToken ct) → Task<(int Created, string Message)>` — One AI call reviews the operator's LinkedIn presence — the pasted whole-profile snapshot plus what the app tracks (connection state, posts, engagement, action history) — and…
+- private `BuildActivityFactsAsync(OperatorSettings s, CancellationToken ct) → Task<List<string>>` — Deterministic (zero-AI-cost) presence facts the plan is grounded in.
+- private `ParseActionPlan(string output) → (List<(LinkedInActionCategory, string, string, string)> Actions, string Summary)` — Transforms or resolves action plan. _(inferred)_
+- private `ParseActionCategory(string value) → LinkedInActionCategory` — Transforms or resolves action category. _(inferred)_
 - public `CreateManualEngagementAsync(string author, string sourceText, EngagementDraftKind kind, CancellationToken ct) → Task<EngagementDraft>` — Creates manual engagement. _(inferred)_
 - public `PublishEngagementAsync(long draftId, CancellationToken ct) → Task<(bool Succeeded, string Message)>` — Publishes a reviewed public-comment response. Pasted private messages stay copy-only.
 - private `ApiRequest(HttpMethod method, string path, OperatorSettings s) → HttpRequestMessage` — Handles api request. _(inferred)_
@@ -1500,7 +1602,7 @@ Depends on: `DevLeadsDbContext db`, `IHttpClientFactory httpFactory`, `AiTextRou
 
 Data: `Atom`: XNamespace, `RequestPacing`: TimeSpan, `JobCommunities`: string[], `_db`: DevLeadsDbContext, `_httpFactory`: IHttpClientFactory, `_text`: AiTextRouter, `_activity`: DiscoveryActivityTracker, `_audit`: AuditService, `_log`: ILogger<OperatorPostService>, `_cachedToken`: string?, `_tokenExpiresAt`: DateTimeOffset, `TokenLock`: SemaphoreSlim.
 
-- public `GeneratePostAsync(string platform, long? campaignId, string extraInstructions, CancellationToken ct) → Task<(OperatorPost? Post, string Message)>` — One AI call drafts a platform-appropriate post (reddit/craigslist/linkedin/upwork/ gmail template) in the operator's real identity, using the best-performing tracked posts as…
+- public `GeneratePostAsync(string platform, long? campaignId, string extraInstructions, CancellationToken ct) → Task<(OperatorPost? Post, string Message)>` — One AI call drafts a platform-appropriate post (reddit/craigslist/linkedin/upwork/ gmail template/discord offer) in the operator's real identity, using the best-performing…
 - private `SplitTitle(string text) → (string Title, string Body)` — Transforms or resolves title. _(inferred)_
 - public `SyncRedditAsync(bool jobPostsOnly, CancellationToken ct) → Task<(int Imported, int Refreshed, string Message)>` — Imports the account's submitted posts and refreshes reply counts on tracked ones. jobPostsOnly keeps personal posts out (default): a post imports when its subreddit is…
 - private `ImportSubmittedAsync(HttpClient http, string username, bool jobPostsOnly, CancellationToken ct) → Task<int>` — Handles import submitted. _(inferred)_
@@ -1675,6 +1777,50 @@ Data: `_db`: DevLeadsDbContext, `_connectors`: IEnumerable<ISourceConnector>, `_
 - private `ParseParameters(string json) → IReadOnlyDictionary<string, string>` — Transforms or resolves parameters. _(inferred)_
 - private `Compact(string value, int max) → string` — Transforms or resolves compact. _(inferred)_
 
+#### WebRescueService
+
+public class `WebRescueService` · `src/DevLeads.Infrastructure/Services/WebRescueService.cs:25`
+
+Site rescue: actively but passively probes business web assets for public errors/outages that match an operator-defined WebScanProbe, records confirmed breakage as WebAssetFinding repair leads, discovers an owner…
+
+Depends on: `DevLeadsDbContext db`, `IHttpClientFactory httpFactory`, `AiTextRouter text`, `AuditService audit`, `ILogger<WebRescueService> log`.
+
+Data: `ProbePathDenyList`: string[], `PlatformHosts`: string[], `EmailRegex`: Regex, `MaxBodyChars`: int, `_db`: DevLeadsDbContext, `_httpFactory`: IHttpClientFactory, `_text`: AiTextRouter, `_audit`: AuditService, `_log`: ILogger<WebRescueService>.
+
+- public `ScanAsync(long probeId, string manualTargets, bool useDiscovery, CancellationToken ct) → Task<(int Checked, int Found, string Message)>` — Runs a probe against pasted targets and (optionally) search-discovered targets. Each target is verified; only broken/degraded assets become findings. Returns a summary.
+- public `RecheckAsync(long findingId, CancellationToken ct) → Task<(bool Ok, string Message)>` — Re-checks one existing finding and refreshes its live status/evidence.
+- public `GenerateOutreachBatchAsync(string extraInstructions, CancellationToken ct) → Task<(int Generated, string Message)>` — Drafts repair-offer emails for every New finding that has a contact and no draft yet, in one batched AI call. Suppressed contacts are skipped. Nothing is sent.
+- public `RefreshContactAsync(long findingId, CancellationToken ct) → Task<(bool Ok, string Message)>` — Re-runs contact discovery for one finding (when the first pass found nothing).
+- private `AnalyzeAsync(HttpClient http, string url, WebScanProbe? probe, CancellationToken ct) → Task<(Analysis? Result, string HomepageBody)>` — Fetches the homepage and any probe paths, returning the breakage analysis (null when healthy) plus the homepage body so contact discovery can reuse it.
+- private `EnumerateTargets(string url, IReadOnlyList<string> paths) → IEnumerable<(string Target, bool IsHomepage)>` — Handles enumerate targets. _(inferred)_
+- private `Evaluate(string target, int status, string headers, string body, string? transportError, WebScanProbe? probe, IReadOnlyList<WebBreakageSignature> signatures) → Analysis?` — Handles evaluate. _(inferred)_
+- private `FetchAsync(HttpClient http, string target, CancellationToken ct) → Task<(int Status, string Headers, string Body, string? TransportError)>` — Loads or resolves fetch. _(inferred)_
+- private `DescribeTransportError(HttpRequestException ex) → string` — Handles describe transport error. _(inferred)_
+- private `DiscoverContactAsync(HttpClient http, string host, string? homepageBody, CancellationToken ct) → Task<(string Email, string Source)>` — Handles discover contact. _(inferred)_
+- private `ExtractEmail(string html, string host) → (string Email, string Source)` — Transforms or resolves email. _(inferred)_
+- private `IsPlausibleEmail(string email) → bool` — Checks plausible email. _(inferred)_
+- private `DiscoverTargetsAsync(WebScanProbe probe, OperatorSettings settings, CancellationToken ct) → Task<(List<string> Urls, string Note)>` — Handles discover targets. _(inferred)_
+- private `ExtractSearchResultUrls(string html) → IEnumerable<string>` — Transforms or resolves search result urls. _(inferred)_
+- private `UpsertFindingAsync(HttpClient http, WebScanProbe probe, string url, WebAssetDetection detection, Analysis analysis, string homepageBody, CancellationToken ct) → Task<bool>` — Handles upsert finding. _(inferred)_
+- private `BuildSignatureList(WebScanProbe? probe) → IReadOnlyList<WebBreakageSignature>` — Creates signature list. _(inferred)_
+- private `ProbePaths(WebScanProbe? probe) → IReadOnlyList<string>` — Handles probe paths. _(inferred)_
+- private `DetectSoftware(string text, WebScanProbe? probe) → string` — Handles detect software. _(inferred)_
+- private `GuessBusinessName(string html, string host) → string` — Handles guess business name. _(inferred)_
+- private `ParseTargets(string raw) → IEnumerable<string>` — Transforms or resolves targets. _(inferred)_
+- private `SplitLines(string raw) → List<string>` — Transforms or resolves lines. _(inferred)_
+- private `Trim(string value, int max) → string` — Transforms or resolves trim. _(inferred)_
+- private `Excerpt(string body, int index, int matchLength) → string` — Handles excerpt. _(inferred)_
+- private `ParseEmails(string output) → Dictionary<long, (string Subject, string Body)>` — Transforms or resolves emails. _(inferred)_
+- private `GetString(JsonElement root, string name) → string` — Loads or resolves string. _(inferred)_
+
+#### Analysis
+
+private record struct `Analysis` · `src/DevLeads.Infrastructure/Services/WebRescueService.cs:248`
+
+Represents analysis. _(inferred)_
+
+Depends on: `bool Broken`, `WebAssetSeverity Severity`, `string Signal`, `string Evidence`, `int Status`, `string Software`.
+
 ### `DevLeads.Infrastructure.Workers`
 
 #### ContentTrendWorker
@@ -1715,11 +1861,12 @@ public class `ApiEndpoints` · `src/DevLeads.Web/Api/ApiEndpoints.cs:9`
 Internal HTTP API used for automation and integration (the UI calls services directly).
 
 - public `MapDevLeadsApi(this WebApplication app) → void` — Transforms or resolves dev leads api. _(inferred)_
+- private `MapLinkedInActionStatus(RouteGroupBuilder api, string action, Core.LinkedInActionStatus status) → void` — Transforms or resolves linked in action status. _(inferred)_
 - private `MapStatusAction(RouteGroupBuilder api, string action, OpportunityStatus status) → void` — Transforms or resolves status action. _(inferred)_
 
 #### ManualLeadDto
 
-public record class `ManualLeadDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:397`
+public record class `ManualLeadDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:479`
 
 Transfers manual lead data. _(inferred)_
 
@@ -1727,7 +1874,7 @@ Depends on: `string Title`, `string Body`, `string? SourceUrl`, `string? Author`
 
 #### DraftDto
 
-public record class `DraftDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:398`
+public record class `DraftDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:480`
 
 Transfers draft data. _(inferred)_
 
@@ -1735,11 +1882,19 @@ Depends on: `string TemplateKey`.
 
 #### QuoteDto
 
-public record class `QuoteDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:399`
+public record class `QuoteDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:481`
 
 Transfers quote data. _(inferred)_
 
 Depends on: `double? Amount`, `bool DueOnCompletion`.
+
+#### WebScanRunDto
+
+public record class `WebScanRunDto` · `src/DevLeads.Web/Api/ApiEndpoints.cs:482`
+
+Transfers web scan run data. _(inferred)_
+
+Depends on: `long ProbeId`, `string? Targets`, `bool UseDiscovery`.
 
 ### `DevLeads.Web`
 
@@ -2000,6 +2155,34 @@ Operator, AI, safety, discovery, and restart settings.
 - private `SetFeatureProvider(AiFeature f, string? value) → void` — Updates feature provider. _(inferred)_
 - private `GetFeatureModel(AiFeature f) → string` — Loads or resolves feature model. _(inferred)_
 - private `SetFeatureModel(AiFeature f, string? value) → void` — Updates feature model. _(inferred)_
+
+#### SiteRescue
+
+public component `SiteRescue` : `ComponentBase` · `src/DevLeads.Web/Components/Pages/SiteRescue.razor:1`
+
+Blazor component for site rescue.
+
+- protected `OnInitializedAsync() → Task` — Runs the component on initialized lifecycle step. _(inferred)_
+- private `Load() → Task` — Loads or resolves load. _(inferred)_
+- private `FilteredFindings() → List<WebAssetFinding>` — Handles filtered findings. _(inferred)_
+- private `NewProbe() → void` — Handles new probe. _(inferred)_
+- private `EditProbe(WebScanProbe p) → void` — Handles edit probe. _(inferred)_
+- private `SaveProbe() → Task` — Updates probe. _(inferred)_
+- private `Run(async () → await` — Coordinates run. _(inferred)_
+- private `DeleteProbe(long id) → Task` — Removes or transitions probe. _(inferred)_
+- private `Scan() → Task` — Coordinates scan. _(inferred)_
+- private `Run(async () → await` — Coordinates run. _(inferred)_
+- private `GenerateBatch() → Task` — Creates batch. _(inferred)_
+- private `Recheck(long id) → Task` — Handles recheck. _(inferred)_
+- private `RefreshContact(long id) → Task` — Handles refresh contact. _(inferred)_
+- private `SaveFinding(WebAssetFinding f) → Task` — Updates finding. _(inferred)_
+- private `SetStatus(WebAssetFinding f, WebAssetStatus status) → Task` — Updates status. _(inferred)_
+- private `MarkContacted(WebAssetFinding f) → Task` — Updates contacted. _(inferred)_
+- private `CopyEmail(WebAssetFinding f) → Task` — Handles email. _(inferred)_
+- private `MailtoLink(WebAssetFinding f) → string` — Handles mailto link. _(inferred)_
+- private `SeverityClass(WebAssetSeverity s) → string` — Handles severity class. _(inferred)_
+- private `StatusClass(WebAssetStatus s) → string` — Handles status class. _(inferred)_
+- private `NewProbeTemplate() → WebScanProbe` — Handles new probe template. _(inferred)_
 
 #### SkillProfile
 

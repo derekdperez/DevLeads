@@ -10,7 +10,7 @@ public class OperatorPost
 {
     public long Id { get; set; }
 
-    /// <summary>"reddit", "upwork", "craigslist", "monster", "indeed", "linkedin", "other".</summary>
+    /// <summary>"reddit", "upwork", "craigslist", "monster", "indeed", "linkedin", "discord", "other".</summary>
     public string Platform { get; set; } = "other";
 
     /// <summary>Platform-native id (reddit t3 id); a GUID for manual entries.</summary>

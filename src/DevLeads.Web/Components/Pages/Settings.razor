@@ -298,7 +298,8 @@
         new(AiFeature.PostOptimization, "Post optimization", "the rewrite experiment (defaults to Codex)"),
         new(AiFeature.AdvisorBriefing, "Daily advisor briefing", "the Today page's one-per-day briefing"),
         new(AiFeature.PlatformDiscovery, "Platform discovery", "suggesting new platforms to post on (My posts)"),
-        new(AiFeature.LinkedInEngagement, "LinkedIn engagement", "batched replies to comments and pasted messages")
+        new(AiFeature.LinkedInEngagement, "LinkedIn engagement", "batched replies to comments and pasted messages"),
+        new(AiFeature.LinkedInProfile, "LinkedIn profile review", "profile section rewrites + overall review (defaults to Codex)")
     };
 
     private string GetFeatureProvider(AiFeature f) => f switch
@@ -313,6 +314,7 @@
         AiFeature.AdvisorBriefing => _s!.AdvisorAiProvider,
         AiFeature.PlatformDiscovery => _s!.PlatformDiscoveryAiProvider,
         AiFeature.LinkedInEngagement => _s!.LinkedInEngagementAiProvider,
+        AiFeature.LinkedInProfile => _s!.LinkedInProfileAiProvider,
         _ => ""
     };
 
@@ -332,6 +334,7 @@
             case AiFeature.AdvisorBriefing: _s.AdvisorAiProvider = v; break;
             case AiFeature.PlatformDiscovery: _s.PlatformDiscoveryAiProvider = v; break;
             case AiFeature.LinkedInEngagement: _s.LinkedInEngagementAiProvider = v; break;
+            case AiFeature.LinkedInProfile: _s.LinkedInProfileAiProvider = v; break;
         }
         // Switching provider invalidates a model id tied to the old one; clear it so the
         // row falls back to the new provider's default until the operator types one.
@@ -350,6 +353,7 @@
         AiFeature.AdvisorBriefing => _s!.AdvisorAiModel,
         AiFeature.PlatformDiscovery => _s!.PlatformDiscoveryAiModel,
         AiFeature.LinkedInEngagement => _s!.LinkedInEngagementAiModel,
+        AiFeature.LinkedInProfile => _s!.LinkedInProfileAiModel,
         _ => ""
     };
 
@@ -369,6 +373,7 @@
             case AiFeature.AdvisorBriefing: _s.AdvisorAiModel = v; break;
             case AiFeature.PlatformDiscovery: _s.PlatformDiscoveryAiModel = v; break;
             case AiFeature.LinkedInEngagement: _s.LinkedInEngagementAiModel = v; break;
+            case AiFeature.LinkedInProfile: _s.LinkedInProfileAiModel = v; break;
         }
     }
 }

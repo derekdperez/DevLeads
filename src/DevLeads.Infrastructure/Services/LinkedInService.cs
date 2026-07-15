@@ -385,6 +385,157 @@ public sealed class LinkedInService
         return (generated, $"Generated {generated} response draft(s). {syncMessage}");
     }
 
+    /// <summary>
+    /// One AI call reviews the operator's LinkedIn presence — the pasted whole-profile
+    /// snapshot plus what the app tracks (connection state, posts, engagement, action
+    /// history) — and rebuilds the pending step-by-step action plan. Every action is
+    /// executed by the operator by hand; Done and Dismissed rows survive regeneration and
+    /// are fed back so a new plan builds forward instead of repeating itself.
+    /// </summary>
+    public async Task<(int Created, string Message)> GenerateActionPlanAsync(
+        string extraInstructions, CancellationToken ct)
+    {
+        var settings = await GetSettingsAsync(tracking: true, ct);
+        var skills = await _db.Skills.AsNoTracking().Where(s => s.Enabled).ToListAsync(ct);
+        var objectives = await _db.Campaigns.AsNoTracking()
+            .Where(c => c.Enabled).Select(c => c.Objective).ToListAsync(ct);
+
+        var profileText = settings.LinkedInProfileSnapshot;
+        if (string.IsNullOrWhiteSpace(profileText))
+        {
+            // Legacy per-section rows from the retired profile studio still count as a snapshot.
+            var fields = await _db.LinkedInProfileFields.AsNoTracking()
+                .Where(f => f.CurrentText != "").OrderBy(f => f.SortOrder).ToListAsync(ct);
+            profileText = string.Join("\n\n", fields.Select(f => f.DisplayName + ":\n" + f.CurrentText));
+        }
+
+        var activityFacts = await BuildActivityFactsAsync(settings, ct);
+        var done = await _db.LinkedInActions.AsNoTracking()
+            .Where(a => a.Status == LinkedInActionStatus.Done)
+            .OrderByDescending(a => a.CompletedAt).Take(30).Select(a => a.Title).ToListAsync(ct);
+        var dismissed = await _db.LinkedInActions.AsNoTracking()
+            .Where(a => a.Status == LinkedInActionStatus.Dismissed)
+            .OrderByDescending(a => a.UpdatedAt).Take(20).Select(a => a.Title).ToListAsync(ct);
+
+        var prompt = LinkedInPrompts.BuildActionPlanPrompt(
+            settings, SkillMatcher.PromptSummary(skills), objectives, profileText,
+            activityFacts, done, dismissed, extraInstructions);
+        var timeout = TimeSpan.FromSeconds(Math.Clamp(settings.AiTimeoutSeconds * 2, 120, 600));
+        var (ok, output, error, model) = await _text.GenerateTextAsync(
+            AiFeature.LinkedInProfile, prompt, settings, timeout, ct);
+        if (!ok) return (0, "Action-plan review failed: " + error);
+
+        List<(LinkedInActionCategory Category, string Title, string Why, string Steps)> actions;
+        string summary;
+        try { (actions, summary) = ParseActionPlan(output); }
+        catch (Exception ex) { return (0, "Action-plan review returned invalid JSON: " + ex.Message); }
+        if (actions.Count == 0) return (0, "The review returned no usable actions. Try again.");
+
+        var provider = settings.AiFor(AiFeature.LinkedInProfile).Provider;
+        var now = DateTimeOffset.UtcNow;
+        // A new plan replaces whatever was still pending; Done/Dismissed history stays.
+        var pending = await _db.LinkedInActions
+            .Where(a => a.Status == LinkedInActionStatus.Pending).ToListAsync(ct);
+        _db.LinkedInActions.RemoveRange(pending);
+        var order = 0;
+        foreach (var action in actions)
+        {
+            _db.LinkedInActions.Add(new LinkedInAction
+            {
+                Category = action.Category,
+                Title = action.Title,
+                Why = action.Why,
+                Steps = action.Steps,
+                SortOrder = order++,
+                Provider = provider,
+                Model = model,
+                GeneratedAt = now,
+                UpdatedAt = now
+            });
+        }
+        if (!string.IsNullOrWhiteSpace(summary))
+        {
+            settings.LinkedInProfileReview = summary.Trim();
+            settings.LinkedInProfileReviewAt = now;
+        }
+        await _db.SaveChangesAsync(ct);
+        _audit.Record("LinkedInAction", 0, "ActionPlanGenerated",
+            $"AI reviewed the LinkedIn presence via {provider}/{model}: {actions.Count} next action(s) planned.", "operator");
+        await _db.SaveChangesAsync(ct);
+        return (actions.Count,
+            $"Plan ready: {actions.Count} next action(s). Work through them below and mark each one done.");
+    }
+
+    /// <summary>Deterministic (zero-AI-cost) presence facts the plan is grounded in.</summary>
+    private async Task<List<string>> BuildActivityFactsAsync(OperatorSettings s, CancellationToken ct)
+    {
+        var facts = new List<string>();
+        var connected = !string.IsNullOrWhiteSpace(s.LinkedInAccessToken) &&
+                        !string.IsNullOrWhiteSpace(s.LinkedInMemberId);
+        facts.Add(connected
+            ? $"LinkedIn account is connected to the app as {s.LinkedInMemberName}; approved posts and comment replies can publish from the app."
+            : "LinkedIn account is not connected to the app yet; posting happens fully by hand.");
+
+        var posts = await _db.OperatorPosts.AsNoTracking()
+            .Where(p => p.Platform == "linkedin").ToListAsync(ct);
+        var published = posts.Where(p => p.Status != OperatorPostStatus.Draft).ToList();
+        var scheduled = posts.Count(p => p.Status == OperatorPostStatus.Draft && p.ScheduledAt != null);
+        facts.Add($"LinkedIn posts tracked: {published.Count} published, {posts.Count - published.Count} draft(s) ({scheduled} scheduled).");
+        if (published.Count > 0)
+            facts.Add($"Most recent published LinkedIn post was {(int)(DateTimeOffset.UtcNow - published.Max(p => p.PostedAt)).TotalDays} day(s) ago.");
+
+        var pendingEngagements = await _db.EngagementDrafts.AsNoTracking()
+            .CountAsync(d => d.Platform == "linkedin" && d.Status == EngagementDraftStatus.PendingReview, ct);
+        if (pendingEngagements > 0)
+            facts.Add($"{pendingEngagements} received LinkedIn comment(s)/message(s) still wait for a response in the engagement inbox.");
+
+        var contentDrafts = await _db.ContentDrafts.AsNoTracking()
+            .CountAsync(d => d.Status == ContentDraftStatus.Draft, ct);
+        if (contentDrafts > 0)
+            facts.Add($"{contentDrafts} unpublished content-studio draft(s) exist that could become LinkedIn material.");
+        return facts;
+    }
+
+    private static (List<(LinkedInActionCategory, string, string, string)> Actions, string Summary)
+        ParseActionPlan(string output)
+    {
+        var start = output.IndexOf('{');
+        var end = output.LastIndexOf('}');
+        if (start < 0 || end <= start) throw new JsonException("no JSON object found");
+        using var doc = JsonDocument.Parse(output[start..(end + 1)]);
+        var root = doc.RootElement;
+        var actions = new List<(LinkedInActionCategory, string, string, string)>();
+        if (root.TryGetProperty("actions", out var items) && items.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var item in items.EnumerateArray())
+            {
+                var title = GetString(item, "title").Trim();
+                if (title.Length == 0) continue;
+                var steps = "";
+                if (item.TryGetProperty("steps", out var stepsEl) && stepsEl.ValueKind == JsonValueKind.Array)
+                    steps = string.Join('\n', stepsEl.EnumerateArray()
+                        .Where(step => step.ValueKind == JsonValueKind.String)
+                        .Select(step => (step.GetString() ?? "").Trim())
+                        .Where(step => step.Length > 0));
+                actions.Add((ParseActionCategory(GetString(item, "category")), title,
+                    GetString(item, "why").Trim(), steps));
+            }
+        }
+        return (actions, GetString(root, "summary"));
+    }
+
+    private static LinkedInActionCategory ParseActionCategory(string value) =>
+        new string(value.ToLowerInvariant().Where(char.IsLetter).ToArray()) switch
+        {
+            "profile" or "profileimprovement" => LinkedInActionCategory.Profile,
+            "connections" or "connection" or "network" or "networking" => LinkedInActionCategory.Connections,
+            "communication" or "communicate" or "messaging" or "engagement" => LinkedInActionCategory.Communication,
+            "content" or "publishing" => LinkedInActionCategory.Content,
+            "credibility" or "trust" or "credibilitytrust" => LinkedInActionCategory.Credibility,
+            "givevalue" or "value" or "providevalue" or "giving" => LinkedInActionCategory.GiveValue,
+            _ => LinkedInActionCategory.Opportunities
+        };
+
     public async Task<EngagementDraft> CreateManualEngagementAsync(
         string author, string sourceText, EngagementDraftKind kind, CancellationToken ct)
     {

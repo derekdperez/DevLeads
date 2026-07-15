@@ -40,6 +40,9 @@ public class DevLeadsDbContext : DbContext
     public DbSet<OperatorDocument> OperatorDocuments => Set<OperatorDocument>();
     public DbSet<EngagementDraft> EngagementDrafts => Set<EngagementDraft>();
     public DbSet<LinkedInProfileField> LinkedInProfileFields => Set<LinkedInProfileField>();
+    public DbSet<LinkedInAction> LinkedInActions => Set<LinkedInAction>();
+    public DbSet<WebScanProbe> WebScanProbes => Set<WebScanProbe>();
+    public DbSet<WebAssetFinding> WebAssetFindings => Set<WebAssetFinding>();
 
     // SQLite stores DateTimeOffset as TEXT and cannot order/compare it. Convert every
     // DateTimeOffset to sortable UTC ticks (long) so ORDER BY and range filters translate.
@@ -78,6 +81,11 @@ public class DevLeadsDbContext : DbContext
         b.Properties<PlatformPresenceStatus>().HaveConversion<string>();
         b.Properties<EngagementDraftKind>().HaveConversion<string>();
         b.Properties<EngagementDraftStatus>().HaveConversion<string>();
+        b.Properties<LinkedInActionCategory>().HaveConversion<string>();
+        b.Properties<LinkedInActionStatus>().HaveConversion<string>();
+        b.Properties<WebAssetSeverity>().HaveConversion<string>();
+        b.Properties<WebAssetStatus>().HaveConversion<string>();
+        b.Properties<WebAssetDetection>().HaveConversion<string>();
     }
 
     protected override void OnModelCreating(ModelBuilder mb)
@@ -163,6 +171,18 @@ public class DevLeadsDbContext : DbContext
                 .HasForeignKey(d => d.OperatorPostId).OnDelete(DeleteBehavior.SetNull);
         });
         mb.Entity<LinkedInProfileField>().HasIndex(f => f.FieldKey).IsUnique();
+        mb.Entity<LinkedInAction>(e =>
+        {
+            e.HasIndex(a => a.Status);
+            e.HasIndex(a => a.Category);
+        });
+        mb.Entity<WebScanProbe>().HasIndex(p => p.Name).IsUnique();
+        mb.Entity<WebAssetFinding>(e =>
+        {
+            e.HasIndex(f => f.Url).IsUnique();
+            e.HasIndex(f => f.Status);
+            e.HasIndex(f => f.Host);
+        });
         mb.Entity<QueryPack>().HasIndex(q => q.Name).IsUnique();
         mb.Entity<SuppressionEntry>().HasIndex(s => s.ContactValue);
         mb.Entity<AuditEvent>().HasIndex(a => new { a.EntityType, a.EntityId });

@@ -135,7 +135,7 @@ Hourly cleanup rejects stale or non-hirable leads, marks overdue quotes, and opp
 ## Type hierarchy
 
 - `BackgroundService` → `ContentTrendWorker`, `DiscoveryWorker`
-- `ComponentBase` → `ActivityFeed`, `App`, `CampaignSwitcher`, `Campaigns`, `ClientDetail`, `Clients`, `Content`, `Drafts`, `Error`, `Home`, `LinkedIn`, `MyPosts`, `NavMenu`, `NewOpportunity`, `NotFound`, `Opportunities`, `OpportunityDetail`, `PlatformPresencePanel`, `PostPerformanceChart`, `Quotes`, `ReconnectModal`, `Routes`, `Settings`, `SkillProfile`, `Sources`, `Today`, `_Imports`
+- `ComponentBase` → `ActivityFeed`, `App`, `CampaignSwitcher`, `Campaigns`, `ClientDetail`, `Clients`, `Content`, `Drafts`, `Error`, `Home`, `LinkedIn`, `MyPosts`, `NavMenu`, `NewOpportunity`, `NotFound`, `Opportunities`, `OpportunityDetail`, `PlatformPresencePanel`, `PostPerformanceChart`, `Quotes`, `ReconnectModal`, `Routes`, `Settings`, `SiteRescue`, `SkillProfile`, `Sources`, `Today`, `_Imports`
 - `DbContext` → `DevLeadsDbContext`
 - `IAiBatchShortlistProvider` → `CodexCliProvider`, `OpenCodeTriageProvider`
 - `IAiBatchTriageProvider` → `CodexCliProvider`, `OpenCodeTriageProvider`

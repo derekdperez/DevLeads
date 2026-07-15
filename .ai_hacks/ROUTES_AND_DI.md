@@ -19,6 +19,7 @@
 | /opportunities/{Id:long} | OpportunityDetail | Lead detail, triage, scoring, outreach, quotes, work tracking, and audit history. | IDbContextFactory<DevLeadsDbContext>, IServiceScopeFactory, IJSRuntime, NavigationManager |
 | /quotes | Quotes | Quote and payment-state management. | IDbContextFactory<DevLeadsDbContext>, IServiceScopeFactory |
 | /settings | Settings | Operator, AI, safety, discovery, and restart settings. | IDbContextFactory<DevLeadsDbContext>, IServiceScopeFactory, AiTriageRouter, DevLeads.Web.AppRestartService |
+| /siterescue | SiteRescue | Blazor component for site rescue. | IDbContextFactory<DevLeadsDbContext>, IServiceScopeFactory, IJSRuntime |
 | /skills | SkillProfile | Operator skill-profile management. | IDbContextFactory<DevLeadsDbContext> |
 | /sources | Sources | Source configuration, health checks, and manual discovery runs. | IDbContextFactory<DevLeadsDbContext>, IServiceScopeFactory |
 | /today | Today | Blazor component for today. | IServiceScopeFactory |
@@ -41,14 +42,19 @@
 | DELETE | /api/documents/{kind} | MapDevLeadsApi | Deletes kind. | src/DevLeads.Web/Api/ApiEndpoints.cs:312 |
 | GET | /api/documents/{kind} | MapDevLeadsApi | Reads kind. | src/DevLeads.Web/Api/ApiEndpoints.cs:289 |
 | POST | /api/documents/{kind} | MapDevLeadsApi | Runs the kind action. | src/DevLeads.Web/Api/ApiEndpoints.cs:296 |
+| GET | /api/linkedin/actions | MapDevLeadsApi | Reads actions. | src/DevLeads.Web/Api/ApiEndpoints.cs:374 |
+| POST | /api/linkedin/actions/generate | MapDevLeadsApi | Runs the generate action. | src/DevLeads.Web/Api/ApiEndpoints.cs:388 |
+| POST | /api/linkedin/actions/{id:long}/dismiss | MapLinkedInActionStatus | Runs the dismiss action. | src/DevLeads.Web/Api/ApiEndpoints.cs:394 |
+| POST | /api/linkedin/actions/{id:long}/done | MapLinkedInActionStatus | Runs the done action. | src/DevLeads.Web/Api/ApiEndpoints.cs:393 |
+| POST | /api/linkedin/actions/{id:long}/reopen | MapLinkedInActionStatus | Runs the reopen action. | src/DevLeads.Web/Api/ApiEndpoints.cs:395 |
 | GET | /api/linkedin/authorize | MapDevLeadsApi | Reads authorize. | src/DevLeads.Web/Api/ApiEndpoints.cs:324 |
-| GET | /api/linkedin/callback | MapDevLeadsApi | Reads callback. | src/DevLeads.Web/Api/ApiEndpoints.cs:330 |
-| POST | /api/linkedin/disconnect | MapDevLeadsApi | Runs the disconnect action. | src/DevLeads.Web/Api/ApiEndpoints.cs:341 |
-| POST | /api/linkedin/engagement/generate | MapDevLeadsApi | Runs the generate action. | src/DevLeads.Web/Api/ApiEndpoints.cs:361 |
-| POST | /api/linkedin/engagement/sync | MapDevLeadsApi | Runs the sync action. | src/DevLeads.Web/Api/ApiEndpoints.cs:356 |
-| POST | /api/linkedin/engagement/{id:long}/publish | MapDevLeadsApi | Runs the publish action. | src/DevLeads.Web/Api/ApiEndpoints.cs:366 |
-| POST | /api/linkedin/publish-due | MapDevLeadsApi | Runs the publish due action. | src/DevLeads.Web/Api/ApiEndpoints.cs:351 |
-| POST | /api/linkedin/publish/{id:long} | MapDevLeadsApi | Runs the id action. | src/DevLeads.Web/Api/ApiEndpoints.cs:346 |
+| GET | /api/linkedin/callback | MapDevLeadsApi | Reads callback. | src/DevLeads.Web/Api/ApiEndpoints.cs:333 |
+| POST | /api/linkedin/disconnect | MapDevLeadsApi | Runs the disconnect action. | src/DevLeads.Web/Api/ApiEndpoints.cs:344 |
+| POST | /api/linkedin/engagement/generate | MapDevLeadsApi | Runs the generate action. | src/DevLeads.Web/Api/ApiEndpoints.cs:364 |
+| POST | /api/linkedin/engagement/sync | MapDevLeadsApi | Runs the sync action. | src/DevLeads.Web/Api/ApiEndpoints.cs:359 |
+| POST | /api/linkedin/engagement/{id:long}/publish | MapDevLeadsApi | Runs the publish action. | src/DevLeads.Web/Api/ApiEndpoints.cs:369 |
+| POST | /api/linkedin/publish-due | MapDevLeadsApi | Runs the publish due action. | src/DevLeads.Web/Api/ApiEndpoints.cs:354 |
+| POST | /api/linkedin/publish/{id:long} | MapDevLeadsApi | Runs the id action. | src/DevLeads.Web/Api/ApiEndpoints.cs:349 |
 | GET | /api/linkedin/status | MapDevLeadsApi | Reads status. | src/DevLeads.Web/Api/ApiEndpoints.cs:322 |
 | GET | /api/myposts | MapDevLeadsApi | Reads myposts. | src/DevLeads.Web/Api/ApiEndpoints.cs:152 |
 | POST | /api/myposts/draft | MapDevLeadsApi | Runs the draft action. | src/DevLeads.Web/Api/ApiEndpoints.cs:164 |
@@ -94,7 +100,14 @@
 | POST | /api/sources/run-all | MapDevLeadsApi | Runs the run all action. | src/DevLeads.Web/Api/ApiEndpoints.cs:100 |
 | POST | /api/sources/{key}/run-now | MapDevLeadsApi | Runs the run now action. | src/DevLeads.Web/Api/ApiEndpoints.cs:120 |
 | POST | /api/sources/{key}/test | MapDevLeadsApi | Runs the test action. | src/DevLeads.Web/Api/ApiEndpoints.cs:118 |
-| POST | /api/system/restart | MapDevLeadsApi | Runs the restart action. | src/DevLeads.Web/Api/ApiEndpoints.cs:373 |
+| POST | /api/system/restart | MapDevLeadsApi | Runs the restart action. | src/DevLeads.Web/Api/ApiEndpoints.cs:441 |
+| GET | /api/webscan/findings | MapDevLeadsApi | Reads findings. | src/DevLeads.Web/Api/ApiEndpoints.cs:400 |
+| POST | /api/webscan/findings/{id:long}/recheck | MapDevLeadsApi | Runs the recheck action. | src/DevLeads.Web/Api/ApiEndpoints.cs:418 |
+| POST | /api/webscan/findings/{id:long}/refresh-contact | MapDevLeadsApi | Runs the refresh contact action. | src/DevLeads.Web/Api/ApiEndpoints.cs:423 |
+| POST | /api/webscan/findings/{id:long}/status/{status} | MapDevLeadsApi | Runs the status action. | src/DevLeads.Web/Api/ApiEndpoints.cs:428 |
+| POST | /api/webscan/generate | MapDevLeadsApi | Runs the generate action. | src/DevLeads.Web/Api/ApiEndpoints.cs:413 |
+| GET | /api/webscan/probes | MapDevLeadsApi | Reads probes. | src/DevLeads.Web/Api/ApiEndpoints.cs:398 |
+| POST | /api/webscan/scan | MapDevLeadsApi | Runs the scan action. | src/DevLeads.Web/Api/ApiEndpoints.cs:407 |
 | GET | /favicon.ico | startup | Reads favicon.ico. | src/DevLeads.Web/Program.cs:43 |
 
 ## Dependency injection
@@ -137,8 +150,9 @@
 | Scoped | PlatformPresenceService | PlatformPresenceService | src/DevLeads.Infrastructure/DependencyInjection.cs:90 |
 | Scoped | AdvisorService | AdvisorService | src/DevLeads.Infrastructure/DependencyInjection.cs:91 |
 | Scoped | LinkedInService | LinkedInService | src/DevLeads.Infrastructure/DependencyInjection.cs:92 |
-| HostedService | IHostedService | DiscoveryWorker | src/DevLeads.Infrastructure/DependencyInjection.cs:95 |
-| HostedService | IHostedService | ContentTrendWorker | src/DevLeads.Infrastructure/DependencyInjection.cs:96 |
+| Scoped | WebRescueService | WebRescueService | src/DevLeads.Infrastructure/DependencyInjection.cs:93 |
+| HostedService | IHostedService | DiscoveryWorker | src/DevLeads.Infrastructure/DependencyInjection.cs:96 |
+| HostedService | IHostedService | ContentTrendWorker | src/DevLeads.Infrastructure/DependencyInjection.cs:97 |
 | Singleton | DevLeads.Web.AppRestartService | DevLeads.Web.AppRestartService | src/DevLeads.Web/Program.cs:25 |
 
 ## EF Core DbSets
@@ -156,6 +170,8 @@
 | DevLeadsDbContext | EngagementDraft | EngagementDrafts | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:41 |
 | DevLeadsDbContext | Engagement | Engagements | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:35 |
 | DevLeadsDbContext | FollowUp | FollowUps | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:37 |
+| DevLeadsDbContext | LinkedInAction | LinkedInActions | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:43 |
+| DevLeadsDbContext | LinkedInProfileField | LinkedInProfileFields | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:42 |
 | DevLeadsDbContext | OperatorDocument | OperatorDocuments | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:40 |
 | DevLeadsDbContext | OperatorMessage | OperatorMessages | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:32 |
 | DevLeadsDbContext | OperatorPostRevision | OperatorPostRevisions | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:33 |
@@ -173,6 +189,8 @@
 | DevLeadsDbContext | SuppressionEntry | SuppressionEntries | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:19 |
 | DevLeadsDbContext | TrendSignal | TrendSignals | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:27 |
 | DevLeadsDbContext | TrendSource | TrendSources | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:26 |
+| DevLeadsDbContext | WebAssetFinding | WebAssetFindings | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:45 |
+| DevLeadsDbContext | WebScanProbe | WebScanProbes | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:44 |
 | DevLeadsDbContext | WorkSession | WorkSessions | src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:18 |
 
 ## Inferred entity relationships

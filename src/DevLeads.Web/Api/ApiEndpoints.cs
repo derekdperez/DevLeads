@@ -371,6 +371,71 @@ public static class ApiEndpoints
             var (ok, message) = await linkedIn.PublishEngagementAsync(id, default);
             return ok ? Results.Ok(new { message }) : Results.BadRequest(new { message });
         });
+        api.MapGet("/linkedin/actions", async (DevLeadsDbContext db) =>
+        {
+            var settings = await db.OperatorSettings.AsNoTracking().FirstOrDefaultAsync();
+            var actions = await db.LinkedInActions.AsNoTracking()
+                .OrderBy(a => a.Status == Core.LinkedInActionStatus.Pending ? 0
+                    : a.Status == Core.LinkedInActionStatus.Done ? 1 : 2)
+                .ThenBy(a => a.SortOrder).ToListAsync();
+            return Results.Ok(new
+            {
+                review = settings?.LinkedInProfileReview ?? "",
+                reviewAt = settings?.LinkedInProfileReviewAt,
+                actions
+            });
+        });
+        api.MapPost("/linkedin/actions/generate", async (string? instructions, LinkedInService linkedIn) =>
+        {
+            var (created, message) = await linkedIn.GenerateActionPlanAsync(instructions ?? "", default);
+            return created > 0 ? Results.Ok(new { created, message }) : Results.BadRequest(new { message });
+        });
+        MapLinkedInActionStatus(api, "done", Core.LinkedInActionStatus.Done);
+        MapLinkedInActionStatus(api, "dismiss", Core.LinkedInActionStatus.Dismissed);
+        MapLinkedInActionStatus(api, "reopen", Core.LinkedInActionStatus.Pending);
+
+        // ---- Site rescue (broken business web assets → repair leads) ----
+        api.MapGet("/webscan/probes", async (DevLeadsDbContext db) =>
+            Results.Ok(await db.WebScanProbes.AsNoTracking().OrderByDescending(p => p.UpdatedAt).ToListAsync()));
+        api.MapGet("/webscan/findings", async (DevLeadsDbContext db, string? status) =>
+        {
+            var q = db.WebAssetFindings.AsNoTracking().AsQueryable();
+            if (Enum.TryParse<WebAssetStatus>(status, true, out var s)) q = q.Where(f => f.Status == s);
+            var list = await q.OrderByDescending(f => f.FirstSeenAt).Take(300).ToListAsync();
+            return Results.Ok(list);
+        });
+        api.MapPost("/webscan/scan", async (WebScanRunDto dto, WebRescueService rescue) =>
+        {
+            var (checkedCount, found, message) = await rescue.ScanAsync(
+                dto.ProbeId, dto.Targets ?? "", dto.UseDiscovery, default);
+            return Results.Ok(new { checkedCount, found, message });
+        });
+        api.MapPost("/webscan/generate", async (string? instructions, WebRescueService rescue) =>
+        {
+            var (generated, message) = await rescue.GenerateOutreachBatchAsync(instructions ?? "", default);
+            return generated > 0 ? Results.Ok(new { generated, message }) : Results.BadRequest(new { message });
+        });
+        api.MapPost("/webscan/findings/{id:long}/recheck", async (long id, WebRescueService rescue) =>
+        {
+            var (ok, message) = await rescue.RecheckAsync(id, default);
+            return ok ? Results.Ok(new { message }) : Results.BadRequest(new { message });
+        });
+        api.MapPost("/webscan/findings/{id:long}/refresh-contact", async (long id, WebRescueService rescue) =>
+        {
+            var (ok, message) = await rescue.RefreshContactAsync(id, default);
+            return ok ? Results.Ok(new { message }) : Results.BadRequest(new { message });
+        });
+        api.MapPost("/webscan/findings/{id:long}/status/{status}", async (long id, string status, DevLeadsDbContext db, AuditService audit) =>
+        {
+            if (!Enum.TryParse<WebAssetStatus>(status, true, out var target)) return Results.BadRequest(new { message = "Unknown status." });
+            var row = await db.WebAssetFindings.FirstOrDefaultAsync(f => f.Id == id);
+            if (row is null) return Results.NotFound();
+            row.Status = target;
+            row.UpdatedAt = DateTimeOffset.UtcNow;
+            audit.Record("WebAssetFinding", id, "Status", $"Status -> {target}", "operator");
+            await db.SaveChangesAsync();
+            return Results.Ok(row);
+        });
 
         // ---- System ----
         api.MapPost("/system/restart", async (AppRestartService restart, DevLeadsDbContext db, AuditService audit) =>
@@ -380,6 +445,20 @@ public static class ApiEndpoints
             var error = restart.Restart();
             if (error is not null) return Results.Problem(error);
             return Results.Ok(new { message = "Restarting — rebuilding and relaunching; back in ~15–60 seconds." });
+        });
+    }
+
+    private static void MapLinkedInActionStatus(RouteGroupBuilder api, string action, Core.LinkedInActionStatus status)
+    {
+        api.MapPost($"/linkedin/actions/{{id:long}}/{action}", async (long id, DevLeadsDbContext db) =>
+        {
+            var row = await db.LinkedInActions.FirstOrDefaultAsync(a => a.Id == id);
+            if (row is null) return Results.NotFound();
+            row.Status = status;
+            row.CompletedAt = status == Core.LinkedInActionStatus.Done ? DateTimeOffset.UtcNow : null;
+            row.UpdatedAt = DateTimeOffset.UtcNow;
+            await db.SaveChangesAsync();
+            return Results.Ok(row);
         });
     }
 
@@ -400,4 +479,5 @@ public static class ApiEndpoints
     public record ManualLeadDto(string Title, string Body, string? SourceUrl, string? Author, string? AuthorUrl, long? CampaignId = null);
     public record DraftDto(string TemplateKey);
     public record QuoteDto(double? Amount, bool DueOnCompletion);
+    public record WebScanRunDto(long ProbeId, string? Targets, bool UseDiscovery);
 }

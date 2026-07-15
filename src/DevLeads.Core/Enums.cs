@@ -217,6 +217,33 @@ public enum EngagementDraftStatus
     Failed
 }
 
+/// <summary>Which part of LinkedIn presence-building a planned action improves.</summary>
+public enum LinkedInActionCategory
+{
+    /// <summary>Improving the profile itself (headline, about, featured, photo, …).</summary>
+    Profile,
+    /// <summary>Finding and inviting relevant new connections.</summary>
+    Connections,
+    /// <summary>Talking with connections: messages, comment replies, follow-ups.</summary>
+    Communication,
+    /// <summary>Finding and pursuing paid-work opportunities.</summary>
+    Opportunities,
+    /// <summary>Producing professional, valuable content.</summary>
+    Content,
+    /// <summary>Earning credibility and trust (recommendations, proof, consistency).</summary>
+    Credibility,
+    /// <summary>Providing value to others with no immediate ask.</summary>
+    GiveValue
+}
+
+/// <summary>Operator-side lifecycle of one planned LinkedIn action.</summary>
+public enum LinkedInActionStatus
+{
+    Pending,
+    Done,
+    Dismissed
+}
+
 /// <summary>Relationship stage of a client (a real person/business the operator works with).</summary>
 public enum ClientStatus
 {
@@ -279,6 +306,37 @@ public enum SuppressionContactType
     ProfileUrl
 }
 
+/// <summary>How badly a scanned business web asset is broken.</summary>
+public enum WebAssetSeverity
+{
+    /// <summary>Down: the page/site fails to serve (5xx, connection/TLS failure, hard error page).</summary>
+    Down,
+    /// <summary>Degraded: it loads but shows software errors, warnings, or partial breakage.</summary>
+    Degraded,
+    /// <summary>Warning: a softer problem worth flagging (expiring TLS, deprecation notices).</summary>
+    Warning
+}
+
+/// <summary>Operator-side lifecycle of a discovered broken web asset (a potential repair lead).</summary>
+public enum WebAssetStatus
+{
+    New,
+    Reviewing,
+    Contacted,
+    Responded,
+    Won,
+    Dismissed
+}
+
+/// <summary>How a broken web asset was found.</summary>
+public enum WebAssetDetection
+{
+    /// <summary>The operator supplied the domain/URL directly.</summary>
+    ManualTarget,
+    /// <summary>Surfaced by a search-engine query for the probe's error signatures.</summary>
+    Discovery
+}
+
 /// <summary>
 /// The distinct AI call sites in the app. Each can carry its own provider/model override
 /// in <see cref="Entities.OperatorSettings"/>; an unset override inherits the global
@@ -306,6 +364,8 @@ public enum AiFeature
     PlatformDiscovery,
     /// <summary>Batched LinkedIn comment/message response drafting.</summary>
     LinkedInEngagement,
-    /// <summary>Reviewing and rewriting the operator's LinkedIn profile sections.</summary>
-    LinkedInProfile
+    /// <summary>Reviewing the operator's LinkedIn presence and planning the next actions.</summary>
+    LinkedInProfile,
+    /// <summary>Batched repair-offer email drafting for discovered broken web assets (Site rescue).</summary>
+    WebAssetOutreach
 }

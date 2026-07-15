@@ -1,0 +1,400 @@
+@page "/siterescue"
+@rendermode InteractiveServer
+@inject IDbContextFactory<DevLeadsDbContext> DbFactory
+@inject IServiceScopeFactory ScopeFactory
+@inject IJSRuntime JS
+<PageTitle>Site rescue · DevLeads</PageTitle>
+
+<div class="rr-page-head">
+    <div>
+        <h1>Site rescue</h1>
+        <div class="rr-sub">Scan business websites for public errors and outages, then reach out with an affordable fix. Define what "broken" looks like, run a scan against your targets (or discover new ones), review confirmed breakage, and draft repair-offer emails with AI. Scanning is read-only; nothing is ever sent automatically.</div>
+    </div>
+    <div class="rr-btn-row">
+        <button class="rr-btn" @onclick="Load" disabled="@_busy">🔄 Refresh</button>
+    </div>
+</div>
+
+@if (_flash is not null) { <div class="rr-flash @(_flashOk ? "ok" : "err")">@_flash</div> }
+@if (_busy) { <div class="rr-flash ok">Working… scanning is polite and rate-limited, so a run can take a little while.</div> }
+
+@if (_probes is null)
+{
+    <div class="rr-empty">Loading…</div>
+}
+else
+{
+    <div class="rr-panel">
+        <div class="rr-panel-head">
+            <h2>🔎 Search criteria (probes)</h2>
+            <button class="rr-btn" @onclick="NewProbe" disabled="@_busy">➕ New probe</button>
+        </div>
+        @if (_probes.Count == 0)
+        {
+            <div class="rr-empty">No probes yet. Create one to define which software, error text, or behaviour signals broken work worth fixing.</div>
+        }
+        else
+        {
+            <div class="rr-btn-row" style="margin-bottom:.7rem;flex-wrap:wrap">
+                @foreach (var p in _probes)
+                {
+                    <button class="rr-btn @(p.Id == _editProbe.Id ? "primary" : "")" @onclick="() => EditProbe(p)" disabled="@_busy">
+                        @(p.Enabled ? "" : "⏸ ")@p.Name
+                    </button>
+                }
+            </div>
+        }
+
+        <div style="border:1px solid var(--line);border-radius:10px;padding:.9rem">
+            <div class="rr-sub" style="margin-bottom:.5rem">@(_editProbe.Id == 0 ? "New probe" : "Editing: " + _editProbe.Name)</div>
+            <div class="rr-grid-2">
+                <div class="rr-field"><label>Name</label><input class="rr-input" @bind="_editProbe.Name" placeholder="e.g. WordPress database errors" /></div>
+                <div class="rr-field"><label>Software package (optional fingerprint)</label><input class="rr-input" @bind="_editProbe.SoftwarePackage" placeholder="WordPress, Magento, Laravel…" /></div>
+            </div>
+            <div class="rr-field"><label>Description</label><input class="rr-input" @bind="_editProbe.Description" placeholder="Who this targets and why it's worth fixing" /></div>
+            <div class="rr-field">
+                <label>Error text / signatures (one per line)</label>
+                <textarea class="rr-textarea" style="min-height:110px" @bind="_editProbe.ErrorSignatures"
+                          placeholder="Error establishing a database connection&#10;Fatal error:&#10;500 Internal Server Error"></textarea>
+                <div class="rr-sub">Matched case-insensitively in the page. A built-in catalog of common breakage is always checked too.</div>
+            </div>
+            <div class="rr-grid-2">
+                <div class="rr-field">
+                    <label>Extra public paths to check (one per line)</label>
+                    <textarea class="rr-textarea" style="min-height:70px" @bind="_editProbe.PathsToCheck" placeholder="/&#10;/status"></textarea>
+                    <div class="rr-sub">Light probing only — public status/health pages. Admin & login paths are never fetched.</div>
+                </div>
+                <div class="rr-field">
+                    <label>Discovery search queries (one per line)</label>
+                    <textarea class="rr-textarea" style="min-height:70px" @bind="_editProbe.DiscoveryQueries"
+                              placeholder="&quot;Error establishing a database connection&quot;"></textarea>
+                    <div class="rr-sub">Used only when you enable discovery on a scan, to find unknown broken sites.</div>
+                </div>
+            </div>
+            <div class="rr-btn-row" style="align-items:center">
+                <label class="rr-sub" style="display:flex;gap:.4rem;align-items:center"><input type="checkbox" @bind="_editProbe.FlagServerErrors" /> Flag any 5xx / unreachable site</label>
+                <label class="rr-sub" style="display:flex;gap:.4rem;align-items:center"><input type="checkbox" @bind="_editProbe.Enabled" /> Enabled</label>
+            </div>
+            <div class="rr-btn-row">
+                <button class="rr-btn primary" @onclick="SaveProbe" disabled="@_busy">💾 Save probe</button>
+                @if (_editProbe.Id != 0)
+                {
+                    <button class="rr-btn" @onclick="() => DeleteProbe(_editProbe.Id)" disabled="@_busy">🗑 Delete</button>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="rr-panel">
+        <div class="rr-panel-head">
+            <h2>🛰️ Run a scan</h2>
+            <div class="rr-sub">Pick a probe, paste the sites to check, and optionally let discovery surface unknown broken sites.</div>
+        </div>
+        @if (_enabledProbes.Count == 0)
+        {
+            <div class="rr-empty">Create and enable a probe above first.</div>
+        }
+        else
+        {
+            <div class="rr-grid-2">
+                <div class="rr-field">
+                    <label>Probe</label>
+                    <select class="rr-select" @bind="_scanProbeId">
+                        @foreach (var p in _enabledProbes) { <option value="@p.Id">@p.Name</option> }
+                    </select>
+                </div>
+                <div class="rr-field" style="justify-content:flex-end">
+                    <label class="rr-sub" style="display:flex;gap:.4rem;align-items:center">
+                        <input type="checkbox" @bind="_useDiscovery" /> Also discover unknown sites via web search
+                    </label>
+                </div>
+            </div>
+            <div class="rr-field">
+                <label>Targets — one domain or URL per line</label>
+                <textarea class="rr-textarea" style="min-height:120px" @bind="_targets"
+                          placeholder="example-bakery.com&#10;https://smallshop.co/checkout&#10;acmedental.net"></textarea>
+            </div>
+            <div class="rr-btn-row">
+                <button class="rr-btn primary" @onclick="Scan" disabled="@_busy">@(_busy ? "Scanning…" : "🛰️ Scan for broken assets")</button>
+                @{ var scanned = _enabledProbes.FirstOrDefault(p => p.Id == _scanProbeId); }
+                @if (scanned?.LastRunAt is { } ranAt)
+                {
+                    <span class="rr-sub">Last run @UiHelpers.Age(ranAt): checked @scanned.LastRunChecked, found @scanned.LastRunFound</span>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="rr-panel">
+        <div class="rr-panel-head">
+            <h2>🚑 Broken assets (@_findings.Count)</h2>
+            <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+                <select class="rr-select" @bind="_statusFilter" style="width:auto">
+                    <option value="">All open</option>
+                    @foreach (var s in Enum.GetValues<WebAssetStatus>()) { <option value="@s">@s</option> }
+                </select>
+                <button class="rr-btn primary" @onclick="GenerateBatch" disabled="@_busy">🧠 Draft repair emails (1 batch call)</button>
+            </div>
+        </div>
+        @{ var shown = FilteredFindings(); }
+        @if (shown.Count == 0)
+        {
+            <div class="rr-empty">No findings@(_statusFilter is null ? "" : " with that status") yet. Run a scan to surface broken assets.</div>
+        }
+        @foreach (var f in shown)
+        {
+            <div style="border:1px solid var(--line);border-radius:10px;padding:.9rem;margin-bottom:.7rem;opacity:@(f.Status == WebAssetStatus.Dismissed ? ".6" : "1")">
+                <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+                    <span class="rr-chip @SeverityClass(f.Severity)">@f.Severity</span>
+                    <strong>@(f.BusinessName.Length > 0 ? f.BusinessName : f.Host)</strong>
+                    <a href="@f.Url" target="_blank" rel="noopener noreferrer">@f.Host ↗</a>
+                    <span class="rr-chip @StatusClass(f.Status)">@UiHelpers.Spaced(f.Status)</span>
+                    <span class="rr-chip review">@UiHelpers.Spaced(f.Detection)</span>
+                    <span class="rr-sub">first seen @UiHelpers.Age(f.FirstSeenAt)</span>
+                </div>
+                <div class="rr-sub" style="margin-top:.4rem">
+                    <strong>@f.Signal</strong>@(f.HttpStatus > 0 ? $" · HTTP {f.HttpStatus}" : "")@(f.DetectedSoftware.Length > 0 ? $" · {f.DetectedSoftware}" : "")
+                </div>
+                @if (f.Evidence.Length > 0)
+                {
+                    <div class="rr-quote" style="white-space:pre-wrap;margin:.4rem 0;font-family:monospace;font-size:.85em">@f.Evidence</div>
+                }
+
+                <div class="rr-grid-2">
+                    <div class="rr-field">
+                        <label>Owner contact email @(f.ContactSource.Length > 0 ? $"({f.ContactSource})" : "")</label>
+                        <input class="rr-input" @bind="f.ContactEmail" placeholder="none found — add one or click Find contact" />
+                    </div>
+                    <div class="rr-field" style="justify-content:flex-end">
+                        <div class="rr-btn-row">
+                            <button class="rr-btn" @onclick="() => RefreshContact(f.Id)" disabled="@_busy">🔍 Find contact</button>
+                            <button class="rr-btn" @onclick="() => Recheck(f.Id)" disabled="@_busy">♻ Re-check</button>
+                        </div>
+                    </div>
+                </div>
+
+                @if (f.OutreachBody.Length > 0 || !string.IsNullOrEmpty(f.OutreachSubject))
+                {
+                    <div class="rr-field"><label>Email subject</label><input class="rr-input" @bind="f.OutreachSubject" /></div>
+                    <div class="rr-field"><label>Repair-offer email@(f.OutreachGeneratedAt is { } g ? " · drafted " + UiHelpers.Age(g) : "")</label><textarea class="rr-textarea" style="min-height:150px" @bind="f.OutreachBody"></textarea></div>
+                }
+
+                <div class="rr-btn-row">
+                    <button class="rr-btn" @onclick="() => SaveFinding(f)" disabled="@_busy">💾 Save</button>
+                    @if (f.OutreachBody.Length > 0)
+                    {
+                        <button class="rr-btn" @onclick="() => CopyEmail(f)">📋 Copy email</button>
+                        <a class="rr-btn primary" href="@MailtoLink(f)" @onclick="() => MarkContacted(f)">✉️ Open in mail & mark contacted</a>
+                    }
+                    @if (f.Status != WebAssetStatus.Won)
+                    {
+                        <button class="rr-btn" @onclick="() => SetStatus(f, WebAssetStatus.Responded)" disabled="@_busy">↩ Responded</button>
+                        <button class="rr-btn" @onclick="() => SetStatus(f, WebAssetStatus.Won)" disabled="@_busy">🏆 Won</button>
+                    }
+                    @if (f.Status != WebAssetStatus.Dismissed)
+                    {
+                        <button class="rr-btn" @onclick="() => SetStatus(f, WebAssetStatus.Dismissed)" disabled="@_busy">Dismiss</button>
+                    }
+                    else
+                    {
+                        <button class="rr-btn" @onclick="() => SetStatus(f, WebAssetStatus.New)" disabled="@_busy">Reopen</button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<WebScanProbe>? _probes;
+    private List<WebScanProbe> _enabledProbes = new();
+    private List<WebAssetFinding> _findings = new();
+    private WebScanProbe _editProbe = NewProbeTemplate();
+    private long _scanProbeId;
+    private string _targets = "";
+    private bool _useDiscovery;
+    private WebAssetStatus? _statusFilter;
+    private string _genInstructions = "";
+
+    private bool _busy;
+    private string? _flash;
+    private bool _flashOk = true;
+
+    protected override async Task OnInitializedAsync() => await Load();
+
+    private async Task Load()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        _probes = await db.WebScanProbes.AsNoTracking().OrderByDescending(p => p.UpdatedAt).ToListAsync();
+        _enabledProbes = _probes.Where(p => p.Enabled).ToList();
+        _findings = await db.WebAssetFindings.AsNoTracking()
+            .OrderByDescending(f => f.Status == WebAssetStatus.New)
+            .ThenByDescending(f => f.Severity == WebAssetSeverity.Down)
+            .ThenByDescending(f => f.FirstSeenAt).Take(300).ToListAsync();
+        // Keep the editor pointed at a still-existing probe.
+        if (_editProbe.Id != 0 && _probes.All(p => p.Id != _editProbe.Id)) _editProbe = NewProbeTemplate();
+        if (_scanProbeId == 0 || _enabledProbes.All(p => p.Id != _scanProbeId))
+            _scanProbeId = _enabledProbes.FirstOrDefault()?.Id ?? 0;
+    }
+
+    private List<WebAssetFinding> FilteredFindings() =>
+        _statusFilter is { } s ? _findings.Where(f => f.Status == s).ToList()
+        : _findings.Where(f => f.Status != WebAssetStatus.Dismissed).ToList();
+
+    private void NewProbe() => _editProbe = NewProbeTemplate();
+
+    private void EditProbe(WebScanProbe p) => _editProbe = new WebScanProbe
+    {
+        Id = p.Id, Name = p.Name, Description = p.Description, SoftwarePackage = p.SoftwarePackage,
+        ErrorSignatures = p.ErrorSignatures, PathsToCheck = p.PathsToCheck, DiscoveryQueries = p.DiscoveryQueries,
+        FlagServerErrors = p.FlagServerErrors, Enabled = p.Enabled,
+        CreatedAt = p.CreatedAt, UpdatedAt = p.UpdatedAt, LastRunAt = p.LastRunAt,
+        LastRunChecked = p.LastRunChecked, LastRunFound = p.LastRunFound
+    };
+
+    private async Task SaveProbe()
+    {
+        if (string.IsNullOrWhiteSpace(_editProbe.Name)) { _flash = "Give the probe a name first."; _flashOk = false; return; }
+        await Run(async () =>
+        {
+            await using var db = await DbFactory.CreateDbContextAsync();
+            var now = DateTimeOffset.UtcNow;
+            if (_editProbe.Id == 0)
+            {
+                _editProbe.CreatedAt = now; _editProbe.UpdatedAt = now;
+                db.WebScanProbes.Add(_editProbe);
+            }
+            else
+            {
+                var row = await db.WebScanProbes.FirstOrDefaultAsync(p => p.Id == _editProbe.Id);
+                if (row is null) return (false, "Probe no longer exists.");
+                row.Name = _editProbe.Name.Trim(); row.Description = _editProbe.Description.Trim();
+                row.SoftwarePackage = _editProbe.SoftwarePackage.Trim(); row.ErrorSignatures = _editProbe.ErrorSignatures.Trim();
+                row.PathsToCheck = _editProbe.PathsToCheck.Trim(); row.DiscoveryQueries = _editProbe.DiscoveryQueries.Trim();
+                row.FlagServerErrors = _editProbe.FlagServerErrors; row.Enabled = _editProbe.Enabled;
+                row.UpdatedAt = now;
+            }
+            await db.SaveChangesAsync();
+            return (true, "Probe saved.");
+        });
+    }
+
+    private async Task DeleteProbe(long id) => await Run(async () =>
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var row = await db.WebScanProbes.FirstOrDefaultAsync(p => p.Id == id);
+        if (row is null) return (false, "Probe no longer exists.");
+        db.WebScanProbes.Remove(row);
+        await db.SaveChangesAsync();
+        _editProbe = NewProbeTemplate();
+        return (true, "Probe deleted. Existing findings are kept.");
+    });
+
+    private async Task Scan()
+    {
+        if (_scanProbeId == 0) { _flash = "Pick a probe to run."; _flashOk = false; return; }
+        if (string.IsNullOrWhiteSpace(_targets) && !_useDiscovery)
+        { _flash = "Paste at least one target, or enable discovery."; _flashOk = false; return; }
+        await Run(async () =>
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var (_, _, message) = await scope.ServiceProvider.GetRequiredService<WebRescueService>()
+                .ScanAsync(_scanProbeId, _targets, _useDiscovery, default);
+            return (true, message);
+        });
+    }
+
+    private async Task GenerateBatch() => await Run(async () =>
+    {
+        using var scope = ScopeFactory.CreateScope();
+        var (generated, message) = await scope.ServiceProvider.GetRequiredService<WebRescueService>()
+            .GenerateOutreachBatchAsync(_genInstructions, default);
+        return (generated > 0, message);
+    });
+
+    private async Task Recheck(long id) => await Run(async () =>
+    {
+        using var scope = ScopeFactory.CreateScope();
+        return await scope.ServiceProvider.GetRequiredService<WebRescueService>().RecheckAsync(id, default);
+    });
+
+    private async Task RefreshContact(long id) => await Run(async () =>
+    {
+        using var scope = ScopeFactory.CreateScope();
+        return await scope.ServiceProvider.GetRequiredService<WebRescueService>().RefreshContactAsync(id, default);
+    });
+
+    private async Task SaveFinding(WebAssetFinding f) => await Run(async () =>
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var row = await db.WebAssetFindings.FirstOrDefaultAsync(x => x.Id == f.Id);
+        if (row is null) return (false, "Finding no longer exists.");
+        row.ContactEmail = f.ContactEmail.Trim();
+        if (row.ContactEmail.Length > 0 && row.ContactSource.Length == 0) row.ContactSource = "manual";
+        row.OutreachSubject = f.OutreachSubject.Trim(); row.OutreachBody = f.OutreachBody.Trim();
+        row.Notes = f.Notes.Trim(); row.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+        return (true, "Saved.");
+    });
+
+    private async Task SetStatus(WebAssetFinding f, WebAssetStatus status) => await Run(async () =>
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var row = await db.WebAssetFindings.FirstOrDefaultAsync(x => x.Id == f.Id);
+        if (row is null) return (false, "Finding no longer exists.");
+        row.Status = status; row.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+        return (true, $"Marked {UiHelpers.Spaced(status)}.");
+    });
+
+    private async Task MarkContacted(WebAssetFinding f)
+    {
+        if (f.Status is WebAssetStatus.New or WebAssetStatus.Reviewing)
+            await SetStatus(f, WebAssetStatus.Contacted);
+    }
+
+    private async Task CopyEmail(WebAssetFinding f)
+    {
+        var text = $"Subject: {f.OutreachSubject}\n\n{f.OutreachBody}";
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", text);
+        _flash = "Email copied to clipboard."; _flashOk = true;
+    }
+
+    private static string MailtoLink(WebAssetFinding f) =>
+        $"mailto:{f.ContactEmail}?subject={Uri.EscapeDataString(f.OutreachSubject)}&body={Uri.EscapeDataString(f.OutreachBody)}";
+
+    private static string SeverityClass(WebAssetSeverity s) => s switch
+    {
+        WebAssetSeverity.Down => "dead",
+        WebAssetSeverity.Degraded => "review",
+        _ => "progress"
+    };
+
+    private static string StatusClass(WebAssetStatus s) => s switch
+    {
+        WebAssetStatus.Won => "won",
+        WebAssetStatus.Responded => "active",
+        WebAssetStatus.Contacted => "progress",
+        WebAssetStatus.Dismissed => "dead",
+        _ => "review"
+    };
+
+    private static WebScanProbe NewProbeTemplate() => new()
+    {
+        PathsToCheck = "/", FlagServerErrors = true, Enabled = true
+    };
+
+    private async Task Run(Func<Task<(bool Ok, string Message)>> action)
+    {
+        _busy = true; _flash = null;
+        StateHasChanged();
+        try
+        {
+            var result = await action();
+            _flash = result.Message; _flashOk = result.Ok;
+            await Load();
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+}

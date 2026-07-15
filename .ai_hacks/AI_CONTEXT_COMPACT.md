@@ -1,6 +1,6 @@
 # DevLeads AI Project Context
 
-> Generated; do not hand-edit. Schema 2, source digest `6996e2cc148feac47d6c10b8a533995c1d23368672fc44b531f86cc9a17b9b19`.
+> Generated; do not hand-edit. Schema 2, source digest `603941f9ad6afe4c6c94b51d5974f4d0a185f7aac036cf2134df6660510f7780`.
 > Regenerate with `python3 ai_hacks.py`; verify freshness with `python3 ai_hacks.py --check`.
 
 ## How to use this map
@@ -152,7 +152,7 @@ Hourly cleanup rejects stale or non-hirable leads, marks overdue quotes, and opp
 ## Type hierarchy
 
 - `BackgroundService` → `ContentTrendWorker`, `DiscoveryWorker`
-- `ComponentBase` → `ActivityFeed`, `App`, `CampaignSwitcher`, `Campaigns`, `ClientDetail`, `Clients`, `Content`, `Drafts`, `Error`, `Home`, `LinkedIn`, `MyPosts`, `NavMenu`, `NewOpportunity`, `NotFound`, `Opportunities`, `OpportunityDetail`, `PlatformPresencePanel`, `PostPerformanceChart`, `Quotes`, `ReconnectModal`, `Routes`, `Settings`, `SkillProfile`, `Sources`, `Today`, `_Imports`
+- `ComponentBase` → `ActivityFeed`, `App`, `CampaignSwitcher`, `Campaigns`, `ClientDetail`, `Clients`, `Content`, `Drafts`, `Error`, `Home`, `LinkedIn`, `MyPosts`, `NavMenu`, `NewOpportunity`, `NotFound`, `Opportunities`, `OpportunityDetail`, `PlatformPresencePanel`, `PostPerformanceChart`, `Quotes`, `ReconnectModal`, `Routes`, `Settings`, `SiteRescue`, `SkillProfile`, `Sources`, `Today`, `_Imports`
 - `DbContext` → `DevLeadsDbContext`
 - `IAiBatchShortlistProvider` → `CodexCliProvider`, `OpenCodeTriageProvider`
 - `IAiBatchTriageProvider` → `CodexCliProvider`, `OpenCodeTriageProvider`
@@ -182,15 +182,16 @@ Hourly cleanup rejects stale or non-hirable leads, marks overdue quotes, and opp
 - `/opportunities/{Id:long}` → `OpportunityDetail` — Lead detail, triage, scoring, outreach, quotes, work tracking, and audit history.
 - `/quotes` → `Quotes` — Quote and payment-state management.
 - `/settings` → `Settings` — Operator, AI, safety, discovery, and restart settings.
+- `/siterescue` → `SiteRescue` — Blazor component for site rescue.
 - `/skills` → `SkillProfile` — Operator skill-profile management.
 - `/sources` → `Sources` — Source configuration, health checks, and manual discovery runs.
 - `/today` → `Today` — Blazor component for today.
 
 ## HTTP, DI, and data
 
-- HTTP endpoint groups: `/api/advisor` (2), `/api/campaigns` (1), `/api/clients` (2), `/api/content` (6), `/api/documents` (3), `/api/linkedin` (9), `/api/myposts` (12), `/api/opportunities` (17), `/api/outreach` (4), `/api/platforms` (4), `/api/quotes` (3), `/api/sources` (4), `/api/system` (1), `/favicon.ico` (1).
+- HTTP endpoint groups: `/api/advisor` (2), `/api/campaigns` (1), `/api/clients` (2), `/api/content` (6), `/api/documents` (3), `/api/linkedin` (14), `/api/myposts` (12), `/api/opportunities` (17), `/api/outreach` (4), `/api/platforms` (4), `/api/quotes` (3), `/api/sources` (4), `/api/system` (1), `/api/webscan` (7), `/favicon.ico` (1).
 - Hosted workers: `DiscoveryWorker`, `ContentTrendWorker`.
-- EF DbSets: `AdvisorBriefings`, `AiTriageRuns`, `AuditEvents`, `Campaigns`, `ClientInteractions`, `Clients`, `ContentDrafts`, `ContentTopics`, `EngagementDrafts`, `Engagements`, `FollowUps`, `OperatorDocuments`, `OperatorMessages`, `OperatorPostRevisions`, `OperatorPostSnapshots`, `OperatorPosts`, `OperatorSettings`, `Opportunities`, `OutreachAttempts`, `PlatformProfiles`, `QueryPacks`, `Quotes`, `RawSourceItems`, `Skills`, `SourceConfigs`, `SuppressionEntries`, `TrendSignals`, `TrendSources`, `WorkSessions`.
+- EF DbSets: `AdvisorBriefings`, `AiTriageRuns`, `AuditEvents`, `Campaigns`, `ClientInteractions`, `Clients`, `ContentDrafts`, `ContentTopics`, `EngagementDrafts`, `Engagements`, `FollowUps`, `LinkedInActions`, `LinkedInProfileFields`, `OperatorDocuments`, `OperatorMessages`, `OperatorPostRevisions`, `OperatorPostSnapshots`, `OperatorPosts`, `OperatorSettings`, `Opportunities`, `OutreachAttempts`, `PlatformProfiles`, `QueryPacks`, `Quotes`, `RawSourceItems`, `Skills`, `SourceConfigs`, `SuppressionEntries`, `TrendSignals`, `TrendSources`, `WebAssetFindings`, `WebScanProbes`, `WorkSessions`.
 - Complete endpoint, registration, and relationship tables: `ROUTES_AND_DI.md`.
 
 
@@ -230,13 +231,14 @@ Every source-authored type and callable name is present. Full signatures and dat
   - public `TriageAsync` — Coordinates triage. _(inferred)_
 - **`LinkedInPrompts`** — Grounded batched reply generation for LinkedIn comments and pasted messages. (`src/DevLeads.Core/Ai/LinkedInPrompts.cs:7`)
   - public `BuildEngagementBatchPrompt` — Creates engagement batch prompt. _(inferred)_
+  - public `BuildActionPlanPrompt` — One call reviews everything the app knows about the operator's LinkedIn presence (the…
   - private `Compact` — Transforms or resolves compact. _(inferred)_
 - **`EngagementItem`** — Represents engagement item. _(inferred)_ (`src/DevLeads.Core/Ai/LinkedInPrompts.cs:9`)
 - **`OutreachGenerationItem`** — One queued lead inside a batched response-generation call. (`src/DevLeads.Core/Ai/OutreachPrompts.cs:7`)
 - **`OutreachPrompts`** — Prompt for batched outreach-response generation: every queued lead in one model call, each reply grounded strictly in that lead's original post. (`src/DevLeads.Core/Ai/OutreachPrompts.cs:22`)
   - public `BuildBatchResponsePrompt` — Creates batch response prompt. _(inferred)_
   - private `Compact` — Transforms or resolves compact. _(inferred)_
-- **`PlatformPostPrompts`** — Prompt for drafting the operator's OWN posts/ads/profiles for a specific platform (reddit, craigslist, LinkedIn, Upwork, gmail outreach template) in… (`src/DevLeads.Core/Ai/PlatformPostPrompts.cs:11`)
+- **`PlatformPostPrompts`** — Prompt for drafting the operator's OWN posts/ads/profiles for a specific platform (reddit, craigslist, LinkedIn, Upwork, gmail outreach template… (`src/DevLeads.Core/Ai/PlatformPostPrompts.cs:11`)
   - public `BuildPostPrompt` — Creates post prompt. _(inferred)_
   - public `BuildOptimizationPrompt` — One batched call for the post-optimization experiment: each selected post gets a rewrite…
   - private `PlatformLabel` — Handles platform label. _(inferred)_
@@ -245,6 +247,10 @@ Every source-authored type and callable name is present. Full signatures and dat
 - **`PlatformPresencePrompts`** — Prompts for the platform-presence feature on My posts: discovering new platforms worth posting on, and generating the starter kit (profile bio +… (`src/DevLeads.Core/Ai/PlatformPresencePrompts.cs:10`)
   - public `BuildDiscoveryPrompt` — Creates discovery prompt. _(inferred)_
   - public `BuildSignupPackPrompt` — One batched call writes the complete signup pack for several platforms at once — every…
+- **`WebOutreachItem`** — One broken web asset inside a batched repair-offer generation call. (`src/DevLeads.Core/Ai/WebRescuePrompts.cs:7`)
+- **`WebRescuePrompts`** — Prompt for batched repair-offer email generation: every selected broken-asset finding in one model call, each email grounded strictly in that… (`src/DevLeads.Core/Ai/WebRescuePrompts.cs:24`)
+  - public `BuildOutreachBatchPrompt` — Creates outreach batch prompt. _(inferred)_
+  - private `Compact` — Transforms or resolves compact. _(inferred)_
 - **`AiTriageResult`** — The strict structured object returned by the single-pass AI triage call. Satisfies all former pipeline stages (relevance, emergency, category… (`src/DevLeads.Core/AiTriageResult.cs:10`)
 - **`SourceConnectorConfig`** — Runtime configuration passed to a connector for a single fetch. (`src/DevLeads.Core/Connectors/ISourceConnector.cs:6`)
 - **`ConnectorHealth`** — Reported health of a connector after a run or health check. (`src/DevLeads.Core/Connectors/ISourceConnector.cs:19`)
@@ -262,6 +268,8 @@ Every source-authored type and callable name is present. Full signatures and dat
 - **`Engagement`** — One bounded piece of work for a client: a fix, a project, or a retainer. Tracks the commercial state (status, fee) and delivery expectations (due… (`src/DevLeads.Core/Entities/Engagement.cs:8`)
 - **`EngagementDraft`** — A human-reviewed response draft for activity on one of the operator's LinkedIn posts. (`src/DevLeads.Core/Entities/EngagementDraft.cs:9`)
 - **`FollowUp`** — A dated reminder to touch a client or push an engagement forward. Due/overdue follow-ups are the backbone of the Today page's "needs your attention"… (`src/DevLeads.Core/Entities/FollowUp.cs:7`)
+- **`LinkedInAction`** — One concrete step in the AI-planned LinkedIn action plan (improve the profile, invite connections, publish content, …). (`src/DevLeads.Core/Entities/LinkedInAction.cs:9`)
+- **`LinkedInProfileField`** — One editable section of the operator's LinkedIn profile (headline, about, …), kept locally because LinkedIn's self-serve API cannot read profile… (`src/DevLeads.Core/Entities/LinkedInProfileField.cs:9`)
 - **`OperatorDocument`** — A document the operator uploads once and the app hands out wherever it's needed — the resume today; portfolios, cover letters, or case studies as… (`src/DevLeads.Core/Entities/OperatorDocument.cs:9`)
 - **`OperatorMessage`** — A private message or reply RECEIVED by the operator on an external platform (a reddit DM, a comment reply on one of their [For Hire] posts, an… (`src/DevLeads.Core/Entities/OperatorMessage.cs:10`)
 - **`OperatorPost`** — One of the operator's OWN posts on an external platform (a [For Hire] reddit post, an Upwork profile/proposal, a Craigslist ad…). (`src/DevLeads.Core/Entities/OperatorPost.cs:9`)
@@ -285,6 +293,8 @@ Every source-authored type and callable name is present. Full signatures and dat
 - **`SuppressionEntry`** — A contact that must never be messaged (opt-out, complaint, or manual block). (`src/DevLeads.Core/Entities/SuppressionEntry.cs:4`)
 - **`TrendSignal`** — One piece of evidence that something is trending: a hot post, a release note, an announcement. (`src/DevLeads.Core/Entities/TrendSignal.cs:7`)
 - **`TrendSource`** — A feed/community polled for *content* signals (trending topics, releases, updates) rather than leads. (`src/DevLeads.Core/Entities/TrendSource.cs:8`)
+- **`WebAssetFinding`** — A broken or degraded business web asset discovered by the Site rescue scanner: the concrete failing URL, what failed, who appears to own it, and the… (`src/DevLeads.Core/Entities/WebAssetFinding.cs:10`)
+- **`WebScanProbe`** — A reusable definition of what "broken" looks like for the Site rescue scanner: a software package to fingerprint, the error text/behaviour that… (`src/DevLeads.Core/Entities/WebScanProbe.cs:10`)
 - **`WorkSession`** — Tracks execution once a lead becomes real work: checklist, notes, fix summary. (`src/DevLeads.Core/Entities/WorkSession.cs:4`)
 - **`OpportunityStatus`** — Workflow states an opportunity moves through from discovery to payment. (`src/DevLeads.Core/Enums.cs:4`)
 - **`Priority`** — Priority band derived from the weighted opportunity score. (`src/DevLeads.Core/Enums.cs:41`)
@@ -304,13 +314,18 @@ Every source-authored type and callable name is present. Full signatures and dat
 - **`OperatorMessageStatus`** — Operator-side lifecycle of a received message. (`src/DevLeads.Core/Enums.cs:194`)
 - **`EngagementDraftKind`** — The LinkedIn interaction an engagement draft responds to. (`src/DevLeads.Core/Enums.cs:203`)
 - **`EngagementDraftStatus`** — Human-in-the-loop lifecycle for a LinkedIn engagement response. (`src/DevLeads.Core/Enums.cs:212`)
-- **`ClientStatus`** — Relationship stage of a client (a real person/business the operator works with). (`src/DevLeads.Core/Enums.cs:221`)
-- **`EngagementStatus`** — Lifecycle of a client engagement (a bounded project, fix, or retainer). (`src/DevLeads.Core/Enums.cs:234`)
-- **`FollowUpStatus`** — Lifecycle of a scheduled follow-up reminder. (`src/DevLeads.Core/Enums.cs:246`)
-- **`InteractionDirection`** — Direction of a logged client interaction. (`src/DevLeads.Core/Enums.cs:254`)
-- **`PlatformPresenceStatus`** — Where a platform sits in the operator's presence-building funnel. (`src/DevLeads.Core/Enums.cs:261`)
-- **`SuppressionContactType`** — How a contact was added to the suppression list. (`src/DevLeads.Core/Enums.cs:274`)
-- **`AiFeature`** — The distinct AI call sites in the app. Each can carry its own provider/model override in Entities.OperatorSettings; an unset override inherits the… (`src/DevLeads.Core/Enums.cs:287`)
+- **`LinkedInActionCategory`** — Which part of LinkedIn presence-building a planned action improves. (`src/DevLeads.Core/Enums.cs:221`)
+- **`LinkedInActionStatus`** — Operator-side lifecycle of one planned LinkedIn action. (`src/DevLeads.Core/Enums.cs:240`)
+- **`ClientStatus`** — Relationship stage of a client (a real person/business the operator works with). (`src/DevLeads.Core/Enums.cs:248`)
+- **`EngagementStatus`** — Lifecycle of a client engagement (a bounded project, fix, or retainer). (`src/DevLeads.Core/Enums.cs:261`)
+- **`FollowUpStatus`** — Lifecycle of a scheduled follow-up reminder. (`src/DevLeads.Core/Enums.cs:273`)
+- **`InteractionDirection`** — Direction of a logged client interaction. (`src/DevLeads.Core/Enums.cs:281`)
+- **`PlatformPresenceStatus`** — Where a platform sits in the operator's presence-building funnel. (`src/DevLeads.Core/Enums.cs:288`)
+- **`SuppressionContactType`** — How a contact was added to the suppression list. (`src/DevLeads.Core/Enums.cs:301`)
+- **`WebAssetSeverity`** — How badly a scanned business web asset is broken. (`src/DevLeads.Core/Enums.cs:310`)
+- **`WebAssetStatus`** — Operator-side lifecycle of a discovered broken web asset (a potential repair lead). (`src/DevLeads.Core/Enums.cs:321`)
+- **`WebAssetDetection`** — How a broken web asset was found. (`src/DevLeads.Core/Enums.cs:332`)
+- **`AiFeature`** — The distinct AI call sites in the app. Each can carry its own provider/model override in Entities.OperatorSettings; an unset override inherits the… (`src/DevLeads.Core/Enums.cs:345`)
 - **`HeuristicPreFilter`** — Zero-cost keyword/rule filter deciding whether a raw item is worth an LLM call. Protects the AI budget, cuts latency, and rejects obvious noise… (`src/DevLeads.Core/HeuristicPreFilter.cs:11`)
   - public `HasPayLanguage` — True when the text contains explicit hire/pay language or a money amount, un-negated.
   - public `Analyze` — Analyzes an item. When packNames is given, high-priority term matching is scoped to those…
@@ -392,6 +407,8 @@ Every source-authored type and callable name is present. Full signatures and dat
   - public `Get` — Loads or resolves get. _(inferred)_
 - **`TermMatch`** — Whole-word term matching for query-pack terms and pre-filter signals. Plain substring Contains made short terms unusable ("rag" matched "storage"… (`src/DevLeads.Core/TermMatch.cs:11`)
   - public `ContainsWholeTerm` — Checks whole term. _(inferred)_
+- **`WebBreakageSignature`** — One built-in error signature: the text to look for and how bad it is. (`src/DevLeads.Core/WebBreakageSignatures.cs:4`)
+- **`WebBreakageSignatures`** — A curated catalog of common "this site is broken" fingerprints, so a probe works out of the box before the operator adds custom error text. (`src/DevLeads.Core/WebBreakageSignatures.cs:13`)
 ## DevLeads.Infrastructure
 
 - **`AiCliSupport`** — Prompt building and output parsing shared by the CLI-backed AI providers (OpenCode, Codex). (`src/DevLeads.Infrastructure/Ai/AiCliSupport.cs:13`)
@@ -509,6 +526,8 @@ Every source-authored type and callable name is present. Full signatures and dat
   - private `RequeueTemplateDraftsAsync` — One-time (2026-07-11): unapproved template mad-lib drafts ("I saw your post about…
   - private `DemoteGenericCapabilitySkillsAsync` — One-time data fix (2026-07-11): "REST API" was seeded as a weight-3 "Primary stack" skill…
   - private `ApplySchemaUpgradesAsync` — EnsureCreated never alters existing tables, so columns added after first release are…
+  - private `SeedWebScanProbesAsync` — Seeds a couple of ready-to-run Site rescue probes so the scanner works out of the box.
+  - private `BackfillLinkedInProfileSnapshotAsync` — One-time move from the retired per-section profile studio to the single pasted snapshot…
   - private `MigrateAiProviderDefaultsAsync` — Moves settings still on an old AI default onto the current one (OpenCode CLI).
   - private `SeedQueryPacksAsync` — Creates query packs. _(inferred)_
   - private `SeedSkillsAsync` — Seeds the operator skill profile once; the Skills page owns it afterwards.
@@ -541,7 +560,7 @@ Every source-authored type and callable name is present. Full signatures and dat
 - **`DevLeadsDbContext : DbContext`** — EF Core context for the SQLite solo database. (`src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:9`)
   - protected `ConfigureConventions` — Handles configure conventions. _(inferred)_
   - protected `OnModelCreating` — Handles on model creating. _(inferred)_
-- **`DateTimeOffsetToTicksConverter : ValueConverter<DateTimeOffset, long>`** — Represents date time offset to ticks converter. _(inferred)_ (`src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:45`)
+- **`DateTimeOffsetToTicksConverter : ValueConverter<DateTimeOffset, long>`** — Represents date time offset to ticks converter. _(inferred)_ (`src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs:49`)
 - **`DependencyInjection`** — Represents dependency injection. _(inferred)_ (`src/DevLeads.Infrastructure/DependencyInjection.cs:17`)
   - public `AddDevLeads` — Registers the database, connectors, AI providers, domain services, and worker.
   - public `InitializeDevLeadsAsync` — Creates the database schema and seeds default settings, query packs, and sources.
@@ -616,6 +635,10 @@ Every source-authored type and callable name is present. Full signatures and dat
   - public `PublishDueAsync` — Publishes every due LinkedIn draft; one failure does not block later rows.
   - public `SyncEngagementAsync` — Imports top-level comments for tracked posts. LinkedIn grants the required read permission…
   - public `GenerateEngagementBatchAsync` — Syncs what is available, then drafts all undrafted pending responses in one AI call.
+  - public `GenerateActionPlanAsync` — One AI call reviews the operator's LinkedIn presence — the pasted whole-profile snapshot…
+  - private `BuildActivityFactsAsync` — Deterministic (zero-AI-cost) presence facts the plan is grounded in.
+  - private `ParseActionPlan` — Transforms or resolves action plan. _(inferred)_
+  - private `ParseActionCategory` — Transforms or resolves action category. _(inferred)_
   - public `CreateManualEngagementAsync` — Creates manual engagement. _(inferred)_
   - public `PublishEngagementAsync` — Publishes a reviewed public-comment response. Pasted private messages stay copy-only.
   - private `ApiRequest` — Handles api request. _(inferred)_
@@ -726,6 +749,33 @@ Every source-authored type and callable name is present. Full signatures and dat
   - private `PruneOldSignalsAsync` — Trend evidence goes stale fast; anything past 30 days is dead weight.
   - private `ParseParameters` — Transforms or resolves parameters. _(inferred)_
   - private `Compact` — Transforms or resolves compact. _(inferred)_
+- **`WebRescueService`** — Site rescue: actively but passively probes business web assets for public errors/outages that match an operator-defined WebScanProbe, records… (`src/DevLeads.Infrastructure/Services/WebRescueService.cs:25`)
+  - public `ScanAsync` — Runs a probe against pasted targets and (optionally) search-discovered targets.
+  - public `RecheckAsync` — Re-checks one existing finding and refreshes its live status/evidence.
+  - public `GenerateOutreachBatchAsync` — Drafts repair-offer emails for every New finding that has a contact and no draft yet, in…
+  - public `RefreshContactAsync` — Re-runs contact discovery for one finding (when the first pass found nothing).
+  - private `AnalyzeAsync` — Fetches the homepage and any probe paths, returning the breakage analysis (null when…
+  - private `EnumerateTargets` — Handles enumerate targets. _(inferred)_
+  - private `Evaluate` — Handles evaluate. _(inferred)_
+  - private `FetchAsync` — Loads or resolves fetch. _(inferred)_
+  - private `DescribeTransportError` — Handles describe transport error. _(inferred)_
+  - private `DiscoverContactAsync` — Handles discover contact. _(inferred)_
+  - private `ExtractEmail` — Transforms or resolves email. _(inferred)_
+  - private `IsPlausibleEmail` — Checks plausible email. _(inferred)_
+  - private `DiscoverTargetsAsync` — Handles discover targets. _(inferred)_
+  - private `ExtractSearchResultUrls` — Transforms or resolves search result urls. _(inferred)_
+  - private `UpsertFindingAsync` — Handles upsert finding. _(inferred)_
+  - private `BuildSignatureList` — Creates signature list. _(inferred)_
+  - private `ProbePaths` — Handles probe paths. _(inferred)_
+  - private `DetectSoftware` — Handles detect software. _(inferred)_
+  - private `GuessBusinessName` — Handles guess business name. _(inferred)_
+  - private `ParseTargets` — Transforms or resolves targets. _(inferred)_
+  - private `SplitLines` — Transforms or resolves lines. _(inferred)_
+  - private `Trim` — Transforms or resolves trim. _(inferred)_
+  - private `Excerpt` — Handles excerpt. _(inferred)_
+  - private `ParseEmails` — Transforms or resolves emails. _(inferred)_
+  - private `GetString` — Loads or resolves string. _(inferred)_
+- **`Analysis`** — Represents analysis. _(inferred)_ (`src/DevLeads.Infrastructure/Services/WebRescueService.cs:248`)
 - **`ContentTrendWorker : BackgroundService`** — Slow background loop for the content studio: polls due trend sources (default twice a day per source) and, at most once a day, spends one AI call… (`src/DevLeads.Infrastructure/Workers/ContentTrendWorker.cs:16`)
   - protected `ExecuteAsync` — Coordinates execute. _(inferred)_
   - private `TickAsync` — Handles tick. _(inferred)_
@@ -737,10 +787,12 @@ Every source-authored type and callable name is present. Full signatures and dat
 
 - **`ApiEndpoints`** — Internal HTTP API used for automation and integration (the UI calls services directly). (`src/DevLeads.Web/Api/ApiEndpoints.cs:9`)
   - public `MapDevLeadsApi` — Transforms or resolves dev leads api. _(inferred)_
+  - private `MapLinkedInActionStatus` — Transforms or resolves linked in action status. _(inferred)_
   - private `MapStatusAction` — Transforms or resolves status action. _(inferred)_
-- **`ManualLeadDto`** — Transfers manual lead data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:397`)
-- **`DraftDto`** — Transfers draft data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:398`)
-- **`QuoteDto`** — Transfers quote data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:399`)
+- **`ManualLeadDto`** — Transfers manual lead data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:479`)
+- **`DraftDto`** — Transfers draft data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:480`)
+- **`QuoteDto`** — Transfers quote data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:481`)
+- **`WebScanRunDto`** — Transfers web scan run data. _(inferred)_ (`src/DevLeads.Web/Api/ApiEndpoints.cs:482`)
 - **`AppRestartService`** — Full-process restart so the app picks up the latest code. Spawns a detached supervisor script that waits for this process to exit, rebuilds the… (`src/DevLeads.Web/AppRestartService.cs:12`)
   - public `Restart` — Schedules the restart. Returns an error message, or null when underway.
 - **`App : ComponentBase`** — Blazor component for app. (`src/DevLeads.Web/Components/App.razor:1`)
@@ -878,6 +930,28 @@ Every source-authored type and callable name is present. Full signatures and dat
   - private `SetFeatureProvider` — Updates feature provider. _(inferred)_
   - private `GetFeatureModel` — Loads or resolves feature model. _(inferred)_
   - private `SetFeatureModel` — Updates feature model. _(inferred)_
+- **`SiteRescue : ComponentBase`** — Blazor component for site rescue. (`src/DevLeads.Web/Components/Pages/SiteRescue.razor:1`)
+  - protected `OnInitializedAsync` — Runs the component on initialized lifecycle step. _(inferred)_
+  - private `Load` — Loads or resolves load. _(inferred)_
+  - private `FilteredFindings` — Handles filtered findings. _(inferred)_
+  - private `NewProbe` — Handles new probe. _(inferred)_
+  - private `EditProbe` — Handles edit probe. _(inferred)_
+  - private `SaveProbe` — Updates probe. _(inferred)_
+  - private `Run` — Coordinates run. _(inferred)_
+  - private `DeleteProbe` — Removes or transitions probe. _(inferred)_
+  - private `Scan` — Coordinates scan. _(inferred)_
+  - private `Run` — Coordinates run. _(inferred)_
+  - private `GenerateBatch` — Creates batch. _(inferred)_
+  - private `Recheck` — Handles recheck. _(inferred)_
+  - private `RefreshContact` — Handles refresh contact. _(inferred)_
+  - private `SaveFinding` — Updates finding. _(inferred)_
+  - private `SetStatus` — Updates status. _(inferred)_
+  - private `MarkContacted` — Updates contacted. _(inferred)_
+  - private `CopyEmail` — Handles email. _(inferred)_
+  - private `MailtoLink` — Handles mailto link. _(inferred)_
+  - private `SeverityClass` — Handles severity class. _(inferred)_
+  - private `StatusClass` — Handles status class. _(inferred)_
+  - private `NewProbeTemplate` — Handles new probe template. _(inferred)_
 - **`SkillProfile : ComponentBase`** — Operator skill-profile management. (`src/DevLeads.Web/Components/Pages/SkillProfile.razor:1`)
 - **`Sources : ComponentBase`** — Source configuration, health checks, and manual discovery runs. (`src/DevLeads.Web/Components/Pages/Sources.razor:1`)
 - **`Today : ComponentBase`** — Blazor component for today. (`src/DevLeads.Web/Components/Pages/Today.razor:1`)
@@ -937,7 +1011,7 @@ Every source-authored type and callable name is present. Full signatures and dat
 
 ## Completeness
 
-- 188 source-authored C# types and Razor components.
-- 569 source-authored callable members.
-- 18 Blazor page routes; 69 HTTP endpoints; 29 EF DbSets.
-- Full indexed source: 998,815 characters (~249,704 tokens).
+- 205 source-authored C# types and Razor components.
+- 626 source-authored callable members.
+- 19 Blazor page routes; 81 HTTP endpoints; 33 EF DbSets.
+- Full indexed source: 1,112,368 characters (~278,092 tokens).

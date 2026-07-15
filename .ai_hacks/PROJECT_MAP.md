@@ -1,11 +1,11 @@
 # Project Map
 
-Source digest: `6996e2cc148feac47d6c10b8a533995c1d23368672fc44b531f86cc9a17b9b19`
+Source digest: `603941f9ad6afe4c6c94b51d5974f4d0a185f7aac036cf2134df6660510f7780`
 
-- Files: 134
-- Types/components: 188
-- Callable members: 569
-- XML/manual/inherited descriptions: 330
+- Files: 142
+- Types/components: 205
+- Callable members: 626
+- XML/manual/inherited descriptions: 355
 
 ## Files
 
@@ -14,10 +14,11 @@ Source digest: `6996e2cc148feac47d6c10b8a533995c1d23368672fc44b531f86cc9a17b9b19
 - `src/DevLeads.Core/Ai/AiTriagePrompts.cs` — 170 lines
 - `src/DevLeads.Core/Ai/ContentPrompts.cs` — 138 lines
 - `src/DevLeads.Core/Ai/IAiTriageProvider.cs` — 126 lines
-- `src/DevLeads.Core/Ai/LinkedInPrompts.cs` — 49 lines
+- `src/DevLeads.Core/Ai/LinkedInPrompts.cs` — 110 lines
 - `src/DevLeads.Core/Ai/OutreachPrompts.cs` — 66 lines
-- `src/DevLeads.Core/Ai/PlatformPostPrompts.cs` — 147 lines
+- `src/DevLeads.Core/Ai/PlatformPostPrompts.cs` — 155 lines
 - `src/DevLeads.Core/Ai/PlatformPresencePrompts.cs` — 97 lines
+- `src/DevLeads.Core/Ai/WebRescuePrompts.cs` — 70 lines
 - `src/DevLeads.Core/AiTriageResult.cs` — 90 lines
 - `src/DevLeads.Core/Connectors/ISourceConnector.cs` — 42 lines
 - `src/DevLeads.Core/DevLeads.Core.csproj` — 10 lines
@@ -32,12 +33,14 @@ Source digest: `6996e2cc148feac47d6c10b8a533995c1d23368672fc44b531f86cc9a17b9b19
 - `src/DevLeads.Core/Entities/Engagement.cs` — 38 lines
 - `src/DevLeads.Core/Entities/EngagementDraft.cs` — 41 lines
 - `src/DevLeads.Core/Entities/FollowUp.cs` — 27 lines
+- `src/DevLeads.Core/Entities/LinkedInAction.cs` — 35 lines
+- `src/DevLeads.Core/Entities/LinkedInProfileField.cs` — 34 lines
 - `src/DevLeads.Core/Entities/OperatorDocument.cs` — 26 lines
 - `src/DevLeads.Core/Entities/OperatorMessage.cs` — 47 lines
 - `src/DevLeads.Core/Entities/OperatorPost.cs` — 69 lines
 - `src/DevLeads.Core/Entities/OperatorPostRevision.cs` — 53 lines
 - `src/DevLeads.Core/Entities/OperatorPostSnapshot.cs` — 15 lines
-- `src/DevLeads.Core/Entities/OperatorSettings.cs` — 175 lines
+- `src/DevLeads.Core/Entities/OperatorSettings.cs` — 204 lines
 - `src/DevLeads.Core/Entities/Opportunity.cs` — 90 lines
 - `src/DevLeads.Core/Entities/OutreachAttempt.cs` — 27 lines
 - `src/DevLeads.Core/Entities/PlatformProfile.cs` — 62 lines
@@ -50,8 +53,10 @@ Source digest: `6996e2cc148feac47d6c10b8a533995c1d23368672fc44b531f86cc9a17b9b19
 - `src/DevLeads.Core/Entities/SuppressionEntry.cs` — 13 lines
 - `src/DevLeads.Core/Entities/TrendSignal.cs` — 34 lines
 - `src/DevLeads.Core/Entities/TrendSource.cs` — 39 lines
+- `src/DevLeads.Core/Entities/WebAssetFinding.cs` — 65 lines
+- `src/DevLeads.Core/Entities/WebScanProbe.cs` — 51 lines
 - `src/DevLeads.Core/Entities/WorkSession.cs` — 21 lines
-- `src/DevLeads.Core/Enums.cs` — 310 lines
+- `src/DevLeads.Core/Enums.cs` — 372 lines
 - `src/DevLeads.Core/HeuristicPreFilter.cs` — 264 lines
 - `src/DevLeads.Core/LanguageDetection.cs` — 34 lines
 - `src/DevLeads.Core/LeadQualityRules.cs` — 288 lines
@@ -69,6 +74,7 @@ Source digest: `6996e2cc148feac47d6c10b8a533995c1d23368672fc44b531f86cc9a17b9b19
 - `src/DevLeads.Core/Templates/PricingTiers.cs` — 31 lines
 - `src/DevLeads.Core/Templates/ResponseTemplates.cs` — 57 lines
 - `src/DevLeads.Core/TermMatch.cs` — 36 lines
+- `src/DevLeads.Core/WebBreakageSignatures.cs` — 62 lines
 - `src/DevLeads.Infrastructure/Ai/AiCliSupport.cs` — 148 lines
 - `src/DevLeads.Infrastructure/Ai/AiTextRouter.cs` — 67 lines
 - `src/DevLeads.Infrastructure/Ai/AiTriageRouter.cs` — 164 lines
@@ -84,9 +90,9 @@ Source digest: `6996e2cc148feac47d6c10b8a533995c1d23368672fc44b531f86cc9a17b9b19
 - `src/DevLeads.Infrastructure/Connectors/RemotiveConnector.cs` — 115 lines
 - `src/DevLeads.Infrastructure/Connectors/RssConnector.cs` — 174 lines
 - `src/DevLeads.Infrastructure/Connectors/StackExchangeConnector.cs` — 112 lines
-- `src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs` — 1499 lines
-- `src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs` — 169 lines
-- `src/DevLeads.Infrastructure/DependencyInjection.cs` — 109 lines
+- `src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs` — 1685 lines
+- `src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs` — 191 lines
+- `src/DevLeads.Infrastructure/DependencyInjection.cs` — 110 lines
 - `src/DevLeads.Infrastructure/DevLeads.Infrastructure.csproj` — 21 lines
 - `src/DevLeads.Infrastructure/QueryPacks/DbQueryPackProvider.cs` — 39 lines
 - `src/DevLeads.Infrastructure/Services/AdvisorService.cs` — 288 lines
@@ -95,7 +101,7 @@ Source digest: `6996e2cc148feac47d6c10b8a533995c1d23368672fc44b531f86cc9a17b9b19
 - `src/DevLeads.Infrastructure/Services/ContentStudioService.cs` — 215 lines
 - `src/DevLeads.Infrastructure/Services/DiscoveryActivityTracker.cs` — 54 lines
 - `src/DevLeads.Infrastructure/Services/LeadIngestionService.cs` — 773 lines
-- `src/DevLeads.Infrastructure/Services/LinkedInService.cs` — 566 lines
+- `src/DevLeads.Infrastructure/Services/LinkedInService.cs` — 724 lines
 - `src/DevLeads.Infrastructure/Services/MaintenanceService.cs` — 121 lines
 - `src/DevLeads.Infrastructure/Services/OperatorPostService.cs` — 1087 lines
 - `src/DevLeads.Infrastructure/Services/OutreachService.cs` — 321 lines
@@ -103,13 +109,14 @@ Source digest: `6996e2cc148feac47d6c10b8a533995c1d23368672fc44b531f86cc9a17b9b19
 - `src/DevLeads.Infrastructure/Services/QuoteService.cs` — 82 lines
 - `src/DevLeads.Infrastructure/Services/SourceRunner.cs` — 498 lines
 - `src/DevLeads.Infrastructure/Services/TrendScanService.cs` — 208 lines
+- `src/DevLeads.Infrastructure/Services/WebRescueService.cs` — 630 lines
 - `src/DevLeads.Infrastructure/Workers/ContentTrendWorker.cs` — 76 lines
 - `src/DevLeads.Infrastructure/Workers/DiscoveryWorker.cs` — 154 lines
-- `src/DevLeads.Web/Api/ApiEndpoints.cs` — 401 lines
+- `src/DevLeads.Web/Api/ApiEndpoints.cs` — 484 lines
 - `src/DevLeads.Web/AppRestartService.cs` — 100 lines
 - `src/DevLeads.Web/Components/App.razor` — 23 lines
 - `src/DevLeads.Web/Components/Layout/MainLayout.razor` — 17 lines
-- `src/DevLeads.Web/Components/Layout/NavMenu.razor` — 33 lines
+- `src/DevLeads.Web/Components/Layout/NavMenu.razor` — 34 lines
 - `src/DevLeads.Web/Components/Layout/ReconnectModal.razor` — 32 lines
 - `src/DevLeads.Web/Components/Layout/ReconnectModal.razor.js` — 64 lines
 - `src/DevLeads.Web/Components/Pages/Campaigns.razor` — 186 lines
@@ -119,14 +126,15 @@ Source digest: `6996e2cc148feac47d6c10b8a533995c1d23368672fc44b531f86cc9a17b9b19
 - `src/DevLeads.Web/Components/Pages/Drafts.razor` — 146 lines
 - `src/DevLeads.Web/Components/Pages/Error.razor` — 37 lines
 - `src/DevLeads.Web/Components/Pages/Home.razor` — 320 lines
-- `src/DevLeads.Web/Components/Pages/LinkedIn.razor` — 439 lines
-- `src/DevLeads.Web/Components/Pages/MyPosts.razor` — 801 lines
+- `src/DevLeads.Web/Components/Pages/LinkedIn.razor` — 619 lines
+- `src/DevLeads.Web/Components/Pages/MyPosts.razor` — 802 lines
 - `src/DevLeads.Web/Components/Pages/NewOpportunity.razor` — 92 lines
 - `src/DevLeads.Web/Components/Pages/NotFound.razor` — 5 lines
 - `src/DevLeads.Web/Components/Pages/Opportunities.razor` — 296 lines
 - `src/DevLeads.Web/Components/Pages/OpportunityDetail.razor` — 448 lines
 - `src/DevLeads.Web/Components/Pages/Quotes.razor` — 101 lines
-- `src/DevLeads.Web/Components/Pages/Settings.razor` — 375 lines
+- `src/DevLeads.Web/Components/Pages/Settings.razor` — 380 lines
+- `src/DevLeads.Web/Components/Pages/SiteRescue.razor` — 401 lines
 - `src/DevLeads.Web/Components/Pages/SkillProfile.razor` — 255 lines
 - `src/DevLeads.Web/Components/Pages/Sources.razor` — 183 lines
 - `src/DevLeads.Web/Components/Pages/Today.razor` — 228 lines

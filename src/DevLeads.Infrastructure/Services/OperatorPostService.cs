@@ -50,7 +50,7 @@ public sealed class OperatorPostService
 
     /// <summary>
     /// One AI call drafts a platform-appropriate post (reddit/craigslist/linkedin/upwork/
-    /// gmail template) in the operator's real identity, using the best-performing tracked
+    /// gmail template/discord offer) in the operator's real identity, using the best-performing tracked
     /// posts as voice reference. Saved as a Draft — the operator posts it manually and
     /// then marks it Active with its URL.
     /// </summary>

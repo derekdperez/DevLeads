@@ -5,12 +5,12 @@ namespace DevLeads.Core.Ai;
 
 /// <summary>
 /// Prompt for drafting the operator's OWN posts/ads/profiles for a specific platform
-/// (reddit, craigslist, LinkedIn, Upwork, gmail outreach template) in the operator's
-/// real identity and voice, informed by which past posts actually drew replies.
+/// (reddit, craigslist, LinkedIn, Upwork, gmail outreach template, Discord server offer)
+/// in the operator's real identity and voice, informed by which past posts actually drew replies.
 /// </summary>
 public static class PlatformPostPrompts
 {
-    public static readonly string[] SupportedPlatforms = { "reddit", "craigslist", "linkedin", "upwork", "gmail" };
+    public static readonly string[] SupportedPlatforms = { "reddit", "craigslist", "linkedin", "upwork", "gmail", "discord" };
 
     public static string BuildPostPrompt(
         string platform,
@@ -51,12 +51,15 @@ public static class PlatformPostPrompts
         sb.AppendLine("Hard rules:");
         sb.AppendLine("- Only claim experience/skills listed above. Never invent projects, employers, clients, metrics, or credentials.");
         sb.AppendLine("- NEVER describe specific past projects or \"recent work\" examples unless they appear verbatim in the reference posts above — describe capabilities, not fabricated case studies.");
+        sb.AppendLine("- If the offering states its own rate or pricing, use exactly that and do not mention the minimum engagement fee or payment terms above.");
+        sb.AppendLine("- The offering description may contain internal notes on what a qualifying lead looks like; that is targeting guidance for YOU, never text for the post.");
         sb.AppendLine("- Direct, confident, zero hype-words; write like a 20-year engineer, not a marketer.");
         sb.AppendLine("- Do not mention AI.");
         sb.AppendLine();
         sb.AppendLine("Output: plain text only. FIRST line must be the title as \"# Title\"" +
                       (platform == "gmail" ? " (the title is the email subject line)" : "") +
-                      ". No markdown fences, no commentary.");
+                      (platform == "discord" ? " (the title is only an internal tracking label — Discord posts have no titles; only the body gets pasted)" : "") +
+                      ". No markdown fences, no commentary, and NOTHING after the post's final line — no notes, labels, or metadata.");
         return sb.ToString();
     }
 
@@ -111,6 +114,7 @@ public static class PlatformPostPrompts
         "linkedin" => "LinkedIn post announcing consulting availability",
         "upwork" => "Upwork profile overview",
         "gmail" => "cold-outreach email template",
+        "discord" => "Discord server message offering the consultant's services (for a channel that explicitly allows offers/self-promotion)",
         _ => "post"
     };
 
@@ -135,6 +139,10 @@ public static class PlatformPostPrompts
             "- Cold-outreach email template, 90-150 words. Greeting may use the placeholder [Name] — it is the ONLY placeholder allowed.\n" +
             "- Body: one line on why this recipient, one on what the consultant does, one credibility line, one specific ask (15-min call).\n" +
             "- End with a signature block: name, location, contact email.",
+        "discord" =>
+            "- A single Discord message for a server channel that allows service/promo posts (#promotions, #for-hire, #mentoring style channels — the operator confirms the target channel's rules before pasting).\n" +
+            "- Under 1,000 characters, chat-native: a few short lines or tiny paragraphs; at most two **bold** phrases and simple dash bullets; no headings, no wall of text, no @mentions, no links, no emoji spam (one is fine).\n" +
+            "- Say who they are, exactly what the offer is, the rate range, and end with a clear \"DM me\" call to action (Discord DM — not email).",
         _ => "- 150-250 words, plain text."
     };
 

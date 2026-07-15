@@ -31,6 +31,8 @@ public static class DatabaseSeeder
         var migrated = await SeedSourceConfigsAsync(db, campaigns, ct);
         await SeedTrendSourcesAsync(db, ct);
         await SeedPlatformProfilesAsync(db, ct);
+        await SeedWebScanProbesAsync(db, ct);
+        await BackfillLinkedInProfileSnapshotAsync(db, ct);
         await db.SaveChangesAsync(ct);
         await BackfillLeadCampaignsAsync(db, campaigns[EmergencyCampaignKey], ct);
 
@@ -507,13 +509,182 @@ public static class DatabaseSeeder
             """,
             "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_EngagementDrafts_Platform_ExternalId\" ON \"EngagementDrafts\" (\"Platform\", \"ExternalId\")",
             "CREATE INDEX IF NOT EXISTS \"IX_EngagementDrafts_Status\" ON \"EngagementDrafts\" (\"Status\")",
-            "CREATE INDEX IF NOT EXISTS \"IX_EngagementDrafts_OperatorPostId\" ON \"EngagementDrafts\" (\"OperatorPostId\")"
+            "CREATE INDEX IF NOT EXISTS \"IX_EngagementDrafts_OperatorPostId\" ON \"EngagementDrafts\" (\"OperatorPostId\")",
+            // LinkedIn profile studio (2026-07-14): locally tracked profile sections with
+            // per-field AI rewrite proposals, plus the overall AI review on settings.
+            "ALTER TABLE OperatorSettings ADD COLUMN LinkedInProfileAiProvider TEXT NOT NULL DEFAULT 'Codex'",
+            "ALTER TABLE OperatorSettings ADD COLUMN LinkedInProfileAiModel TEXT NOT NULL DEFAULT 'gpt-5.6-sol'",
+            "ALTER TABLE OperatorSettings ADD COLUMN LinkedInProfileReview TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN LinkedInProfileReviewAt INTEGER NULL",
+            """
+            CREATE TABLE IF NOT EXISTS "LinkedInProfileFields" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_LinkedInProfileFields" PRIMARY KEY AUTOINCREMENT,
+                "FieldKey" TEXT NOT NULL,
+                "DisplayName" TEXT NOT NULL,
+                "Guidance" TEXT NOT NULL,
+                "SortOrder" INTEGER NOT NULL,
+                "CurrentText" TEXT NOT NULL,
+                "SuggestedText" TEXT NOT NULL,
+                "SuggestedAt" INTEGER NULL,
+                "Provider" TEXT NOT NULL,
+                "Model" TEXT NOT NULL,
+                "UpdatedAt" INTEGER NOT NULL
+            )
+            """,
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_LinkedInProfileFields_FieldKey\" ON \"LinkedInProfileFields\" (\"FieldKey\")",
+            // LinkedIn next-actions plan (2026-07-14): per-section profile editing is
+            // retired in favor of one pasted whole-profile snapshot plus an AI-planned,
+            // operator-executed action checklist.
+            "ALTER TABLE OperatorSettings ADD COLUMN LinkedInProfileSnapshot TEXT NOT NULL DEFAULT ''",
+            """
+            CREATE TABLE IF NOT EXISTS "LinkedInActions" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_LinkedInActions" PRIMARY KEY AUTOINCREMENT,
+                "Category" TEXT NOT NULL,
+                "Title" TEXT NOT NULL,
+                "Why" TEXT NOT NULL,
+                "Steps" TEXT NOT NULL,
+                "Status" TEXT NOT NULL,
+                "SortOrder" INTEGER NOT NULL,
+                "Provider" TEXT NOT NULL,
+                "Model" TEXT NOT NULL,
+                "GeneratedAt" INTEGER NOT NULL,
+                "CompletedAt" INTEGER NULL,
+                "UpdatedAt" INTEGER NOT NULL
+            )
+            """,
+            "CREATE INDEX IF NOT EXISTS \"IX_LinkedInActions_Status\" ON \"LinkedInActions\" (\"Status\")",
+            "CREATE INDEX IF NOT EXISTS \"IX_LinkedInActions_Category\" ON \"LinkedInActions\" (\"Category\")",
+            // Site rescue (2026-07-14): active passive-scan for broken business web assets that
+            // could become paid repair work, plus a per-feature AI override and swappable
+            // discovery search endpoint.
+            "ALTER TABLE OperatorSettings ADD COLUMN WebAssetOutreachAiProvider TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN WebAssetOutreachAiModel TEXT NOT NULL DEFAULT ''",
+            // ExecuteSqlRawAsync runs the SQL through string.Format, so literal braces must be
+            // doubled — {{q}} reaches SQLite as {q}. A bare {q} throws FormatException at boot.
+            "ALTER TABLE OperatorSettings ADD COLUMN WebScanSearchEndpoint TEXT NOT NULL DEFAULT 'https://html.duckduckgo.com/html/?q={{q}}'",
+            "ALTER TABLE OperatorSettings ADD COLUMN WebScanMaxTargetsPerRun INTEGER NOT NULL DEFAULT 40",
+            """
+            CREATE TABLE IF NOT EXISTS "WebScanProbes" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_WebScanProbes" PRIMARY KEY AUTOINCREMENT,
+                "Name" TEXT NOT NULL,
+                "Description" TEXT NOT NULL,
+                "SoftwarePackage" TEXT NOT NULL,
+                "ErrorSignatures" TEXT NOT NULL,
+                "PathsToCheck" TEXT NOT NULL,
+                "DiscoveryQueries" TEXT NOT NULL,
+                "FlagServerErrors" INTEGER NOT NULL,
+                "Enabled" INTEGER NOT NULL,
+                "CreatedAt" INTEGER NOT NULL,
+                "UpdatedAt" INTEGER NOT NULL,
+                "LastRunAt" INTEGER NULL,
+                "LastRunChecked" INTEGER NOT NULL,
+                "LastRunFound" INTEGER NOT NULL
+            )
+            """,
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_WebScanProbes_Name\" ON \"WebScanProbes\" (\"Name\")",
+            """
+            CREATE TABLE IF NOT EXISTS "WebAssetFindings" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_WebAssetFindings" PRIMARY KEY AUTOINCREMENT,
+                "ProbeId" INTEGER NULL,
+                "ProbeName" TEXT NOT NULL,
+                "Url" TEXT NOT NULL,
+                "Host" TEXT NOT NULL,
+                "BusinessName" TEXT NOT NULL,
+                "Severity" TEXT NOT NULL,
+                "Detection" TEXT NOT NULL,
+                "Status" TEXT NOT NULL,
+                "HttpStatus" INTEGER NOT NULL,
+                "Signal" TEXT NOT NULL,
+                "Evidence" TEXT NOT NULL,
+                "DetectedSoftware" TEXT NOT NULL,
+                "ContactEmail" TEXT NOT NULL,
+                "ContactSource" TEXT NOT NULL,
+                "OutreachSubject" TEXT NOT NULL,
+                "OutreachBody" TEXT NOT NULL,
+                "OutreachProvider" TEXT NOT NULL,
+                "OutreachModel" TEXT NOT NULL,
+                "OutreachGeneratedAt" INTEGER NULL,
+                "Notes" TEXT NOT NULL,
+                "FirstSeenAt" INTEGER NOT NULL,
+                "LastCheckedAt" INTEGER NOT NULL,
+                "CreatedAt" INTEGER NOT NULL,
+                "UpdatedAt" INTEGER NOT NULL
+            )
+            """,
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_WebAssetFindings_Url\" ON \"WebAssetFindings\" (\"Url\")",
+            "CREATE INDEX IF NOT EXISTS \"IX_WebAssetFindings_Status\" ON \"WebAssetFindings\" (\"Status\")",
+            "CREATE INDEX IF NOT EXISTS \"IX_WebAssetFindings_Host\" ON \"WebAssetFindings\" (\"Host\")"
         };
         foreach (var sql in upgrades)
         {
             try { await db.Database.ExecuteSqlRawAsync(sql, ct); }
             catch (Microsoft.Data.Sqlite.SqliteException) { /* column already exists */ }
         }
+    }
+
+    /// <summary>
+    /// Seeds a couple of ready-to-run Site rescue probes so the scanner works out of the box.
+    /// Only seeds when the table is empty — the operator owns probes after that.
+    /// </summary>
+    private static async Task SeedWebScanProbesAsync(DevLeadsDbContext db, CancellationToken ct)
+    {
+        if (await db.WebScanProbes.AnyAsync(ct)) return;
+        var now = DateTimeOffset.UtcNow;
+        db.WebScanProbes.AddRange(
+            new WebScanProbe
+            {
+                Name = "WordPress database & PHP errors",
+                Description = "Small-business WordPress sites showing a public database or PHP fatal error — a fast, well-paid fix.",
+                SoftwarePackage = "WordPress",
+                ErrorSignatures = string.Join('\n',
+                    "Error establishing a database connection",
+                    "There has been a critical error on this website",
+                    "Fatal error:",
+                    "Warning: mysqli"),
+                PathsToCheck = "/",
+                DiscoveryQueries = string.Join('\n',
+                    "\"Error establishing a database connection\"",
+                    "\"There has been a critical error on this website\""),
+                FlagServerErrors = true,
+                Enabled = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            },
+            new WebScanProbe
+            {
+                Name = "Generic 5xx outage",
+                Description = "Any business site currently returning a 5xx / gateway error or a visible server-error page.",
+                SoftwarePackage = "",
+                ErrorSignatures = string.Join('\n',
+                    "500 Internal Server Error",
+                    "502 Bad Gateway",
+                    "503 Service Unavailable",
+                    "Service Temporarily Unavailable"),
+                PathsToCheck = "/",
+                DiscoveryQueries = "",
+                FlagServerErrors = true,
+                Enabled = true,
+                CreatedAt = now,
+                UpdatedAt = now
+            });
+        await db.SaveChangesAsync(ct);
+    }
+
+    /// <summary>
+    /// One-time move from the retired per-section profile studio to the single pasted
+    /// snapshot the action plan reviews: whatever the operator pasted per section becomes
+    /// the initial snapshot text. The LinkedInProfileFields rows are kept as history.
+    /// </summary>
+    private static async Task BackfillLinkedInProfileSnapshotAsync(DevLeadsDbContext db, CancellationToken ct)
+    {
+        var settings = await db.OperatorSettings.FirstOrDefaultAsync(ct);
+        if (settings is null || !string.IsNullOrWhiteSpace(settings.LinkedInProfileSnapshot)) return;
+        var fields = await db.LinkedInProfileFields.AsNoTracking()
+            .Where(f => f.CurrentText != "").OrderBy(f => f.SortOrder).ToListAsync(ct);
+        if (fields.Count == 0) return;
+        settings.LinkedInProfileSnapshot = string.Join("\n\n",
+            fields.Select(f => f.DisplayName + ":\n" + f.CurrentText.Trim()));
+        await db.SaveChangesAsync(ct);
     }
 
     /// <summary>
@@ -596,6 +767,7 @@ public static class DatabaseSeeder
     public const string EmergencyCampaignKey = "emergency";
     public const string ModernizationCampaignKey = "dotnet_modernization";
     public const string AiAutomationCampaignKey = "ai_automation";
+    public const string MentoringCampaignKey = "mentoring";
 
     /// <summary>
     /// Ensures the built-in campaigns exist (add-only: name/objective edits belong to the
@@ -645,6 +817,20 @@ public static class DatabaseSeeder
                     "lead is an owner, company, or team explicitly seeking outside help or offering a " +
                     "budget. Reject AI news, product promotion, tutorials, hobby or academic projects, " +
                     "and unpaid open-source or volunteer requests.",
+                Enabled = true,
+                CreatedAt = DateTimeOffset.UtcNow
+            },
+            new Campaign
+            {
+                Key = MentoringCampaignKey,
+                Name = "Paid mentoring calls",
+                Emoji = "🎓",
+                Objective =
+                    "Paid 1:1 voice or video calls with a 20-year .NET veteran: career advice, " +
+                    "programming and architecture questions, code and debugging help, or anything else " +
+                    "his experience covers. $20–40 per hour depending on topic and length, booked by " +
+                    "direct message, remote worldwide. A qualifying lead is an individual developer, " +
+                    "student, or career-changer explicitly willing to pay for direct help or mentorship.",
                 Enabled = true,
                 CreatedAt = DateTimeOffset.UtcNow
             }

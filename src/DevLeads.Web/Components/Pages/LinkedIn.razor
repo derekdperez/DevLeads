@@ -9,7 +9,7 @@
 <div class="rr-page-head">
     <div>
         <h1>LinkedIn</h1>
-        <div class="rr-sub">Connect your profile, write and schedule posts, monitor approved comment activity, and review every response before it goes out.</div>
+        <div class="rr-sub">Follow a step-by-step action plan for your profile and network, write and schedule posts, monitor approved comment activity, and review every response before it goes out.</div>
     </div>
     <div class="rr-btn-row">
         @if (_connection?.Connected == true)
@@ -35,15 +35,23 @@ else
     <div class="rr-panel">
         <div class="rr-panel-head">
             <h2>🔗 Account connection</h2>
-            @if (_connection?.Connected == true)
-            {
-                <div class="rr-sub">
-                    <strong>@_connection.MemberName</strong>
-                    · token expires @(_connection.ExpiresAt?.LocalDateTime.ToString("MMM d, yyyy HH:mm") ?? "unknown")
-                </div>
-            }
+            <div style="display:flex;gap:.7rem;align-items:center;flex-wrap:wrap">
+                @if (_connection?.Connected == true)
+                {
+                    <div class="rr-sub">
+                        <strong>@_connection.MemberName</strong>
+                        · token expires @(_connection.ExpiresAt?.LocalDateTime.ToString("MMM d, yyyy HH:mm") ?? "unknown")
+                    </div>
+                }
+                <button class="rr-btn" @onclick="() => _showConnection = !ShowConnection">
+                    @(ShowConnection ? "▲ Hide settings" : "▼ Show settings")
+                </button>
+            </div>
         </div>
 
+        @if (ShowConnection)
+        {
+        <div>
         @if (_connection?.TokenExpired == true)
         {
             <div class="rr-flash err">The LinkedIn access token expired. Reconnect before publishing or syncing.</div>
@@ -80,6 +88,113 @@ else
             Posting is available with <code>w_member_social</code>. Reading posts/comments is restricted by LinkedIn and may require a vetted Community Management app.
             LinkedIn does not provide a general API for a member's private inbox, so private messages can be pasted below for drafting and then sent manually in LinkedIn.
         </div>
+        </div>
+        }
+    </div>
+
+    <div class="rr-panel">
+        <div class="rr-panel-head">
+            <h2>🧭 Next actions</h2>
+            <div class="rr-sub">One AI call reviews your profile and everything this app tracks, then plans your concrete next moves — improving the profile, making connections, starting conversations, chasing opportunities, publishing content, and building trust. Every step is yours to do by hand; mark items done as you go and regenerate to plan the next round.</div>
+        </div>
+        <div class="rr-grid-2">
+            <div class="rr-field"><label>Focus (optional)</label><input class="rr-input" @bind="_planInstructions" placeholder="e.g. push the modernization offer, prepare an outreach week…" /></div>
+        </div>
+        <div class="rr-btn-row" style="margin-bottom:.8rem">
+            <button class="rr-btn primary" @onclick="GeneratePlan" disabled="@_busy">@(_busy ? "Working…" : "🧠 Review my profile & plan next actions (1 AI call)")</button>
+            @if (_actions.Count > 0)
+            {
+                <span class="rr-chip active">@_actions.Count(a => a.Status == LinkedInActionStatus.Pending) open</span>
+                <span class="rr-chip won">@_actions.Count(a => a.Status == LinkedInActionStatus.Done) done</span>
+            }
+        </div>
+        @if (!string.IsNullOrWhiteSpace(_settings.LinkedInProfileReview))
+        {
+            <div style="border:1px solid var(--line);border-radius:10px;padding:.8rem;margin-bottom:.8rem">
+                <div class="rr-sub">🧠 Overall assessment@(_settings.LinkedInProfileReviewAt is { } reviewedAt ? " · " + UiHelpers.Age(reviewedAt) : "")</div>
+                <div style="white-space:pre-wrap;margin-top:.4rem">@_settings.LinkedInProfileReview</div>
+            </div>
+        }
+        @if (_actions.Count == 0)
+        {
+            <div class="rr-empty">No action plan yet. Check the profile snapshot below, then click “Review my profile &amp; plan next actions”.</div>
+        }
+        @foreach (var (category, icon, label) in CategoryOrder)
+        {
+            var pending = _actions.Where(a => a.Category == category && a.Status == LinkedInActionStatus.Pending).ToList();
+            if (pending.Count == 0) { continue; }
+            <h3 style="margin:.9rem 0 .5rem">@icon @label</h3>
+            @foreach (var a in pending)
+            {
+                <div style="border:1px solid var(--line);border-radius:10px;padding:.8rem;margin-bottom:.7rem">
+                    <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+                        <strong>@a.Title</strong>
+                    </div>
+                    @if (a.Why.Length > 0) { <div class="rr-sub" style="margin-top:.2rem">@a.Why</div> }
+                    @if (a.Steps.Length > 0)
+                    {
+                        <ol style="margin:.5rem 0 .3rem 1.2rem;padding:0">
+                            @foreach (var step in a.Steps.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                            {
+                                <li style="margin-bottom:.25rem">@step</li>
+                            }
+                        </ol>
+                    }
+                    <div class="rr-btn-row">
+                        <button class="rr-btn primary" @onclick="() => SetActionStatus(a, LinkedInActionStatus.Done)" disabled="@_busy">✅ Mark done</button>
+                        <button class="rr-btn" @onclick="() => SetActionStatus(a, LinkedInActionStatus.Dismissed)" disabled="@_busy">Dismiss</button>
+                    </div>
+                </div>
+            }
+        }
+        @if (_actions.Any(a => a.Status != LinkedInActionStatus.Pending))
+        {
+            <div style="margin-top:.8rem">
+                <button class="rr-btn" @onclick="() => _showHistory = !_showHistory">
+                    @(_showHistory ? "▲ Hide" : "▼ Show") completed &amp; dismissed (@_actions.Count(a => a.Status != LinkedInActionStatus.Pending))
+                </button>
+                @if (_showHistory)
+                {
+                    @foreach (var a in _actions.Where(a => a.Status != LinkedInActionStatus.Pending)
+                        .OrderByDescending(a => a.CompletedAt ?? a.UpdatedAt))
+                    {
+                        <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--line);padding:.45rem 0;opacity:.75">
+                            <span class="rr-chip @(a.Status == LinkedInActionStatus.Done ? "won" : "dead")">@a.Status</span>
+                            <span>@a.Title</span>
+                            <span class="rr-sub">@UiHelpers.Age(a.CompletedAt ?? a.UpdatedAt)</span>
+                            <button class="rr-btn" @onclick="() => SetActionStatus(a, LinkedInActionStatus.Pending)" disabled="@_busy">Reopen</button>
+                        </div>
+                    }
+                }
+            </div>
+        }
+    </div>
+
+    <div class="rr-panel">
+        <div class="rr-panel-head">
+            <h2>🪪 Profile snapshot</h2>
+            <div style="display:flex;gap:.7rem;align-items:center;flex-wrap:wrap">
+                <div class="rr-sub">@(HasSnapshot ? "On file — update it whenever your LinkedIn profile changes." : "Empty — paste your profile so the review sees the real thing.")</div>
+                <button class="rr-btn" @onclick="() => _showSnapshot = !ShowSnapshot">
+                    @(ShowSnapshot ? "▲ Hide" : "▼ Edit")
+                </button>
+            </div>
+        </div>
+        @if (ShowSnapshot)
+        {
+            <div class="rr-sub" style="margin-bottom:.5rem">
+                LinkedIn's API can't read your profile, so this pasted copy is what the AI reviews.
+                Open <a href="https://www.linkedin.com/in/me/" target="_blank" rel="noopener noreferrer">your profile ↗</a>,
+                copy everything (headline, about, experience, skills, services, featured), and paste it here as plain text.
+            </div>
+            <div class="rr-field">
+                <textarea class="rr-textarea" style="min-height:220px" @bind="_settings.LinkedInProfileSnapshot"
+                          placeholder="Headline: …&#10;&#10;About: …&#10;&#10;Experience: …"></textarea>
+            </div>
+            <div class="rr-btn-row">
+                <button class="rr-btn" @onclick="SaveSnapshot" disabled="@_busy">💾 Save snapshot</button>
+            </div>
+        }
     </div>
 
     <div class="rr-panel">
@@ -242,6 +357,27 @@ else
     private List<OperatorPost> _posts = new();
     private List<EngagementDraft> _engagements = new();
     private List<Campaign> _campaigns = new();
+    private List<LinkedInAction> _actions = new();
+    private string _planInstructions = "";
+    private bool _showHistory;
+    // Null until the operator toggles it; the default hides the wiring once connected.
+    private bool? _showConnection;
+    private bool ShowConnection => _showConnection ?? _connection?.Connected != true;
+    // Same pattern for the snapshot: shown until there is one, then collapsed.
+    private bool? _showSnapshot;
+    private bool HasSnapshot => !string.IsNullOrWhiteSpace(_settings?.LinkedInProfileSnapshot);
+    private bool ShowSnapshot => _showSnapshot ?? !HasSnapshot;
+
+    private static readonly (LinkedInActionCategory Category, string Icon, string Label)[] CategoryOrder =
+    {
+        (LinkedInActionCategory.Profile, "🪪", "Improve your profile"),
+        (LinkedInActionCategory.Connections, "🤝", "Make new connections"),
+        (LinkedInActionCategory.Communication, "💬", "Communicate & follow up"),
+        (LinkedInActionCategory.Opportunities, "🎯", "Seek opportunities"),
+        (LinkedInActionCategory.Content, "✍️", "Produce valuable content"),
+        (LinkedInActionCategory.Credibility, "🏅", "Earn credibility & trust"),
+        (LinkedInActionCategory.GiveValue, "🎁", "Provide value to others")
+    };
     private bool _busy, _showPaste;
     private string? _flash;
     private bool _flashOk = true;
@@ -272,6 +408,7 @@ else
             .ThenBy(d => d.Status == EngagementDraftStatus.Published)
             .ThenByDescending(d => d.ReceivedAt).Take(100).ToListAsync();
         _campaigns = await db.Campaigns.AsNoTracking().Where(c => c.Enabled).OrderBy(c => c.Name).ToListAsync();
+        _actions = await db.LinkedInActions.AsNoTracking().OrderBy(a => a.SortOrder).ToListAsync();
         using var scope = ScopeFactory.CreateScope();
         _connection = await scope.ServiceProvider.GetRequiredService<LinkedInService>().GetConnectionStatusAsync(default);
     }
@@ -404,6 +541,49 @@ else
         row.Status = EngagementDraftStatus.Dismissed; row.UpdatedAt = DateTimeOffset.UtcNow;
         await db.SaveChangesAsync();
         return (true, "Engagement dismissed.");
+    });
+
+    private async Task SaveSnapshot() => await Run(async () =>
+    {
+        await SaveSnapshotDirect();
+        return (true, "Profile snapshot saved.");
+    });
+
+    private async Task SaveSnapshotDirect()
+    {
+        if (_settings is null) return;
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var row = await db.OperatorSettings.FirstOrDefaultAsync();
+        if (row is null) { db.OperatorSettings.Add(_settings); }
+        else row.LinkedInProfileSnapshot = _settings.LinkedInProfileSnapshot.Trim();
+        await db.SaveChangesAsync();
+    }
+
+    private async Task GeneratePlan() => await Run(async () =>
+    {
+        // Persist on-screen snapshot edits first so the AI reviews exactly what the operator sees.
+        await SaveSnapshotDirect();
+        using var scope = ScopeFactory.CreateScope();
+        var (created, message) = await scope.ServiceProvider.GetRequiredService<LinkedInService>()
+            .GenerateActionPlanAsync(_planInstructions, default);
+        return (created > 0, message);
+    });
+
+    private async Task SetActionStatus(LinkedInAction action, LinkedInActionStatus status) => await Run(async () =>
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var row = await db.LinkedInActions.FirstOrDefaultAsync(a => a.Id == action.Id);
+        if (row is null) return (false, "This action no longer exists — regenerate the plan.");
+        row.Status = status;
+        row.CompletedAt = status == LinkedInActionStatus.Done ? DateTimeOffset.UtcNow : null;
+        row.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+        return (true, status switch
+        {
+            LinkedInActionStatus.Done => $"Done: {row.Title} ✔",
+            LinkedInActionStatus.Dismissed => $"Dismissed: {row.Title}. It won't be suggested again.",
+            _ => $"Reopened: {row.Title}."
+        });
     });
 
     private async Task Copy(string text)

@@ -40,31 +40,43 @@ public static class LinkedInPrompts
         return sb.ToString();
     }
 
-    public sealed record ProfileFieldItem(string Key, string DisplayName, string Guidance, string CurrentText);
-
     /// <summary>
-    /// One call reviews the whole locally-tracked profile: a rewrite for every section plus
-    /// an overall assessment. Rewrites are proposals only — the app never applies them
-    /// without the operator accepting each field.
+    /// One call reviews everything the app knows about the operator's LinkedIn presence
+    /// (the pasted whole-profile snapshot, tracked activity, completed/dismissed actions)
+    /// and plans the concrete next actions across every presence-building category. The
+    /// operator executes each step by hand — the self-serve API cannot automate any of it.
     /// </summary>
-    public static string BuildProfileRefinePrompt(
+    public static string BuildActionPlanPrompt(
         OperatorSettings op, string operatorSkills, IReadOnlyList<string> campaignObjectives,
-        IReadOnlyList<ProfileFieldItem> fields, string extraInstructions)
+        string profileText, IReadOnlyList<string> activityFacts,
+        IReadOnlyList<string> doneActions, IReadOnlyList<string> dismissedActions,
+        string extraInstructions)
     {
         var sb = new StringBuilder();
-        sb.AppendLine("You are a LinkedIn profile expert reviewing the profile of this solo software consultant.");
+        sb.AppendLine("You are a LinkedIn growth coach for this solo software consultant. Review their profile and activity, then plan the exact next actions they should take by hand on LinkedIn.");
         sb.AppendLine($"Consultant: {op.OperatorName} · {op.Location} · remote availability: {op.RemoteAvailability}");
         sb.AppendLine($"Expertise: {(string.IsNullOrWhiteSpace(operatorSkills) ? op.CoreSkills : operatorSkills)}");
         foreach (var objective in campaignObjectives.Where(o => !string.IsNullOrWhiteSpace(o)))
             sb.AppendLine("Sells: " + Compact(objective, 300));
         sb.AppendLine();
-        sb.AppendLine("Profile sections as they read today:");
-        foreach (var field in fields)
+        sb.AppendLine("THEIR PROFILE, as pasted by the consultant (anything missing here really is missing from the profile):");
+        sb.AppendLine(string.IsNullOrWhiteSpace(profileText)
+            ? "(no snapshot pasted yet — assume a bare default profile and make pasting/completing the profile part of the plan)"
+            : Compact(profileText, 7000));
+        sb.AppendLine();
+        sb.AppendLine("CURRENT ACTIVITY tracked by their lead-gen app:");
+        foreach (var fact in activityFacts) sb.AppendLine("- " + Compact(fact, 300));
+        if (doneActions.Count > 0)
         {
-            sb.AppendLine($"--- section key={field.Key} ({field.DisplayName}; {field.Guidance}) ---");
-            sb.AppendLine(string.IsNullOrWhiteSpace(field.CurrentText)
-                ? "(empty — propose text from the consultant context above)"
-                : Compact(field.CurrentText, 2600));
+            sb.AppendLine();
+            sb.AppendLine("ALREADY COMPLETED (build on these; do not repeat them):");
+            foreach (var title in doneActions) sb.AppendLine("- " + Compact(title, 200));
+        }
+        if (dismissedActions.Count > 0)
+        {
+            sb.AppendLine();
+            sb.AppendLine("DECLINED BEFORE (not interested; do not propose again):");
+            foreach (var title in dismissedActions) sb.AppendLine("- " + Compact(title, 200));
         }
         if (!string.IsNullOrWhiteSpace(extraInstructions))
         {
@@ -72,11 +84,20 @@ public static class LinkedInPrompts
             sb.AppendLine("Operator instructions: " + extraInstructions.Trim());
         }
         sb.AppendLine();
-        sb.AppendLine("Task 1 — rewrite EVERY section above to attract paying consulting clients: specific, credible, first person, plain text (LinkedIn renders no markdown), within each section's stated limits.");
-        sb.AppendLine("Ground every rewrite in the material given. Never invent employers, credentials, client names, metrics, years of experience, or results that are not stated.");
-        sb.AppendLine("Task 2 — write an overall review addressed to the consultant: what the profile does well, what is weak or missing, and the highest-impact improvements in priority order (including changes outside these text sections, e.g. photo, banner, featured items, recommendations). Be direct and concrete; use short lines, not an essay.");
+        sb.AppendLine("Plan 2-3 actions for EACH of these categories, using these exact category keys:");
+        sb.AppendLine("- profile: improve the profile itself (headline, about, featured, photo, banner, skills, services)");
+        sb.AppendLine("- connections: find and invite relevant new connections");
+        sb.AppendLine("- communication: communicate with connections — messages, comment replies, follow-ups");
+        sb.AppendLine("- opportunities: find and pursue paid consulting opportunities");
+        sb.AppendLine("- content: produce professional, genuinely valuable content");
+        sb.AppendLine("- credibility: earn credibility and trust (recommendations, proof of work, consistency)");
+        sb.AppendLine("- give_value: provide value to others with no immediate ask");
+        sb.AppendLine();
+        sb.AppendLine("Each action needs: a short imperative title; why — one sentence tied to THIS consultant's profile or activity; steps — 3 to 6 numbered-free step strings, each one concrete instruction executable this week (what to open, whom to search for, what to write about). Order actions within a category by impact.");
+        sb.AppendLine("Ground everything in the material given. Never invent employers, credentials, client names, metrics, or results. Suggest only ethical, ToS-compliant actions — no automation of LinkedIn itself, no connection spam, no engagement pods.");
+        sb.AppendLine("Also write a summary addressed to the consultant: what the profile and activity do well, what is weak or missing, and the single highest-impact focus right now. Short lines, direct and concrete.");
         sb.AppendLine("Output STRICT JSON only, no fences or commentary:");
-        sb.AppendLine("{\"fields\":[{\"key\":\"headline\",\"text\":\"...\"}],\"review\":\"...\"}");
+        sb.AppendLine("{\"summary\":\"...\",\"actions\":[{\"category\":\"profile\",\"title\":\"...\",\"why\":\"...\",\"steps\":[\"...\"]}]}");
         return sb.ToString();
     }
 

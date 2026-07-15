@@ -11,7 +11,7 @@ public class OperatorMessage
 {
     public long Id { get; set; }
 
-    /// <summary>"reddit", "upwork", "craigslist", "linkedin", "other".</summary>
+    /// <summary>"reddit", "upwork", "craigslist", "linkedin", "discord", "other".</summary>
     public string Platform { get; set; } = "reddit";
 
     /// <summary>Platform-native fullname (reddit t4_/t1_ id); a GUID for manual entries.</summary>

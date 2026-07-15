@@ -65,6 +65,8 @@ public class OperatorSettings
     // profile copy wants the strongest writer, and the volume is tiny (operator-initiated).
     public string LinkedInProfileAiProvider { get; set; } = "Codex";
     public string LinkedInProfileAiModel { get; set; } = DefaultCodexModel;
+    public string WebAssetOutreachAiProvider { get; set; } = "";
+    public string WebAssetOutreachAiModel { get; set; } = "";
 
     /// <summary>The provider/model pair a feature actually uses, after override resolution.</summary>
     public (string Provider, string Model) AiFor(AiFeature feature)
@@ -82,6 +84,7 @@ public class OperatorSettings
             AiFeature.PlatformDiscovery => (PlatformDiscoveryAiProvider, PlatformDiscoveryAiModel),
             AiFeature.LinkedInEngagement => (LinkedInEngagementAiProvider, LinkedInEngagementAiModel),
             AiFeature.LinkedInProfile => (LinkedInProfileAiProvider, LinkedInProfileAiModel),
+            AiFeature.WebAssetOutreach => (WebAssetOutreachAiProvider, WebAssetOutreachAiModel),
             _ => ("", "")
         };
         var provider = string.IsNullOrWhiteSpace(p) ? AiProvider : p.Trim();
@@ -177,6 +180,23 @@ public class OperatorSettings
     /// <summary>The AI's latest overall LinkedIn-profile assessment: strengths, gaps, and next improvements.</summary>
     public string LinkedInProfileReview { get; set; } = "";
     public DateTimeOffset? LinkedInProfileReviewAt { get; set; }
+
+    /// <summary>
+    /// What the operator's LinkedIn profile says today, pasted as one plain-text block.
+    /// The self-serve API cannot read profile sections, so this snapshot is the profile
+    /// the action-plan review actually "views".
+    /// </summary>
+    public string LinkedInProfileSnapshot { get; set; } = "";
+
+    /// <summary>
+    /// Search endpoint used by Site rescue discovery mode to find unknown broken sites from a
+    /// probe's queries. Defaults to DuckDuckGo's keyless HTML endpoint; {q} is replaced with
+    /// the URL-encoded query. Swap for another keyless HTML search if this gets rate-limited.
+    /// </summary>
+    public string WebScanSearchEndpoint { get; set; } = "https://html.duckduckgo.com/html/?q={q}";
+
+    /// <summary>Max targets verified in a single Site rescue scan, to keep runs polite and bounded.</summary>
+    public int WebScanMaxTargetsPerRun { get; set; } = 40;
 
     public int StaleItemMaxAgeHours { get; set; } = 72;
     public int FollowUpDefaultHours { get; set; } = 24;

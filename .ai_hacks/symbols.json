@@ -1,9 +1,9 @@
 {
   "coverage": {
-    "authored_descriptions": 330,
-    "callables": 569,
-    "source_characters": 998815,
-    "types": 188
+    "authored_descriptions": 355,
+    "callables": 626,
+    "source_characters": 1112368,
+    "types": 205
   },
   "dbsets": [
     {
@@ -82,6 +82,20 @@
       "file": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
       "line": 37,
       "property_name": "FollowUps"
+    },
+    {
+      "context": "DevLeadsDbContext",
+      "entity": "LinkedInAction",
+      "file": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
+      "line": 43,
+      "property_name": "LinkedInActions"
+    },
+    {
+      "context": "DevLeadsDbContext",
+      "entity": "LinkedInProfileField",
+      "file": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
+      "line": 42,
+      "property_name": "LinkedInProfileFields"
     },
     {
       "context": "DevLeadsDbContext",
@@ -201,6 +215,20 @@
       "file": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
       "line": 26,
       "property_name": "TrendSources"
+    },
+    {
+      "context": "DevLeadsDbContext",
+      "entity": "WebAssetFinding",
+      "file": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
+      "line": 45,
+      "property_name": "WebAssetFindings"
+    },
+    {
+      "context": "DevLeadsDbContext",
+      "entity": "WebScanProbe",
+      "file": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
+      "line": 44,
+      "property_name": "WebScanProbes"
     },
     {
       "context": "DevLeadsDbContext",
@@ -465,16 +493,23 @@
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
+      "implementation": "WebRescueService",
+      "lifetime": "Scoped",
+      "line": 93,
+      "service": "WebRescueService"
+    },
+    {
+      "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "DiscoveryWorker",
       "lifetime": "HostedService",
-      "line": 95,
+      "line": 96,
       "service": "IHostedService"
     },
     {
       "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
       "implementation": "ContentTrendWorker",
       "lifetime": "HostedService",
-      "line": 96,
+      "line": 97,
       "service": "IHostedService"
     },
     {
@@ -599,6 +634,46 @@
       "verb": "POST"
     },
     {
+      "description": "Reads actions.",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 374,
+      "owner": "MapDevLeadsApi",
+      "route": "/api/linkedin/actions",
+      "verb": "GET"
+    },
+    {
+      "description": "Runs the generate action.",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 388,
+      "owner": "MapDevLeadsApi",
+      "route": "/api/linkedin/actions/generate",
+      "verb": "POST"
+    },
+    {
+      "description": "Runs the dismiss action.",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 394,
+      "owner": "MapLinkedInActionStatus",
+      "route": "/api/linkedin/actions/{id:long}/dismiss",
+      "verb": "POST"
+    },
+    {
+      "description": "Runs the done action.",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 393,
+      "owner": "MapLinkedInActionStatus",
+      "route": "/api/linkedin/actions/{id:long}/done",
+      "verb": "POST"
+    },
+    {
+      "description": "Runs the reopen action.",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 395,
+      "owner": "MapLinkedInActionStatus",
+      "route": "/api/linkedin/actions/{id:long}/reopen",
+      "verb": "POST"
+    },
+    {
       "description": "Reads authorize.",
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
       "line": 324,
@@ -609,7 +684,7 @@
     {
       "description": "Reads callback.",
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "line": 330,
+      "line": 333,
       "owner": "MapDevLeadsApi",
       "route": "/api/linkedin/callback",
       "verb": "GET"
@@ -617,7 +692,7 @@
     {
       "description": "Runs the disconnect action.",
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "line": 341,
+      "line": 344,
       "owner": "MapDevLeadsApi",
       "route": "/api/linkedin/disconnect",
       "verb": "POST"
@@ -625,7 +700,7 @@
     {
       "description": "Runs the generate action.",
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "line": 361,
+      "line": 364,
       "owner": "MapDevLeadsApi",
       "route": "/api/linkedin/engagement/generate",
       "verb": "POST"
@@ -633,7 +708,7 @@
     {
       "description": "Runs the sync action.",
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "line": 356,
+      "line": 359,
       "owner": "MapDevLeadsApi",
       "route": "/api/linkedin/engagement/sync",
       "verb": "POST"
@@ -641,7 +716,7 @@
     {
       "description": "Runs the publish action.",
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "line": 366,
+      "line": 369,
       "owner": "MapDevLeadsApi",
       "route": "/api/linkedin/engagement/{id:long}/publish",
       "verb": "POST"
@@ -649,7 +724,7 @@
     {
       "description": "Runs the publish due action.",
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "line": 351,
+      "line": 354,
       "owner": "MapDevLeadsApi",
       "route": "/api/linkedin/publish-due",
       "verb": "POST"
@@ -657,7 +732,7 @@
     {
       "description": "Runs the id action.",
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "line": 346,
+      "line": 349,
       "owner": "MapDevLeadsApi",
       "route": "/api/linkedin/publish/{id:long}",
       "verb": "POST"
@@ -1025,9 +1100,65 @@
     {
       "description": "Runs the restart action.",
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "line": 373,
+      "line": 441,
       "owner": "MapDevLeadsApi",
       "route": "/api/system/restart",
+      "verb": "POST"
+    },
+    {
+      "description": "Reads findings.",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 400,
+      "owner": "MapDevLeadsApi",
+      "route": "/api/webscan/findings",
+      "verb": "GET"
+    },
+    {
+      "description": "Runs the recheck action.",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 418,
+      "owner": "MapDevLeadsApi",
+      "route": "/api/webscan/findings/{id:long}/recheck",
+      "verb": "POST"
+    },
+    {
+      "description": "Runs the refresh contact action.",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 423,
+      "owner": "MapDevLeadsApi",
+      "route": "/api/webscan/findings/{id:long}/refresh-contact",
+      "verb": "POST"
+    },
+    {
+      "description": "Runs the status action.",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 428,
+      "owner": "MapDevLeadsApi",
+      "route": "/api/webscan/findings/{id:long}/status/{status}",
+      "verb": "POST"
+    },
+    {
+      "description": "Runs the generate action.",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 413,
+      "owner": "MapDevLeadsApi",
+      "route": "/api/webscan/generate",
+      "verb": "POST"
+    },
+    {
+      "description": "Reads probes.",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 398,
+      "owner": "MapDevLeadsApi",
+      "route": "/api/webscan/probes",
+      "verb": "GET"
+    },
+    {
+      "description": "Runs the scan action.",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "line": 407,
+      "owner": "MapDevLeadsApi",
+      "route": "/api/webscan/scan",
       "verb": "POST"
     },
     {
@@ -1071,10 +1202,10 @@
       "sha256": "b63f3fd8bf55bb208f1a77553d9c06ea04ad1ec5ecfed825c63916a320bf4393"
     },
     {
-      "bytes": 2627,
-      "lines": 49,
+      "bytes": 7212,
+      "lines": 110,
       "path": "src/DevLeads.Core/Ai/LinkedInPrompts.cs",
-      "sha256": "bad844eebcf0ce30e8c566155c013891203123aab5bd4f5e85db6b79fa9ef4be"
+      "sha256": "f4a85b2ba58be878db3b1accad105bf8f100def96e5e6cca698dbb620613929a"
     },
     {
       "bytes": 3888,
@@ -1083,16 +1214,22 @@
       "sha256": "2eaab5c8f89cdfdb21c1641d1f23f4a0406b7a76a6a0588dbd981444b2a2e77d"
     },
     {
-      "bytes": 9297,
-      "lines": 147,
+      "bytes": 10679,
+      "lines": 155,
       "path": "src/DevLeads.Core/Ai/PlatformPostPrompts.cs",
-      "sha256": "bd84ce3ad0bab761005ff2b28a7272546ddb7e0333eb17f947932bf4175f76a3"
+      "sha256": "3d08abe8c84db68a80f3b8b59e80d99264369c822a03e5a3fd21575b6475942a"
     },
     {
       "bytes": 6908,
       "lines": 97,
       "path": "src/DevLeads.Core/Ai/PlatformPresencePrompts.cs",
       "sha256": "97ef233acab20465d059ed9c6671abec5a6465cda5a52a556243c116752b37fe"
+    },
+    {
+      "bytes": 4578,
+      "lines": 70,
+      "path": "src/DevLeads.Core/Ai/WebRescuePrompts.cs",
+      "sha256": "2420d814eb91405b9c697036b71c5ff4342f3a418f75cba434223bce09e61eb0"
     },
     {
       "bytes": 3619,
@@ -1179,22 +1316,34 @@
       "sha256": "3c932bd42993b9f6071fa2520b1a1219b89efdcc148d020701d4a7e4844a459d"
     },
     {
+      "bytes": 1358,
+      "lines": 35,
+      "path": "src/DevLeads.Core/Entities/LinkedInAction.cs",
+      "sha256": "5755ecda75c8d5b14b22de3fe0504f028cb9ad9de86c7cbb5b839fdbf3fa9297"
+    },
+    {
+      "bytes": 1380,
+      "lines": 34,
+      "path": "src/DevLeads.Core/Entities/LinkedInProfileField.cs",
+      "sha256": "a9fdf3479e7b16df5dcf57202afb92c56e6baf36f8af64767b1bd5e75b51d000"
+    },
+    {
       "bytes": 905,
       "lines": 26,
       "path": "src/DevLeads.Core/Entities/OperatorDocument.cs",
       "sha256": "5166d1423fa5a9a7135411f45bd6f236118a82a28093abaa4d4790f684d6d124"
     },
     {
-      "bytes": 1941,
+      "bytes": 1952,
       "lines": 47,
       "path": "src/DevLeads.Core/Entities/OperatorMessage.cs",
-      "sha256": "06ef0af9d2c2dae8af0a3c0c679bd339b639d0bddd3180930ad33f3b1ab80ea3"
+      "sha256": "6581c782070fe27a3dfefabf75d3af1448533e3f3bb249f7934ec4bdab7371cb"
     },
     {
-      "bytes": 2849,
+      "bytes": 2860,
       "lines": 69,
       "path": "src/DevLeads.Core/Entities/OperatorPost.cs",
-      "sha256": "b097b029ce8b96c51af9bffd508db9fdaf3865fa110b8a4016095bdbde3c2e91"
+      "sha256": "0291872338b2de7e70cf79ae62384a4911299f63b269777455e9fc8254dd73af"
     },
     {
       "bytes": 2268,
@@ -1209,10 +1358,10 @@
       "sha256": "b5d3ee860628138acba339d26c905f94835ba5af9b1ed76cf580ab47805d2741"
     },
     {
-      "bytes": 9721,
-      "lines": 175,
+      "bytes": 11525,
+      "lines": 204,
       "path": "src/DevLeads.Core/Entities/OperatorSettings.cs",
-      "sha256": "12ba323777a1cf54c33e1e0e1953e79304e82e7a5e4dabea6d3a9027bf4745ce"
+      "sha256": "f4a0b412317146ac25d0df73ccff0282871fb9a6a28d84b0d2d30380b4e86244"
     },
     {
       "bytes": 3895,
@@ -1287,16 +1436,28 @@
       "sha256": "524a87c60ed649c1547749388fb1a46c2ebafb5a2d8f8bca7d2f319db30ace55"
     },
     {
+      "bytes": 2966,
+      "lines": 65,
+      "path": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+      "sha256": "20c8cf916e676761981e771f0b716f38e71e9d0bd838d0bbebfa93c4342175ce"
+    },
+    {
+      "bytes": 2141,
+      "lines": 51,
+      "path": "src/DevLeads.Core/Entities/WebScanProbe.cs",
+      "sha256": "7ffb0ddccc465bdeeefaf741c08d8e8da598137b7d0de3aff9189dd88d6f8922"
+    },
+    {
       "bytes": 775,
       "lines": 21,
       "path": "src/DevLeads.Core/Entities/WorkSession.cs",
       "sha256": "cafd601fcbedfe590e0b335c768fceda21c620451185a672c2963314ffa75b00"
     },
     {
-      "bytes": 7559,
-      "lines": 310,
+      "bytes": 9759,
+      "lines": 372,
       "path": "src/DevLeads.Core/Enums.cs",
-      "sha256": "e24732e9d9277836324d94cb55f2f7d3ccd95f92216292ca77be3d366db2056d"
+      "sha256": "1fa7e5a8ed554e9eec12e601ccc25b2621d47b1fe4a928af7eb074769f186c3a"
     },
     {
       "bytes": 13736,
@@ -1401,6 +1562,12 @@
       "sha256": "2dfadbd16b7589dfa775b6d45d52b1f31e48c0e782e5f3bca1d3c97a9dde7ce5"
     },
     {
+      "bytes": 4855,
+      "lines": 62,
+      "path": "src/DevLeads.Core/WebBreakageSignatures.cs",
+      "sha256": "9547d8b2798e2f4d17eaf600d2d392cb76c1f29a3c46624980034927e0516194"
+    },
+    {
       "bytes": 6792,
       "lines": 148,
       "path": "src/DevLeads.Infrastructure/Ai/AiCliSupport.cs",
@@ -1491,22 +1658,22 @@
       "sha256": "5ff5c65f2e37e4ba4f200d5b500990f4b2fc4048bcd266db3acb88672913ead9"
     },
     {
-      "bytes": 87356,
-      "lines": 1499,
+      "bytes": 97464,
+      "lines": 1685,
       "path": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
-      "sha256": "aada9211f08aecc99f7c5633febe992a66746c9213b1c970eff4f034d0412e0e"
+      "sha256": "a9987313c6c539592782b544fce049f7d779f1dd3477a6adf6d236da6e6d4a4b"
     },
     {
-      "bytes": 8808,
-      "lines": 169,
+      "bytes": 9941,
+      "lines": 191,
       "path": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
-      "sha256": "bb836e7e5c9aff674b0426796ec020b395a9fd6cbe387301a485ad4edd9bccbe"
+      "sha256": "271d05abd1fc51d62a637aabede80a3522a453b96ca4375aa58e8948c8dc497a"
     },
     {
-      "bytes": 5596,
-      "lines": 109,
+      "bytes": 5644,
+      "lines": 110,
       "path": "src/DevLeads.Infrastructure/DependencyInjection.cs",
-      "sha256": "f3f24f628c90a7fe9093403010b637e73bdb3a77647ce3e81c463e12a0cae19e"
+      "sha256": "572d19dbb8b3efcab6d78e429c4ddcffc04b17e88a7e31c580f1c47e6c259bf7"
     },
     {
       "bytes": 667,
@@ -1557,10 +1724,10 @@
       "sha256": "a89e456b82ffd9e21fe2954f6c0bdeb55965840a24fb586f07c17b9554d10c75"
     },
     {
-      "bytes": 29257,
-      "lines": 566,
+      "bytes": 38489,
+      "lines": 724,
       "path": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
-      "sha256": "b83a8a8fb8ce49a24c8c959735d3ea54526e5d27ad07e85d49cd6a5497d2b148"
+      "sha256": "6a8fff51e1997ab14e6a016f727c39c42afcfb95158b5e6e51fd082154a05f9a"
     },
     {
       "bytes": 5349,
@@ -1569,10 +1736,10 @@
       "sha256": "5f4612fe6e3dbd4d6d095369976158d1c7367d9c4972d58ed42b6fa46055203f"
     },
     {
-      "bytes": 56010,
+      "bytes": 56024,
       "lines": 1087,
       "path": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
-      "sha256": "87553d2ef015ca3ef494d140ab0490d31111f7fc52360f4a23e6568b422b3ec6"
+      "sha256": "c523ab5c234dd6b61d6af2a2633bf03cf1185f4dfdd9babf3d6415cfbe9205f2"
     },
     {
       "bytes": 15809,
@@ -1605,6 +1772,12 @@
       "sha256": "e60d228372d20cd4147d3f4945e7574e7d9863d4bbdfae29e534acd5e30b9e2f"
     },
     {
+      "bytes": 29570,
+      "lines": 630,
+      "path": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+      "sha256": "66288147007795ffba92f562c192623b961b3bdfd8efc4720ba171af818d9586"
+    },
+    {
       "bytes": 3153,
       "lines": 76,
       "path": "src/DevLeads.Infrastructure/Workers/ContentTrendWorker.cs",
@@ -1617,10 +1790,10 @@
       "sha256": "0afb0e2a60495453db0cad03e99b3df919fd51eb8f32aae85e63ee8448ae2335"
     },
     {
-      "bytes": 23394,
-      "lines": 401,
+      "bytes": 28223,
+      "lines": 484,
       "path": "src/DevLeads.Web/Api/ApiEndpoints.cs",
-      "sha256": "3e5f772080d79793ff3a69bf0c3524c54a8622a5dadd0259840e583f2368dd61"
+      "sha256": "828ec9ce7bb830f2690e9e3a16057ac0038eb7580fa9f3cfec44c3f94540586f"
     },
     {
       "bytes": 4129,
@@ -1641,10 +1814,10 @@
       "sha256": "4166643119d6d25c4c568f56da872f3bf537ed8a35b0bac2a269026fa294c272"
     },
     {
-      "bytes": 1746,
-      "lines": 33,
+      "bytes": 1841,
+      "lines": 34,
       "path": "src/DevLeads.Web/Components/Layout/NavMenu.razor",
-      "sha256": "6b2faa70d5990c12ed3478f83b46bbb180df996f0af386010c226c4008430ad1"
+      "sha256": "97597a67927cfbb1fc2d125e9c7bf5a9fdff01b94597f5db1602a860331d1b63"
     },
     {
       "bytes": 1341,
@@ -1701,16 +1874,16 @@
       "sha256": "2e619a9cf8180d4bdabaf9ff4a5a6ddab39ae80a5446bc53384ac02e6dec6cd9"
     },
     {
-      "bytes": 22872,
-      "lines": 439,
+      "bytes": 33127,
+      "lines": 619,
       "path": "src/DevLeads.Web/Components/Pages/LinkedIn.razor",
-      "sha256": "a34e919402321b00efc4a408a7d49587d361422ecc3fbf6fdd6f66b13ebfb774"
+      "sha256": "8aa1d8f480d5eec1ced745cda1eb6bce1f7c976b01a1d7dee735a316d2912856"
     },
     {
-      "bytes": 40947,
-      "lines": 801,
+      "bytes": 41071,
+      "lines": 802,
       "path": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
-      "sha256": "2f075d216da31318e6e68d727ed1e56e3788b6e3957d2740bac8e2783bb37d2e"
+      "sha256": "11ef3104f0e7629c55bc748ba73b7222d414aab4799313e8056cf15d3b463ae4"
     },
     {
       "bytes": 3604,
@@ -1743,10 +1916,16 @@
       "sha256": "f561bbd49eabc411e0b8e12b12418fc19afb34a537726127d8db717a7aa08af5"
     },
     {
-      "bytes": 19789,
-      "lines": 375,
+      "bytes": 20221,
+      "lines": 380,
       "path": "src/DevLeads.Web/Components/Pages/Settings.razor",
-      "sha256": "435985515119a80f7af92eaff411921bbc4ce89cd0d9881a3484a06309e49dd9"
+      "sha256": "8c80c799ba297419e284e9d7b0d68d4e2d6043d2ee5ffc02811020c597d30e37"
+    },
+    {
+      "bytes": 20442,
+      "lines": 401,
+      "path": "src/DevLeads.Web/Components/Pages/SiteRescue.razor",
+      "sha256": "6d4fb371e3e6464cf3ce9d72a3602be3f4ae7630d1c8563a0035bcb909f73347"
     },
     {
       "bytes": 10797,
@@ -2475,6 +2654,22 @@
       "route": "/settings"
     },
     {
+      "component": "SiteRescue",
+      "description": "Blazor component for site rescue.",
+      "file": "src/DevLeads.Web/Components/Pages/SiteRescue.razor",
+      "implements": [],
+      "inherits": "ComponentBase",
+      "injects": [
+        "IDbContextFactory<DevLeadsDbContext>",
+        "IServiceScopeFactory",
+        "IJSRuntime"
+      ],
+      "javascript": [],
+      "line": 1,
+      "parameters": [],
+      "route": "/siterescue"
+    },
+    {
       "component": "SkillProfile",
       "description": "Operator skill-profile management.",
       "file": "src/DevLeads.Web/Components/Pages/SkillProfile.razor",
@@ -2726,7 +2921,7 @@
   "solutions": [
     "DevLeads.slnx"
   ],
-  "source_digest": "6996e2cc148feac47d6c10b8a533995c1d23368672fc44b531f86cc9a17b9b19",
+  "source_digest": "603941f9ad6afe4c6c94b51d5974f4d0a185f7aac036cf2134df6660510f7780",
   "types": [
     {
       "access": "public",
@@ -4090,12 +4285,38 @@
           "typeParameters": []
         },
         {
+          "access": "public",
+          "description": "One call reviews everything the app knows about the operator's LinkedIn presence (the pasted whole-profile snapshot, tracked activity, completed/dismissed actions) and plans the\u2026",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Ai/LinkedInPrompts.cs",
+          "kind": "method",
+          "line": 49,
+          "modifiers": [
+            "public",
+            "static"
+          ],
+          "name": "BuildActionPlanPrompt",
+          "parameters": [
+            "OperatorSettings op",
+            "string operatorSkills",
+            "IReadOnlyList<string> campaignObjectives",
+            "string profileText",
+            "IReadOnlyList<string> activityFacts",
+            "IReadOnlyList<string> doneActions",
+            "IReadOnlyList<string> dismissedActions",
+            "string extraInstructions"
+          ],
+          "returnType": "string",
+          "summary": "One call reviews everything the app knows about the operator's LinkedIn presence (the pasted whole-profile snapshot, tracked activity, completed/dismissed actions) and plans the concrete next actions across every presence-building category. The operator executes each step by hand \u2014 the self-serve API cannot automate any of it.",
+          "typeParameters": []
+        },
+        {
           "access": "private",
           "description": "Transforms or resolves compact.",
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Ai/LinkedInPrompts.cs",
           "kind": "method",
-          "line": 43,
+          "line": 104,
           "modifiers": [
             "private",
             "static"
@@ -4357,7 +4578,7 @@
       "baseTypes": [],
       "bases": [],
       "constructors": [],
-      "description": "Prompt for drafting the operator's OWN posts/ads/profiles for a specific platform (reddit, craigslist, LinkedIn, Upwork, gmail outreach template) in the operator's real identity and voice, informed by which past posts\u2026",
+      "description": "Prompt for drafting the operator's OWN posts/ads/profiles for a specific platform (reddit, craigslist, LinkedIn, Upwork, gmail outreach template, Discord server offer) in the operator's real identity and voice\u2026",
       "descriptionSource": "xml-summary",
       "file": "src/DevLeads.Core/Ai/PlatformPostPrompts.cs",
       "fullName": "DevLeads.Core.Ai.PlatformPostPrompts",
@@ -4408,7 +4629,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Ai/PlatformPostPrompts.cs",
           "kind": "method",
-          "line": 68,
+          "line": 71,
           "modifiers": [
             "public",
             "static"
@@ -4430,7 +4651,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Ai/PlatformPostPrompts.cs",
           "kind": "method",
-          "line": 107,
+          "line": 110,
           "modifiers": [
             "private",
             "static"
@@ -4448,7 +4669,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Ai/PlatformPostPrompts.cs",
           "kind": "method",
-          "line": 117,
+          "line": 121,
           "modifiers": [
             "private",
             "static"
@@ -4466,7 +4687,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Ai/PlatformPostPrompts.cs",
           "kind": "method",
-          "line": 141,
+          "line": 149,
           "modifiers": [
             "private",
             "static"
@@ -4487,7 +4708,7 @@
       "name": "PlatformPostPrompts",
       "namespace": "DevLeads.Core.Ai",
       "primaryConstructorParameters": [],
-      "summary": "Prompt for drafting the operator's OWN posts/ads/profiles for a specific platform (reddit, craigslist, LinkedIn, Upwork, gmail outreach template) in the operator's real identity and voice, informed by which past posts actually drew replies.",
+      "summary": "Prompt for drafting the operator's OWN posts/ads/profiles for a specific platform (reddit, craigslist, LinkedIn, Upwork, gmail outreach template, Discord server offer) in the operator's real identity and voice, informed by which past posts actually drew replies.",
       "typeParameters": []
     },
     {
@@ -4570,6 +4791,228 @@
       "namespace": "DevLeads.Core.Ai",
       "primaryConstructorParameters": [],
       "summary": "Prompts for the platform-presence feature on My posts: discovering new platforms worth posting on, and generating the starter kit (profile bio + first post) for one of them.",
+      "typeParameters": []
+    },
+    {
+      "access": "public",
+      "baseTypes": [],
+      "bases": [],
+      "constructors": [],
+      "description": "One broken web asset inside a batched repair-offer generation call.",
+      "descriptionSource": "xml-summary",
+      "file": "src/DevLeads.Core/Ai/WebRescuePrompts.cs",
+      "fullName": "DevLeads.Core.Ai.WebOutreachItem",
+      "kind": "class",
+      "line": 7,
+      "members": [
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles id.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Ai/WebRescuePrompts.cs",
+          "kind": "property",
+          "line": 9,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Id",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles business name.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Ai/WebRescuePrompts.cs",
+          "kind": "property",
+          "line": 10,
+          "modifiers": [
+            "public"
+          ],
+          "name": "BusinessName",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles host.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Ai/WebRescuePrompts.cs",
+          "kind": "property",
+          "line": 11,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Host",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles url.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Ai/WebRescuePrompts.cs",
+          "kind": "property",
+          "line": 12,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Url",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles severity.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Ai/WebRescuePrompts.cs",
+          "kind": "property",
+          "line": 13,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Severity",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles signal.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Ai/WebRescuePrompts.cs",
+          "kind": "property",
+          "line": 14,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Signal",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles evidence.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Ai/WebRescuePrompts.cs",
+          "kind": "property",
+          "line": 15,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Evidence",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles detected software.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Ai/WebRescuePrompts.cs",
+          "kind": "property",
+          "line": 16,
+          "modifiers": [
+            "public"
+          ],
+          "name": "DetectedSoftware",
+          "type": "string"
+        }
+      ],
+      "modifiers": [
+        "public",
+        "sealed"
+      ],
+      "name": "WebOutreachItem",
+      "namespace": "DevLeads.Core.Ai",
+      "primaryConstructorParameters": [],
+      "summary": "One broken web asset inside a batched repair-offer generation call.",
+      "typeParameters": []
+    },
+    {
+      "access": "public",
+      "baseTypes": [],
+      "bases": [],
+      "constructors": [],
+      "description": "Prompt for batched repair-offer email generation: every selected broken-asset finding in one model call, each email grounded strictly in that asset's observed, public symptom.",
+      "descriptionSource": "xml-summary",
+      "file": "src/DevLeads.Core/Ai/WebRescuePrompts.cs",
+      "fullName": "DevLeads.Core.Ai.WebRescuePrompts",
+      "kind": "class",
+      "line": 24,
+      "members": [
+        {
+          "access": "public",
+          "description": "Creates outreach batch prompt.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Ai/WebRescuePrompts.cs",
+          "kind": "method",
+          "line": 26,
+          "modifiers": [
+            "public",
+            "static"
+          ],
+          "name": "BuildOutreachBatchPrompt",
+          "parameters": [
+            "IReadOnlyList<WebOutreachItem> items",
+            "OperatorSettings op",
+            "string operatorSkills",
+            "string extraInstructions"
+          ],
+          "returnType": "string",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Transforms or resolves compact.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Ai/WebRescuePrompts.cs",
+          "kind": "method",
+          "line": 64,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "Compact",
+          "parameters": [
+            "string value",
+            "int max"
+          ],
+          "returnType": "string",
+          "typeParameters": []
+        }
+      ],
+      "modifiers": [
+        "public",
+        "static"
+      ],
+      "name": "WebRescuePrompts",
+      "namespace": "DevLeads.Core.Ai",
+      "primaryConstructorParameters": [],
+      "summary": "Prompt for batched repair-offer email generation: every selected broken-asset finding in one model call, each email grounded strictly in that asset's observed, public symptom. The operator sends these by hand, so the copy must be honest, specific, and low-pressure.",
       "typeParameters": []
     },
     {
@@ -7651,6 +8094,449 @@
       "baseTypes": [],
       "bases": [],
       "constructors": [],
+      "description": "One concrete step in the AI-planned LinkedIn action plan (improve the profile, invite connections, publish content, \u2026). LinkedIn's self-serve API cannot automate any of this, so every action is hand-executed by the\u2026",
+      "descriptionSource": "xml-summary",
+      "file": "src/DevLeads.Core/Entities/LinkedInAction.cs",
+      "fullName": "DevLeads.Core.Entities.LinkedInAction",
+      "kind": "class",
+      "line": 9,
+      "members": [
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles id.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/LinkedInAction.cs",
+          "kind": "property",
+          "line": 11,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Id",
+          "type": "long"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles category.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/LinkedInAction.cs",
+          "kind": "property",
+          "line": 13,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Category",
+          "type": "LinkedInActionCategory"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Short imperative name of the action.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/LinkedInAction.cs",
+          "kind": "property",
+          "line": 16,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Title",
+          "summary": "Short imperative name of the action.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Why this action matters for this operator right now.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/LinkedInAction.cs",
+          "kind": "property",
+          "line": 19,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Why",
+          "summary": "Why this action matters for this operator right now.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Newline-separated concrete steps, in execution order.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/LinkedInAction.cs",
+          "kind": "property",
+          "line": 22,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Steps",
+          "summary": "Newline-separated concrete steps, in execution order.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles status.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/LinkedInAction.cs",
+          "kind": "property",
+          "line": 24,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Status",
+          "type": "LinkedInActionStatus"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Position inside the generated plan (AI impact order).",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/LinkedInAction.cs",
+          "kind": "property",
+          "line": 27,
+          "modifiers": [
+            "public"
+          ],
+          "name": "SortOrder",
+          "summary": "Position inside the generated plan (AI impact order).",
+          "type": "int"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles provider.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/LinkedInAction.cs",
+          "kind": "property",
+          "line": 29,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Provider",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles model.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/LinkedInAction.cs",
+          "kind": "property",
+          "line": 30,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Model",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Creates d at.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/LinkedInAction.cs",
+          "kind": "property",
+          "line": 31,
+          "modifiers": [
+            "public"
+          ],
+          "name": "GeneratedAt",
+          "type": "DateTimeOffset"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles completed at.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/LinkedInAction.cs",
+          "kind": "property",
+          "line": 32,
+          "modifiers": [
+            "public"
+          ],
+          "name": "CompletedAt",
+          "type": "DateTimeOffset?"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Updates d at.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/LinkedInAction.cs",
+          "kind": "property",
+          "line": 33,
+          "modifiers": [
+            "public"
+          ],
+          "name": "UpdatedAt",
+          "type": "DateTimeOffset"
+        }
+      ],
+      "modifiers": [
+        "public"
+      ],
+      "name": "LinkedInAction",
+      "namespace": "DevLeads.Core.Entities",
+      "primaryConstructorParameters": [],
+      "summary": "One concrete step in the AI-planned LinkedIn action plan (improve the profile, invite connections, publish content, \u2026). LinkedIn's self-serve API cannot automate any of this, so every action is hand-executed by the operator and then marked done; Done and Dismissed rows survive plan regeneration and are fed back so new plans build forward.",
+      "typeParameters": []
+    },
+    {
+      "access": "public",
+      "baseTypes": [],
+      "bases": [],
+      "constructors": [],
+      "description": "One editable section of the operator's LinkedIn profile (headline, about, \u2026), kept locally because LinkedIn's self-serve API cannot read profile sections.",
+      "descriptionSource": "xml-summary",
+      "file": "src/DevLeads.Core/Entities/LinkedInProfileField.cs",
+      "fullName": "DevLeads.Core.Entities.LinkedInProfileField",
+      "kind": "class",
+      "line": 9,
+      "members": [
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles id.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/LinkedInProfileField.cs",
+          "kind": "property",
+          "line": 11,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Id",
+          "type": "long"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Stable seed key (\"headline\", \"about\", \u2026); rows are add-only by key.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/LinkedInProfileField.cs",
+          "kind": "property",
+          "line": 14,
+          "modifiers": [
+            "public"
+          ],
+          "name": "FieldKey",
+          "summary": "Stable seed key (\"headline\", \"about\", \u2026); rows are add-only by key.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles display name.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/LinkedInProfileField.cs",
+          "kind": "property",
+          "line": 16,
+          "modifiers": [
+            "public"
+          ],
+          "name": "DisplayName",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "What this section is for and its practical limits; shown as a hint and given to the AI.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/LinkedInProfileField.cs",
+          "kind": "property",
+          "line": 19,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Guidance",
+          "summary": "What this section is for and its practical limits; shown as a hint and given to the AI.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles sort order.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/LinkedInProfileField.cs",
+          "kind": "property",
+          "line": 21,
+          "modifiers": [
+            "public"
+          ],
+          "name": "SortOrder",
+          "type": "int"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "The text as it currently reads on LinkedIn (pasted or edited by the operator).",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/LinkedInProfileField.cs",
+          "kind": "property",
+          "line": 24,
+          "modifiers": [
+            "public"
+          ],
+          "name": "CurrentText",
+          "summary": "The text as it currently reads on LinkedIn (pasted or edited by the operator).",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "The latest AI rewrite awaiting operator review; empty when none is pending.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/LinkedInProfileField.cs",
+          "kind": "property",
+          "line": 27,
+          "modifiers": [
+            "public"
+          ],
+          "name": "SuggestedText",
+          "summary": "The latest AI rewrite awaiting operator review; empty when none is pending.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles suggested at.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/LinkedInProfileField.cs",
+          "kind": "property",
+          "line": 29,
+          "modifiers": [
+            "public"
+          ],
+          "name": "SuggestedAt",
+          "type": "DateTimeOffset?"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles provider.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/LinkedInProfileField.cs",
+          "kind": "property",
+          "line": 30,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Provider",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles model.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/LinkedInProfileField.cs",
+          "kind": "property",
+          "line": 31,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Model",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Updates d at.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/LinkedInProfileField.cs",
+          "kind": "property",
+          "line": 32,
+          "modifiers": [
+            "public"
+          ],
+          "name": "UpdatedAt",
+          "type": "DateTimeOffset"
+        }
+      ],
+      "modifiers": [
+        "public"
+      ],
+      "name": "LinkedInProfileField",
+      "namespace": "DevLeads.Core.Entities",
+      "primaryConstructorParameters": [],
+      "summary": "One editable section of the operator's LinkedIn profile (headline, about, \u2026), kept locally because LinkedIn's self-serve API cannot read profile sections. Holds the operator's current text plus the latest AI-proposed rewrite; a proposal is never applied automatically \u2014 the operator accepts or dismisses it per field.",
+      "typeParameters": []
+    },
+    {
+      "access": "public",
+      "baseTypes": [],
+      "bases": [],
+      "constructors": [],
       "description": "A document the operator uploads once and the app hands out wherever it's needed \u2014 the resume today; portfolios, cover letters, or case studies as features grow.",
       "descriptionSource": "xml-summary",
       "file": "src/DevLeads.Core/Entities/OperatorDocument.cs",
@@ -7837,7 +8723,7 @@
             "get",
             "set"
           ],
-          "description": "\"reddit\", \"upwork\", \"craigslist\", \"linkedin\", \"other\".",
+          "description": "\"reddit\", \"upwork\", \"craigslist\", \"linkedin\", \"discord\", \"other\".",
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Entities/OperatorMessage.cs",
           "kind": "property",
@@ -7846,7 +8732,7 @@
             "public"
           ],
           "name": "Platform",
-          "summary": "\"reddit\", \"upwork\", \"craigslist\", \"linkedin\", \"other\".",
+          "summary": "\"reddit\", \"upwork\", \"craigslist\", \"linkedin\", \"discord\", \"other\".",
           "type": "string"
         },
         {
@@ -8138,7 +9024,7 @@
             "get",
             "set"
           ],
-          "description": "\"reddit\", \"upwork\", \"craigslist\", \"monster\", \"indeed\", \"linkedin\", \"other\".",
+          "description": "\"reddit\", \"upwork\", \"craigslist\", \"monster\", \"indeed\", \"linkedin\", \"discord\", \"other\".",
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Entities/OperatorPost.cs",
           "kind": "property",
@@ -8147,7 +9033,7 @@
             "public"
           ],
           "name": "Platform",
-          "summary": "\"reddit\", \"upwork\", \"craigslist\", \"monster\", \"indeed\", \"linkedin\", \"other\".",
+          "summary": "\"reddit\", \"upwork\", \"craigslist\", \"monster\", \"indeed\", \"linkedin\", \"discord\", \"other\".",
           "type": "string"
         },
         {
@@ -9691,11 +10577,79 @@
         },
         {
           "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles linked in profile ai provider.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+          "kind": "property",
+          "line": 66,
+          "modifiers": [
+            "public"
+          ],
+          "name": "LinkedInProfileAiProvider",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles linked in profile ai model.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+          "kind": "property",
+          "line": 67,
+          "modifiers": [
+            "public"
+          ],
+          "name": "LinkedInProfileAiModel",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles web asset outreach ai provider.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+          "kind": "property",
+          "line": 68,
+          "modifiers": [
+            "public"
+          ],
+          "name": "WebAssetOutreachAiProvider",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles web asset outreach ai model.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+          "kind": "property",
+          "line": 69,
+          "modifiers": [
+            "public"
+          ],
+          "name": "WebAssetOutreachAiModel",
+          "type": "string"
+        },
+        {
+          "access": "public",
           "description": "The provider/model pair a feature actually uses, after override resolution.",
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "method",
-          "line": 66,
+          "line": 72,
           "modifiers": [
             "public"
           ],
@@ -9713,7 +10667,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "method",
-          "line": 92,
+          "line": 100,
           "modifiers": [
             "public"
           ],
@@ -9731,7 +10685,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "method",
-          "line": 101,
+          "line": 109,
           "modifiers": [
             "public",
             "static"
@@ -9753,7 +10707,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 105,
+          "line": 113,
           "modifiers": [
             "public"
           ],
@@ -9770,7 +10724,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 106,
+          "line": 114,
           "modifiers": [
             "public"
           ],
@@ -9787,7 +10741,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 107,
+          "line": 115,
           "modifiers": [
             "public"
           ],
@@ -9804,7 +10758,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 108,
+          "line": 116,
           "modifiers": [
             "public"
           ],
@@ -9821,7 +10775,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 109,
+          "line": 117,
           "modifiers": [
             "public"
           ],
@@ -9838,7 +10792,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 110,
+          "line": 118,
           "modifiers": [
             "public"
           ],
@@ -9855,7 +10809,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 111,
+          "line": 119,
           "modifiers": [
             "public"
           ],
@@ -9872,7 +10826,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 112,
+          "line": 120,
           "modifiers": [
             "public"
           ],
@@ -9889,7 +10843,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 115,
+          "line": 123,
           "modifiers": [
             "public"
           ],
@@ -9906,7 +10860,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 116,
+          "line": 124,
           "modifiers": [
             "public"
           ],
@@ -9923,7 +10877,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 117,
+          "line": 125,
           "modifiers": [
             "public"
           ],
@@ -9940,7 +10894,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 118,
+          "line": 126,
           "modifiers": [
             "public"
           ],
@@ -9957,7 +10911,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 119,
+          "line": 127,
           "modifiers": [
             "public"
           ],
@@ -9974,7 +10928,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 120,
+          "line": 128,
           "modifiers": [
             "public"
           ],
@@ -9991,7 +10945,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 121,
+          "line": 129,
           "modifiers": [
             "public"
           ],
@@ -10008,7 +10962,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 122,
+          "line": 130,
           "modifiers": [
             "public"
           ],
@@ -10025,7 +10979,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 123,
+          "line": 131,
           "modifiers": [
             "public"
           ],
@@ -10042,7 +10996,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 126,
+          "line": 134,
           "modifiers": [
             "public"
           ],
@@ -10059,7 +11013,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 127,
+          "line": 135,
           "modifiers": [
             "public"
           ],
@@ -10076,7 +11030,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 130,
+          "line": 138,
           "modifiers": [
             "public"
           ],
@@ -10094,7 +11048,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 133,
+          "line": 141,
           "modifiers": [
             "public"
           ],
@@ -10111,7 +11065,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 136,
+          "line": 144,
           "modifiers": [
             "public"
           ],
@@ -10129,7 +11083,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 139,
+          "line": 147,
           "modifiers": [
             "public"
           ],
@@ -10147,7 +11101,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 144,
+          "line": 152,
           "modifiers": [
             "public"
           ],
@@ -10164,7 +11118,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 145,
+          "line": 153,
           "modifiers": [
             "public"
           ],
@@ -10181,7 +11135,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 146,
+          "line": 154,
           "modifiers": [
             "public"
           ],
@@ -10198,7 +11152,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 152,
+          "line": 160,
           "modifiers": [
             "public"
           ],
@@ -10216,7 +11170,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 157,
+          "line": 165,
           "modifiers": [
             "public"
           ],
@@ -10233,7 +11187,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 158,
+          "line": 166,
           "modifiers": [
             "public"
           ],
@@ -10250,7 +11204,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 159,
+          "line": 167,
           "modifiers": [
             "public"
           ],
@@ -10267,7 +11221,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 160,
+          "line": 168,
           "modifiers": [
             "public"
           ],
@@ -10284,7 +11238,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 161,
+          "line": 169,
           "modifiers": [
             "public"
           ],
@@ -10301,7 +11255,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 162,
+          "line": 170,
           "modifiers": [
             "public"
           ],
@@ -10318,7 +11272,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 163,
+          "line": 171,
           "modifiers": [
             "public"
           ],
@@ -10335,7 +11289,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 164,
+          "line": 172,
           "modifiers": [
             "public"
           ],
@@ -10352,7 +11306,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 165,
+          "line": 173,
           "modifiers": [
             "public"
           ],
@@ -10369,7 +11323,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 166,
+          "line": 174,
           "modifiers": [
             "public"
           ],
@@ -10386,7 +11340,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 167,
+          "line": 175,
           "modifiers": [
             "public"
           ],
@@ -10403,7 +11357,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 168,
+          "line": 176,
           "modifiers": [
             "public"
           ],
@@ -10420,7 +11374,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 169,
+          "line": 177,
           "modifiers": [
             "public"
           ],
@@ -10437,7 +11391,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 170,
+          "line": 178,
           "modifiers": [
             "public"
           ],
@@ -10450,11 +11404,100 @@
             "get",
             "set"
           ],
+          "description": "The AI's latest overall LinkedIn-profile assessment: strengths, gaps, and next improvements.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+          "kind": "property",
+          "line": 181,
+          "modifiers": [
+            "public"
+          ],
+          "name": "LinkedInProfileReview",
+          "summary": "The AI's latest overall LinkedIn-profile assessment: strengths, gaps, and next improvements.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles linked in profile review at.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+          "kind": "property",
+          "line": 182,
+          "modifiers": [
+            "public"
+          ],
+          "name": "LinkedInProfileReviewAt",
+          "type": "DateTimeOffset?"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "What the operator's LinkedIn profile says today, pasted as one plain-text block. The self-serve API cannot read profile sections, so this snapshot is the profile the action-plan\u2026",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+          "kind": "property",
+          "line": 189,
+          "modifiers": [
+            "public"
+          ],
+          "name": "LinkedInProfileSnapshot",
+          "summary": "What the operator's LinkedIn profile says today, pasted as one plain-text block. The self-serve API cannot read profile sections, so this snapshot is the profile the action-plan review actually \"views\".",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Search endpoint used by Site rescue discovery mode to find unknown broken sites from a probe's queries.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+          "kind": "property",
+          "line": 196,
+          "modifiers": [
+            "public"
+          ],
+          "name": "WebScanSearchEndpoint",
+          "summary": "Search endpoint used by Site rescue discovery mode to find unknown broken sites from a probe's queries. Defaults to DuckDuckGo's keyless HTML endpoint; {q} is replaced with the URL-encoded query. Swap for another keyless HTML search if this gets rate-limited.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Max targets verified in a single Site rescue scan, to keep runs polite and bounded.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
+          "kind": "property",
+          "line": 199,
+          "modifiers": [
+            "public"
+          ],
+          "name": "WebScanMaxTargetsPerRun",
+          "summary": "Max targets verified in a single Site rescue scan, to keep runs polite and bounded.",
+          "type": "int"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
           "description": "Handles stale item max age hours.",
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 172,
+          "line": 201,
           "modifiers": [
             "public"
           ],
@@ -10471,7 +11514,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Entities/OperatorSettings.cs",
           "kind": "property",
-          "line": 173,
+          "line": 202,
           "modifiers": [
             "public"
           ],
@@ -13981,6 +15024,732 @@
       "baseTypes": [],
       "bases": [],
       "constructors": [],
+      "description": "A broken or degraded business web asset discovered by the Site rescue scanner: the concrete failing URL, what failed, who appears to own it, and the operator's drafted repair-offer outreach.",
+      "descriptionSource": "xml-summary",
+      "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+      "fullName": "DevLeads.Core.Entities.WebAssetFinding",
+      "kind": "class",
+      "line": 10,
+      "members": [
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles id.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+          "kind": "property",
+          "line": 12,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Id",
+          "type": "long"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Probe that surfaced this finding (nullable if the probe was later deleted).",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+          "kind": "property",
+          "line": 15,
+          "modifiers": [
+            "public"
+          ],
+          "name": "ProbeId",
+          "summary": "Probe that surfaced this finding (nullable if the probe was later deleted).",
+          "type": "long?"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Probe name captured at detection time so history survives probe edits/deletes.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+          "kind": "property",
+          "line": 18,
+          "modifiers": [
+            "public"
+          ],
+          "name": "ProbeName",
+          "summary": "Probe name captured at detection time so history survives probe edits/deletes.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Canonical failing URL \u2014 the deduplication key for a finding.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+          "kind": "property",
+          "line": 21,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Url",
+          "summary": "Canonical failing URL \u2014 the deduplication key for a finding.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Host of Url, used for grouping and contact discovery.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+          "kind": "property",
+          "line": 24,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Host",
+          "summary": "Host of Url, used for grouping and contact discovery.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Best guess at the owning business name (page title / host), for the operator to confirm.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+          "kind": "property",
+          "line": 27,
+          "modifiers": [
+            "public"
+          ],
+          "name": "BusinessName",
+          "summary": "Best guess at the owning business name (page title / host), for the operator to confirm.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles severity.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+          "kind": "property",
+          "line": 29,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Severity",
+          "type": "WebAssetSeverity"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles detection.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+          "kind": "property",
+          "line": 30,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Detection",
+          "type": "WebAssetDetection"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles status.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+          "kind": "property",
+          "line": 31,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Status",
+          "type": "WebAssetStatus"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Last observed HTTP status code (0 when the connection itself failed).",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+          "kind": "property",
+          "line": 34,
+          "modifiers": [
+            "public"
+          ],
+          "name": "HttpStatus",
+          "summary": "Last observed HTTP status code (0 when the connection itself failed).",
+          "type": "int"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Short human summary of what tripped the probe (\"HTTP 500\", \"matched: Fatal error\", \"TLS handshake failed\").",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+          "kind": "property",
+          "line": 37,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Signal",
+          "summary": "Short human summary of what tripped the probe (\"HTTP 500\", \"matched: Fatal error\", \"TLS handshake failed\").",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "A trimmed excerpt of the matched error text, as evidence for the operator and the AI.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+          "kind": "property",
+          "line": 40,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Evidence",
+          "summary": "A trimmed excerpt of the matched error text, as evidence for the operator and the AI.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Software package fingerprinted on the asset, when detected.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+          "kind": "property",
+          "line": 43,
+          "modifiers": [
+            "public"
+          ],
+          "name": "DetectedSoftware",
+          "summary": "Software package fingerprinted on the asset, when detected.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Discovered owner contact email, if one was found.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+          "kind": "property",
+          "line": 46,
+          "modifiers": [
+            "public"
+          ],
+          "name": "ContactEmail",
+          "summary": "Discovered owner contact email, if one was found.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Where the contact came from (\"mailto\", \"contact page\", \"page text\", \"manual\").",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+          "kind": "property",
+          "line": 49,
+          "modifiers": [
+            "public"
+          ],
+          "name": "ContactSource",
+          "summary": "Where the contact came from (\"mailto\", \"contact page\", \"page text\", \"manual\").",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles outreach subject.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+          "kind": "property",
+          "line": 52,
+          "modifiers": [
+            "public"
+          ],
+          "name": "OutreachSubject",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles outreach body.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+          "kind": "property",
+          "line": 53,
+          "modifiers": [
+            "public"
+          ],
+          "name": "OutreachBody",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles outreach provider.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+          "kind": "property",
+          "line": 54,
+          "modifiers": [
+            "public"
+          ],
+          "name": "OutreachProvider",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles outreach model.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+          "kind": "property",
+          "line": 55,
+          "modifiers": [
+            "public"
+          ],
+          "name": "OutreachModel",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles outreach generated at.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+          "kind": "property",
+          "line": 56,
+          "modifiers": [
+            "public"
+          ],
+          "name": "OutreachGeneratedAt",
+          "type": "DateTimeOffset?"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles notes.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+          "kind": "property",
+          "line": 58,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Notes",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles first seen at.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+          "kind": "property",
+          "line": 60,
+          "modifiers": [
+            "public"
+          ],
+          "name": "FirstSeenAt",
+          "type": "DateTimeOffset"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles last checked at.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+          "kind": "property",
+          "line": 61,
+          "modifiers": [
+            "public"
+          ],
+          "name": "LastCheckedAt",
+          "type": "DateTimeOffset"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Creates d at.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+          "kind": "property",
+          "line": 62,
+          "modifiers": [
+            "public"
+          ],
+          "name": "CreatedAt",
+          "type": "DateTimeOffset"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Updates d at.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/WebAssetFinding.cs",
+          "kind": "property",
+          "line": 63,
+          "modifiers": [
+            "public"
+          ],
+          "name": "UpdatedAt",
+          "type": "DateTimeOffset"
+        }
+      ],
+      "modifiers": [
+        "public"
+      ],
+      "name": "WebAssetFinding",
+      "namespace": "DevLeads.Core.Entities",
+      "primaryConstructorParameters": [],
+      "summary": "A broken or degraded business web asset discovered by the Site rescue scanner: the concrete failing URL, what failed, who appears to own it, and the operator's drafted repair-offer outreach. This is a potential paid-repair lead, kept separate from the discussion-post Opportunity pipeline because it comes from active scanning rather than public pay-intent posts.",
+      "typeParameters": []
+    },
+    {
+      "access": "public",
+      "baseTypes": [],
+      "bases": [],
+      "constructors": [],
+      "description": "A reusable definition of what \"broken\" looks like for the Site rescue scanner: a software package to fingerprint, the error text/behaviour that signals a failure, the extra public paths worth checking, and the search\u2026",
+      "descriptionSource": "xml-summary",
+      "file": "src/DevLeads.Core/Entities/WebScanProbe.cs",
+      "fullName": "DevLeads.Core.Entities.WebScanProbe",
+      "kind": "class",
+      "line": 10,
+      "members": [
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles id.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/WebScanProbe.cs",
+          "kind": "property",
+          "line": 12,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Id",
+          "type": "long"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Short operator-facing name (\"WordPress DB/PHP errors\", \"Generic 5xx outage\").",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/WebScanProbe.cs",
+          "kind": "property",
+          "line": 15,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Name",
+          "summary": "Short operator-facing name (\"WordPress DB/PHP errors\", \"Generic 5xx outage\").",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "What this probe is for and who it targets.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/WebScanProbe.cs",
+          "kind": "property",
+          "line": 18,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Description",
+          "summary": "What this probe is for and who it targets.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Software package/fingerprint to look for (e.g. \"WordPress\", \"Magento\", \"Laravel\"). Optional; when set, a match plus an error signal ranks a finding higher.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/WebScanProbe.cs",
+          "kind": "property",
+          "line": 24,
+          "modifiers": [
+            "public"
+          ],
+          "name": "SoftwarePackage",
+          "summary": "Software package/fingerprint to look for (e.g. \"WordPress\", \"Magento\", \"Laravel\"). Optional; when set, a match plus an error signal ranks a finding higher.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Newline-separated error strings that, when present in a response, flag breakage.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/WebScanProbe.cs",
+          "kind": "property",
+          "line": 27,
+          "modifiers": [
+            "public"
+          ],
+          "name": "ErrorSignatures",
+          "summary": "Newline-separated error strings that, when present in a response, flag breakage.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Newline-separated extra public paths to GET beyond the homepage (light probing only: public status/health/error pages, never admin or auth endpoints).",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/WebScanProbe.cs",
+          "kind": "property",
+          "line": 33,
+          "modifiers": [
+            "public"
+          ],
+          "name": "PathsToCheck",
+          "summary": "Newline-separated extra public paths to GET beyond the homepage (light probing only: public status/health/error pages, never admin or auth endpoints).",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Newline-separated search-engine queries used for discovery mode.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/WebScanProbe.cs",
+          "kind": "property",
+          "line": 36,
+          "modifiers": [
+            "public"
+          ],
+          "name": "DiscoveryQueries",
+          "summary": "Newline-separated search-engine queries used for discovery mode.",
+          "type": "string"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Also treat any HTTP 5xx / connection failure as breakage, even with no signature match.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/WebScanProbe.cs",
+          "kind": "property",
+          "line": 39,
+          "modifiers": [
+            "public"
+          ],
+          "name": "FlagServerErrors",
+          "summary": "Also treat any HTTP 5xx / connection failure as breakage, even with no signature match.",
+          "type": "bool"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles enabled.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/WebScanProbe.cs",
+          "kind": "property",
+          "line": 41,
+          "modifiers": [
+            "public"
+          ],
+          "name": "Enabled",
+          "type": "bool"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Creates d at.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/WebScanProbe.cs",
+          "kind": "property",
+          "line": 43,
+          "modifiers": [
+            "public"
+          ],
+          "name": "CreatedAt",
+          "type": "DateTimeOffset"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Updates d at.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/WebScanProbe.cs",
+          "kind": "property",
+          "line": 44,
+          "modifiers": [
+            "public"
+          ],
+          "name": "UpdatedAt",
+          "type": "DateTimeOffset"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Last scan run using this probe, and what it produced.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Entities/WebScanProbe.cs",
+          "kind": "property",
+          "line": 47,
+          "modifiers": [
+            "public"
+          ],
+          "name": "LastRunAt",
+          "summary": "Last scan run using this probe, and what it produced.",
+          "type": "DateTimeOffset?"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles last run checked.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/WebScanProbe.cs",
+          "kind": "property",
+          "line": 48,
+          "modifiers": [
+            "public"
+          ],
+          "name": "LastRunChecked",
+          "type": "int"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get",
+            "set"
+          ],
+          "description": "Handles last run found.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Entities/WebScanProbe.cs",
+          "kind": "property",
+          "line": 49,
+          "modifiers": [
+            "public"
+          ],
+          "name": "LastRunFound",
+          "type": "int"
+        }
+      ],
+      "modifiers": [
+        "public"
+      ],
+      "name": "WebScanProbe",
+      "namespace": "DevLeads.Core.Entities",
+      "primaryConstructorParameters": [],
+      "summary": "A reusable definition of what \"broken\" looks like for the Site rescue scanner: a software package to fingerprint, the error text/behaviour that signals a failure, the extra public paths worth checking, and the search queries used to discover unknown broken sites. One probe is run against a batch of targets to produce WebAssetFinding rows.",
+      "typeParameters": []
+    },
+    {
+      "access": "public",
+      "baseTypes": [],
+      "bases": [],
+      "constructors": [],
       "description": "Tracks execution once a lead becomes real work: checklist, notes, fix summary.",
       "descriptionSource": "xml-summary",
       "file": "src/DevLeads.Core/Entities/WorkSession.cs",
@@ -15699,12 +17468,163 @@
       "baseTypes": [],
       "bases": [],
       "constructors": [],
+      "description": "Which part of LinkedIn presence-building a planned action improves.",
+      "descriptionSource": "xml-summary",
+      "file": "src/DevLeads.Core/Enums.cs",
+      "fullName": "DevLeads.Core.LinkedInActionCategory",
+      "kind": "enum",
+      "line": 221,
+      "members": [
+        {
+          "access": "public",
+          "description": "Improving the profile itself (headline, about, featured, photo, \u2026).",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Enums.cs",
+          "kind": "enumValue",
+          "line": 224,
+          "modifiers": [],
+          "name": "Profile",
+          "summary": "Improving the profile itself (headline, about, featured, photo, \u2026)."
+        },
+        {
+          "access": "public",
+          "description": "Finding and inviting relevant new connections.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Enums.cs",
+          "kind": "enumValue",
+          "line": 226,
+          "modifiers": [],
+          "name": "Connections",
+          "summary": "Finding and inviting relevant new connections."
+        },
+        {
+          "access": "public",
+          "description": "Talking with connections: messages, comment replies, follow-ups.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Enums.cs",
+          "kind": "enumValue",
+          "line": 228,
+          "modifiers": [],
+          "name": "Communication",
+          "summary": "Talking with connections: messages, comment replies, follow-ups."
+        },
+        {
+          "access": "public",
+          "description": "Finding and pursuing paid-work opportunities.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Enums.cs",
+          "kind": "enumValue",
+          "line": 230,
+          "modifiers": [],
+          "name": "Opportunities",
+          "summary": "Finding and pursuing paid-work opportunities."
+        },
+        {
+          "access": "public",
+          "description": "Producing professional, valuable content.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Enums.cs",
+          "kind": "enumValue",
+          "line": 232,
+          "modifiers": [],
+          "name": "Content",
+          "summary": "Producing professional, valuable content."
+        },
+        {
+          "access": "public",
+          "description": "Earning credibility and trust (recommendations, proof, consistency).",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Enums.cs",
+          "kind": "enumValue",
+          "line": 234,
+          "modifiers": [],
+          "name": "Credibility",
+          "summary": "Earning credibility and trust (recommendations, proof, consistency)."
+        },
+        {
+          "access": "public",
+          "description": "Providing value to others with no immediate ask.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Enums.cs",
+          "kind": "enumValue",
+          "line": 236,
+          "modifiers": [],
+          "name": "GiveValue",
+          "summary": "Providing value to others with no immediate ask."
+        }
+      ],
+      "modifiers": [
+        "public"
+      ],
+      "name": "LinkedInActionCategory",
+      "namespace": "DevLeads.Core",
+      "primaryConstructorParameters": [],
+      "summary": "Which part of LinkedIn presence-building a planned action improves.",
+      "typeParameters": []
+    },
+    {
+      "access": "public",
+      "baseTypes": [],
+      "bases": [],
+      "constructors": [],
+      "description": "Operator-side lifecycle of one planned LinkedIn action.",
+      "descriptionSource": "xml-summary",
+      "file": "src/DevLeads.Core/Enums.cs",
+      "fullName": "DevLeads.Core.LinkedInActionStatus",
+      "kind": "enum",
+      "line": 240,
+      "members": [
+        {
+          "access": "public",
+          "description": "Handles pending.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Enums.cs",
+          "kind": "enumValue",
+          "line": 242,
+          "modifiers": [],
+          "name": "Pending"
+        },
+        {
+          "access": "public",
+          "description": "Handles done.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Enums.cs",
+          "kind": "enumValue",
+          "line": 243,
+          "modifiers": [],
+          "name": "Done"
+        },
+        {
+          "access": "public",
+          "description": "Removes or transitions ed.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Enums.cs",
+          "kind": "enumValue",
+          "line": 244,
+          "modifiers": [],
+          "name": "Dismissed"
+        }
+      ],
+      "modifiers": [
+        "public"
+      ],
+      "name": "LinkedInActionStatus",
+      "namespace": "DevLeads.Core",
+      "primaryConstructorParameters": [],
+      "summary": "Operator-side lifecycle of one planned LinkedIn action.",
+      "typeParameters": []
+    },
+    {
+      "access": "public",
+      "baseTypes": [],
+      "bases": [],
+      "constructors": [],
       "description": "Relationship stage of a client (a real person/business the operator works with).",
       "descriptionSource": "xml-summary",
       "file": "src/DevLeads.Core/Enums.cs",
       "fullName": "DevLeads.Core.ClientStatus",
       "kind": "enum",
-      "line": 221,
+      "line": 248,
       "members": [
         {
           "access": "public",
@@ -15712,7 +17632,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 224,
+          "line": 251,
           "modifiers": [],
           "name": "Prospect",
           "summary": "Promising contact \u2014 no agreed work yet."
@@ -15723,7 +17643,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 226,
+          "line": 253,
           "modifiers": [],
           "name": "Active",
           "summary": "Has active or recently agreed work."
@@ -15734,7 +17654,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 228,
+          "line": 255,
           "modifiers": [],
           "name": "Dormant",
           "summary": "Went quiet; worth a periodic check-in."
@@ -15745,7 +17665,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 230,
+          "line": 257,
           "modifiers": [],
           "name": "Past",
           "summary": "Finished relationship kept for history/referrals."
@@ -15770,7 +17690,7 @@
       "file": "src/DevLeads.Core/Enums.cs",
       "fullName": "DevLeads.Core.EngagementStatus",
       "kind": "enum",
-      "line": 234,
+      "line": 261,
       "members": [
         {
           "access": "public",
@@ -15778,7 +17698,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 236,
+          "line": 263,
           "modifiers": [],
           "name": "Prospective"
         },
@@ -15788,7 +17708,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 237,
+          "line": 264,
           "modifiers": [],
           "name": "Negotiating"
         },
@@ -15798,7 +17718,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 238,
+          "line": 265,
           "modifiers": [],
           "name": "Active"
         },
@@ -15808,7 +17728,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 239,
+          "line": 266,
           "modifiers": [],
           "name": "OnHold"
         },
@@ -15818,7 +17738,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 240,
+          "line": 267,
           "modifiers": [],
           "name": "Delivered"
         },
@@ -15828,7 +17748,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 241,
+          "line": 268,
           "modifiers": [],
           "name": "Closed"
         },
@@ -15838,7 +17758,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 242,
+          "line": 269,
           "modifiers": [],
           "name": "Lost"
         }
@@ -15862,7 +17782,7 @@
       "file": "src/DevLeads.Core/Enums.cs",
       "fullName": "DevLeads.Core.FollowUpStatus",
       "kind": "enum",
-      "line": 246,
+      "line": 273,
       "members": [
         {
           "access": "public",
@@ -15870,7 +17790,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 248,
+          "line": 275,
           "modifiers": [],
           "name": "Pending"
         },
@@ -15880,7 +17800,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 249,
+          "line": 276,
           "modifiers": [],
           "name": "Done"
         },
@@ -15890,7 +17810,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 250,
+          "line": 277,
           "modifiers": [],
           "name": "Dismissed"
         }
@@ -15914,7 +17834,7 @@
       "file": "src/DevLeads.Core/Enums.cs",
       "fullName": "DevLeads.Core.InteractionDirection",
       "kind": "enum",
-      "line": 254,
+      "line": 281,
       "members": [
         {
           "access": "public",
@@ -15922,7 +17842,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 256,
+          "line": 283,
           "modifiers": [],
           "name": "Inbound"
         },
@@ -15932,7 +17852,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 257,
+          "line": 284,
           "modifiers": [],
           "name": "Outbound"
         }
@@ -15956,7 +17876,7 @@
       "file": "src/DevLeads.Core/Enums.cs",
       "fullName": "DevLeads.Core.PlatformPresenceStatus",
       "kind": "enum",
-      "line": 261,
+      "line": 288,
       "members": [
         {
           "access": "public",
@@ -15964,7 +17884,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 264,
+          "line": 291,
           "modifiers": [],
           "name": "Suggested",
           "summary": "Catalog/AI suggestion the operator has not acted on."
@@ -15975,7 +17895,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 266,
+          "line": 293,
           "modifiers": [],
           "name": "Planned",
           "summary": "Operator decided to join but has not created the account yet."
@@ -15986,7 +17906,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 268,
+          "line": 295,
           "modifiers": [],
           "name": "Active",
           "summary": "Account exists; posts/messages there are tracked."
@@ -15997,7 +17917,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 270,
+          "line": 297,
           "modifiers": [],
           "name": "Dismissed",
           "summary": "Operator decided it is not worth the effort."
@@ -16022,7 +17942,7 @@
       "file": "src/DevLeads.Core/Enums.cs",
       "fullName": "DevLeads.Core.SuppressionContactType",
       "kind": "enum",
-      "line": 274,
+      "line": 301,
       "members": [
         {
           "access": "public",
@@ -16030,7 +17950,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 276,
+          "line": 303,
           "modifiers": [],
           "name": "Email"
         },
@@ -16040,7 +17960,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 277,
+          "line": 304,
           "modifiers": [],
           "name": "Domain"
         },
@@ -16050,7 +17970,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 278,
+          "line": 305,
           "modifiers": [],
           "name": "Handle"
         },
@@ -16060,7 +17980,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 279,
+          "line": 306,
           "modifiers": [],
           "name": "ProfileUrl"
         }
@@ -16079,12 +17999,193 @@
       "baseTypes": [],
       "bases": [],
       "constructors": [],
+      "description": "How badly a scanned business web asset is broken.",
+      "descriptionSource": "xml-summary",
+      "file": "src/DevLeads.Core/Enums.cs",
+      "fullName": "DevLeads.Core.WebAssetSeverity",
+      "kind": "enum",
+      "line": 310,
+      "members": [
+        {
+          "access": "public",
+          "description": "Down: the page/site fails to serve (5xx, connection/TLS failure, hard error page).",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Enums.cs",
+          "kind": "enumValue",
+          "line": 313,
+          "modifiers": [],
+          "name": "Down",
+          "summary": "Down: the page/site fails to serve (5xx, connection/TLS failure, hard error page)."
+        },
+        {
+          "access": "public",
+          "description": "Degraded: it loads but shows software errors, warnings, or partial breakage.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Enums.cs",
+          "kind": "enumValue",
+          "line": 315,
+          "modifiers": [],
+          "name": "Degraded",
+          "summary": "Degraded: it loads but shows software errors, warnings, or partial breakage."
+        },
+        {
+          "access": "public",
+          "description": "Warning: a softer problem worth flagging (expiring TLS, deprecation notices).",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Enums.cs",
+          "kind": "enumValue",
+          "line": 317,
+          "modifiers": [],
+          "name": "Warning",
+          "summary": "Warning: a softer problem worth flagging (expiring TLS, deprecation notices)."
+        }
+      ],
+      "modifiers": [
+        "public"
+      ],
+      "name": "WebAssetSeverity",
+      "namespace": "DevLeads.Core",
+      "primaryConstructorParameters": [],
+      "summary": "How badly a scanned business web asset is broken.",
+      "typeParameters": []
+    },
+    {
+      "access": "public",
+      "baseTypes": [],
+      "bases": [],
+      "constructors": [],
+      "description": "Operator-side lifecycle of a discovered broken web asset (a potential repair lead).",
+      "descriptionSource": "xml-summary",
+      "file": "src/DevLeads.Core/Enums.cs",
+      "fullName": "DevLeads.Core.WebAssetStatus",
+      "kind": "enum",
+      "line": 321,
+      "members": [
+        {
+          "access": "public",
+          "description": "Handles new.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Enums.cs",
+          "kind": "enumValue",
+          "line": 323,
+          "modifiers": [],
+          "name": "New"
+        },
+        {
+          "access": "public",
+          "description": "Handles reviewing.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Enums.cs",
+          "kind": "enumValue",
+          "line": 324,
+          "modifiers": [],
+          "name": "Reviewing"
+        },
+        {
+          "access": "public",
+          "description": "Handles contacted.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Enums.cs",
+          "kind": "enumValue",
+          "line": 325,
+          "modifiers": [],
+          "name": "Contacted"
+        },
+        {
+          "access": "public",
+          "description": "Handles responded.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Enums.cs",
+          "kind": "enumValue",
+          "line": 326,
+          "modifiers": [],
+          "name": "Responded"
+        },
+        {
+          "access": "public",
+          "description": "Handles won.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Enums.cs",
+          "kind": "enumValue",
+          "line": 327,
+          "modifiers": [],
+          "name": "Won"
+        },
+        {
+          "access": "public",
+          "description": "Removes or transitions ed.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Core/Enums.cs",
+          "kind": "enumValue",
+          "line": 328,
+          "modifiers": [],
+          "name": "Dismissed"
+        }
+      ],
+      "modifiers": [
+        "public"
+      ],
+      "name": "WebAssetStatus",
+      "namespace": "DevLeads.Core",
+      "primaryConstructorParameters": [],
+      "summary": "Operator-side lifecycle of a discovered broken web asset (a potential repair lead).",
+      "typeParameters": []
+    },
+    {
+      "access": "public",
+      "baseTypes": [],
+      "bases": [],
+      "constructors": [],
+      "description": "How a broken web asset was found.",
+      "descriptionSource": "xml-summary",
+      "file": "src/DevLeads.Core/Enums.cs",
+      "fullName": "DevLeads.Core.WebAssetDetection",
+      "kind": "enum",
+      "line": 332,
+      "members": [
+        {
+          "access": "public",
+          "description": "The operator supplied the domain/URL directly.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Enums.cs",
+          "kind": "enumValue",
+          "line": 335,
+          "modifiers": [],
+          "name": "ManualTarget",
+          "summary": "The operator supplied the domain/URL directly."
+        },
+        {
+          "access": "public",
+          "description": "Surfaced by a search-engine query for the probe's error signatures.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Enums.cs",
+          "kind": "enumValue",
+          "line": 337,
+          "modifiers": [],
+          "name": "Discovery",
+          "summary": "Surfaced by a search-engine query for the probe's error signatures."
+        }
+      ],
+      "modifiers": [
+        "public"
+      ],
+      "name": "WebAssetDetection",
+      "namespace": "DevLeads.Core",
+      "primaryConstructorParameters": [],
+      "summary": "How a broken web asset was found.",
+      "typeParameters": []
+    },
+    {
+      "access": "public",
+      "baseTypes": [],
+      "bases": [],
+      "constructors": [],
       "description": "The distinct AI call sites in the app. Each can carry its own provider/model override in Entities.OperatorSettings; an unset override inherits the global AiProvider/AiModel pair.",
       "descriptionSource": "xml-summary",
       "file": "src/DevLeads.Core/Enums.cs",
       "fullName": "DevLeads.Core.AiFeature",
       "kind": "enum",
-      "line": 287,
+      "line": 345,
       "members": [
         {
           "access": "public",
@@ -16092,7 +18193,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 290,
+          "line": 348,
           "modifiers": [],
           "name": "Triage",
           "summary": "Lead shortlist + single/batch triage (the discovery pipeline)."
@@ -16103,7 +18204,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 292,
+          "line": 350,
           "modifiers": [],
           "name": "Outreach",
           "summary": "Batched outreach-response generation for queued leads."
@@ -16114,7 +18215,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 294,
+          "line": 352,
           "modifiers": [],
           "name": "ContentTopics",
           "summary": "Content-studio topic suggestions from trend signals."
@@ -16125,7 +18226,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 296,
+          "line": 354,
           "modifiers": [],
           "name": "ContentDrafts",
           "summary": "Content-studio long-form draft writing."
@@ -16136,7 +18237,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 298,
+          "line": 356,
           "modifiers": [],
           "name": "PostDrafting",
           "summary": "Drafting the operator's own platform posts (My posts)."
@@ -16147,7 +18248,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 300,
+          "line": 358,
           "modifiers": [],
           "name": "ThreadSummary",
           "summary": "Summarizing the reply thread on one of the operator's posts."
@@ -16158,7 +18259,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 302,
+          "line": 360,
           "modifiers": [],
           "name": "PostOptimization",
           "summary": "Post-optimization experiment rewrites (My posts)."
@@ -16169,7 +18270,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 304,
+          "line": 362,
           "modifiers": [],
           "name": "AdvisorBriefing",
           "summary": "The daily business-advisor briefing on the Today page."
@@ -16180,7 +18281,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 306,
+          "line": 364,
           "modifiers": [],
           "name": "PlatformDiscovery",
           "summary": "Suggesting new platforms to build a presence on (My posts)."
@@ -16191,10 +18292,32 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Core/Enums.cs",
           "kind": "enumValue",
-          "line": 308,
+          "line": 366,
           "modifiers": [],
           "name": "LinkedInEngagement",
           "summary": "Batched LinkedIn comment/message response drafting."
+        },
+        {
+          "access": "public",
+          "description": "Reviewing the operator's LinkedIn presence and planning the next actions.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Enums.cs",
+          "kind": "enumValue",
+          "line": 368,
+          "modifiers": [],
+          "name": "LinkedInProfile",
+          "summary": "Reviewing the operator's LinkedIn presence and planning the next actions."
+        },
+        {
+          "access": "public",
+          "description": "Batched repair-offer email drafting for discovered broken web assets (Site rescue).",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/Enums.cs",
+          "kind": "enumValue",
+          "line": 370,
+          "modifiers": [],
+          "name": "WebAssetOutreach",
+          "summary": "Batched repair-offer email drafting for discovered broken web assets (Site rescue)."
         }
       ],
       "modifiers": [
@@ -19385,6 +21508,87 @@
       "namespace": "DevLeads.Core",
       "primaryConstructorParameters": [],
       "summary": "Whole-word term matching for query-pack terms and pre-filter signals. Plain substring Contains made short terms unusable (\"rag\" matched \"storage\", \"down\" matched \"markdown\"), which forced packs into long exact phrases real posts never contain. A term edge that is a letter/digit must sit on a word boundary; edges that are punctuation (\".net\", \"[hiring]\") keep substring semantics so \"asp.net\" still matches \".net\". Multi-word phrases match literally.",
+      "typeParameters": []
+    },
+    {
+      "access": "public",
+      "baseTypes": [],
+      "bases": [],
+      "constructors": [],
+      "description": "One built-in error signature: the text to look for and how bad it is.",
+      "descriptionSource": "xml-summary",
+      "file": "src/DevLeads.Core/WebBreakageSignatures.cs",
+      "fullName": "DevLeads.Core.WebBreakageSignature",
+      "kind": "record struct",
+      "line": 4,
+      "members": [],
+      "modifiers": [
+        "public",
+        "readonly"
+      ],
+      "name": "WebBreakageSignature",
+      "namespace": "DevLeads.Core",
+      "primaryConstructorParameters": [
+        "string Text",
+        "WebAssetSeverity Severity",
+        "string Label"
+      ],
+      "summary": "One built-in error signature: the text to look for and how bad it is.",
+      "typeParameters": []
+    },
+    {
+      "access": "public",
+      "baseTypes": [],
+      "bases": [],
+      "constructors": [],
+      "description": "A curated catalog of common \"this site is broken\" fingerprints, so a probe works out of the box before the operator adds custom error text.",
+      "descriptionSource": "xml-summary",
+      "file": "src/DevLeads.Core/WebBreakageSignatures.cs",
+      "fullName": "DevLeads.Core.WebBreakageSignatures",
+      "kind": "class",
+      "line": 13,
+      "members": [
+        {
+          "access": "public",
+          "description": "Visible error strings that indicate a broken or degraded public asset.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/WebBreakageSignatures.cs",
+          "kind": "field",
+          "line": 16,
+          "modifiers": [
+            "public",
+            "static",
+            "readonly"
+          ],
+          "name": "Defaults",
+          "summary": "Visible error strings that indicate a broken or degraded public asset.",
+          "type": "IReadOnlyList<WebBreakageSignature>"
+        },
+        {
+          "access": "public",
+          "description": "Software fingerprints: presence hints at the stack, not necessarily breakage.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Core/WebBreakageSignatures.cs",
+          "kind": "field",
+          "line": 49,
+          "modifiers": [
+            "public",
+            "static",
+            "readonly"
+          ],
+          "name": "SoftwareFingerprints",
+          "summary": "Software fingerprints: presence hints at the stack, not necessarily breakage.",
+          "type": "IReadOnlyDictionary<string, string[]>"
+        }
+      ],
+      "modifiers": [
+        "public",
+        "static"
+      ],
+      "name": "WebBreakageSignatures",
+      "namespace": "DevLeads.Core",
+      "primaryConstructorParameters": [],
+      "summary": "A curated catalog of common \"this site is broken\" fingerprints, so a probe works out of the box before the operator adds custom error text. Matching is plain, case-insensitive substring against fetched page text \u2014 these are visible public error messages, not intrusive probes. Software fingerprints are kept separate so a package can be detected without (yet) being a breakage on its own.",
       "typeParameters": []
     },
     {
@@ -22843,7 +25047,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 57,
+          "line": 59,
           "modifiers": [
             "private",
             "static",
@@ -22864,7 +25068,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 78,
+          "line": 80,
           "modifiers": [
             "private",
             "static",
@@ -22885,7 +25089,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 121,
+          "line": 123,
           "modifiers": [
             "private",
             "static",
@@ -22902,11 +25106,53 @@
         },
         {
           "access": "private",
+          "description": "Seeds a couple of ready-to-run Site rescue probes so the scanner works out of the box. Only seeds when the table is empty \u2014 the operator owns probes after that.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
+          "kind": "method",
+          "line": 629,
+          "modifiers": [
+            "private",
+            "static",
+            "async"
+          ],
+          "name": "SeedWebScanProbesAsync",
+          "parameters": [
+            "DevLeadsDbContext db",
+            "CancellationToken ct"
+          ],
+          "returnType": "Task",
+          "summary": "Seeds a couple of ready-to-run Site rescue probes so the scanner works out of the box. Only seeds when the table is empty \u2014 the operator owns probes after that.",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "One-time move from the retired per-section profile studio to the single pasted snapshot the action plan reviews: whatever the operator pasted per section becomes the initial\u2026",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
+          "kind": "method",
+          "line": 678,
+          "modifiers": [
+            "private",
+            "static",
+            "async"
+          ],
+          "name": "BackfillLinkedInProfileSnapshotAsync",
+          "parameters": [
+            "DevLeadsDbContext db",
+            "CancellationToken ct"
+          ],
+          "returnType": "Task",
+          "summary": "One-time move from the retired per-section profile studio to the single pasted snapshot the action plan reviews: whatever the operator pasted per section becomes the initial snapshot text. The LinkedInProfileFields rows are kept as history.",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
           "description": "Moves settings still on an old AI default onto the current one (OpenCode CLI). Explicit operator choices (anything not matching an old default) are untouched.",
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 523,
+          "line": 694,
           "modifiers": [
             "private",
             "static",
@@ -22927,7 +25173,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "field",
-          "line": 540,
+          "line": 711,
           "modifiers": [
             "private",
             "static",
@@ -22943,7 +25189,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 552,
+          "line": 723,
           "modifiers": [
             "private",
             "static",
@@ -22963,7 +25209,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 586,
+          "line": 757,
           "modifiers": [
             "private",
             "static",
@@ -22984,7 +25230,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "constant",
-          "line": 596,
+          "line": 767,
           "modifiers": [
             "public",
             "const"
@@ -22998,7 +25244,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "constant",
-          "line": 597,
+          "line": 768,
           "modifiers": [
             "public",
             "const"
@@ -23012,7 +25258,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "constant",
-          "line": 598,
+          "line": 769,
           "modifiers": [
             "public",
             "const"
@@ -23021,12 +25267,26 @@
           "type": "string"
         },
         {
+          "access": "public",
+          "description": "Handles mentoring campaign key.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
+          "kind": "constant",
+          "line": 770,
+          "modifiers": [
+            "public",
+            "const"
+          ],
+          "name": "MentoringCampaignKey",
+          "type": "string"
+        },
+        {
           "access": "private",
           "description": "Ensures the built-in campaigns exist (add-only: name/objective edits belong to the operator afterwards). Returns campaign ids keyed by stable campaign key.",
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 604,
+          "line": 776,
           "modifiers": [
             "private",
             "static",
@@ -23047,7 +25307,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 667,
+          "line": 853,
           "modifiers": [
             "private",
             "static",
@@ -23068,7 +25328,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 713,
+          "line": 899,
           "modifiers": [
             "private",
             "static",
@@ -23090,7 +25350,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 727,
+          "line": 913,
           "modifiers": [
             "private",
             "static"
@@ -23109,7 +25369,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 742,
+          "line": 928,
           "modifiers": [
             "private",
             "static"
@@ -23127,7 +25387,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 752,
+          "line": 938,
           "modifiers": [
             "private",
             "static"
@@ -23146,7 +25406,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 763,
+          "line": 949,
           "modifiers": [
             "private",
             "static"
@@ -23165,7 +25425,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 770,
+          "line": 956,
           "modifiers": [
             "private",
             "static"
@@ -23184,7 +25444,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 786,
+          "line": 972,
           "modifiers": [
             "private",
             "static"
@@ -23202,7 +25462,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 795,
+          "line": 981,
           "modifiers": [
             "private",
             "static"
@@ -23222,7 +25482,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 825,
+          "line": 1011,
           "modifiers": [
             "private",
             "static"
@@ -23241,7 +25501,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 870,
+          "line": 1056,
           "modifiers": [
             "private",
             "static"
@@ -23261,7 +25521,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 894,
+          "line": 1080,
           "modifiers": [
             "private",
             "static"
@@ -23278,7 +25538,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1104,
+          "line": 1290,
           "modifiers": [
             "private",
             "static"
@@ -23295,7 +25555,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1151,
+          "line": 1337,
           "modifiers": [
             "private",
             "static"
@@ -23312,7 +25572,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1219,
+          "line": 1405,
           "modifiers": [
             "private",
             "static",
@@ -23333,7 +25593,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1269,
+          "line": 1455,
           "modifiers": [
             "private",
             "static",
@@ -23354,7 +25614,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1316,
+          "line": 1502,
           "modifiers": [
             "private",
             "static"
@@ -23375,7 +25635,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1326,
+          "line": 1512,
           "modifiers": [
             "private",
             "static",
@@ -23396,7 +25656,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1345,
+          "line": 1531,
           "modifiers": [
             "private",
             "static",
@@ -23417,7 +25677,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "field",
-          "line": 1360,
+          "line": 1546,
           "modifiers": [
             "private",
             "static",
@@ -23433,7 +25693,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1374,
+          "line": 1560,
           "modifiers": [
             "private",
             "static",
@@ -23454,7 +25714,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1400,
+          "line": 1586,
           "modifiers": [
             "private",
             "static",
@@ -23475,7 +25735,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1418,
+          "line": 1604,
           "modifiers": [
             "private",
             "static",
@@ -23496,7 +25756,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1445,
+          "line": 1631,
           "modifiers": [
             "private",
             "static",
@@ -23516,7 +25776,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1476,
+          "line": 1662,
           "modifiers": [
             "private",
             "static",
@@ -23537,7 +25797,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Data/DatabaseSeeder.cs",
           "kind": "method",
-          "line": 1487,
+          "line": 1673,
           "modifiers": [
             "private",
             "static",
@@ -24061,12 +26321,76 @@
           "type": "DbSet<EngagementDraft>"
         },
         {
+          "access": "public",
+          "accessors": [
+            "get"
+          ],
+          "description": "Handles linked in profile fields.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
+          "kind": "property",
+          "line": 42,
+          "modifiers": [
+            "public"
+          ],
+          "name": "LinkedInProfileFields",
+          "type": "DbSet<LinkedInProfileField>"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get"
+          ],
+          "description": "Handles linked in actions.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
+          "kind": "property",
+          "line": 43,
+          "modifiers": [
+            "public"
+          ],
+          "name": "LinkedInActions",
+          "type": "DbSet<LinkedInAction>"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get"
+          ],
+          "description": "Handles web scan probes.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
+          "kind": "property",
+          "line": 44,
+          "modifiers": [
+            "public"
+          ],
+          "name": "WebScanProbes",
+          "type": "DbSet<WebScanProbe>"
+        },
+        {
+          "access": "public",
+          "accessors": [
+            "get"
+          ],
+          "description": "Handles web asset findings.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
+          "kind": "property",
+          "line": 45,
+          "modifiers": [
+            "public"
+          ],
+          "name": "WebAssetFindings",
+          "type": "DbSet<WebAssetFinding>"
+        },
+        {
           "access": "protected",
           "description": "Handles configure conventions.",
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
           "kind": "method",
-          "line": 51,
+          "line": 55,
           "modifiers": [
             "protected",
             "override"
@@ -24084,7 +26408,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
           "kind": "method",
-          "line": 82,
+          "line": 91,
           "modifiers": [
             "protected",
             "override"
@@ -24121,7 +26445,7 @@
       "file": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
       "fullName": "DevLeads.Infrastructure.Data.DevLeadsDbContext.DateTimeOffsetToTicksConverter",
       "kind": "class",
-      "line": 45,
+      "line": 49,
       "members": [
         {
           "access": "public",
@@ -24129,7 +26453,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Data/DevLeadsDbContext.cs",
           "kind": "constructor",
-          "line": 47,
+          "line": 51,
           "modifiers": [
             "public"
           ],
@@ -24185,7 +26509,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/DependencyInjection.cs",
           "kind": "method",
-          "line": 102,
+          "line": 103,
           "modifiers": [
             "public",
             "static",
@@ -26307,7 +28631,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
           "kind": "method",
-          "line": 94,
+          "line": 101,
           "modifiers": [
             "public",
             "async"
@@ -26329,7 +28653,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
           "kind": "method",
-          "line": 154,
+          "line": 161,
           "modifiers": [
             "public",
             "async"
@@ -26347,7 +28671,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
           "kind": "method",
-          "line": 170,
+          "line": 177,
           "modifiers": [
             "public",
             "async"
@@ -26367,7 +28691,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
           "kind": "method",
-          "line": 232,
+          "line": 239,
           "modifiers": [
             "public",
             "async"
@@ -26386,7 +28710,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
           "kind": "method",
-          "line": 259,
+          "line": 266,
           "modifiers": [
             "public",
             "async"
@@ -26405,7 +28729,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
           "kind": "method",
-          "line": 335,
+          "line": 342,
           "modifiers": [
             "public",
             "async"
@@ -26421,11 +28745,87 @@
         },
         {
           "access": "public",
+          "description": "One AI call reviews the operator's LinkedIn presence \u2014 the pasted whole-profile snapshot plus what the app tracks (connection state, posts, engagement, action history) \u2014 and\u2026",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
+          "kind": "method",
+          "line": 395,
+          "modifiers": [
+            "public",
+            "async"
+          ],
+          "name": "GenerateActionPlanAsync",
+          "parameters": [
+            "string extraInstructions",
+            "CancellationToken ct"
+          ],
+          "returnType": "Task<(int Created, string Message)>",
+          "summary": "One AI call reviews the operator's LinkedIn presence \u2014 the pasted whole-profile snapshot plus what the app tracks (connection state, posts, engagement, action history) \u2014 and rebuilds the pending step-by-step action plan. Every action is executed by the operator by hand; Done and Dismissed rows survive regeneration and are fed back so a new plan builds forward instead of repeating itself.",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Deterministic (zero-AI-cost) presence facts the plan is grounded in.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
+          "kind": "method",
+          "line": 470,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "BuildActivityFactsAsync",
+          "parameters": [
+            "OperatorSettings s",
+            "CancellationToken ct"
+          ],
+          "returnType": "Task<List<string>>",
+          "summary": "Deterministic (zero-AI-cost) presence facts the plan is grounded in.",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Transforms or resolves action plan.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
+          "kind": "method",
+          "line": 499,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "ParseActionPlan",
+          "parameters": [
+            "string output"
+          ],
+          "returnType": "(List<(LinkedInActionCategory, string, string, string)> Actions, string Summary)",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Transforms or resolves action category.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
+          "kind": "method",
+          "line": 527,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "ParseActionCategory",
+          "parameters": [
+            "string value"
+          ],
+          "returnType": "LinkedInActionCategory",
+          "typeParameters": []
+        },
+        {
+          "access": "public",
           "description": "Creates manual engagement.",
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
           "kind": "method",
-          "line": 381,
+          "line": 539,
           "modifiers": [
             "public",
             "async"
@@ -26446,7 +28846,7 @@
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
           "kind": "method",
-          "line": 397,
+          "line": 555,
           "modifiers": [
             "public",
             "async"
@@ -26466,7 +28866,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
           "kind": "method",
-          "line": 446,
+          "line": 604,
           "modifiers": [
             "private"
           ],
@@ -26485,7 +28885,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
           "kind": "method",
-          "line": 456,
+          "line": 614,
           "modifiers": [
             "private",
             "async"
@@ -26505,7 +28905,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
           "kind": "method",
-          "line": 476,
+          "line": 634,
           "modifiers": [
             "private",
             "async"
@@ -26524,7 +28924,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
           "kind": "method",
-          "line": 482,
+          "line": 640,
           "modifiers": [
             "private",
             "static"
@@ -26542,7 +28942,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
           "kind": "method",
-          "line": 491,
+          "line": 649,
           "modifiers": [
             "private",
             "static"
@@ -26561,7 +28961,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
           "kind": "method",
-          "line": 494,
+          "line": 652,
           "modifiers": [
             "private",
             "static"
@@ -26579,7 +28979,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
           "kind": "method",
-          "line": 498,
+          "line": 656,
           "modifiers": [
             "private",
             "static"
@@ -26598,7 +28998,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
           "kind": "method",
-          "line": 502,
+          "line": 660,
           "modifiers": [
             "private",
             "static"
@@ -26616,7 +29016,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
           "kind": "method",
-          "line": 508,
+          "line": 666,
           "modifiers": [
             "private",
             "static"
@@ -26634,7 +29034,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
           "kind": "method",
-          "line": 512,
+          "line": 670,
           "modifiers": [
             "private",
             "static"
@@ -26653,7 +29053,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
           "kind": "method",
-          "line": 515,
+          "line": 673,
           "modifiers": [
             "private",
             "static"
@@ -26671,7 +29071,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
           "kind": "method",
-          "line": 533,
+          "line": 691,
           "modifiers": [
             "private",
             "static"
@@ -26690,7 +29090,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
           "kind": "method",
-          "line": 544,
+          "line": 702,
           "modifiers": [
             "private",
             "static"
@@ -26709,7 +29109,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
           "kind": "method",
-          "line": 548,
+          "line": 706,
           "modifiers": [
             "private",
             "static"
@@ -26729,7 +29129,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Infrastructure/Services/LinkedInService.cs",
           "kind": "method",
-          "line": 552,
+          "line": 710,
           "modifiers": [
             "private",
             "static"
@@ -27089,7 +29489,7 @@
         },
         {
           "access": "public",
-          "description": "One AI call drafts a platform-appropriate post (reddit/craigslist/linkedin/upwork/ gmail template) in the operator's real identity, using the best-performing tracked posts as\u2026",
+          "description": "One AI call drafts a platform-appropriate post (reddit/craigslist/linkedin/upwork/ gmail template/discord offer) in the operator's real identity, using the best-performing\u2026",
           "descriptionSource": "xml-summary",
           "file": "src/DevLeads.Infrastructure/Services/OperatorPostService.cs",
           "kind": "method",
@@ -27106,7 +29506,7 @@
             "CancellationToken ct"
           ],
           "returnType": "Task<(OperatorPost? Post, string Message)>",
-          "summary": "One AI call drafts a platform-appropriate post (reddit/craigslist/linkedin/upwork/ gmail template) in the operator's real identity, using the best-performing tracked posts as voice reference. Saved as a Draft \u2014 the operator posts it manually and then marks it Active with its URL.",
+          "summary": "One AI call drafts a platform-appropriate post (reddit/craigslist/linkedin/upwork/ gmail template/discord offer) in the operator's real identity, using the best-performing tracked posts as voice reference. Saved as a Draft \u2014 the operator posts it manually and then marks it Active with its URL.",
           "typeParameters": []
         },
         {
@@ -29783,6 +32183,697 @@
     },
     {
       "access": "public",
+      "baseTypes": [],
+      "bases": [],
+      "constructors": [],
+      "description": "Site rescue: actively but passively probes business web assets for public errors/outages that match an operator-defined WebScanProbe, records confirmed breakage as WebAssetFinding repair leads, discovers an owner\u2026",
+      "descriptionSource": "xml-summary",
+      "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+      "fullName": "DevLeads.Infrastructure.Services.WebRescueService",
+      "kind": "class",
+      "line": 25,
+      "members": [
+        {
+          "access": "private",
+          "description": "Handles probe path deny list.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "field",
+          "line": 28,
+          "modifiers": [
+            "private",
+            "static",
+            "readonly"
+          ],
+          "name": "ProbePathDenyList",
+          "type": "string[]"
+        },
+        {
+          "access": "private",
+          "description": "Handles platform hosts.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "field",
+          "line": 32,
+          "modifiers": [
+            "private",
+            "static",
+            "readonly"
+          ],
+          "name": "PlatformHosts",
+          "type": "string[]"
+        },
+        {
+          "access": "private",
+          "description": "Handles email regex.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "field",
+          "line": 40,
+          "modifiers": [
+            "private",
+            "static",
+            "readonly"
+          ],
+          "name": "EmailRegex",
+          "type": "Regex"
+        },
+        {
+          "access": "private",
+          "description": "Handles max body chars.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "constant",
+          "line": 43,
+          "modifiers": [
+            "private",
+            "const"
+          ],
+          "name": "MaxBodyChars",
+          "type": "int"
+        },
+        {
+          "access": "private",
+          "description": "Handles db.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "field",
+          "line": 45,
+          "modifiers": [
+            "private",
+            "readonly"
+          ],
+          "name": "_db",
+          "type": "DevLeadsDbContext"
+        },
+        {
+          "access": "private",
+          "description": "Handles http factory.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "field",
+          "line": 46,
+          "modifiers": [
+            "private",
+            "readonly"
+          ],
+          "name": "_httpFactory",
+          "type": "IHttpClientFactory"
+        },
+        {
+          "access": "private",
+          "description": "Handles text.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "field",
+          "line": 47,
+          "modifiers": [
+            "private",
+            "readonly"
+          ],
+          "name": "_text",
+          "type": "AiTextRouter"
+        },
+        {
+          "access": "private",
+          "description": "Handles audit.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "field",
+          "line": 48,
+          "modifiers": [
+            "private",
+            "readonly"
+          ],
+          "name": "_audit",
+          "type": "AuditService"
+        },
+        {
+          "access": "private",
+          "description": "Handles log.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "field",
+          "line": 49,
+          "modifiers": [
+            "private",
+            "readonly"
+          ],
+          "name": "_log",
+          "type": "ILogger<WebRescueService>"
+        },
+        {
+          "access": "public",
+          "description": "Creates WebRescueService with its required dependencies.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "constructor",
+          "line": 51,
+          "modifiers": [
+            "public"
+          ],
+          "name": "WebRescueService",
+          "parameters": [
+            "DevLeadsDbContext db",
+            "IHttpClientFactory httpFactory",
+            "AiTextRouter text",
+            "AuditService audit",
+            "ILogger<WebRescueService> log"
+          ],
+          "typeParameters": []
+        },
+        {
+          "access": "public",
+          "description": "Runs a probe against pasted targets and (optionally) search-discovered targets. Each target is verified; only broken/degraded assets become findings. Returns a summary.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "method",
+          "line": 65,
+          "modifiers": [
+            "public",
+            "async"
+          ],
+          "name": "ScanAsync",
+          "parameters": [
+            "long probeId",
+            "string manualTargets",
+            "bool useDiscovery",
+            "CancellationToken ct"
+          ],
+          "returnType": "Task<(int Checked, int Found, string Message)>",
+          "summary": "Runs a probe against pasted targets and (optionally) search-discovered targets. Each target is verified; only broken/degraded assets become findings. Returns a summary.",
+          "typeParameters": []
+        },
+        {
+          "access": "public",
+          "description": "Re-checks one existing finding and refreshes its live status/evidence.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "method",
+          "line": 130,
+          "modifiers": [
+            "public",
+            "async"
+          ],
+          "name": "RecheckAsync",
+          "parameters": [
+            "long findingId",
+            "CancellationToken ct"
+          ],
+          "returnType": "Task<(bool Ok, string Message)>",
+          "summary": "Re-checks one existing finding and refreshes its live status/evidence.",
+          "typeParameters": []
+        },
+        {
+          "access": "public",
+          "description": "Drafts repair-offer emails for every New finding that has a contact and no draft yet, in one batched AI call. Suppressed contacts are skipped. Nothing is sent.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "method",
+          "line": 159,
+          "modifiers": [
+            "public",
+            "async"
+          ],
+          "name": "GenerateOutreachBatchAsync",
+          "parameters": [
+            "string extraInstructions",
+            "CancellationToken ct"
+          ],
+          "returnType": "Task<(int Generated, string Message)>",
+          "summary": "Drafts repair-offer emails for every New finding that has a contact and no draft yet, in one batched AI call. Suppressed contacts are skipped. Nothing is sent.",
+          "typeParameters": []
+        },
+        {
+          "access": "public",
+          "description": "Re-runs contact discovery for one finding (when the first pass found nothing).",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "method",
+          "line": 232,
+          "modifiers": [
+            "public",
+            "async"
+          ],
+          "name": "RefreshContactAsync",
+          "parameters": [
+            "long findingId",
+            "CancellationToken ct"
+          ],
+          "returnType": "Task<(bool Ok, string Message)>",
+          "summary": "Re-runs contact discovery for one finding (when the first pass found nothing).",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Fetches the homepage and any probe paths, returning the breakage analysis (null when healthy) plus the homepage body so contact discovery can reuse it.",
+          "descriptionSource": "xml-summary",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "method",
+          "line": 255,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "AnalyzeAsync",
+          "parameters": [
+            "HttpClient http",
+            "string url",
+            "WebScanProbe? probe",
+            "CancellationToken ct"
+          ],
+          "returnType": "Task<(Analysis? Result, string HomepageBody)>",
+          "summary": "Fetches the homepage and any probe paths, returning the breakage analysis (null when healthy) plus the homepage body so contact discovery can reuse it.",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Handles enumerate targets.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "method",
+          "line": 276,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "EnumerateTargets",
+          "parameters": [
+            "string url",
+            "IReadOnlyList<string> paths"
+          ],
+          "returnType": "IEnumerable<(string Target, bool IsHomepage)>",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Handles evaluate.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "method",
+          "line": 290,
+          "modifiers": [
+            "private"
+          ],
+          "name": "Evaluate",
+          "parameters": [
+            "string target",
+            "int status",
+            "string headers",
+            "string body",
+            "string? transportError",
+            "WebScanProbe? probe",
+            "IReadOnlyList<WebBreakageSignature> signatures"
+          ],
+          "returnType": "Analysis?",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Loads or resolves fetch.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "method",
+          "line": 322,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "FetchAsync",
+          "parameters": [
+            "HttpClient http",
+            "string target",
+            "CancellationToken ct"
+          ],
+          "returnType": "Task<(int Status, string Headers, string Body, string? TransportError)>",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Handles describe transport error.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "method",
+          "line": 351,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "DescribeTransportError",
+          "parameters": [
+            "HttpRequestException ex"
+          ],
+          "returnType": "string",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Handles discover contact.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "method",
+          "line": 367,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "DiscoverContactAsync",
+          "parameters": [
+            "HttpClient http",
+            "string host",
+            "string? homepageBody",
+            "CancellationToken ct"
+          ],
+          "returnType": "Task<(string Email, string Source)>",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Transforms or resolves email.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "method",
+          "line": 400,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "ExtractEmail",
+          "parameters": [
+            "string html",
+            "string host"
+          ],
+          "returnType": "(string Email, string Source)",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Checks plausible email.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "method",
+          "line": 420,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "IsPlausibleEmail",
+          "parameters": [
+            "string email"
+          ],
+          "returnType": "bool",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Handles discover targets.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "method",
+          "line": 433,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "DiscoverTargetsAsync",
+          "parameters": [
+            "WebScanProbe probe",
+            "OperatorSettings settings",
+            "CancellationToken ct"
+          ],
+          "returnType": "Task<(List<string> Urls, string Note)>",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Transforms or resolves search result urls.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "method",
+          "line": 469,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "ExtractSearchResultUrls",
+          "parameters": [
+            "string html"
+          ],
+          "returnType": "IEnumerable<string>",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Handles upsert finding.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "method",
+          "line": 484,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "UpsertFindingAsync",
+          "parameters": [
+            "HttpClient http",
+            "WebScanProbe probe",
+            "string url",
+            "WebAssetDetection detection",
+            "Analysis analysis",
+            "string homepageBody",
+            "CancellationToken ct"
+          ],
+          "returnType": "Task<bool>",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Creates signature list.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "method",
+          "line": 535,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "BuildSignatureList",
+          "parameters": [
+            "WebScanProbe? probe"
+          ],
+          "returnType": "IReadOnlyList<WebBreakageSignature>",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Handles probe paths.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "method",
+          "line": 545,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "ProbePaths",
+          "parameters": [
+            "WebScanProbe? probe"
+          ],
+          "returnType": "IReadOnlyList<string>",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Handles detect software.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "method",
+          "line": 548,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "DetectSoftware",
+          "parameters": [
+            "string text",
+            "WebScanProbe? probe"
+          ],
+          "returnType": "string",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Handles guess business name.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "method",
+          "line": 559,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "GuessBusinessName",
+          "parameters": [
+            "string html",
+            "string host"
+          ],
+          "returnType": "string",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Transforms or resolves targets.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "method",
+          "line": 573,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "ParseTargets",
+          "parameters": [
+            "string raw"
+          ],
+          "returnType": "IEnumerable<string>",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Transforms or resolves lines.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "method",
+          "line": 588,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "SplitLines",
+          "parameters": [
+            "string raw"
+          ],
+          "returnType": "List<string>",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Transforms or resolves trim.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "method",
+          "line": 592,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "Trim",
+          "parameters": [
+            "string value",
+            "int max"
+          ],
+          "returnType": "string",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Handles excerpt.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "method",
+          "line": 598,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "Excerpt",
+          "parameters": [
+            "string body",
+            "int index",
+            "int matchLength"
+          ],
+          "returnType": "string",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Transforms or resolves emails.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "method",
+          "line": 605,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "ParseEmails",
+          "parameters": [
+            "string output"
+          ],
+          "returnType": "Dictionary<long, (string Subject, string Body)>",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
+          "description": "Loads or resolves string.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+          "kind": "method",
+          "line": 626,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "GetString",
+          "parameters": [
+            "JsonElement root",
+            "string name"
+          ],
+          "returnType": "string",
+          "typeParameters": []
+        }
+      ],
+      "modifiers": [
+        "public",
+        "sealed"
+      ],
+      "name": "WebRescueService",
+      "namespace": "DevLeads.Infrastructure.Services",
+      "primaryConstructorParameters": [],
+      "summary": "Site rescue: actively but passively probes business web assets for public errors/outages that match an operator-defined WebScanProbe, records confirmed breakage as WebAssetFinding repair leads, discovers an owner contact email, and drafts affordable repair-offer emails in one batched AI call. Scanning is read-only GETs of public pages; nothing is ever sent from here \u2014 outreach is drafted and sent by hand.",
+      "typeParameters": []
+    },
+    {
+      "access": "private",
+      "baseTypes": [],
+      "bases": [],
+      "constructors": [],
+      "containingType": "WebRescueService",
+      "description": "Represents analysis.",
+      "descriptionSource": "heuristic",
+      "file": "src/DevLeads.Infrastructure/Services/WebRescueService.cs",
+      "fullName": "DevLeads.Infrastructure.Services.WebRescueService.Analysis",
+      "kind": "record struct",
+      "line": 248,
+      "members": [],
+      "modifiers": [
+        "private",
+        "readonly"
+      ],
+      "name": "Analysis",
+      "namespace": "DevLeads.Infrastructure.Services",
+      "primaryConstructorParameters": [
+        "bool Broken",
+        "WebAssetSeverity Severity",
+        "string Signal",
+        "string Evidence",
+        "int Status",
+        "string Software"
+      ],
+      "typeParameters": []
+    },
+    {
+      "access": "public",
       "baseTypes": [
         "BackgroundService"
       ],
@@ -30117,11 +33208,31 @@
         },
         {
           "access": "private",
+          "description": "Transforms or resolves linked in action status.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+          "kind": "method",
+          "line": 451,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "MapLinkedInActionStatus",
+          "parameters": [
+            "RouteGroupBuilder api",
+            "string action",
+            "Core.LinkedInActionStatus status"
+          ],
+          "returnType": "void",
+          "typeParameters": []
+        },
+        {
+          "access": "private",
           "description": "Transforms or resolves status action.",
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
           "kind": "method",
-          "line": 383,
+          "line": 465,
           "modifiers": [
             "private",
             "static"
@@ -30157,7 +33268,7 @@
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
       "fullName": "DevLeads.Web.Api.ApiEndpoints.ManualLeadDto",
       "kind": "record class",
-      "line": 397,
+      "line": 479,
       "members": [],
       "modifiers": [
         "public"
@@ -30185,7 +33296,7 @@
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
       "fullName": "DevLeads.Web.Api.ApiEndpoints.DraftDto",
       "kind": "record class",
-      "line": 398,
+      "line": 480,
       "members": [],
       "modifiers": [
         "public"
@@ -30208,7 +33319,7 @@
       "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
       "fullName": "DevLeads.Web.Api.ApiEndpoints.QuoteDto",
       "kind": "record class",
-      "line": 399,
+      "line": 481,
       "members": [],
       "modifiers": [
         "public"
@@ -30218,6 +33329,31 @@
       "primaryConstructorParameters": [
         "double? Amount",
         "bool DueOnCompletion"
+      ],
+      "typeParameters": []
+    },
+    {
+      "access": "public",
+      "baseTypes": [],
+      "bases": [],
+      "constructors": [],
+      "containingType": "ApiEndpoints",
+      "description": "Transfers web scan run data.",
+      "descriptionSource": "heuristic",
+      "file": "src/DevLeads.Web/Api/ApiEndpoints.cs",
+      "fullName": "DevLeads.Web.Api.ApiEndpoints.WebScanRunDto",
+      "kind": "record class",
+      "line": 482,
+      "members": [],
+      "modifiers": [
+        "public"
+      ],
+      "name": "WebScanRunDto",
+      "namespace": "DevLeads.Web.Api",
+      "primaryConstructorParameters": [
+        "long ProbeId",
+        "string? Targets",
+        "bool UseDiscovery"
       ],
       "typeParameters": []
     },
@@ -31372,7 +34508,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 312,
+          "line": 313,
           "modifiers": [],
           "name": "if",
           "parameters": [
@@ -31386,7 +34522,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 410,
+          "line": 411,
           "modifiers": [
             "protected",
             "override",
@@ -31402,7 +34538,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 423,
+          "line": 424,
           "modifiers": [
             "private",
             "async"
@@ -31417,7 +34553,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 440,
+          "line": 441,
           "modifiers": [
             "private",
             "async"
@@ -31432,7 +34568,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 476,
+          "line": 477,
           "modifiers": [
             "private",
             "async"
@@ -31447,7 +34583,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 492,
+          "line": 493,
           "modifiers": [
             "private"
           ],
@@ -31461,7 +34597,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 502,
+          "line": 503,
           "modifiers": [
             "private"
           ],
@@ -31478,7 +34614,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 507,
+          "line": 508,
           "modifiers": [
             "private",
             "async"
@@ -31493,7 +34629,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 524,
+          "line": 525,
           "modifiers": [
             "private",
             "async"
@@ -31510,7 +34646,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 539,
+          "line": 540,
           "modifiers": [
             "private",
             "async"
@@ -31527,7 +34663,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 549,
+          "line": 550,
           "modifiers": [
             "private",
             "async"
@@ -31544,7 +34680,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 582,
+          "line": 583,
           "modifiers": [
             "private",
             "static"
@@ -31562,7 +34698,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 585,
+          "line": 586,
           "modifiers": [
             "private",
             "static"
@@ -31580,7 +34716,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 587,
+          "line": 588,
           "modifiers": [
             "private",
             "async"
@@ -31595,7 +34731,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 603,
+          "line": 604,
           "modifiers": [
             "private",
             "async"
@@ -31612,7 +34748,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 623,
+          "line": 624,
           "modifiers": [
             "private",
             "async"
@@ -31627,7 +34763,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 647,
+          "line": 648,
           "modifiers": [
             "private",
             "async"
@@ -31644,7 +34780,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 658,
+          "line": 659,
           "modifiers": [
             "private",
             "async"
@@ -31662,7 +34798,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 678,
+          "line": 679,
           "modifiers": [
             "private",
             "static"
@@ -31679,7 +34815,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 687,
+          "line": 688,
           "modifiers": [
             "private",
             "static"
@@ -31696,7 +34832,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 695,
+          "line": 696,
           "modifiers": [
             "private",
             "async"
@@ -31711,7 +34847,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 705,
+          "line": 706,
           "modifiers": [
             "private",
             "async"
@@ -31726,7 +34862,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 728,
+          "line": 729,
           "modifiers": [
             "private"
           ],
@@ -31742,7 +34878,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 730,
+          "line": 731,
           "modifiers": [
             "private",
             "async"
@@ -31759,7 +34895,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 747,
+          "line": 748,
           "modifiers": [
             "private",
             "async"
@@ -31776,7 +34912,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 781,
+          "line": 782,
           "modifiers": [
             "private",
             "async"
@@ -31794,7 +34930,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/MyPosts.razor",
           "kind": "method",
-          "line": 792,
+          "line": 793,
           "modifiers": [
             "private",
             "static"
@@ -32705,7 +35841,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/Settings.razor",
           "kind": "method",
-          "line": 303,
+          "line": 304,
           "modifiers": [
             "private"
           ],
@@ -32721,7 +35857,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/Settings.razor",
           "kind": "method",
-          "line": 318,
+          "line": 320,
           "modifiers": [
             "private"
           ],
@@ -32738,7 +35874,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/Settings.razor",
           "kind": "method",
-          "line": 340,
+          "line": 343,
           "modifiers": [
             "private"
           ],
@@ -32754,7 +35890,7 @@
           "descriptionSource": "heuristic",
           "file": "src/DevLeads.Web/Components/Pages/Settings.razor",
           "kind": "method",
-          "line": 355,
+          "line": 359,
           "modifiers": [
             "private"
           ],
@@ -32776,6 +35912,374 @@
         "/settings"
       ],
       "summary": "Operator, AI, safety, discovery, and restart settings."
+    },
+    {
+      "access": "public",
+      "baseTypes": [
+        "ComponentBase"
+      ],
+      "bases": [
+        "ComponentBase"
+      ],
+      "containingType": null,
+      "description": "Blazor component for site rescue.",
+      "descriptionSource": "curated",
+      "file": "src/DevLeads.Web/Components/Pages/SiteRescue.razor",
+      "fullName": "DevLeads.Web.Components.Pages.SiteRescue",
+      "injects": [
+        "IDbContextFactory<DevLeadsDbContext>",
+        "IServiceScopeFactory",
+        "IJSRuntime"
+      ],
+      "javascript": [],
+      "kind": "component",
+      "line": 1,
+      "members": [
+        {
+          "access": "protected",
+          "description": "Runs the component on initialized lifecycle step.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/SiteRescue.razor",
+          "kind": "method",
+          "line": 222,
+          "modifiers": [
+            "protected",
+            "override",
+            "async"
+          ],
+          "name": "OnInitializedAsync",
+          "parameters": [],
+          "returnType": "Task"
+        },
+        {
+          "access": "private",
+          "description": "Loads or resolves load.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/SiteRescue.razor",
+          "kind": "method",
+          "line": 224,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "Load",
+          "parameters": [],
+          "returnType": "Task"
+        },
+        {
+          "access": "private",
+          "description": "Handles filtered findings.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/SiteRescue.razor",
+          "kind": "method",
+          "line": 239,
+          "modifiers": [
+            "private"
+          ],
+          "name": "FilteredFindings",
+          "parameters": [],
+          "returnType": "List<WebAssetFinding>"
+        },
+        {
+          "access": "private",
+          "description": "Handles new probe.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/SiteRescue.razor",
+          "kind": "method",
+          "line": 243,
+          "modifiers": [
+            "private"
+          ],
+          "name": "NewProbe",
+          "parameters": [],
+          "returnType": "void"
+        },
+        {
+          "access": "private",
+          "description": "Handles edit probe.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/SiteRescue.razor",
+          "kind": "method",
+          "line": 245,
+          "modifiers": [
+            "private"
+          ],
+          "name": "EditProbe",
+          "parameters": [
+            "WebScanProbe p"
+          ],
+          "returnType": "void"
+        },
+        {
+          "access": "private",
+          "description": "Updates probe.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/SiteRescue.razor",
+          "kind": "method",
+          "line": 254,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "SaveProbe",
+          "parameters": [],
+          "returnType": "Task"
+        },
+        {
+          "access": "private",
+          "description": "Coordinates run.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/SiteRescue.razor",
+          "kind": "method",
+          "line": 258,
+          "modifiers": [],
+          "name": "Run",
+          "parameters": [
+            "async ("
+          ],
+          "returnType": "await"
+        },
+        {
+          "access": "private",
+          "description": "Removes or transitions probe.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/SiteRescue.razor",
+          "kind": "method",
+          "line": 281,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "DeleteProbe",
+          "parameters": [
+            "long id"
+          ],
+          "returnType": "Task"
+        },
+        {
+          "access": "private",
+          "description": "Coordinates scan.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/SiteRescue.razor",
+          "kind": "method",
+          "line": 292,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "Scan",
+          "parameters": [],
+          "returnType": "Task"
+        },
+        {
+          "access": "private",
+          "description": "Coordinates run.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/SiteRescue.razor",
+          "kind": "method",
+          "line": 298,
+          "modifiers": [],
+          "name": "Run",
+          "parameters": [
+            "async ("
+          ],
+          "returnType": "await"
+        },
+        {
+          "access": "private",
+          "description": "Creates batch.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/SiteRescue.razor",
+          "kind": "method",
+          "line": 306,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "GenerateBatch",
+          "parameters": [],
+          "returnType": "Task"
+        },
+        {
+          "access": "private",
+          "description": "Handles recheck.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/SiteRescue.razor",
+          "kind": "method",
+          "line": 314,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "Recheck",
+          "parameters": [
+            "long id"
+          ],
+          "returnType": "Task"
+        },
+        {
+          "access": "private",
+          "description": "Handles refresh contact.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/SiteRescue.razor",
+          "kind": "method",
+          "line": 320,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "RefreshContact",
+          "parameters": [
+            "long id"
+          ],
+          "returnType": "Task"
+        },
+        {
+          "access": "private",
+          "description": "Updates finding.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/SiteRescue.razor",
+          "kind": "method",
+          "line": 326,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "SaveFinding",
+          "parameters": [
+            "WebAssetFinding f"
+          ],
+          "returnType": "Task"
+        },
+        {
+          "access": "private",
+          "description": "Updates status.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/SiteRescue.razor",
+          "kind": "method",
+          "line": 339,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "SetStatus",
+          "parameters": [
+            "WebAssetFinding f",
+            "WebAssetStatus status"
+          ],
+          "returnType": "Task"
+        },
+        {
+          "access": "private",
+          "description": "Updates contacted.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/SiteRescue.razor",
+          "kind": "method",
+          "line": 349,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "MarkContacted",
+          "parameters": [
+            "WebAssetFinding f"
+          ],
+          "returnType": "Task"
+        },
+        {
+          "access": "private",
+          "description": "Handles email.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/SiteRescue.razor",
+          "kind": "method",
+          "line": 355,
+          "modifiers": [
+            "private",
+            "async"
+          ],
+          "name": "CopyEmail",
+          "parameters": [
+            "WebAssetFinding f"
+          ],
+          "returnType": "Task"
+        },
+        {
+          "access": "private",
+          "description": "Handles mailto link.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/SiteRescue.razor",
+          "kind": "method",
+          "line": 362,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "MailtoLink",
+          "parameters": [
+            "WebAssetFinding f"
+          ],
+          "returnType": "string"
+        },
+        {
+          "access": "private",
+          "description": "Handles severity class.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/SiteRescue.razor",
+          "kind": "method",
+          "line": 365,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "SeverityClass",
+          "parameters": [
+            "WebAssetSeverity s"
+          ],
+          "returnType": "string"
+        },
+        {
+          "access": "private",
+          "description": "Handles status class.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/SiteRescue.razor",
+          "kind": "method",
+          "line": 372,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "StatusClass",
+          "parameters": [
+            "WebAssetStatus s"
+          ],
+          "returnType": "string"
+        },
+        {
+          "access": "private",
+          "description": "Handles new probe template.",
+          "descriptionSource": "heuristic",
+          "file": "src/DevLeads.Web/Components/Pages/SiteRescue.razor",
+          "kind": "method",
+          "line": 381,
+          "modifiers": [
+            "private",
+            "static"
+          ],
+          "name": "NewProbeTemplate",
+          "parameters": [],
+          "returnType": "WebScanProbe"
+        }
+      ],
+      "modifiers": [
+        "partial"
+      ],
+      "name": "SiteRescue",
+      "namespace": "DevLeads.Web.Components.Pages",
+      "parameters": [],
+      "routes": [
+        "/siterescue"
+      ],
+      "summary": "Blazor component for site rescue."
     },
     {
       "access": "public",

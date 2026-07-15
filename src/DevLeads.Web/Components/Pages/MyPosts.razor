@@ -69,6 +69,7 @@
                     <option value="linkedin">LinkedIn — availability post</option>
                     <option value="upwork">Upwork — profile overview</option>
                     <option value="gmail">gmail — cold outreach email template</option>
+                    <option value="discord">Discord — server offer post (mentoring / services)</option>
                 </select>
             </div>
             <div class="rr-field">
@@ -103,7 +104,7 @@
             </div>
             <div class="rr-field">
                 <label>Community / board (optional)</label>
-                <input class="rr-input" @bind="_newCommunity" placeholder="e.g. boston / .NET Developers" />
+                <input class="rr-input" @bind="_newCommunity" placeholder="e.g. boston / C# Discord #promotions" />
             </div>
         </div>
         <div class="rr-field"><label>Title</label><input class="rr-input" @bind="_newTitle" /></div>
@@ -382,7 +383,7 @@
 </div>
 
 @code {
-    private static readonly string[] DefaultPlatforms = { "reddit", "upwork", "craigslist", "monster", "indeed", "linkedin", "gmail", "other" };
+    private static readonly string[] DefaultPlatforms = { "reddit", "upwork", "craigslist", "monster", "indeed", "linkedin", "gmail", "discord", "other" };
 
     /// <summary>Selectable platforms: the built-ins plus every activated platform profile.</summary>
     private List<string> Platforms = new(DefaultPlatforms);
