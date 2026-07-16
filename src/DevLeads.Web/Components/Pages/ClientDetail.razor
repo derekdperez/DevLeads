@@ -297,6 +297,22 @@ else
         if (status == EngagementStatus.Active && row.StartedAt is null) row.StartedAt = now;
         if (status is EngagementStatus.Delivered or EngagementStatus.Closed or EngagementStatus.Lost) row.ClosedAt = now;
         row.UpdatedAt = now;
+
+        // Delivered work is the raw material for the portfolio: queue the testimonial ask
+        // + case-study draft as a follow-up so it surfaces on Today (idempotent per engagement).
+        if (status is EngagementStatus.Delivered or EngagementStatus.Closed)
+        {
+            var note = $"🏆 Request a testimonial + draft a case study for \"{row.Title}\" (Portfolio page)";
+            if (!await db.FollowUps.AnyAsync(f => f.EngagementId == row.Id && f.Note == note))
+                db.FollowUps.Add(new FollowUp
+                {
+                    ClientId = row.ClientId,
+                    EngagementId = row.Id,
+                    Note = note,
+                    DueAt = now.AddDays(1),
+                    CreatedAt = now
+                });
+        }
         await TouchClientAndSave(db);
         await Load();
     }

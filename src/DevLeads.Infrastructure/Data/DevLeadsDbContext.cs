@@ -44,6 +44,7 @@ public class DevLeadsDbContext : DbContext
     public DbSet<WebScanProbe> WebScanProbes => Set<WebScanProbe>();
     public DbSet<WebAssetFinding> WebAssetFindings => Set<WebAssetFinding>();
     public DbSet<DiscordChannel> DiscordChannels => Set<DiscordChannel>();
+    public DbSet<CaseStudy> CaseStudies => Set<CaseStudy>();
 
     // SQLite stores DateTimeOffset as TEXT and cannot order/compare it. Convert every
     // DateTimeOffset to sortable UTC ticks (long) so ORDER BY and range filters translate.
@@ -87,6 +88,7 @@ public class DevLeadsDbContext : DbContext
         b.Properties<WebAssetSeverity>().HaveConversion<string>();
         b.Properties<WebAssetStatus>().HaveConversion<string>();
         b.Properties<WebAssetDetection>().HaveConversion<string>();
+        b.Properties<CaseStudyStatus>().HaveConversion<string>();
     }
 
     protected override void OnModelCreating(ModelBuilder mb)
@@ -110,6 +112,7 @@ public class DevLeadsDbContext : DbContext
         });
 
         mb.Entity<SourceConfig>().HasIndex(s => s.SourceKey).IsUnique();
+        mb.Entity<CaseStudy>().HasIndex(c => c.Slug).IsUnique();
         mb.Entity<Campaign>().HasIndex(c => c.Key).IsUnique();
         mb.Entity<TrendSource>().HasIndex(s => s.SeedKey).IsUnique();
         mb.Entity<TrendSignal>(e =>

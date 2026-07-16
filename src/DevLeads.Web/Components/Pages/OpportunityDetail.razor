@@ -150,6 +150,19 @@ else
                                 <span class="@UiHelpers.StatusClass(OppFromOutreach(a.Status))">@UiHelpers.Spaced(a.Status)</span>
                             </div>
                             <textarea class="rr-textarea" @bind="a.Body" style="min-height:90px"></textarea>
+                            @if (a.Status is OutreachStatus.Approved or OutreachStatus.PendingApproval or OutreachStatus.Failed)
+                            {
+                                <div style="display:flex;gap:.4rem;align-items:center;margin-top:.4rem">
+                                    <label style="white-space:nowrap;font-size:.85em;color:var(--muted)">Email to:</label>
+                                    <input class="rr-input" style="max-width:280px" placeholder="prospect@example.com (blank = manual send)"
+                                           @bind="a.RecipientEmail" />
+                                    <button class="rr-btn sm" @onclick="() => SetRecipient(a.Id, a.RecipientEmail)">Set</button>
+                                </div>
+                            }
+                            @if (a.Status == OutreachStatus.Failed && !string.IsNullOrEmpty(a.ErrorMessage))
+                            {
+                                <div style="color:var(--bad,#c33);font-size:.85em;margin-top:.3rem">Send failed: @a.ErrorMessage</div>
+                            }
                             <div class="rr-btn-row" style="margin-top:.5rem">
                                 <button class="rr-btn sm" @onclick="() => SaveDraft(a.Id, a.Body)">💾 Save edits</button>
                                 <button class="rr-btn sm" @onclick="() => CopyText(a.Body)">📋 Copy</button>
@@ -159,8 +172,14 @@ else
                                 }
                                 @if (a.Status is OutreachStatus.Approved or OutreachStatus.PendingApproval)
                                 {
-                                    <button class="rr-btn sm primary" @onclick="() => SendDraft(a.Id)">➤ Record sent</button>
+                                    <button class="rr-btn sm primary" @onclick="() => SendDraft(a.Id)">
+                                        @(a.Channel == OutreachChannel.Email && a.RecipientEmail.Length > 0 ? "📧 Send email" : "➤ Record sent")
+                                    </button>
                                     <button class="rr-btn sm danger" @onclick="() => CancelDraft(a.Id)">✖ Cancel</button>
+                                }
+                                @if (a.Status == OutreachStatus.Failed)
+                                {
+                                    <button class="rr-btn sm primary" @onclick="() => SendDraft(a.Id)">↻ Retry send</button>
                                 }
                             </div>
                         </div>
@@ -380,6 +399,10 @@ else
         var (sent, message) = await sp.GetRequiredService<OutreachService>().SendAsync(id, default);
         if (!sent) throw new InvalidOperationException(message);
     }, "Recorded as sent; follow-up scheduled.");
+
+    private Task SetRecipient(long id, string email) => RunScoped(sp =>
+        sp.GetRequiredService<OutreachService>().SetEmailRecipientAsync(id, email, default),
+        "Recipient updated.");
 
     private Task CancelDraft(long id) => RunScoped(sp => sp.GetRequiredService<OutreachService>().CancelAsync(id, default), "Draft cancelled.");
 

@@ -187,6 +187,8 @@ public enum OperatorMessageKind
     PostReply,
     /// <summary>A username mention.</summary>
     Mention,
+    /// <summary>An email received in the connected Gmail inbox.</summary>
+    Email,
     Other
 }
 
@@ -337,6 +339,17 @@ public enum WebAssetDetection
     Discovery
 }
 
+/// <summary>Lifecycle of a publishable case study.</summary>
+public enum CaseStudyStatus
+{
+    /// <summary>AI/operator draft — not shown anywhere public.</summary>
+    Draft,
+    /// <summary>Reviewed and factually correct, but not yet on the portfolio.</summary>
+    Approved,
+    /// <summary>Rendered onto the generated portfolio site.</summary>
+    Published
+}
+
 /// <summary>
 /// The distinct AI call sites in the app. Each can carry its own provider/model override
 /// in <see cref="Entities.OperatorSettings"/>; an unset override inherits the global
@@ -369,5 +382,7 @@ public enum AiFeature
     /// <summary>Batched repair-offer email drafting for discovered broken web assets (Site rescue).</summary>
     WebAssetOutreach,
     /// <summary>Batched Discord reply drafting for replies, mentions, and pasted DMs.</summary>
-    DiscordEngagement
+    DiscordEngagement,
+    /// <summary>Case-study + testimonial-request drafting from delivered work (portfolio).</summary>
+    CaseStudy
 }

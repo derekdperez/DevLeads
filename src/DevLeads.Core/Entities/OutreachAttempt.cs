@@ -13,6 +13,12 @@ public class OutreachAttempt
     public string Body { get; set; } = "";
     public string TemplateKey { get; set; } = "";
 
+    /// <summary>Destination address when Channel is Email; empty for public replies and manual copy.</summary>
+    public string RecipientEmail { get; set; } = "";
+
+    /// <summary>RFC Message-Id of the delivered email, used to correlate inbound replies.</summary>
+    public string SentMessageId { get; set; } = "";
+
     public OutreachStatus Status { get; set; } = OutreachStatus.Draft;
     public bool RequiresApproval { get; set; } = true;
 

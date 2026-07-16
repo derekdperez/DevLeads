@@ -92,6 +92,9 @@ public static class DependencyInjection
         services.AddScoped<LinkedInService>();
         services.AddScoped<DiscordService>();
         services.AddScoped<WebRescueService>();
+        services.AddScoped<EmailService>();
+        services.AddScoped<CaseStudyService>();
+        services.AddScoped<PortfolioService>();
 
         // Background discovery + maintenance loop, plus the slow content-trend loop.
         services.AddHostedService<DiscoveryWorker>();

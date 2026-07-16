@@ -39,6 +39,8 @@ public static class OutreachPrompts
         sb.AppendLine("- First person, direct, calm senior-engineer tone. No hype words, no \"I hope this finds you well\".");
         sb.AppendLine("- End with one concrete next step (a question to scope the work, or an offer to start and when).");
         sb.AppendLine("- Do not mention AI, and do not reveal how the post was found.");
+        if (!string.IsNullOrWhiteSpace(op.BookingLink))
+            sb.AppendLine($"- When a call is the natural next step, you may offer this scheduling link once, casually: {op.BookingLink.Trim()} — never lead with it, and skip it where a written reply is enough.");
         sb.AppendLine();
         foreach (var item in items)
         {

@@ -183,8 +183,12 @@ else
                     <button class="rr-btn" @onclick="() => SaveFinding(f)" disabled="@_busy">💾 Save</button>
                     @if (f.OutreachBody.Length > 0)
                     {
+                        @if (f.ContactEmail.Length > 0)
+                        {
+                            <button class="rr-btn primary" @onclick="() => SendEmail(f.Id)" disabled="@_busy">📧 Send email</button>
+                        }
                         <button class="rr-btn" @onclick="() => CopyEmail(f)">📋 Copy email</button>
-                        <a class="rr-btn primary" href="@MailtoLink(f)" @onclick="() => MarkContacted(f)">✉️ Open in mail & mark contacted</a>
+                        <a class="rr-btn" href="@MailtoLink(f)" @onclick="() => MarkContacted(f)">✉️ Open in mail & mark contacted</a>
                     }
                     @if (f.Status != WebAssetStatus.Won)
                     {
@@ -322,6 +326,12 @@ else
     {
         using var scope = ScopeFactory.CreateScope();
         return await scope.ServiceProvider.GetRequiredService<WebRescueService>().RefreshContactAsync(id, default);
+    });
+
+    private async Task SendEmail(long id) => await Run(async () =>
+    {
+        using var scope = ScopeFactory.CreateScope();
+        return await scope.ServiceProvider.GetRequiredService<WebRescueService>().SendOutreachEmailAsync(id, default);
     });
 
     private async Task SaveFinding(WebAssetFinding f) => await Run(async () =>

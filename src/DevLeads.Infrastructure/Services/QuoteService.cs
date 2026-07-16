@@ -64,6 +64,24 @@ public sealed class QuoteService
         q.PaidAt = DateTimeOffset.UtcNow;
         if (q.Opportunity is { } opp) opp.Status = OpportunityStatus.Paid;
         _audit.Record("Quote", q.Id, "Paid", $"Payment received: ${q.Amount}", "operator");
+
+        // Paid work is portfolio material: when the lead was promoted to a client, queue
+        // the testimonial ask + case-study draft as a follow-up (idempotent per quote).
+        var client = await _db.Clients.FirstOrDefaultAsync(
+            c => c.SourceOpportunityId == q.OpportunityId, ct);
+        if (client is not null)
+        {
+            var note = $"🏆 Request a testimonial + draft a case study for \"{q.Opportunity?.Title ?? "the paid fix"}\" (Portfolio page)";
+            var now = DateTimeOffset.UtcNow;
+            if (!await _db.FollowUps.AnyAsync(f => f.ClientId == client.Id && f.Note == note, ct))
+                _db.FollowUps.Add(new FollowUp
+                {
+                    ClientId = client.Id,
+                    Note = note,
+                    DueAt = now.AddDays(1),
+                    CreatedAt = now
+                });
+        }
         await _db.SaveChangesAsync(ct);
     }
 

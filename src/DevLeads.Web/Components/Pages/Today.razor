@@ -12,11 +12,33 @@
         <button class="rr-btn primary" @onclick="RegenerateBriefing" disabled="@_busy">
             @(_busy ? "Writing…" : "🧠 Regenerate briefing (1 AI call)")
         </button>
+        <button class="rr-btn" @onclick="() => _showCallForm = !_showCallForm">📅 Log booked call</button>
         <button class="rr-btn" @onclick="Load" disabled="@_busy">🔄 Refresh</button>
     </div>
 </div>
 
 @if (_flash is not null) { <div class="rr-flash @(_flashOk ? "ok" : "err")">@_flash</div> }
+
+@if (_showCallForm)
+{
+    <div class="rr-panel">
+        <h2>Log a booked call</h2>
+        <div class="rr-sub" style="margin-bottom:.6rem">
+            Someone booked a call (through your scheduling link or otherwise). This finds or
+            creates the client, logs the booking, and puts the call on this agenda.
+        </div>
+        <div class="rr-grid-2">
+            <div class="rr-field"><label>Name</label><input class="rr-input" @bind="_callName" placeholder="Who booked" /></div>
+            <div class="rr-field"><label>Email (optional — used to match an existing client)</label><input class="rr-input" @bind="_callEmail" /></div>
+            <div class="rr-field"><label>When</label><input class="rr-input" type="datetime-local" @bind="_callAt" /></div>
+            <div class="rr-field"><label>Topic (optional)</label><input class="rr-input" @bind="_callTopic" placeholder="intro call, mentoring session…" /></div>
+        </div>
+        <div class="rr-btn-row">
+            <button class="rr-btn primary" @onclick="LogCall" disabled="@_busy">💾 Log call</button>
+            <button class="rr-btn" @onclick="() => _showCallForm = false">Cancel</button>
+        </div>
+    </div>
+}
 
 @if (_agenda is null)
 {
@@ -175,6 +197,32 @@ else
     private AdvisorBriefing? _briefing;
     private bool _busy;
     private string? _flash; private bool _flashOk = true;
+
+    private bool _showCallForm;
+    private string _callName = "";
+    private string _callEmail = "";
+    private string _callTopic = "";
+    private DateTime _callAt = DateTime.Now.AddDays(1).Date.AddHours(10);
+
+    private async Task LogCall()
+    {
+        _busy = true; _flash = null;
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var (ok, message) = await scope.ServiceProvider.GetRequiredService<ClientService>()
+                .LogBookedCallAsync(null, _callName, _callEmail, new DateTimeOffset(_callAt), _callTopic, default);
+            _flash = message; _flashOk = ok;
+            if (ok)
+            {
+                _showCallForm = false;
+                _callName = _callEmail = _callTopic = "";
+                await Load();
+            }
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
 
     protected override async Task OnInitializedAsync() => await Load();
 

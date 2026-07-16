@@ -55,6 +55,12 @@ public class WebAssetFinding
     public string OutreachModel { get; set; } = "";
     public DateTimeOffset? OutreachGeneratedAt { get; set; }
 
+    /// <summary>When the repair-offer email was actually delivered through the app.</summary>
+    public DateTimeOffset? OutreachSentAt { get; set; }
+
+    /// <summary>RFC Message-Id of the delivered repair-offer email, used to correlate replies.</summary>
+    public string OutreachMessageId { get; set; } = "";
+
     public string Notes { get; set; } = "";
 
     public DateTimeOffset FirstSeenAt { get; set; }

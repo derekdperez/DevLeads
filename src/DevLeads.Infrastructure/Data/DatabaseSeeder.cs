@@ -111,6 +111,11 @@ public static class DatabaseSeeder
         {
             if (settings.OperatorName == "Senior Engineer") settings.OperatorName = "Derek Perez";
             if (settings.Location == "Massachusetts") settings.Location = "Florence, Massachusetts (Western MA)";
+
+            // The /api group requires this key (2026-07-15); generate one on first boot.
+            if (settings.ApiKey.Length == 0)
+                settings.ApiKey = Convert.ToHexString(
+                    System.Security.Cryptography.RandomNumberGenerator.GetBytes(32));
         }
 
         await db.SaveChangesAsync(ct);
@@ -640,7 +645,64 @@ public static class DatabaseSeeder
                 "UpdatedAt" INTEGER NOT NULL
             )
             """,
-            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_DiscordChannels_ChannelId\" ON \"DiscordChannels\" (\"ChannelId\")"
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_DiscordChannels_ChannelId\" ON \"DiscordChannels\" (\"ChannelId\")",
+            // Real email delivery via Gmail app password (2026-07-15): SMTP sending for
+            // approved outreach + Site rescue repair offers, IMAP reply ingestion.
+            "ALTER TABLE OperatorSettings ADD COLUMN GmailAddress TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN GmailAppPassword TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN EmailSenderName TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN EmailSignature TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN EmailSendEnabled INTEGER NOT NULL DEFAULT 0",
+            "ALTER TABLE OperatorSettings ADD COLUMN EmailInboxPollEnabled INTEGER NOT NULL DEFAULT 0",
+            "ALTER TABLE OperatorSettings ADD COLUMN EmailInboxPollMinutes INTEGER NOT NULL DEFAULT 10",
+            "ALTER TABLE OutreachAttempts ADD COLUMN RecipientEmail TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OutreachAttempts ADD COLUMN SentMessageId TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE WebAssetFindings ADD COLUMN OutreachSentAt INTEGER NULL",
+            "ALTER TABLE WebAssetFindings ADD COLUMN OutreachMessageId TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorMessages ADD COLUMN OpportunityId INTEGER NULL",
+            "ALTER TABLE OperatorMessages ADD COLUMN WebAssetFindingId INTEGER NULL",
+            // API-key hardening (2026-07-15): the /api group requires X-Api-Key.
+            "ALTER TABLE OperatorSettings ADD COLUMN ApiKey TEXT NOT NULL DEFAULT ''",
+            // Booking link (2026-07-15): cal.com-style scheduling link offered in outreach.
+            "ALTER TABLE OperatorSettings ADD COLUMN BookingLink TEXT NOT NULL DEFAULT ''",
+            // Portfolio site + case studies (2026-07-15).
+            "ALTER TABLE OperatorSettings ADD COLUMN Headline TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN Bio TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN ServicesBlurb TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN PortfolioRepoUrl TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN PortfolioBranch TEXT NOT NULL DEFAULT 'main'",
+            "ALTER TABLE OperatorSettings ADD COLUMN PortfolioCname TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN PortfolioOutputDir TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN LastPortfolioDeployAt INTEGER NULL",
+            "ALTER TABLE OperatorSettings ADD COLUMN LastPortfolioDeployStatus TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN CaseStudyAiProvider TEXT NOT NULL DEFAULT ''",
+            "ALTER TABLE OperatorSettings ADD COLUMN CaseStudyAiModel TEXT NOT NULL DEFAULT ''",
+            """
+            CREATE TABLE IF NOT EXISTS "CaseStudies" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_CaseStudies" PRIMARY KEY AUTOINCREMENT,
+                "Title" TEXT NOT NULL,
+                "Slug" TEXT NOT NULL,
+                "ProblemSummary" TEXT NOT NULL,
+                "SolutionSummary" TEXT NOT NULL,
+                "OutcomeSummary" TEXT NOT NULL,
+                "Technologies" TEXT NOT NULL,
+                "TestimonialQuote" TEXT NOT NULL,
+                "TestimonialAttribution" TEXT NOT NULL,
+                "TestimonialRequestDraft" TEXT NOT NULL,
+                "ClientConsent" INTEGER NOT NULL,
+                "Anonymized" INTEGER NOT NULL,
+                "Status" TEXT NOT NULL,
+                "OpportunityId" INTEGER NULL,
+                "EngagementId" INTEGER NULL,
+                "WorkSessionId" INTEGER NULL,
+                "Provider" TEXT NOT NULL,
+                "Model" TEXT NOT NULL,
+                "GeneratedAt" INTEGER NULL,
+                "CreatedAt" INTEGER NOT NULL,
+                "UpdatedAt" INTEGER NOT NULL
+            )
+            """,
+            "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_CaseStudies_Slug\" ON \"CaseStudies\" (\"Slug\")"
         };
         foreach (var sql in upgrades)
         {

@@ -22,14 +22,16 @@ public sealed class OutreachService
     private readonly AuditService _audit;
     private readonly AiTextRouter _text;
     private readonly DiscoveryActivityTracker _activity;
+    private readonly EmailService _email;
 
     public OutreachService(DevLeadsDbContext db, AuditService audit,
-        AiTextRouter text, DiscoveryActivityTracker activity)
+        AiTextRouter text, DiscoveryActivityTracker activity, EmailService email)
     {
         _db = db;
         _audit = audit;
         _text = text;
         _activity = activity;
+        _email = email;
     }
 
     /// <summary>Placeholder body shown while an attempt waits in the generation queue.</summary>
@@ -255,12 +257,38 @@ public sealed class OutreachService
 
         if (settings.GlobalKillSwitch)
             return (false, "Global kill switch is ON — no outbound messages.");
-        if (a.RequiresApproval && a.Status != OutreachStatus.Approved)
+        // A Failed attempt with an ApprovedAt stamp was already human-approved; retrying
+        // the delivery does not need a second approval.
+        var approved = a.Status == OutreachStatus.Approved ||
+                       (a.Status == OutreachStatus.Failed && a.ApprovedAt is not null);
+        if (a.RequiresApproval && !approved)
             return (false, "Outreach must be approved before sending.");
 
         var contact = a.Opportunity?.AuthorProfileUrl ?? a.Opportunity?.AuthorName;
         if (settings.SuppressionListEnabled && contact is not null && await IsSuppressedAsync(contact, ct))
             return (false, "Contact is on the suppression list.");
+
+        // Real delivery when the attempt targets an email address and sending is enabled;
+        // every other channel stays a manual-send record, exactly as before.
+        var deliveredNote = "";
+        if (a.Channel == OutreachChannel.Email && a.RecipientEmail.Length > 0 && settings.EmailSendEnabled)
+        {
+            var subject = string.IsNullOrWhiteSpace(a.Subject)
+                ? "Following up on your post" : a.Subject!;
+            var (ok, messageId, error) = await _email.SendAsync(a.RecipientEmail, subject, a.Body, ct);
+            if (!ok)
+            {
+                a.Status = OutreachStatus.Failed;
+                a.ErrorMessage = error;
+                _audit.Record("OutreachAttempt", a.Id, "SendFailed", error, "operator",
+                    new { a.Channel, a.RecipientEmail });
+                await _db.SaveChangesAsync(ct);
+                return (false, error);
+            }
+            a.SentMessageId = messageId;
+            a.ErrorMessage = null;
+            deliveredNote = $" Email delivered to {a.RecipientEmail}.";
+        }
 
         a.Status = OutreachStatus.Sent;
         a.SentAt = DateTimeOffset.UtcNow;
@@ -272,7 +300,22 @@ public sealed class OutreachService
         _audit.Record("OutreachAttempt", a.Id, "Sent", $"Outreach recorded as sent ({a.Channel})", "operator",
             new { a.Channel, a.Mode });
         await _db.SaveChangesAsync(ct);
-        return (true, "Recorded as sent. Follow-up scheduled.");
+        return (true, $"Recorded as sent.{deliveredNote} Follow-up scheduled.");
+    }
+
+    /// <summary>
+    /// Targets an attempt at a real email address so Send actually delivers it
+    /// (most leads have no address — public replies stay the default).
+    /// </summary>
+    public async Task SetEmailRecipientAsync(long attemptId, string email, CancellationToken ct)
+    {
+        var a = await Get(attemptId, ct);
+        a.RecipientEmail = email.Trim();
+        a.Channel = a.RecipientEmail.Length > 0 ? OutreachChannel.Email : OutreachChannel.ManualCopy;
+        _audit.Record("OutreachAttempt", a.Id, "RecipientSet",
+            a.RecipientEmail.Length > 0 ? $"Email recipient set: {a.RecipientEmail}" : "Email recipient cleared",
+            "operator");
+        await _db.SaveChangesAsync(ct);
     }
 
     public async Task CancelAsync(long attemptId, CancellationToken ct)

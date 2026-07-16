@@ -1,0 +1,233 @@
+@page "/portfolio"
+@rendermode InteractiveServer
+@using DevLeads.Core
+@using DevLeads.Core.Entities
+@using DevLeads.Infrastructure.Data
+@using DevLeads.Infrastructure.Services
+@using Microsoft.EntityFrameworkCore
+@inject IDbContextFactory<DevLeadsDbContext> DbFactory
+@inject IServiceScopeFactory ScopeFactory
+<PageTitle>Portfolio · DevLeads</PageTitle>
+
+<div class="rr-page-head">
+    <div>
+        <h1>Portfolio</h1>
+        <div class="rr-sub">Your public site: bio, skills, case studies from delivered work, and published writing — generated as static HTML and deployed to GitHub Pages.</div>
+    </div>
+    <div class="rr-btn-row">
+        <button class="rr-btn" @onclick="Generate" disabled="@_busy">🛠 Generate site</button>
+        <button class="rr-btn primary" @onclick="Deploy" disabled="@_busy">🚀 Deploy</button>
+    </div>
+</div>
+
+@if (_flash is not null) { <div class="rr-flash @(_flashOk ? "ok" : "err")">@_flash</div> }
+
+@if (_s is null)
+{
+    <div class="rr-empty">Loading…</div>
+}
+else
+{
+    <div class="rr-panel">
+        <h2>Site content &amp; deployment</h2>
+        <div class="rr-field"><label>Headline (one line under your name)</label><input class="rr-input" placeholder="Senior software consultant — emergency fixes & .NET modernization" @bind="_s.Headline" /></div>
+        <div class="rr-field"><label>Bio</label><textarea class="rr-textarea" style="min-height:80px" @bind="_s.Bio"></textarea></div>
+        <div class="rr-field"><label>Services blurb (what you sell, plainly)</label><textarea class="rr-textarea" style="min-height:60px" @bind="_s.ServicesBlurb"></textarea></div>
+        <div class="rr-grid-2">
+            <div class="rr-field"><label>GitHub Pages repo URL</label><input class="rr-input" placeholder="git@github.com:you/you.github.io.git" @bind="_s.PortfolioRepoUrl" /></div>
+            <div class="rr-field"><label>Branch</label><input class="rr-input" @bind="_s.PortfolioBranch" /></div>
+            <div class="rr-field"><label>Custom domain (CNAME, optional)</label><input class="rr-input" placeholder="derekperez.dev" @bind="_s.PortfolioCname" /></div>
+            <div class="rr-field"><label>Output directory (blank = App_Data/portfolio-site)</label><input class="rr-input" @bind="_s.PortfolioOutputDir" /></div>
+        </div>
+        <div class="rr-btn-row">
+            <button class="rr-btn primary" @onclick="SaveSettings" disabled="@_busy">💾 Save</button>
+        </div>
+        @if (_s.LastPortfolioDeployAt is { } deployedAt)
+        {
+            <div class="rr-sub" style="margin-top:.5rem">Last deploy: @deployedAt.ToLocalTime().ToString("g") — @_s.LastPortfolioDeployStatus</div>
+        }
+    </div>
+
+    <div class="rr-panel">
+        <h2>Case studies</h2>
+        <div class="rr-sub" style="margin-bottom:.6rem">
+            Drafted by AI from a delivered engagement's real record (1 call, includes the testimonial ask).
+            Only <strong>Published</strong> studies appear on the site. Name a client only with their consent;
+            anonymized studies never identify them.
+        </div>
+        <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-bottom:.8rem">
+            <select class="rr-select" style="max-width:340px" @bind="_engagementId">
+                <option value="0">— pick a delivered/closed engagement —</option>
+                @foreach (var e in _engagements)
+                {
+                    <option value="@e.Id">#@e.Id · @e.Title (@e.Status)</option>
+                }
+            </select>
+            <label class="rr-check" style="margin:0"><input type="checkbox" @bind="_draftAnonymized" /> anonymized</label>
+            <button class="rr-btn" @onclick="GenerateStudy" disabled="@(_busy || _engagementId == 0)">🧠 Draft case study (1 AI call)</button>
+        </div>
+
+        @if (_studies.Count == 0)
+        {
+            <div class="rr-empty">No case studies yet. Deliver work, then draft the story here.</div>
+        }
+        else
+        {
+            @foreach (var cs in _studies)
+            {
+                <div style="border:1px solid var(--line);border-radius:8px;padding:.8rem;margin-bottom:.7rem">
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap">
+                        <input class="rr-input" style="max-width:420px;font-weight:600" @bind="cs.Title" />
+                        <span class="rr-chip">@cs.Status</span>
+                    </div>
+                    <div class="rr-grid-2" style="margin-top:.5rem">
+                        <div class="rr-field"><label>Problem</label><textarea class="rr-textarea" @bind="cs.ProblemSummary"></textarea></div>
+                        <div class="rr-field"><label>What I did</label><textarea class="rr-textarea" @bind="cs.SolutionSummary"></textarea></div>
+                        <div class="rr-field"><label>Outcome</label><textarea class="rr-textarea" @bind="cs.OutcomeSummary"></textarea></div>
+                        <div class="rr-field"><label>Technologies (comma-separated)</label><input class="rr-input" @bind="cs.Technologies" /></div>
+                    </div>
+                    @if (cs.TestimonialRequestDraft.Length > 0)
+                    {
+                        <div class="rr-field"><label>Testimonial request (send this to the client yourself)</label><textarea class="rr-textarea" style="min-height:60px" @bind="cs.TestimonialRequestDraft"></textarea></div>
+                    }
+                    <div class="rr-grid-2">
+                        <div class="rr-field"><label>Testimonial quote (paste the client's reply)</label><textarea class="rr-textarea" style="min-height:50px" @bind="cs.TestimonialQuote"></textarea></div>
+                        <div class="rr-field"><label>Attribution (e.g. "Jane D., Acme Co.")</label><input class="rr-input" @bind="cs.TestimonialAttribution" /></div>
+                    </div>
+                    <label class="rr-check"><input type="checkbox" @bind="cs.ClientConsent" /> Client consented to being quoted publicly</label>
+                    <label class="rr-check"><input type="checkbox" @bind="cs.Anonymized" /> Anonymized (never identify the client)</label>
+                    <div class="rr-btn-row" style="margin-top:.5rem">
+                        <button class="rr-btn sm" @onclick="() => SaveStudy(cs)" disabled="@_busy">💾 Save</button>
+                        @if (cs.Status == CaseStudyStatus.Draft)
+                        {
+                            <button class="rr-btn sm good" @onclick="() => SetStatus(cs, CaseStudyStatus.Approved)" disabled="@_busy">✔ Approve</button>
+                        }
+                        @if (cs.Status != CaseStudyStatus.Published)
+                        {
+                            <button class="rr-btn sm primary" @onclick="() => SetStatus(cs, CaseStudyStatus.Published)" disabled="@_busy">🌐 Publish</button>
+                        }
+                        else
+                        {
+                            <button class="rr-btn sm" @onclick="() => SetStatus(cs, CaseStudyStatus.Approved)" disabled="@_busy">Unpublish</button>
+                        }
+                        <button class="rr-btn sm danger" @onclick="() => DeleteStudy(cs)" disabled="@_busy">🗑 Delete</button>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+}
+
+@code {
+    private OperatorSettings? _s;
+    private List<CaseStudy> _studies = new();
+    private List<Engagement> _engagements = new();
+    private long _engagementId;
+    private bool _draftAnonymized = true;
+    private bool _busy;
+    private string? _flash; private bool _flashOk = true;
+
+    protected override async Task OnInitializedAsync() => await Load();
+
+    private async Task Load()
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        _s = await db.OperatorSettings.AsNoTracking().FirstOrDefaultAsync() ?? new OperatorSettings();
+        _studies = await db.CaseStudies.AsNoTracking().OrderByDescending(c => c.UpdatedAt).ToListAsync();
+        _engagements = await db.Engagements.AsNoTracking()
+            .Where(e => e.Status == EngagementStatus.Delivered || e.Status == EngagementStatus.Closed)
+            .OrderByDescending(e => e.ClosedAt).Take(50).ToListAsync();
+    }
+
+    private async Task SaveSettings()
+    {
+        if (_s is null) return;
+        await Run(async () =>
+        {
+            await using var db = await DbFactory.CreateDbContextAsync();
+            var row = await db.OperatorSettings.FirstOrDefaultAsync();
+            if (row is null) return (false, "Settings row missing.");
+            row.Headline = _s.Headline.Trim(); row.Bio = _s.Bio.Trim();
+            row.ServicesBlurb = _s.ServicesBlurb.Trim();
+            row.PortfolioRepoUrl = _s.PortfolioRepoUrl.Trim();
+            row.PortfolioBranch = _s.PortfolioBranch.Trim();
+            row.PortfolioCname = _s.PortfolioCname.Trim();
+            row.PortfolioOutputDir = _s.PortfolioOutputDir.Trim();
+            await db.SaveChangesAsync();
+            return (true, "Saved.");
+        });
+    }
+
+    private async Task Generate() => await Run(async () =>
+    {
+        using var scope = ScopeFactory.CreateScope();
+        var (ok, dir, _, message) = await scope.ServiceProvider.GetRequiredService<PortfolioService>().GenerateAsync(default);
+        return (ok, ok ? $"{message} Output: {dir}" : message);
+    });
+
+    private async Task Deploy() => await Run(async () =>
+    {
+        using var scope = ScopeFactory.CreateScope();
+        // Always render fresh before pushing so the repo matches the database.
+        var portfolio = scope.ServiceProvider.GetRequiredService<PortfolioService>();
+        var (genOk, _, _, genMessage) = await portfolio.GenerateAsync(default);
+        if (!genOk) return (false, genMessage);
+        return await portfolio.DeployAsync(default);
+    });
+
+    private async Task GenerateStudy() => await Run(async () =>
+    {
+        using var scope = ScopeFactory.CreateScope();
+        var (study, message) = await scope.ServiceProvider.GetRequiredService<CaseStudyService>()
+            .GenerateDraftAsync(_engagementId, _draftAnonymized, default);
+        return (study is not null, message);
+    });
+
+    private async Task SaveStudy(CaseStudy cs) => await Run(async () =>
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var row = await db.CaseStudies.FirstOrDefaultAsync(x => x.Id == cs.Id);
+        if (row is null) return (false, "Case study no longer exists.");
+        row.Title = cs.Title.Trim();
+        row.ProblemSummary = cs.ProblemSummary.Trim();
+        row.SolutionSummary = cs.SolutionSummary.Trim();
+        row.OutcomeSummary = cs.OutcomeSummary.Trim();
+        row.Technologies = cs.Technologies.Trim();
+        row.TestimonialRequestDraft = cs.TestimonialRequestDraft.Trim();
+        row.TestimonialQuote = cs.TestimonialQuote.Trim();
+        row.TestimonialAttribution = cs.TestimonialAttribution.Trim();
+        row.ClientConsent = cs.ClientConsent;
+        row.Anonymized = cs.Anonymized;
+        row.UpdatedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync();
+        return (true, "Saved.");
+    });
+
+    private async Task SetStatus(CaseStudy cs, CaseStudyStatus status) => await Run(async () =>
+    {
+        using var scope = ScopeFactory.CreateScope();
+        await scope.ServiceProvider.GetRequiredService<CaseStudyService>().SetStatusAsync(cs.Id, status, default);
+        return (true, $"Marked {status}.");
+    });
+
+    private async Task DeleteStudy(CaseStudy cs) => await Run(async () =>
+    {
+        await using var db = await DbFactory.CreateDbContextAsync();
+        var row = await db.CaseStudies.FirstOrDefaultAsync(x => x.Id == cs.Id);
+        if (row is not null) { db.CaseStudies.Remove(row); await db.SaveChangesAsync(); }
+        return (true, "Deleted.");
+    });
+
+    private async Task Run(Func<Task<(bool Ok, string Message)>> action)
+    {
+        _busy = true; _flash = null; StateHasChanged();
+        try
+        {
+            var (ok, message) = await action();
+            _flash = message; _flashOk = ok;
+            await Load();
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+}

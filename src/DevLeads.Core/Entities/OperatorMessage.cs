@@ -37,6 +37,14 @@ public class OperatorMessage
     public long? OperatorPostId { get; set; }
     public OperatorPost? Post { get; set; }
 
+    // Email-reply correlation targets. Plain scalar ids (no navigations) so the ALTER TABLE
+    // upgrade on existing databases matches what EnsureCreated emits on fresh ones.
+    /// <summary>Opportunity whose outreach email this message replies to, when correlated.</summary>
+    public long? OpportunityId { get; set; }
+
+    /// <summary>Site-rescue finding whose repair-offer email this message replies to, when correlated.</summary>
+    public long? WebAssetFindingId { get; set; }
+
     /// <summary>Operator notes: who this is, outcome, follow-up plan.</summary>
     public string Notes { get; set; } = "";
 

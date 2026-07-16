@@ -11,7 +11,9 @@ public static class ApiEndpoints
     public static void MapDevLeadsApi(this WebApplication app)
     {
         // Internal automation API: JSON in/out, no browser antiforgery token required.
-        var api = app.MapGroup("/api").DisableAntiforgery();
+        // Every route requires the operator API key (see ApiKeyEndpointFilter for the
+        // browser-reachable exemptions).
+        var api = app.MapGroup("/api").DisableAntiforgery().AddEndpointFilter<ApiKeyEndpointFilter>();
 
         // ---- Campaigns ----
         api.MapGet("/campaigns", async (DevLeadsDbContext db) =>

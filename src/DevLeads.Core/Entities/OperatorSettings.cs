@@ -69,6 +69,8 @@ public class OperatorSettings
     public string WebAssetOutreachAiModel { get; set; } = "";
     public string DiscordEngagementAiProvider { get; set; } = "";
     public string DiscordEngagementAiModel { get; set; } = "";
+    public string CaseStudyAiProvider { get; set; } = "";
+    public string CaseStudyAiModel { get; set; } = "";
 
     /// <summary>The provider/model pair a feature actually uses, after override resolution.</summary>
     public (string Provider, string Model) AiFor(AiFeature feature)
@@ -88,6 +90,7 @@ public class OperatorSettings
             AiFeature.LinkedInProfile => (LinkedInProfileAiProvider, LinkedInProfileAiModel),
             AiFeature.WebAssetOutreach => (WebAssetOutreachAiProvider, WebAssetOutreachAiModel),
             AiFeature.DiscordEngagement => (DiscordEngagementAiProvider, DiscordEngagementAiModel),
+            AiFeature.CaseStudy => (CaseStudyAiProvider, CaseStudyAiModel),
             _ => ("", "")
         };
         var provider = string.IsNullOrWhiteSpace(p) ? AiProvider : p.Trim();
@@ -222,4 +225,60 @@ public class OperatorSettings
 
     public int StaleItemMaxAgeHours { get; set; } = 72;
     public int FollowUpDefaultHours { get; set; } = 24;
+
+    // Email (Gmail app password over SMTP/IMAP). Blank credentials disable the feature.
+    /// <summary>Gmail address used to send/receive; blank falls back to ContactEmail.</summary>
+    public string GmailAddress { get; set; } = "";
+
+    /// <summary>Gmail app password (myaccount.google.com/apppasswords; requires 2FA). Spaces are stripped on use.</summary>
+    public string GmailAppPassword { get; set; } = "";
+
+    /// <summary>From display name; blank falls back to OperatorName.</summary>
+    public string EmailSenderName { get; set; } = "";
+
+    /// <summary>Appended to every outbound email. Must include a physical mailing address (CAN-SPAM).</summary>
+    public string EmailSignature { get; set; } = "";
+
+    /// <summary>Master enable for real SMTP sending; off = record-only behavior everywhere.</summary>
+    public bool EmailSendEnabled { get; set; }
+
+    /// <summary>Enables the IMAP inbox poll that imports replies into the unified inbox.</summary>
+    public bool EmailInboxPollEnabled { get; set; }
+    public int EmailInboxPollMinutes { get; set; } = 10;
+
+    /// <summary>
+    /// Required by every /api endpoint (X-Api-Key header or api_key query param), except
+    /// the browser-driven OAuth redirects and the public resume download. Generated on
+    /// first boot; regenerate from Settings.
+    /// </summary>
+    public string ApiKey { get; set; } = "";
+
+    /// <summary>
+    /// Public scheduling link (cal.com / Calendly). When set, outreach generation may
+    /// offer it, email signatures include it, and the portfolio links it. Blank = off.
+    /// </summary>
+    public string BookingLink { get; set; } = "";
+
+    // Portfolio site: a static site generated from operator data + published case studies
+    // + published content drafts, deployed to a GitHub Pages repo with plain git.
+    /// <summary>One-line professional headline shown at the top of the portfolio.</summary>
+    public string Headline { get; set; } = "";
+
+    /// <summary>Short third-or-first-person bio for the portfolio and reusable profiles.</summary>
+    public string Bio { get; set; } = "";
+
+    /// <summary>What the operator sells, in plain words — the portfolio "services" section.</summary>
+    public string ServicesBlurb { get; set; } = "";
+
+    /// <summary>Git remote the generated site is pushed to (e.g. git@github.com:user/user.github.io.git).</summary>
+    public string PortfolioRepoUrl { get; set; } = "";
+    public string PortfolioBranch { get; set; } = "main";
+
+    /// <summary>Custom domain written to CNAME when set.</summary>
+    public string PortfolioCname { get; set; } = "";
+
+    /// <summary>Where the site is rendered; blank = App_Data/portfolio-site. Never wwwroot.</summary>
+    public string PortfolioOutputDir { get; set; } = "";
+    public DateTimeOffset? LastPortfolioDeployAt { get; set; }
+    public string LastPortfolioDeployStatus { get; set; } = "";
 }

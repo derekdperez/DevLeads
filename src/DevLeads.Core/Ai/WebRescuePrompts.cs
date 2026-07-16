@@ -41,6 +41,8 @@ public static class WebRescuePrompts
         sb.AppendLine("- Subject: <=70 chars, concrete and calm (mention the site or the specific issue). Body: 60–130 words, plain text, first person.");
         sb.AppendLine("- End with one low-pressure next step (offer to take a look / a quick call) and give the reply email above. No markdown, no emojis, no placeholders like [name].");
         sb.AppendLine("- Do not mention AI or automated scanning.");
+        if (!string.IsNullOrWhiteSpace(op.BookingLink))
+            sb.AppendLine($"- You may offer this scheduling link once as the low-pressure next step, casually: {op.BookingLink.Trim()} — never lead with it.");
         if (!string.IsNullOrWhiteSpace(extraInstructions))
             sb.AppendLine("- Operator instructions: " + Compact(extraInstructions, 300));
         sb.AppendLine();

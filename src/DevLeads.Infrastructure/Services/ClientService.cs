@@ -82,6 +82,68 @@ public sealed class ClientService
         return (client, true, $"Client created: {client.Name}.");
     }
 
+    /// <summary>
+    /// Records a call someone booked (via the cal.com link or otherwise): finds or
+    /// creates the client, logs the booking as an interaction, and adds a follow-up at
+    /// call time so it surfaces on the Today agenda.
+    /// </summary>
+    public async Task<(bool Ok, string Message)> LogBookedCallAsync(
+        long? clientId, string name, string email, DateTimeOffset callAt, string topic, CancellationToken ct)
+    {
+        name = name.Trim(); email = email.Trim(); topic = topic.Trim();
+        var now = DateTimeOffset.UtcNow;
+
+        Client? client = null;
+        if (clientId is { } id)
+            client = await _db.Clients.FirstOrDefaultAsync(c => c.Id == id, ct);
+        if (client is null && email.Length > 0)
+            client = await _db.Clients.FirstOrDefaultAsync(c => c.Email == email, ct);
+        if (client is null && name.Length > 0)
+            client = await _db.Clients.FirstOrDefaultAsync(c => c.Name == name, ct);
+
+        if (client is null)
+        {
+            if (name.Length == 0) return (false, "A name (or an existing client) is required.");
+            client = new Client
+            {
+                Name = name,
+                Email = email,
+                Platform = "email",
+                Status = ClientStatus.Prospect,
+                Notes = "Created from a booked call.",
+                CreatedAt = now, UpdatedAt = now
+            };
+            _db.Clients.Add(client);
+        }
+        else if (client.Email.Length == 0 && email.Length > 0)
+        {
+            client.Email = email;
+        }
+        client.UpdatedAt = now;
+
+        var label = topic.Length > 0 ? topic : "intro call";
+        client.Interactions.Add(new ClientInteraction
+        {
+            Channel = "call",
+            Direction = InteractionDirection.Inbound,
+            OccurredAt = now,
+            Summary = $"Booked a call for {callAt.ToLocalTime():g}: {label}",
+            CreatedAt = now
+        });
+        client.FollowUps.Add(new FollowUp
+        {
+            Note = $"📞 Call with {client.Name}: {label}",
+            DueAt = callAt,
+            CreatedAt = now
+        });
+        await _db.SaveChangesAsync(ct);
+
+        _audit.Record("Client", client.Id, "CallBooked",
+            $"Call booked with {client.Name} for {callAt.ToLocalTime():g}: {label}", "operator");
+        await _db.SaveChangesAsync(ct);
+        return (true, $"Call with {client.Name} logged for {callAt.ToLocalTime():g} — it will show on Today.");
+    }
+
     private static string PlatformFromSource(Opportunity opp)
     {
         var host = LeadQualityRules.HostFromUrl(opp.SourceUrl) ?? "";

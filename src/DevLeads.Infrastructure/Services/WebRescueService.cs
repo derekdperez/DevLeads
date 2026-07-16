@@ -46,15 +46,17 @@ public sealed class WebRescueService
     private readonly IHttpClientFactory _httpFactory;
     private readonly AiTextRouter _text;
     private readonly AuditService _audit;
+    private readonly EmailService _email;
     private readonly ILogger<WebRescueService> _log;
 
     public WebRescueService(DevLeadsDbContext db, IHttpClientFactory httpFactory,
-        AiTextRouter text, AuditService audit, ILogger<WebRescueService> log)
+        AiTextRouter text, AuditService audit, EmailService email, ILogger<WebRescueService> log)
     {
         _db = db;
         _httpFactory = httpFactory;
         _text = text;
         _audit = audit;
+        _email = email;
         _log = log;
     }
 
@@ -226,6 +228,33 @@ public sealed class WebRescueService
             $"Drafted {generated} repair-offer email(s) via {provider}/{model}.", "operator");
         await _db.SaveChangesAsync(ct);
         return (generated, $"Drafted {generated} repair-offer email(s). Review each before sending.");
+    }
+
+    /// <summary>
+    /// Actually delivers one drafted repair-offer email through the connected Gmail
+    /// account. The operator's click is the approval; EmailService re-checks the kill
+    /// switch, suppression list, and send caps before anything leaves.
+    /// </summary>
+    public async Task<(bool Ok, string Message)> SendOutreachEmailAsync(long findingId, CancellationToken ct)
+    {
+        var finding = await _db.WebAssetFindings.FirstOrDefaultAsync(f => f.Id == findingId, ct);
+        if (finding is null) return (false, "Finding not found.");
+        if (finding.ContactEmail.Length == 0) return (false, "No contact email on this finding.");
+        if (string.IsNullOrWhiteSpace(finding.OutreachBody)) return (false, "No drafted email to send.");
+
+        var (ok, messageId, error) = await _email.SendAsync(
+            finding.ContactEmail, finding.OutreachSubject, finding.OutreachBody, ct);
+        if (!ok) return (false, error);
+
+        var now = DateTimeOffset.UtcNow;
+        finding.Status = WebAssetStatus.Contacted;
+        finding.OutreachSentAt = now;
+        finding.OutreachMessageId = messageId;
+        finding.UpdatedAt = now;
+        _audit.Record("WebAssetFinding", finding.Id, "OutreachEmailSent",
+            $"Repair offer emailed to {finding.ContactEmail}", "operator", new { messageId });
+        await _db.SaveChangesAsync(ct);
+        return (true, $"Sent to {finding.ContactEmail}.");
     }
 
     /// <summary>Re-runs contact discovery for one finding (when the first pass found nothing).</summary>

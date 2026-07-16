@@ -4,6 +4,7 @@
 @inject IServiceScopeFactory ScopeFactory
 @inject AiTriageRouter TriageRouter
 @inject DevLeads.Web.AppRestartService RestartService
+@inject IJSRuntime JS
 <PageTitle>Settings · DevLeads</PageTitle>
 
 <div class="rr-page-head">
@@ -26,6 +27,7 @@
             <div class="rr-field"><label>Location</label><input class="rr-input" @bind="_s.Location" /></div>
             <div class="rr-field"><label>Remote availability</label><input class="rr-input" @bind="_s.RemoteAvailability" /></div>
             <div class="rr-field"><label>Contact email (used in generated posts/outreach)</label><input class="rr-input" @bind="_s.ContactEmail" /></div>
+            <div class="rr-field"><label>Booking link (cal.com / Calendly — offered in outreach & signatures when set)</label><input class="rr-input" placeholder="https://cal.com/yourname/intro" @bind="_s.BookingLink" /></div>
             <div class="rr-field"><label>Reddit username (My posts sync)</label><input class="rr-input" @bind="_s.RedditUsername" /></div>
         </div>
         <div class="rr-sub" style="margin:.4rem 0">
@@ -164,6 +166,32 @@
     </div>
 
     <div class="rr-panel">
+        <h2>Email (Gmail)</h2>
+        <div class="rr-sub" style="margin-bottom:.6rem">
+            Sends approved outreach and Site-rescue repair offers through your Gmail account and
+            imports replies into the My-posts inbox. Uses an app password
+            (myaccount.google.com/apppasswords — requires 2-step verification), not your normal
+            password. Nothing ever sends without your click, and the kill switch always wins.
+        </div>
+        <div class="rr-grid-2">
+            <div class="rr-field"><label>Gmail address</label><input class="rr-input" placeholder="@_s.ContactEmail" @bind="_s.GmailAddress" /></div>
+            <div class="rr-field"><label>App password</label><input class="rr-input" type="password" @bind="_s.GmailAppPassword" /></div>
+            <div class="rr-field"><label>Sender display name</label><input class="rr-input" placeholder="@_s.OperatorName" @bind="_s.EmailSenderName" /></div>
+            <div class="rr-field"><label>Max sends / hour</label><input class="rr-input" type="number" @bind="_s.MaxSendsPerHour" /></div>
+        </div>
+        <div class="rr-field">
+            <label>Signature — appended to every email; include your physical mailing address (CAN-SPAM requires one on commercial email)</label>
+            <textarea class="rr-textarea" style="min-height:70px" @bind="_s.EmailSignature"></textarea>
+        </div>
+        <label class="rr-check"><input type="checkbox" @bind="_s.EmailSendEnabled" /> Email sending enabled</label>
+        <label class="rr-check"><input type="checkbox" @bind="_s.EmailInboxPollEnabled" /> Poll inbox for replies</label>
+        <div class="rr-grid-2">
+            <div class="rr-field"><label>Inbox poll interval (minutes)</label><input class="rr-input" type="number" @bind="_s.EmailInboxPollMinutes" /></div>
+        </div>
+        <button class="rr-btn" @onclick="TestEmail" disabled="@_busy">🔌 Save &amp; test connection</button>
+    </div>
+
+    <div class="rr-panel">
         <h2>Discovery &amp; scoring</h2>
         <label class="rr-check"><input type="checkbox" @bind="_s.DiscoveryEnabled" /> Automated discovery enabled</label>
         <div class="rr-grid-2">
@@ -171,6 +199,19 @@
             <div class="rr-field"><label>Alert score threshold</label><input class="rr-input" type="number" @bind="_s.AlertScoreThreshold" /></div>
             <div class="rr-field"><label>Stale item max age (hours)</label><input class="rr-input" type="number" @bind="_s.StaleItemMaxAgeHours" /></div>
             <div class="rr-field"><label>Follow-up default (hours)</label><input class="rr-input" type="number" @bind="_s.FollowUpDefaultHours" /></div>
+        </div>
+    </div>
+
+    <div class="rr-panel">
+        <h2>API access</h2>
+        <div class="rr-sub" style="margin-bottom:.6rem">
+            Every /api endpoint requires this key (X-Api-Key header or ?api_key= query param).
+            The OAuth redirects and the resume download stay public for browsers.
+        </div>
+        <div style="display:flex;gap:.4rem;align-items:center">
+            <input class="rr-input" style="max-width:460px;font-family:monospace" readonly value="@_s.ApiKey" />
+            <button class="rr-btn sm" @onclick="CopyApiKey">📋 Copy</button>
+            <button class="rr-btn sm" @onclick="RegenerateApiKey" disabled="@_busy">♻ Regenerate</button>
         </div>
     </div>
 
@@ -257,6 +298,50 @@
         finally { _busy = false; }
     }
 
+    private async Task CopyApiKey()
+    {
+        if (_s is null) return;
+        await JS.InvokeVoidAsync("navigator.clipboard.writeText", _s.ApiKey);
+        _flash = "API key copied to clipboard."; _flashOk = true;
+    }
+
+    private async Task RegenerateApiKey()
+    {
+        if (_s is null) return;
+        _busy = true; _flash = null;
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<DevLeadsDbContext>();
+            var row = await db.OperatorSettings.FirstOrDefaultAsync();
+            if (row is null) { _flash = "Settings row missing."; _flashOk = false; return; }
+            row.ApiKey = Convert.ToHexString(System.Security.Cryptography.RandomNumberGenerator.GetBytes(32));
+            scope.ServiceProvider.GetRequiredService<AuditService>()
+                .Record("OperatorSettings", row.Id, "ApiKeyRegenerated", "Operator regenerated the API key", "operator");
+            await db.SaveChangesAsync();
+            _s.ApiKey = row.ApiKey;
+            _flash = "API key regenerated — update anything that used the old key."; _flashOk = true;
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+
+    private async Task TestEmail()
+    {
+        await Save();
+        if (!_flashOk) return;
+        _busy = true;
+        try
+        {
+            using var scope = ScopeFactory.CreateScope();
+            var (smtpOk, imapOk, message) = await scope.ServiceProvider
+                .GetRequiredService<EmailService>().TestConnectionAsync(default);
+            _flash = message; _flashOk = smtpOk && imapOk;
+        }
+        catch (Exception ex) { _flash = ex.Message; _flashOk = false; }
+        finally { _busy = false; }
+    }
+
     private void OnProviderChanged()
     {
         if (_s is null) return;
@@ -300,7 +385,8 @@
         new(AiFeature.PlatformDiscovery, "Platform discovery", "suggesting new platforms to post on (My posts)"),
         new(AiFeature.LinkedInEngagement, "LinkedIn engagement", "batched replies to comments and pasted messages"),
         new(AiFeature.LinkedInProfile, "LinkedIn profile review", "profile section rewrites + overall review (defaults to Codex)"),
-        new(AiFeature.DiscordEngagement, "Discord engagement", "batched replies to channel replies, mentions, and pasted DMs")
+        new(AiFeature.DiscordEngagement, "Discord engagement", "batched replies to channel replies, mentions, and pasted DMs"),
+        new(AiFeature.CaseStudy, "Case studies", "portfolio case-study + testimonial-request drafting")
     };
 
     private string GetFeatureProvider(AiFeature f) => f switch
@@ -317,6 +403,7 @@
         AiFeature.LinkedInEngagement => _s!.LinkedInEngagementAiProvider,
         AiFeature.LinkedInProfile => _s!.LinkedInProfileAiProvider,
         AiFeature.DiscordEngagement => _s!.DiscordEngagementAiProvider,
+        AiFeature.CaseStudy => _s!.CaseStudyAiProvider,
         _ => ""
     };
 
@@ -338,6 +425,7 @@
             case AiFeature.LinkedInEngagement: _s.LinkedInEngagementAiProvider = v; break;
             case AiFeature.LinkedInProfile: _s.LinkedInProfileAiProvider = v; break;
             case AiFeature.DiscordEngagement: _s.DiscordEngagementAiProvider = v; break;
+            case AiFeature.CaseStudy: _s.CaseStudyAiProvider = v; break;
         }
         // Switching provider invalidates a model id tied to the old one; clear it so the
         // row falls back to the new provider's default until the operator types one.
@@ -358,6 +446,7 @@
         AiFeature.LinkedInEngagement => _s!.LinkedInEngagementAiModel,
         AiFeature.LinkedInProfile => _s!.LinkedInProfileAiModel,
         AiFeature.DiscordEngagement => _s!.DiscordEngagementAiModel,
+        AiFeature.CaseStudy => _s!.CaseStudyAiModel,
         _ => ""
     };
 
@@ -379,6 +468,7 @@
             case AiFeature.LinkedInEngagement: _s.LinkedInEngagementAiModel = v; break;
             case AiFeature.LinkedInProfile: _s.LinkedInProfileAiModel = v; break;
             case AiFeature.DiscordEngagement: _s.DiscordEngagementAiModel = v; break;
+            case AiFeature.CaseStudy: _s.CaseStudyAiModel = v; break;
         }
     }
 }

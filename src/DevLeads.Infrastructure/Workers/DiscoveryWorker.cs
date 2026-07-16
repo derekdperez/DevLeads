@@ -19,6 +19,7 @@ public sealed class DiscoveryWorker : BackgroundService
     private DateTimeOffset _lastMaintenance = DateTimeOffset.MinValue;
     private DateTimeOffset _lastMyPostsSync = DateTimeOffset.MinValue;
     private DateTimeOffset _lastInboxSync = DateTimeOffset.MinValue;
+    private DateTimeOffset _lastEmailInboxSync = DateTimeOffset.MinValue;
     private DateTime _lastBriefingDay = DateTime.MinValue;
     private DateTimeOffset _lastLinkedInPublish = DateTimeOffset.MinValue;
     private DateTimeOffset _lastDiscordSync = DateTimeOffset.MinValue;
@@ -168,6 +169,18 @@ public sealed class DiscoveryWorker : BackgroundService
             var (messages, _) = await posts.SyncRedditInboxAsync(ct);
             if (messages > 0)
                 _log.LogInformation("Inbox: {Count} new message(s).", messages);
+        }
+
+        // Email reply sync: a reply to app-sent outreach is the same hottest signal.
+        // Interval is operator-tunable; floor of 2 minutes keeps IMAP polite.
+        if (settings.EmailInboxPollEnabled &&
+            now - _lastEmailInboxSync > TimeSpan.FromMinutes(Math.Max(2, settings.EmailInboxPollMinutes)))
+        {
+            _lastEmailInboxSync = now;
+            var email = scope.ServiceProvider.GetRequiredService<EmailService>();
+            var (imported, message) = await email.SyncInboxAsync(ct);
+            if (imported > 0)
+                _log.LogInformation("Email inbox: {Message}", message);
         }
     }
 }
